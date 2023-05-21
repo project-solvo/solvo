@@ -30,6 +30,10 @@ dependencies {
     api(gradleKotlinDsl())
 }
 
+kotlin.sourceSets.all {
+    languageSettings.optIn("org.jetbrains.compose.ExperimentalComposeLibrary")
+}
+
 
 fun version(name: String): String {
     return versionCache[name] ?: throw GradleException("Cannot find version '$name'")

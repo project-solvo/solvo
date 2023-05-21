@@ -10,7 +10,7 @@ object Versions {
     const val jsoup = "1.15.4"
     const val slf4j = "2.0.7"
     const val serialization = "1.5.0"
-    const val compose = "1.4.0"
+    const val compose = "1.5.0-dev1049"
 }
 
 const val `kotlinx-coroutines-core` = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
@@ -20,8 +20,6 @@ const val `kotlinx-coroutines-test` = "org.jetbrains.kotlinx:kotlinx-coroutines-
 const val `kotlinx-serialization-core` = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}"
 const val `kotlinx-serialization-json` = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}"
 const val `kotlinx-atomicfu` = "org.jetbrains.kotlin:kotlinx-atomicfu-runtime:${Versions.kotlin}"
-
-const val playwright = "com.microsoft.playwright:playwright:1.32.0"
 
 const val `ktor-client-core` = "io.ktor:ktor-client-core:${Versions.ktor}"
 const val `ktor-client-cio` = "io.ktor:ktor-client-cio:${Versions.ktor}"
@@ -40,6 +38,3 @@ const val `ktor-client-websockets` = "io.ktor:ktor-client-websockets:${Versions.
 
 const val `slf4j-api` = "org.slf4j:slf4j-api:${Versions.slf4j}"
 const val `slf4j-simple` = "org.slf4j:slf4j-simple:${Versions.slf4j}"
-
-const val jna = "net.java.dev.jna:jna:${Versions.jna}"
-const val jsoup = "org.jsoup:jsoup:${Versions.jsoup}"
