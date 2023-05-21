@@ -8,7 +8,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import kotlinx.browser.window
@@ -53,7 +52,7 @@ private fun MainContent() {
                 IconButton(
                     {
                         if (text == "") {
-                            window.alert("You clicked the button! No text was typed in the box.")
+                            window.alert("You clicked the button! No text was typed in the box. HAHA!")
                         } else {
                             window.alert("You clicked the button! Your text: $text")
                         }
