@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import kotlinx.browser.window
@@ -37,6 +38,7 @@ private fun MainContent() {
 
             Button({ count++ }) {
                 Text("You clicked $count times")
+                Color(255,255,255)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
