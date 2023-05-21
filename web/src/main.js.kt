@@ -52,7 +52,7 @@ private fun MainContent() {
                 IconButton(
                     {
                         if (text == "") {
-                            window.alert("You clicked the button! No text was typed in the box. HAHA!")
+                            window.alert("You clicked the button! No text was typed in the box. HAHA! HAHA!")
                         } else {
                             window.alert("You clicked the button! Your text: $text")
                         }
