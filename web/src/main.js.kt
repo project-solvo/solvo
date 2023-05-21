@@ -38,7 +38,6 @@ private fun MainContent() {
 
             Button({ count++ }) {
                 Text("You clicked $count times")
-                Color(255,255,255)
             }
 
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -51,10 +50,13 @@ private fun MainContent() {
 //                        Text("You clicked the button! Your text: $text")
 //                    }
 //                }
-
                 IconButton(
                     {
-                        window.alert("You clicked the button! Your text: $text")
+                        if (text == "") {
+                            window.alert("You clicked the button! No text was typed in the box.")
+                        } else {
+                            window.alert("You clicked the button! Your text: $text")
+                        }
                     },
                     Modifier.padding(32.dp),
                 ) {
