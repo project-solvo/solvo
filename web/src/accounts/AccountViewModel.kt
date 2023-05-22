@@ -4,33 +4,22 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 
-sealed class RegisterLoginViewModel {
+class RegisterLoginViewModel {
     val username: MutableState<String> = mutableStateOf("")
     val password: MutableState<String> = mutableStateOf("")
-
-    val usernameError: MutableStateFlow<String> = MutableStateFlow("")
-    val passwordError: MutableStateFlow<String> = MutableStateFlow("")
-}
-
-class RegisterViewModel : RegisterLoginViewModel() {
     val verifyPassword: MutableState<String> = mutableStateOf("")
-    val verifyPasswordError: MutableStateFlow<String> = MutableStateFlow("")
 
-    fun onClickRegister() {
+    val usernameError: MutableStateFlow<String?> = MutableStateFlow(null)
+    val passwordError: MutableStateFlow<String?> = MutableStateFlow(null)
+    val verifyPasswordError: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    }
+    val isRegister: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    fun onClickGotoLogin() {
-
-    }
-}
-
-class LoginViewModel : RegisterLoginViewModel() {
-    fun onClickLogin() {
+    fun onClickProceed() {
 
     }
 
-    fun onClickGotoLogin() {
-
+    fun onClickSwitch() {
+        isRegister.value = !isRegister.value
     }
 }

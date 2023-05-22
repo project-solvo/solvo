@@ -1,5 +1,6 @@
 package org.solvo.web.accounts
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
@@ -18,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginContent() {
+fun LoginContent(viewModel: RegisterLoginViewModel) {
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -26,8 +27,6 @@ fun LoginContent() {
             horizontalAlignment = Alignment.CenterHorizontally,
 
             ) {
-            var username by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
             Text(
                 "Solvo",
                 modifier = Modifier.padding(bottom = 20.dp),
@@ -39,6 +38,7 @@ fun LoginContent() {
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                var username by viewModel.username
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
@@ -52,6 +52,7 @@ fun LoginContent() {
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
+                var password by viewModel.password
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -61,8 +62,29 @@ fun LoginContent() {
                 )
             }
 
-            Button(onClick = {}, modifier = Modifier.padding(10.dp), shape = RoundedCornerShape(8.dp)) {
-                Text("Login")
+            val isRegister by viewModel.isRegister.collectAsState()
+            AnimatedVisibility(isRegister) {
+                Row(
+                    modifier = Modifier.padding(10.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    var verifyPassword by viewModel.verifyPassword
+                    OutlinedTextField(
+                        value = verifyPassword,
+                        onValueChange = { verifyPassword = it },
+                        modifier = Modifier.height(60.dp),
+                        label = { Text("Verify Password") },
+                        shape = RoundedCornerShape(8.dp)
+                    )
+                }
+            }
+
+            Button(
+                onClick = { viewModel.onClickProceed() },
+                modifier = Modifier.padding(10.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(if (isRegister) "Sign up" else "Login")
             }
 
             ClickableText(
@@ -72,7 +94,7 @@ fun LoginContent() {
                     append("sign up")
                     pop()
                 },
-                onClick = {},
+                onClick = { viewModel.onClickSwitch() },
             )
 
         }
