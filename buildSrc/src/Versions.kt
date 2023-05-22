@@ -23,6 +23,7 @@ const val `kotlinx-atomicfu` = "org.jetbrains.kotlin:kotlinx-atomicfu-runtime:${
 
 const val `ktor-client-core` = "io.ktor:ktor-client-core:${Versions.ktor}"
 const val `ktor-client-cio` = "io.ktor:ktor-client-cio:${Versions.ktor}"
+const val `ktor-client-js` = "io.ktor:ktor-client-js:${Versions.ktor}"
 const val `ktor-client-logging` = "io.ktor:ktor-client-logging:${Versions.ktor}"
 const val `ktor-server-core` = "io.ktor:ktor-server-core:${Versions.ktor}"
 const val `ktor-server-netty` = "io.ktor:ktor-server-netty:${Versions.ktor}"
