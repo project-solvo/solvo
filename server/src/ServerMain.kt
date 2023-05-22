@@ -15,6 +15,7 @@ import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.slf4j.event.Level
 import org.solvo.server.modules.accountsModule
+import org.solvo.server.modules.loginModule
 
 object ServerMain {
     @JvmStatic

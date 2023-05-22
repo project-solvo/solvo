@@ -11,7 +11,15 @@ object Versions {
     const val slf4j = "2.0.7"
     const val serialization = "1.5.0"
     const val compose = "1.5.0-dev1049"
+    const val exposed = "0.41.1"
+    const val h2 = "2.1.214"
 }
+
+const val `exposed-core` = "org.jetbrains.exposed:exposed-core:${Versions.exposed}"
+const val `exposed-dao` = "org.jetbrains.exposed:exposed-dao:${Versions.exposed}"
+const val `exposed-jdbc` = "org.jetbrains.exposed:exposed-jdbc:${Versions.exposed}"
+
+const val h2 = "com.h2database:h2:${Versions.h2}"
 
 const val `kotlinx-coroutines-core` = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
 const val `kotlinx-coroutines-debug` = "org.jetbrains.kotlinx:kotlinx-coroutines-debug:${Versions.coroutines}"
@@ -25,7 +33,9 @@ const val `ktor-client-core` = "io.ktor:ktor-client-core:${Versions.ktor}"
 const val `ktor-client-cio` = "io.ktor:ktor-client-cio:${Versions.ktor}"
 const val `ktor-client-js` = "io.ktor:ktor-client-js:${Versions.ktor}"
 const val `ktor-client-logging` = "io.ktor:ktor-client-logging:${Versions.ktor}"
+const val `ktor-server-auth-jvm` = "io.ktor:ktor-server-auth-jvm:${Versions.ktor}"
 const val `ktor-server-core` = "io.ktor:ktor-server-core:${Versions.ktor}"
+const val `ktor-server-core-jvm` = "io.ktor:ktor-server-core-jvm:${Versions.ktor}"
 const val `ktor-server-netty` = "io.ktor:ktor-server-netty:${Versions.ktor}"
 const val `ktor-server-call-logging` = "io.ktor:ktor-server-call-logging:${Versions.ktor}"
 const val `ktor-server-websockets` = "io.ktor:ktor-server-websockets:${Versions.ktor}"

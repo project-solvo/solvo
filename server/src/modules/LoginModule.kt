@@ -1,4 +1,4 @@
-package org.solvo.server
+package org.solvo.server.modules
 
 import io.ktor.http.*
 import io.ktor.server.application.*

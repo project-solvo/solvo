@@ -7,18 +7,21 @@ plugins {
 configureFlattenSourceSets()
 
 dependencies {
+    implementation(`exposed-core`)
+    implementation(`exposed-dao`)
+    implementation(`exposed-jdbc`)
+    implementation(h2)
     implementation(`kotlinx-serialization-json`)
     implementation(`ktor-server-core`)
     implementation(`ktor-server-netty`)
     implementation(`ktor-server-call-logging`)
-    implementation(`slf4j-api`)
-    implementation(`slf4j-simple`)
-    implementation("io.ktor:ktor-server-auth-jvm:2.3.0")
-    implementation("io.ktor:ktor-server-core-jvm:2.3.0")
+    implementation(`ktor-server-auth-jvm`)
+    implementation(`ktor-server-core-jvm`)
     implementation(`ktor-server-content-negotiation`)
     implementation(`ktor-serialization-kotlinx-json`)
+    implementation(`slf4j-api`)
+    implementation(`slf4j-simple`)
     implementation(project(mapOf("path" to ":model")))
-    implementation("io.ktor:ktor-server-auth-jwt-jvm:2.3.0")
 }
 
 application {
