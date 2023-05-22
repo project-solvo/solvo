@@ -6,7 +6,7 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.AccountChecker
-import org.solvo.model.Reason
+import org.solvo.model.AuthStatus
 import org.solvo.web.requests.client
 
 @Stable
@@ -49,7 +49,11 @@ class RegisterLoginViewModel {
 
         val username = username.value
         val password = password.value
-        client.accounts.register(username, password)
+
+        val register = client.accounts.register(username, password)
+        if (register.status == AuthStatus.SUCCESS) {
+            register.token
+        }
     }
 
     private fun checkInputs(): Boolean {
@@ -76,15 +80,18 @@ class RegisterLoginViewModel {
     }
 
     fun onClickSwitch() {
+        if (isProcessing.value) return
         isRegister.value = !isRegister.value
     }
 }
 
-private fun Reason.render(): String? {
+private fun AuthStatus.render(): String? {
     return when (this) {
-        Reason.INVALID_USERNAME -> "Invalid username. Username must consist of English characters, digits, '-' or '_'"
-        Reason.USERNAME_TOO_LONG -> "Username is too long. Maximum length is ${AccountChecker.USERNAME_MAX_LENGTH} characters"
-        Reason.DUPLICATED_USERNAME -> "Username is already taken. Please pick another one"
-        Reason.VALID_USERNAME -> null
+        AuthStatus.INVALID_USERNAME -> "Invalid username. Username must consist of English characters, digits, '-' or '_'"
+        AuthStatus.USERNAME_TOO_LONG -> "Username is too long. Maximum length is ${AccountChecker.USERNAME_MAX_LENGTH} characters"
+        AuthStatus.DUPLICATED_USERNAME -> "Username is already taken. Please pick another one"
+        AuthStatus.SUCCESS -> null
+        AuthStatus.USER_NOT_FOUND -> "Username not found"
+        AuthStatus.WRONG_PASSWORD -> "Wrong password"
     }
 }

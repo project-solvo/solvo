@@ -41,6 +41,7 @@ const val `ktor-server-call-logging` = "io.ktor:ktor-server-call-logging:${Versi
 const val `ktor-server-websockets` = "io.ktor:ktor-server-websockets:${Versions.ktor}"
 const val `ktor-server-status-pages` = "io.ktor:ktor-server-status-pages:${Versions.ktor}"
 const val `ktor-server-content-negotiation` = "io.ktor:ktor-server-content-negotiation:${Versions.ktor}"
+const val `ktor-client-content-negotiation` = "io.ktor:ktor-client-content-negotiation:${Versions.ktor}"
 const val `ktor-serialization-kotlinx-json` = "io.ktor:ktor-serialization-kotlinx-json:${Versions.ktor}"
 const val `ktor-server-cors` = "io.ktor:ktor-server-cors:${Versions.ktor}"
 const val `ktor-io` = "io.ktor:ktor-io:${Versions.ktor}"

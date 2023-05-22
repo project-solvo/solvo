@@ -10,13 +10,13 @@ object AccountChecker {
 
     fun checkUserNameValidity(username: String): AuthStatus {
         if (username.length > 16) {
-            return AuthStatus.USERNAME_TOO_LONG;
+            return AuthStatus.USERNAME_TOO_LONG
         }
-        val valid = regex.matches(username);
+        val valid = regex.matches(username)
         if (!valid) {
-            return AuthStatus.INVALID_USERNAME;
+            return AuthStatus.INVALID_USERNAME
         }
-        return AuthStatus.SUCCESS;
+        return AuthStatus.SUCCESS
     }
 
     fun hashPassword(string: String): ByteArray {

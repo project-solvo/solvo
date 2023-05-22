@@ -28,6 +28,8 @@ kotlin {
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
                 implementation(compose.components.resources)
                 implementation(`ktor-client-js`)
+                implementation(`ktor-client-content-negotiation`)
+                implementation(`ktor-serialization-kotlinx-json`)
                 implementation(`kotlinx-serialization-json`)
             }
         }
