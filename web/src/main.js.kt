@@ -1,5 +1,6 @@
 package org.solvo.web
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
@@ -41,7 +42,10 @@ private fun MainContent() {
 
             Row(verticalAlignment = Alignment.CenterVertically) {
                 var text by remember { mutableStateOf("") }
-                OutlinedTextField(text, { text = it })
+                var showText by remember { mutableStateOf(false) }
+                AnimatedVisibility(showText) {
+                    OutlinedTextField(text, { text = it })
+                }
 //
 //                var showPopup by remember { mutableStateOf(false) }
 //                if (showPopup) {
@@ -56,6 +60,7 @@ private fun MainContent() {
                         } else {
                             window.alert("You clicked the button! Your text: $text")
                         }
+                        showText = !showText
                     },
                     Modifier.padding(32.dp),
                 ) {

@@ -13,6 +13,9 @@ dependencies {
     implementation(`ktor-server-call-logging`)
     implementation(`slf4j-api`)
     implementation(`slf4j-simple`)
+    implementation(`ktor-server-content-negotiation`)
+    implementation(`ktor-serialization-kotlinx-json`)
+    implementation(project(mapOf("path" to ":model")))
 }
 
 application {
