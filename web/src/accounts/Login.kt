@@ -11,7 +11,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,6 +19,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.launch
+import org.solvo.web.requests.backgroundScope
 
 @Composable
 fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
@@ -45,10 +46,9 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var username by viewModel.username
                 OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
+                    value = viewModel.username.value,
+                    onValueChange = { viewModel.setUsername(it) },
                     label = { Text("Username") },
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -61,10 +61,9 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                var password by viewModel.password
                 OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
+                    value = viewModel.password.value,
+                    onValueChange = { viewModel.setPassword(it) },
                     label = { Text("Password") },
                     shape = RoundedCornerShape(8.dp)
                 )
@@ -78,10 +77,9 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                     modifier = Modifier.padding(10.dp),
                     verticalAlignment = Alignment.CenterVertically
                 ) {
-                    var verifyPassword by viewModel.verifyPassword
                     OutlinedTextField(
-                        value = verifyPassword,
-                        onValueChange = { verifyPassword = it },
+                        value = viewModel.verifyPassword.value,
+                        onValueChange = { viewModel.setVerifyPassword(it) },
                         label = { Text("Verify Password") },
                         shape = RoundedCornerShape(8.dp)
                     )
@@ -92,7 +90,16 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
             }
 
             Button(
-                onClick = { viewModel.onClickProceed() },
+                onClick = {
+                    println("Click Login: ${viewModel.isProcessing.value}")
+                    if (viewModel.isProcessing.compareAndSet(expect = false, update = true)) {
+                        backgroundScope.launch {
+                            viewModel.onClickProceed()
+                            viewModel.isProcessing.compareAndSet(expect = true, update = false)
+                        }
+                    }
+                },
+                enabled = !viewModel.isProcessing.value,
                 modifier = Modifier.padding(10.dp),
                 shape = RoundedCornerShape(8.dp)
             ) {

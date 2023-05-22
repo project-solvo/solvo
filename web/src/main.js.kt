@@ -27,7 +27,7 @@ fun main() {
 @Composable
 private fun MainContent() {
     val model = remember { RegisterLoginViewModel() }
-    // HomePageContent()
+//    HomePageContent()
     LoginSignUpContent(model)
 }
 

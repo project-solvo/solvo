@@ -12,7 +12,7 @@ class RegisterReqeust(
 class RegisterResponse(
     val success: Boolean,
     val reason: Reason,
-    )
+)
 
 @Serializable
 class LoginResponse(
@@ -21,7 +21,7 @@ class LoginResponse(
     val token: String,
 )
 
-enum class Reason{
+enum class Reason {
     INVALID_USERNAME,
     USERNAME_TOO_LONG,
     DUPLICATED_USERNAME,

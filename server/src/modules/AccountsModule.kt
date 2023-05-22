@@ -12,18 +12,20 @@ import org.solvo.model.RegisterResponse
 
 fun Application.accountsModule() {
     routing {
-        post("/accounts/register") {
+        post("/register") {
             val request = call.receive<RegisterReqeust>()
             // to do
             var reason = checkUserNameValidity(request.username);
             checkNoneExistsUsername(request.username);
-            call.respond(RegisterResponse(true, reason)
+            call.respond(
+                RegisterResponse(true, reason)
             )
         }
-        post {"/accounts/login"
+        post("/login") {
             val request = call.receive<RegisterReqeust>();
             // to be implemented
-            call.respond(LoginResponse(true, Reason.INVALID_USERNAME, "")
+            call.respond(
+                LoginResponse(true, Reason.INVALID_USERNAME, "")
             )
 
         }
