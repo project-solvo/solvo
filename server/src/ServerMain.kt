@@ -14,8 +14,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.slf4j.event.Level
-import org.solvo.server.modules.accountsModule
-import org.solvo.server.modules.loginModule
+import org.solvo.server.modules.accountModule
 
 object ServerMain {
     @JvmStatic
@@ -30,7 +29,7 @@ object ServerMain {
 
 fun Application.solvoModule() {
     basicModule()
-    loginModule()
+    accountModule()
 }
 
 
@@ -45,7 +44,6 @@ fun Application.basicModule() {
             encodeDefaults = true
         })
     }
-    accountsModule()
 }
 
 private val DefaultJson = Json {

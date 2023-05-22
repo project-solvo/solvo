@@ -8,15 +8,15 @@ object AccountChecker {
 
     private val regex = Regex("^[a-zA-Z0-9_-]+$")
 
-    fun checkUserNameValidity(username: String): Reason {
+    fun checkUserNameValidity(username: String): AuthStatus {
         if (username.length > 16) {
-            return Reason.USERNAME_TOO_LONG;
+            return AuthStatus.USERNAME_TOO_LONG;
         }
         val valid = regex.matches(username);
         if (!valid) {
-            return Reason.INVALID_USERNAME;
+            return AuthStatus.INVALID_USERNAME;
         }
-        return Reason.VALID_USERNAME;
+        return AuthStatus.SUCCESS;
     }
 
     fun hashPassword(string: String): ByteArray {
