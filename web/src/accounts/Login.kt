@@ -49,12 +49,19 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                 OutlinedTextField(
                     value = viewModel.username.value,
                     onValueChange = { viewModel.setUsername(it) },
+                    isError = (usernameError != null),
                     label = { Text("Username") },
                     shape = RoundedCornerShape(8.dp)
                 )
             }
             AnimatedVisibility(usernameError != null) {
-                usernameError?.let { Text(it) }
+                usernameError?.let {
+                    Text(
+                        text = it,
+                        fontSize = 10.sp,
+                        color = Color.Red,
+                    )
+                }
             }
 
             Row(
@@ -64,12 +71,19 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                 OutlinedTextField(
                     value = viewModel.password.value,
                     onValueChange = { viewModel.setPassword(it) },
+                    isError = (passwordError != null),
                     label = { Text("Password") },
                     shape = RoundedCornerShape(8.dp)
                 )
             }
             AnimatedVisibility(passwordError != null) {
-                passwordError?.let { Text(it) }
+                passwordError?.let {
+                    Text(
+                        text = it,
+                        fontSize = 10.sp,
+                        color = Color.Red,
+                    )
+                }
             }
 
             AnimatedVisibility(isRegister) {
@@ -80,13 +94,20 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                     OutlinedTextField(
                         value = viewModel.verifyPassword.value,
                         onValueChange = { viewModel.setVerifyPassword(it) },
+                        isError = (verifyPasswordError != null),
                         label = { Text("Verify Password") },
                         shape = RoundedCornerShape(8.dp)
                     )
                 }
             }
             AnimatedVisibility(verifyPasswordError != null) {
-                verifyPasswordError?.let { Text(it) }
+                verifyPasswordError?.let {
+                    Text(
+                        text = it,
+                        fontSize = 10.sp,
+                        color = Color.Red,
+                    )
+                }
             }
 
             Button(
