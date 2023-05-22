@@ -28,6 +28,12 @@ object ServerMain {
 }
 
 fun Application.solvoModule() {
+    basicModule()
+    loginModule()
+}
+
+
+fun Application.basicModule() {
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/") }
