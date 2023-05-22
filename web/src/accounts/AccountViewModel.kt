@@ -64,11 +64,11 @@ class RegisterLoginViewModel {
             return false
         }
         val verifyPassword = verifyPassword.value
-        if (verifyPassword.isEmpty()) {
+        if (verifyPassword.isEmpty() && isRegister.value) {
             verifyPasswordError.value = "Please re-enter your password"
             return false
         }
-        if (password != verifyPassword) {
+        if (password != verifyPassword && isRegister.value) {
             verifyPasswordError.value = "Passwords do not match. Please re-enter your password"
             return false
         }
