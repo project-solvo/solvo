@@ -10,15 +10,15 @@ class RegisterReqeust(
 
 @Serializable
 class RegisterResponse(
-    var success: Boolean,
-    var reason: Reason,
+    val success: Boolean,
+    val reason: Reason,
     )
 
 @Serializable
 class LoginResponse(
-    var success: Boolean,
-    var reason: Reason,
-    var token: String,
+    val success: Boolean,
+    val reason: Reason,
+    val token: String,
 )
 
 enum class Reason{
