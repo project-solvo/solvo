@@ -9,8 +9,11 @@ import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.web.accounts.LoginSignUpContent
 import org.solvo.web.accounts.RegisterLoginViewModel
 
 fun main() {
@@ -24,13 +27,16 @@ fun main() {
 @Composable
 private fun MainContent() {
     val model = remember { RegisterLoginViewModel() }
-    HomePageContent()
-    // LoginSignUpContent(model)
+    // HomePageContent()
+    LoginSignUpContent(model)
 }
 
 @Composable
 fun HomePageContent() {
     MaterialTheme {
+        var notifyMenu = false
+        var personalMenu = false
+        var settingMenu = false
         Column {
             TopAppBar(
                 title = {
@@ -42,15 +48,39 @@ fun HomePageContent() {
                     }
                 },
                 actions = {
-                    IconButton(onClick = {/* Show message bar */ }) {
+                    IconButton(onClick = { notifyMenu = !notifyMenu }) {
                         Icon(Icons.Filled.Notifications, null)
                     }
-                    IconButton(onClick = {/* Show user bar */ }) {
+                    IconButton(onClick = { personalMenu = !personalMenu }) {
                         Icon(Icons.Filled.Person, null)
                     }
-                    IconButton(onClick = {/* Show setting bar */ }) {
+                    IconButton(onClick = { settingMenu = !settingMenu }) {
                         Icon(Icons.Filled.Settings, null)
                     }
+                    DropdownMenu(
+                        expanded = notifyMenu,
+                        onDismissRequest = { notifyMenu = false },
+                        offset = DpOffset(x = 10.dp, y = (-60).dp)
+                    ) {
+                        DropdownMenuItem(
+                            text = {},
+                            onClick = {},
+                        )
+                    }
+//                    DropdownMenu(
+//                        expanded = personalMenu,
+//                        onDismissRequest = { personalMenu = false},
+//                        offset = DpOffset(x = 10.dp, y = (-60).dp)
+//                    ) {
+//
+//                    }
+//                    DropdownMenu(
+//                        expanded = settingMenu,
+//                        onDismissRequest = { settingMenu = false},
+//                        offset = DpOffset(x = 10.dp, y = (-60).dp)
+//                    ) {
+//
+//                    }
                 },
                 colors = TopAppBarDefaults.mediumTopAppBarColors(
                     containerColor = MaterialTheme.colorScheme.primaryContainer

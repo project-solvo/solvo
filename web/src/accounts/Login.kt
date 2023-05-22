@@ -30,6 +30,10 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
             horizontalAlignment = Alignment.CenterHorizontally,
 
             ) {
+            val isRegister by viewModel.isRegister.collectAsState()
+            val usernameError by viewModel.usernameError.collectAsState()
+            val passwordError by viewModel.passwordError.collectAsState()
+            val verifyPasswordError by viewModel.verifyPasswordError.collectAsState()
             Text(
                 "Solvo",
                 modifier = Modifier.padding(bottom = 20.dp),
@@ -45,10 +49,12 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it },
-                    modifier = Modifier.height(60.dp),
                     label = { Text("Username") },
                     shape = RoundedCornerShape(8.dp)
                 )
+            }
+            AnimatedVisibility(usernameError != null) {
+                usernameError?.let { Text(it) }
             }
 
             Row(
@@ -59,13 +65,14 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    modifier = Modifier.height(60.dp),
                     label = { Text("Password") },
                     shape = RoundedCornerShape(8.dp)
                 )
             }
+            AnimatedVisibility(passwordError != null) {
+                passwordError?.let { Text(it) }
+            }
 
-            val isRegister by viewModel.isRegister.collectAsState()
             AnimatedVisibility(isRegister) {
                 Row(
                     modifier = Modifier.padding(10.dp),
@@ -75,11 +82,13 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                     OutlinedTextField(
                         value = verifyPassword,
                         onValueChange = { verifyPassword = it },
-                        modifier = Modifier.height(60.dp),
                         label = { Text("Verify Password") },
                         shape = RoundedCornerShape(8.dp)
                     )
                 }
+            }
+            AnimatedVisibility(verifyPasswordError != null) {
+                verifyPasswordError?.let { Text(it) }
             }
 
             Button(
