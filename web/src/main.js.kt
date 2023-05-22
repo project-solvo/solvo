@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.window.Window
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.web.accounts.LoginContent
+import org.solvo.web.accounts.LoginSignUpContent
 import org.solvo.web.accounts.RegisterLoginViewModel
 
 fun main() {
@@ -18,5 +18,5 @@ fun main() {
 @Composable
 private fun MainContent() {
     val model = remember { RegisterLoginViewModel() }
-    LoginContent(model)
+    LoginSignUpContent(model)
 }

@@ -8,7 +8,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -19,7 +22,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 @Composable
-fun LoginContent(viewModel: RegisterLoginViewModel) {
+fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
     MaterialTheme {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -87,85 +90,24 @@ fun LoginContent(viewModel: RegisterLoginViewModel) {
                 Text(if (isRegister) "Sign up" else "Login")
             }
 
+            val signUpMessage = buildAnnotatedString {
+                append("Does not have an account? Please ")
+                pushStyle(SpanStyle(color = Color.Blue))
+                append("sign up")
+                pop()
+            }
+
+            val loginMessage = buildAnnotatedString {
+                append("Already have an account? Please ")
+                pushStyle(SpanStyle(color = Color.Blue))
+                append("login")
+                pop()
+            }
+
             ClickableText(
-                text = buildAnnotatedString {
-                    append("Does not have an account? Please ")
-                    pushStyle(SpanStyle(color = Color.Blue))
-                    append("sign up")
-                    pop()
-                },
+                text = if (!isRegister) signUpMessage else loginMessage,
                 onClick = { viewModel.onClickSwitch() },
             )
-
-        }
-    }
-}
-
-@Composable
-fun SignUpContent() {
-    MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
-
-            ) {
-            var username by remember { mutableStateOf("") }
-            var password by remember { mutableStateOf("") }
-            var verifyPassword by remember { mutableStateOf("") }
-            Text(
-                "Sign up",
-                modifier = Modifier.padding(bottom = 20.dp),
-                fontSize = 30.sp,
-                fontStyle = FontStyle.Normal,
-            )
-
-            Row(
-                modifier = Modifier.padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { username = it },
-                    modifier = Modifier.height(60.dp),
-                    label = { Text("Username") },
-                    shape = RoundedCornerShape(8.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier.padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    modifier = Modifier.height(60.dp),
-                    label = { Text("Password") },
-                    shape = RoundedCornerShape(8.dp)
-                )
-            }
-
-            Row(
-                modifier = Modifier.padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = verifyPassword,
-                    onValueChange = { verifyPassword = it },
-                    modifier = Modifier.height(60.dp),
-                    label = { Text("Verify Password") },
-                    shape = RoundedCornerShape(8.dp)
-                )
-            }
-
-            Button(
-                onClick = {},
-                modifier = Modifier.padding(10.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text("Create Account")
-            }
 
         }
     }
