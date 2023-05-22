@@ -10,16 +10,12 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Window
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.web.accounts.LoginSignUpContent
-import org.solvo.web.accounts.RegisterLoginViewModel
 
 fun main() {
     onWasmReady {
@@ -31,9 +27,7 @@ fun main() {
 
 @Composable
 private fun MainContent() {
-    val model = remember { RegisterLoginViewModel() }
-    // HomePageContent()
-    LoginSignUpContent(model)
+    HomePageContent()
 }
 
 @Composable

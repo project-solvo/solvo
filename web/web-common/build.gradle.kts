@@ -19,19 +19,19 @@ kotlin {
             kotlin.srcDir("src")
             resources.srcDir("resources")
             dependencies {
-                implementation(project(":model"))
+                api(project(":model"))
 
-                implementation(compose.runtime)
-                implementation(compose.foundation)
-                implementation(compose.ui)
-                implementation(compose.material3)
+                api(compose.runtime)
+                api(compose.foundation)
+                api(compose.ui)
+                api(compose.material3)
                 @OptIn(org.jetbrains.compose.ExperimentalComposeLibrary::class)
-                implementation(compose.components.resources)
-                implementation(`ktor-client-js`)
-                implementation(`ktor-client-content-negotiation`)
-                implementation(`ktor-serialization-kotlinx-json`)
-                implementation(`kotlinx-serialization-json`)
-                implementation(`kotlinx-datetime`)
+                api(compose.components.resources)
+                api(`ktor-client-js`)
+                api(`ktor-client-content-negotiation`)
+                api(`ktor-serialization-kotlinx-json`)
+                api(`kotlinx-serialization-json`)
+                api(`kotlinx-datetime`)
             }
         }
         val jsTest by getting {
