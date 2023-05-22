@@ -31,6 +31,7 @@ kotlin {
                 implementation(`ktor-client-content-negotiation`)
                 implementation(`ktor-serialization-kotlinx-json`)
                 implementation(`kotlinx-serialization-json`)
+                implementation(`kotlinx-datetime`)
             }
         }
         val jsTest by getting {

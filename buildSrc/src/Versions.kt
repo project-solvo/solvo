@@ -6,6 +6,7 @@ object Versions {
     const val ktor = "2.3.0"
     const val atomicfu = "0.20.2"
     const val coroutines = "1.7.0"
+    const val dateTime = "0.4.0"
     const val jna = "5.13.0"
     const val jsoup = "1.15.4"
     const val slf4j = "2.0.7"
@@ -28,6 +29,7 @@ const val `kotlinx-coroutines-test` = "org.jetbrains.kotlinx:kotlinx-coroutines-
 const val `kotlinx-serialization-core` = "org.jetbrains.kotlinx:kotlinx-serialization-core:${Versions.serialization}"
 const val `kotlinx-serialization-json` = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.serialization}"
 const val `kotlinx-atomicfu` = "org.jetbrains.kotlin:kotlinx-atomicfu-runtime:${Versions.kotlin}"
+const val `kotlinx-datetime` = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.dateTime}"
 
 const val `ktor-client-core` = "io.ktor:ktor-client-core:${Versions.ktor}"
 const val `ktor-client-cio` = "io.ktor:ktor-client-cio:${Versions.ktor}"

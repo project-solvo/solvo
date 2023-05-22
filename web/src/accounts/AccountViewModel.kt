@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.AccountChecker
 import org.solvo.model.AuthStatus
+import org.solvo.web.document.Cookies
 import org.solvo.web.requests.client
 
 @Stable
@@ -52,7 +53,7 @@ class RegisterLoginViewModel {
 
         val register = client.accounts.register(username, password)
         if (register.status == AuthStatus.SUCCESS) {
-            register.token
+            Cookies.setCookie("token", register.token)
         }
     }
 
