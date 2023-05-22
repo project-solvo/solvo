@@ -6,25 +6,27 @@ import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
+import kotlinx.coroutines.runBlocking
+import org.solvo.server.database.AuthTableFacadeImpl
+import org.solvo.server.database.DatabaseFactory
 
 fun Application.loginModule() {
+    DatabaseFactory.init()
+    val authTable = AuthTableFacadeImpl().apply { runBlocking {
+        // initialization here
+    } }
 
     val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
-
-    val hashedUserTable = UserHashedTableAuth(
-        table = mapOf(
-            "Fengkai Liu" to digestFunction("ATTACKER"),
-            "JerryZ" to digestFunction("uwu")
-        ),
-        digester = digestFunction
-    )
 
     authentication {
         form("authFormHashed") {
             userParamName = "username"
             passwordParamName = "password"
             validate { credentials ->
-                hashedUserTable.authenticate(credentials)
+                val id = authTable.getId(credentials.name) ?: return@validate null
+                authTable.matchHash(id, digestFunction(credentials.password)).let {
+                    if (it) UserIdPrincipal("user$id") else null
+                }
             }
             challenge {
                 call.respond(HttpStatusCode.Unauthorized, "Credentials are not valid")

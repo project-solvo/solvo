@@ -1,6 +1,9 @@
 package org.solvo.model
 
 object AccountChecker {
+    const val USERNAME_MAX_LENGTH = 16
+    const val HASH_SIZE = 16
+
     private val regex = Regex("^[a-zA-Z0-9_-]+$");
     fun checkUserNameValidity(username: String) : Reason {
         if (username.length > 16) {
