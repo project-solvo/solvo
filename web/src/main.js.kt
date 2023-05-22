@@ -22,14 +22,14 @@ import org.jetbrains.skiko.wasm.onWasmReady
 fun main() {
     onWasmReady {
         Window("Solvo") {
-            LoginContent()
+            MainContent()
         }
     }
 }
 
 @Composable
 private fun MainContent() {
-
+    LoginContent()
 }
 
 
@@ -52,19 +52,29 @@ private fun LoginContent() {
             )
 
             Row(
-                modifier = Modifier.padding(10.dp).offset(x = (-50).dp),
+                modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Username", Modifier.padding(20.dp))
-                OutlinedTextField(username, { username = it }, Modifier.height(48.dp), shape = RoundedCornerShape(8.dp))
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    modifier = Modifier.height(60.dp),
+                    label = { Text("Username") },
+                    shape = RoundedCornerShape(8.dp)
+                )
             }
 
             Row(
-                modifier = Modifier.padding(10.dp).offset(x = (-50).dp),
+                modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Text("Password", Modifier.padding(20.dp))
-                OutlinedTextField(password, { password = it }, Modifier.height(48.dp), shape = RoundedCornerShape(8.dp))
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.height(60.dp),
+                    label = { Text("Password") },
+                    shape = RoundedCornerShape(8.dp)
+                )
             }
 
             Button(onClick = {}, modifier = Modifier.padding(10.dp), shape = RoundedCornerShape(8.dp)) {
@@ -80,6 +90,76 @@ private fun LoginContent() {
                 },
                 onClick = {},
             )
+
+        }
+    }
+}
+
+@Composable
+private fun SignUpContent() {
+    MaterialTheme {
+        Column(
+            modifier = Modifier.fillMaxSize(),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally,
+
+            ) {
+            var username by remember { mutableStateOf("") }
+            var password by remember { mutableStateOf("") }
+            var verifyPassword by remember { mutableStateOf("") }
+            Text(
+                "Sign up",
+                modifier = Modifier.padding(bottom = 20.dp),
+                fontSize = 30.sp,
+                fontStyle = FontStyle.Normal,
+            )
+
+            Row(
+                modifier = Modifier.padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it },
+                    modifier = Modifier.height(60.dp),
+                    label = { Text("Username") },
+                    shape = RoundedCornerShape(8.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier.padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = password,
+                    onValueChange = { password = it },
+                    modifier = Modifier.height(60.dp),
+                    label = { Text("Password") },
+                    shape = RoundedCornerShape(8.dp)
+                )
+            }
+
+            Row(
+                modifier = Modifier.padding(10.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = verifyPassword,
+                    onValueChange = { verifyPassword = it },
+                    modifier = Modifier.height(60.dp),
+                    label = { Text("Verify Password") },
+                    shape = RoundedCornerShape(8.dp)
+                )
+            }
+
+            Button(
+                onClick = {},
+                modifier = Modifier.padding(10.dp),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Create Account")
+            }
 
         }
     }
