@@ -27,3 +27,33 @@ dependencies {
 application {
     mainClass.set("org.solvo.server.ServerMain")
 }
+
+val pages: Map<String, String> = mapOf(
+    "register" to ":web:web-pages-register",
+    "index" to ":web:web-pages-home",
+)
+
+
+val copyWebResources = tasks.register("copyWebResources") {
+    dependsOn(pages.values.map { tasks.getByPath(":$it:jsBrowserDevelopmentExecutableDistribution") })
+
+    doLast {
+        val destination = projectDir.resolve("resources/web-generated")
+
+//        projectDir.resolve("resource-merger/static/styles.css")
+//            .copyTo(destination.resolve("styles.css"))
+
+        val index = projectDir.resolve("resource-merger/static/index.html")
+            .readText()
+
+        for ((path, projectPath) in pages) {
+            val srcJsFile =
+                project(projectPath).buildDir.resolve("developmentExecutable/${projectPath.substringAfterLast(":")}.js")
+            val destJsFile = destination.resolve("$path.js")
+            srcJsFile.copyTo(destJsFile, overwrite = true)
+            destination.resolve("$path.html").writeText(index.replace("{{SCRIPT_PATH}}", destJsFile.name))
+        }
+    }
+}
+
+tasks.getByName("processResources").dependsOn(copyWebResources)

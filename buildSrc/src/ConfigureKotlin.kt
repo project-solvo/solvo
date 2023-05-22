@@ -1,3 +1,4 @@
+import kotlinx.atomicfu.plugin.gradle.sourceSets
 import net.mamoe.weapons.build.weaponsBuildExtension
 import org.gradle.api.Project
 import org.gradle.api.plugins.JavaPluginExtension
@@ -68,11 +69,9 @@ fun Project.configureCommonOptIns() {
 
 fun Project.configureFlattenSourceSets() {
     val kotlin = kotlinExtension
-    val main = kotlin.sourceSets.getByName("main")
-    val test = kotlin.sourceSets.getByName("test")
 
-    main.kotlin.srcDir(projectDir.resolve("src"))
-    main.resources.srcDir(projectDir.resolve("resources"))
-    test.kotlin.srcDir(projectDir.resolve("test"))
-    test.resources.srcDir(projectDir.resolve("testResources"))
+    kotlin.sourceSets.getByName("main").kotlin.srcDir(projectDir.resolve("src"))
+    sourceSets.getByName("main").resources.srcDir(projectDir.resolve("resources"))
+    kotlin.sourceSets.getByName("test").kotlin.srcDir(projectDir.resolve("test"))
+    sourceSets.getByName("test").resources.srcDir(projectDir.resolve("testResources"))
 }

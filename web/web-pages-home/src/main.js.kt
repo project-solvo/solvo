@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
 
 fun main() {
@@ -72,7 +73,10 @@ private fun createTopAppBar(notifyMenu: Boolean, personalMenu: Boolean, settingM
             IconButton(onClick = { notifyMenu1 = true }) {
                 Icon(Icons.Filled.Notifications, null)
             }
-            IconButton(onClick = { personalMenu1 = true }) {
+            IconButton(onClick = {
+                personalMenu1 = true
+                window.location.href = "register.html"
+            }) {
                 Icon(Icons.Filled.Person, null)
             }
             IconButton(onClick = { settingMenu1 = true }) {

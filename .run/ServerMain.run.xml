@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+    <configuration default="false" name="ServerMain" type="JetRunConfigurationType" nameIsGenerated="true">
+        <option name="MAIN_CLASS_NAME" value="org.solvo.server.ServerMain"/>
+        <module name="solvo.server.main"/>
+        <shortenClasspath name="NONE"/>
+        <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/server/test-sandbox"/>
+        <method v="2">
+            <option name="Make" enabled="true"/>
+        </method>
+    </configuration>
+</component>
