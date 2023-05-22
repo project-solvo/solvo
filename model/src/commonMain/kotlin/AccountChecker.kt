@@ -4,7 +4,7 @@ import org.solvo.model.utils.Digest
 
 object AccountChecker {
     const val USERNAME_MAX_LENGTH = 16
-    const val HASH_SIZE = 16
+    const val HASH_SIZE = 32
 
     private val regex = Regex("^[a-zA-Z0-9_-]+$")
 
@@ -20,6 +20,6 @@ object AccountChecker {
     }
 
     fun hashPassword(string: String): ByteArray {
-        return Digest.md5(string.encodeToByteArray())
+        return Digest.md5(string.encodeToByteArray()).take(16).toByteArray()
     }
 }
