@@ -10,6 +10,7 @@ import org.solvo.model.AccountChecker.checkUserNameValidity
 import org.solvo.model.AuthRequest
 import org.solvo.model.AuthResponse
 import org.solvo.model.AuthStatus
+import org.solvo.server.TokenGeneratorImpl
 import org.solvo.server.database.AuthTableFacadeImpl
 import org.solvo.server.database.DatabaseFactory
 
@@ -20,41 +21,41 @@ fun Application.accountModule() {
             // initialization here
         }
     }
+    val tokenGenerator = TokenGeneratorImpl()
     val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
 
-    configRouting(authTable)
-}
-
-private fun Application.configRouting(authTable: AuthTableFacadeImpl) {
     routing {
         post("/register") {
             val request = call.receive<AuthRequest>()
+            val username = request.username
+            val hash = digestFunction(request.hash.toString())
 
-            if (authTable.getId(request.username) != null) {
+            if (authTable.getId(username) != null) {
                 call.respond(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
                 return@post
             }
 
-            val status = checkUserNameValidity(request.username)
+            val status = checkUserNameValidity(username)
             if (status == AuthStatus.SUCCESS) {
-                authTable.addAuth(request.username, request.hash)
+                authTable.addAuth(username, hash)
             }
 
             call.respond(AuthResponse(status))
         }
         post("/login") {
             val request = call.receive<AuthRequest>()
+            val username = request.username
+            val hash = digestFunction(request.hash.toString())
 
-            val id = authTable.getId(request.username)
+            val id = authTable.getId(username)
             if (id == null) {
                 call.respond(AuthResponse(AuthStatus.USER_NOT_FOUND))
                 return@post
             }
 
             call.respond(
-                if (authTable.matchHash(id, request.hash)) {
-                    AuthResponse(AuthStatus.SUCCESS)
-                    // TODO: create token
+                if (authTable.matchHash(id, hash)) {
+                    AuthResponse(AuthStatus.SUCCESS, tokenGenerator.generateToken(id))
                 } else {
                     AuthResponse(AuthStatus.WRONG_PASSWORD)
                 }
