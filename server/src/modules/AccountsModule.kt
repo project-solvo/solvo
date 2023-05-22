@@ -28,7 +28,7 @@ fun Application.accountModule() {
         post("/register") {
             val request = call.receive<AuthRequest>()
             val username = request.username
-            val hash = digestFunction(request.hash.toString())
+            val hash = digestFunction(request.password)
 
             if (authTable.getId(username) != null) {
                 call.respond(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
@@ -45,7 +45,7 @@ fun Application.accountModule() {
         post("/login") {
             val request = call.receive<AuthRequest>()
             val username = request.username
-            val hash = digestFunction(request.hash.toString())
+            val hash = digestFunction(request.password)
 
             val id = authTable.getId(username)
             if (id == null) {

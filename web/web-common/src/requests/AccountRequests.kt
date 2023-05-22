@@ -3,7 +3,6 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.solvo.model.AccountChecker
 import org.solvo.model.AuthRequest
 import org.solvo.model.AuthResponse
 
@@ -16,7 +15,7 @@ class AccountRequests(
             setBody(
                 AuthRequest(
                     username = username,
-                    hash = AccountChecker.hashPassword(password),
+                    password = password,
                 )
             )
         }.body<AuthResponse>()
