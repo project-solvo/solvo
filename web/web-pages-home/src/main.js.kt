@@ -130,7 +130,8 @@ private fun createButtonForCourse(courseName: String) {
     ) {
         Text(
             text = courseName,
-            fontSize = MaterialTheme.typography.headlineSmall.fontSize
+            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
+            modifier = Modifier.padding(5.dp),
         )
     }
 }
