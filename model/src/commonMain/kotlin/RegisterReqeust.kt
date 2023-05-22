@@ -3,7 +3,12 @@ package org.solvo.model
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class RegisterReqeust(
+class RegisterReqeust(
     val username: String,
-    val password: String,
+    val password: ByteArray,
 )
+
+@Serializable
+class RegisterResponse(
+)
+

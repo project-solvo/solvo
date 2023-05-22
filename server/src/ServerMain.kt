@@ -9,12 +9,12 @@ import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
-import io.ktor.server.routing.*
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.slf4j.event.Level
+import org.solvo.server.modules.accountsModule
 
 object ServerMain {
     @JvmStatic
@@ -38,13 +38,7 @@ fun Application.solvoModule() {
             encodeDefaults = true
         })
     }
-
-
-    routing {
-        get("/") {
-            call.respond("Hello!")
-        }
-    }
+    accountsModule()
 }
 
 private val DefaultJson = Json {

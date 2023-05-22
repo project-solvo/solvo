@@ -1,0 +1,7 @@
+POST http://localhost:80/accounts/register
+Content-Type: application/json
+
+{
+    "": ""
+}
+
