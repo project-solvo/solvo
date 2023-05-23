@@ -30,17 +30,20 @@ class RegisterLoginViewModel {
     val isProcessing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     fun setUsername(username: String) {
+        flushErrors()
         _username.value = username.trim()
         val validity = AccountChecker.checkUserNameValidity(username)
         usernameError.value = validity.render()
     }
 
     fun setPassword(password: String) {
+        flushErrors()
         _password.value = password
         passwordError.value = null
     }
 
     fun setVerifyPassword(password: String) {
+        flushErrors()
         _verifyPassword.value = password
         verifyPasswordError.value = null
     }
@@ -51,21 +54,25 @@ class RegisterLoginViewModel {
         val username = username.value
         val password = password.value
 
-        val status = client.accounts.authenticate(username, password, isRegister.value)
-        when (status.status) {
+        val response = client.accounts.authenticate(username, password, isRegister.value)
+        when (response.status) {
             AuthStatus.SUCCESS -> {
                 if (isRegister.value) {
                     isRegister.value = false
                     onClickProceed()
                 } else {
-                    Cookies.setCookie("token", status.token)
+                    Cookies.setCookie("token", response.token)
                 }
             }
-            AuthStatus.INVALID_USERNAME -> TODO()
-            AuthStatus.USERNAME_TOO_LONG -> TODO()
-            AuthStatus.DUPLICATED_USERNAME -> TODO()
-            AuthStatus.USER_NOT_FOUND -> TODO()
-            AuthStatus.WRONG_PASSWORD -> TODO()
+            AuthStatus.INVALID_USERNAME,
+            AuthStatus.USERNAME_TOO_LONG,
+            AuthStatus.DUPLICATED_USERNAME,
+            AuthStatus.USER_NOT_FOUND -> {
+                usernameError.value = response.status.render()
+            }
+            AuthStatus.WRONG_PASSWORD -> {
+                passwordError.value = response.status.render()
+            }
         }
     }
 
@@ -93,8 +100,21 @@ class RegisterLoginViewModel {
     }
 
     fun onClickSwitch() {
+        flush()
         if (isProcessing.value) return
         isRegister.value = !isRegister.value
+    }
+
+    private fun flush() {
+        _username.value = ""
+        _password.value = ""
+        _verifyPassword.value = ""
+        flushErrors()
+    }
+
+    private fun flushErrors() {
+        usernameError.value = null
+        passwordError.value = null
     }
 }
 
@@ -104,7 +124,7 @@ private fun AuthStatus.render(): String? {
         AuthStatus.USERNAME_TOO_LONG -> "Username is too long. Maximum length is ${AccountChecker.USERNAME_MAX_LENGTH} characters"
         AuthStatus.DUPLICATED_USERNAME -> "Username is already taken. Please pick another one"
         AuthStatus.SUCCESS -> null
-        AuthStatus.USER_NOT_FOUND -> "Username not found"
+        AuthStatus.USER_NOT_FOUND -> "User not found"
         AuthStatus.WRONG_PASSWORD -> "Wrong password"
     }
 }
