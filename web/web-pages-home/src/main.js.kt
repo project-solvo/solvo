@@ -1,6 +1,6 @@
 package org.solvo.web
 
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -39,20 +39,21 @@ private fun MainContent(windowState: WindowState) {
 @Composable
 fun HomePageContent(size: DpSize) {
     MaterialTheme {
+        createTopAppBar()
         Column(
-            modifier = Modifier.size(size)
+            modifier = Modifier.size(size).padding(100.dp).verticalScroll(rememberScrollState())
         ) {
-            createTopAppBar()
+            // Course title
             Text(
                 text = "Courses",
-                fontSize = MaterialTheme.typography.headlineLarge.fontSize,
-                modifier = Modifier.padding(25.dp),
+                modifier = Modifier.padding(50.dp),
+                style = MaterialTheme.typography.headlineLarge,
             )
             val courses = mutableListOf<String>()
             for (i in 50001..<50012) {
                 courses.add(i.toString())
             }
-            createCourses(courses)
+            createFlowRow(courses)
         }
     }
 }
@@ -77,7 +78,6 @@ private fun createTopAppBar() {
             }
             IconButton(onClick = {
                 personalMenu1 = true
-                // window.location.href = "register.html"
             }) {
                 Icon(Icons.Filled.Person, null)
             }
@@ -100,8 +100,17 @@ private fun createTopAppBar() {
                 offset = DpOffset(x = 10.dp, y = 0.dp)
             ) {
                 DropdownMenuItem(
-                    text = {},
-                    onClick = {},
+                    text = { Text("Personal page") },
+                    onClick = {
+                        personalMenu1 = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Log out") },
+                    onClick = {
+                        window.location.href = "register.html"
+                        personalMenu1 = false
+                    },
                 )
             }
             DropdownMenu(
@@ -110,7 +119,13 @@ private fun createTopAppBar() {
                 offset = DpOffset(x = 10.dp, y = 0.dp)
             ) {
                 DropdownMenuItem(
-                    text = {},
+                    text = { Text("Appearance") },
+                    onClick = {
+                        personalMenu1 = false
+                    },
+                )
+                DropdownMenuItem(
+                    text = { Text("Help") },
                     onClick = {},
                 )
             }
@@ -122,28 +137,28 @@ private fun createTopAppBar() {
 }
 
 @Composable
-private fun createCourses(courseNames: List<String>) {
+private fun createFlowRow(items: List<String>) {
     FlowRow(
         modifier = Modifier.padding(20.dp),
         verticalAlignment = Alignment.CenterVertically
     ) {
-        for (courseName in courseNames) {
-            createButtonForCourse(courseName)
+        for (courseName in items) {
+            createElevatedCard(courseName)
         }
     }
 }
 
 @Composable
-private fun createButtonForCourse(courseName: String) {
+private fun createElevatedCard(item: String) {
     ElevatedCard(
         onClick = {},
-        modifier = Modifier.padding(20.dp).height(160.dp).width(200.dp).clickable {},
+        modifier = Modifier.padding(25.dp).height(200.dp).width(350.dp).clickable {},
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
-            text = courseName,
-            fontSize = MaterialTheme.typography.headlineSmall.fontSize,
-            modifier = Modifier.padding(5.dp),
+            text = item,
+            modifier = Modifier.padding(15.dp),
+            style = MaterialTheme.typography.headlineSmall,
         )
     }
 }
