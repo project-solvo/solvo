@@ -1,25 +1,51 @@
+@file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+
 package org.solvo.web.document
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.ComposeWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.w3c.dom.Window
 
-@Composable
-fun rememberWindowState(): WindowState {
-    return remember {
-        val state = WindowState()
-        window.onresize = {
-            println("Resize")
-            state.size.value = window.innerSize
-            true.asDynamic()
+@Suppress("FunctionName", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+fun SolvoWindow(
+    content: @Composable WindowState.() -> Unit = { }
+) {
+    ComposeWindow().apply {
+        val windowState = createWindowState()
+
+        setContent {
+            MaterialTheme {
+                val currentSize by windowState.size.collectAsState()
+                Box(Modifier.size(currentSize)) {
+                    content(windowState)
+                }
+            }
+
         }
-        state
     }
+}
+
+internal fun createWindowState(): WindowState {
+    val state = WindowState()
+    window.onresize = {
+//        val canvas = canvas
+//        canvas.asDynamic().style.width = window.innerWidth.toString() + "px"
+//        canvas.asDynamic().style.height = window.innerHeight.toString() + "px"
+        state.size.value = window.innerSize
+        true.asDynamic()
+    }
+    return state
 }
 
 val Window.innerSize get() = DpSize(window.innerWidth.dp, window.innerHeight.dp)

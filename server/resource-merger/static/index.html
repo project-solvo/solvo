@@ -10,15 +10,19 @@
 <body>
 
 <div>
-    <canvas autofocus="autofocus" id="ComposeTarget" width="100%" height="100%"></canvas>
+    <canvas autofocus="autofocus" id="ComposeTarget"></canvas>
 </div>
 
 <script>
     function init() {
         let canvas = document.getElementById("ComposeTarget");
-        canvas.width = window.innerWidth;
-        canvas.height = window.innerHeight;
+        canvas.width = screen.width;
+        canvas.height = screen.height;
     }
+
+    // window.onresize = () => {
+    //     init()
+    // }
 
     init()
 </script>

@@ -1,8 +1,10 @@
 package org.solvo.web
 
-import androidx.compose.foundation.*
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Notifications
@@ -13,49 +15,36 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Window
 import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.web.document.WindowState
-import org.solvo.web.document.rememberWindowState
+import org.solvo.web.document.SolvoWindow
 
 fun main() {
-
     onWasmReady {
-        Window("Solvo") {
-            val window = rememberWindowState()
-            MainContent(window)
+        SolvoWindow {
+            HomePageContent()
         }
     }
 }
 
 @Composable
-private fun MainContent(windowState: WindowState) {
-    val size by windowState.size.collectAsState()
-    HomePageContent(size)
-}
-
-@Composable
-fun HomePageContent(size: DpSize) {
-    MaterialTheme {
-        createTopAppBar()
-        Column(
-            modifier = Modifier.size(size).padding(100.dp).verticalScroll(rememberScrollState())
-        ) {
-            // Course title
-            Text(
-                text = "Courses",
-                modifier = Modifier.padding(50.dp),
-                style = MaterialTheme.typography.headlineLarge,
-            )
-            val courses = mutableListOf<String>()
-            for (i in 50001..<50012) {
-                courses.add(i.toString())
-            }
-            createFlowRow(courses)
+fun HomePageContent() {
+    createTopAppBar()
+    Column(
+        modifier = Modifier.fillMaxSize().padding(100.dp).verticalScroll(rememberScrollState())
+    ) {
+        // Course title
+        Text(
+            text = "Courses",
+            modifier = Modifier.padding(50.dp),
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        val courses = mutableListOf<String>()
+        for (i in 50001..<50012) {
+            courses.add(i.toString())
         }
+        createFlowRow(courses)
     }
 }
 
@@ -68,6 +57,7 @@ private fun createTopAppBar() {
         title = {
             Text(text = "Solvo")
         },
+        Modifier.fillMaxWidth(),
         navigationIcon = {
             IconButton(onClick = {/* Go to home page */ }) {
                 Icon(Icons.Filled.Home, null)

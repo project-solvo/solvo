@@ -1,14 +1,14 @@
 package org.solvo.web
 
 import androidx.compose.runtime.remember
-import androidx.compose.ui.window.Window
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.web.accounts.LoginSignUpContent
 import org.solvo.web.accounts.RegisterLoginViewModel
+import org.solvo.web.document.SolvoWindow
 
 fun main() {
     onWasmReady {
-        Window("Solvo") {
+        SolvoWindow {
             val model = remember { RegisterLoginViewModel() }
             LoginSignUpContent(model)
         }
