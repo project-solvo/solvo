@@ -19,7 +19,6 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.browser.window
 import kotlinx.coroutines.launch
 import org.solvo.web.requests.backgroundScope
 
@@ -118,10 +117,9 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
                         backgroundScope.launch {
                             try {
                                 viewModel.onClickProceed()
-                            } catch (e: Throwable) {
-                                window.alert(e.toString())
+                            } finally {
+                                viewModel.isProcessing.compareAndSet(expect = true, update = false)
                             }
-                            viewModel.isProcessing.compareAndSet(expect = true, update = false)
                         }
                     }
                 },
