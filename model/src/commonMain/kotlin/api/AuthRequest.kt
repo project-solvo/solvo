@@ -1,4 +1,4 @@
-package org.solvo.model
+package org.solvo.model.api
 
 import kotlinx.serialization.Serializable
 

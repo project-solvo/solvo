@@ -1,4 +1,4 @@
-package org.solvo.model
+package org.solvo.model.api
 
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.model.utils.Digest

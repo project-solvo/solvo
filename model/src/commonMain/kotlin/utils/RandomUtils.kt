@@ -7,7 +7,7 @@
  * https://github.com/mamoe/mirai/blob/dev/LICENSE
  */
 
-package org.solvo.server.utils
+package org.solvo.model.utils
 
 import kotlin.math.absoluteValue
 import kotlin.random.Random

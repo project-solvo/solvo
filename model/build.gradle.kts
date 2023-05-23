@@ -3,7 +3,10 @@
 plugins {
     kotlin("multiplatform")
     kotlin("plugin.serialization")
+    id("org.jetbrains.compose")
 }
+
+optInForAllSourceSets("kotlin.ExperimentalMultiplatform")
 
 kotlin {
     jvm()
@@ -16,6 +19,16 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(`kotlinx-serialization-core`)
+            }
+        }
+        val jvmMain by getting {
+            dependencies {
+                compileOnly(compose.runtime) // compose compiler requires this
+            }
+        }
+        val jsMain by getting {
+            dependencies {
+                api(compose.runtime)
             }
         }
     }

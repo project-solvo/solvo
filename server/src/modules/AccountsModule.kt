@@ -7,10 +7,10 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
 import kotlinx.coroutines.runBlocking
-import org.solvo.model.AccountChecker.checkUserNameValidity
-import org.solvo.model.AuthRequest
-import org.solvo.model.AuthResponse
-import org.solvo.model.AuthStatus
+import org.solvo.model.api.AccountChecker.checkUserNameValidity
+import org.solvo.model.api.AuthRequest
+import org.solvo.model.api.AuthResponse
+import org.solvo.model.api.AuthStatus
 import org.solvo.server.TokenGeneratorImpl
 import org.solvo.server.database.AuthTableFacadeImpl
 import org.solvo.server.database.DatabaseFactory

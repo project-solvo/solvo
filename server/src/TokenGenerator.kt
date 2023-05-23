@@ -1,6 +1,6 @@
 package org.solvo.server
 
-import org.solvo.server.utils.getRandomString
+import org.solvo.model.utils.getRandomString
 import java.util.*
 
 interface TokenGenerator {

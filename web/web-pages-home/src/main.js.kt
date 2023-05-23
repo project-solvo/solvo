@@ -14,14 +14,29 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.course.Course
+import org.solvo.model.Comment
+import org.solvo.model.Course
+import org.solvo.model.LightComment
+import org.solvo.model.User
+import org.solvo.model.foundation.Uuid
+import org.solvo.web.comments.CommentCard
 import org.solvo.web.document.SolvoWindow
 import org.solvo.web.ui.SolvoTopAppBar
 
 fun main() {
     onWasmReady {
         SolvoWindow {
-            HomePageContent()
+            CommentCard(
+                Comment(
+                    Uuid.random(), Uuid.random(),
+                    User(Uuid.random(), "Author", ""),
+                    listOf(
+                        LightComment(Uuid.random(), "Commenter1", "", "Content 1"),
+                        LightComment(Uuid.random(), "Commenter2", "", "[Image] Content 2"),
+                    ),
+                )
+            )
+//            HomePageContent()
         }
     }
 }

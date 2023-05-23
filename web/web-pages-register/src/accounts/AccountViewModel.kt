@@ -6,8 +6,8 @@ import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
-import org.solvo.model.AccountChecker
-import org.solvo.model.AuthStatus
+import org.solvo.model.api.AccountChecker
+import org.solvo.model.api.AuthStatus
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.web.document.Cookies
 import org.solvo.web.requests.client
