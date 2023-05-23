@@ -4,6 +4,7 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.AccountChecker
 import org.solvo.model.AuthStatus
@@ -62,14 +63,17 @@ class RegisterLoginViewModel {
                     onClickProceed()
                 } else {
                     Cookies.setCookie("token", response.token)
+                    window.location.href = window.location.origin
                 }
             }
+
             AuthStatus.INVALID_USERNAME,
             AuthStatus.USERNAME_TOO_LONG,
             AuthStatus.DUPLICATED_USERNAME,
             AuthStatus.USER_NOT_FOUND -> {
                 usernameError.value = response.status.render()
             }
+
             AuthStatus.WRONG_PASSWORD -> {
                 passwordError.value = response.status.render()
             }
