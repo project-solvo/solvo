@@ -38,7 +38,7 @@ fun Application.accountModule() {
 
             val status = checkUserNameValidity(username)
             if (status == AuthStatus.SUCCESS) {
-                accountDB.addAuth(username, hash)
+                accountDB.addAccount(username, hash)
             }
 
             call.respondAuth(AuthResponse(status))
