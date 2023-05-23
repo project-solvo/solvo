@@ -46,10 +46,16 @@ val indexHtmlContent = indexHtmlFile
 
 val copyAllWebResources = tasks.register("copyAllWebResources")
 
+@Suppress("PropertyName")
+val WEBPACK_TASK_NAME = "jsBrowserDevelopmentWebpack"
+
+@Suppress("PropertyName")
+val DEVELOPMENT_EXECUTABLE = "developmentExecutable"
+
 for ((path, projectPath) in pages) {
     val pageProject = project(projectPath)
     val srcJsFile =
-        pageProject.buildDir.resolve("developmentExecutable/${projectPath.substringAfterLast(":")}.js")
+        pageProject.buildDir.resolve("$DEVELOPMENT_EXECUTABLE/${projectPath.substringAfterLast(":")}.js")
     val destJsFile = destination.resolve("$path.js")
 
     // Temp workaround for Compose bug
@@ -59,7 +65,7 @@ for ((path, projectPath) in pages) {
     }
 
     tasks.register("copyWebResources${path.capitalized()}Js", Copy::class) {
-        dependsOn(pageProject.tasks.getByName("jsBrowserDevelopmentWebpack"))
+        dependsOn(pageProject.tasks.getByName(WEBPACK_TASK_NAME))
         from(srcJsFile)
         rename { "$path.js" }
         into(destination)
@@ -84,6 +90,29 @@ for ((path, projectPath) in pages) {
         copyAllWebResources.get().dependsOn(it)
     }
 
+}
+
+
+val staticResources = listOf(
+    "skiko.js",
+    "skiko.wasm",
+)
+
+val webCommon = project(":web:web-common")
+
+for (staticResourceName in staticResources) {
+    val extension = staticResourceName.substringAfterLast(".")
+    val capitalizedName =
+        staticResourceName.substringBeforeLast(".").capitalized()
+            .plus(extension.capitalized())
+
+    tasks.register("copyWebResources$capitalizedName", Copy::class) {
+        dependsOn(webCommon.tasks.getByName(WEBPACK_TASK_NAME))
+        from(webCommon.buildDir.resolve("$DEVELOPMENT_EXECUTABLE").resolve(staticResourceName))
+        into(destination)
+    }.let {
+        copyAllWebResources.get().dependsOn(it)
+    }
 }
 
 tasks.getByName("processResources").dependsOn(copyAllWebResources)
