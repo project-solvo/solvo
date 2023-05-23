@@ -1,10 +1,11 @@
 package org.solvo.server
 
 import org.solvo.server.utils.getRandomString
+import java.util.*
 
 interface TokenGenerator {
-    fun generateToken(userId: Int): String
-    fun matchToken(token: String): Int?
+    fun generateToken(userId: UUID): String
+    fun matchToken(token: String): UUID?
     fun destroyToken(token: String): Boolean
 
     companion object {
@@ -13,7 +14,7 @@ interface TokenGenerator {
 }
 
 class TokenGeneratorImpl: TokenGenerator {
-    private val tokensMap = HashMap<String, Int>()
+    private val tokensMap = HashMap<String, UUID>()
 
     private fun randomTokenString(): String {
         var token: String
@@ -23,11 +24,11 @@ class TokenGeneratorImpl: TokenGenerator {
         return token
     }
 
-    override fun generateToken(userId: Int): String {
+    override fun generateToken(userId: UUID): String {
         return randomTokenString().also { tokensMap[it] = userId }
     }
 
-    override fun matchToken(token: String): Int? {
+    override fun matchToken(token: String): UUID? {
         return tokensMap[token]
     }
 
