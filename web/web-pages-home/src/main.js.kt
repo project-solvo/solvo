@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
+import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.web.document.WindowState
 import org.solvo.web.document.rememberWindowState
