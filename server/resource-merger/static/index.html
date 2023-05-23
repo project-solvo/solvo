@@ -16,12 +16,8 @@
 <script>
     function init() {
         let canvas = document.getElementById("ComposeTarget");
-        canvas.width = document.body.clientWidth;
-        canvas.height = document.body.clientHeight;
-    }
-
-    document.onfullscreenchange = function () {
-        init()
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
     }
 
     init()

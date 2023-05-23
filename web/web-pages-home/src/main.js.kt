@@ -13,29 +13,34 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
-import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.web.document.WindowState
+import org.solvo.web.document.rememberWindowState
 
 fun main() {
+
     onWasmReady {
         Window("Solvo") {
-            MainContent()
+            val window = rememberWindowState()
+            MainContent(window)
         }
     }
 }
 
 @Composable
-private fun MainContent() {
-    HomePageContent()
+private fun MainContent(windowState: WindowState) {
+    val size by windowState.size.collectAsState()
+    HomePageContent(size)
 }
 
 @Composable
-fun HomePageContent() {
+fun HomePageContent(size: DpSize) {
     MaterialTheme {
         Column(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.size(size)
         ) {
             createTopAppBar()
             Text(
@@ -44,7 +49,7 @@ fun HomePageContent() {
                 modifier = Modifier.padding(25.dp),
             )
             val courses = mutableListOf<String>()
-            for (i in 50001 until 50012) {
+            for (i in 50001..<50012) {
                 courses.add(i.toString())
             }
             createCourses(courses)
