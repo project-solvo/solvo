@@ -12,7 +12,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.model.course.Course
 import org.solvo.web.document.SolvoWindow
 import org.solvo.web.ui.SolvoTopAppBar
 
@@ -36,9 +38,9 @@ fun HomePageContent() {
             modifier = Modifier.padding(50.dp),
             style = MaterialTheme.typography.headlineLarge,
         )
-        val courses = mutableListOf<String>()
+        val courses = mutableListOf<Course>()
         for (i in 50001..<50012) {
-            courses.add(i.toString())
+            courses.add(Course(i.toString(), i.toString()))
         }
 
         FlowRow(
@@ -53,14 +55,16 @@ fun HomePageContent() {
 }
 
 @Composable
-private fun CourseCard(item: String) {
+private fun CourseCard(item: Course) {
     ElevatedCard(
-        onClick = {},
+        onClick = {
+            window.location.href = window.location.origin + "/course.html?code=${item.code}"
+        },
         modifier = Modifier.padding(25.dp).height(200.dp).width(350.dp).clickable {},
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
-            text = item,
+            text = item.name,
             modifier = Modifier.padding(15.dp),
             style = MaterialTheme.typography.headlineSmall,
         )

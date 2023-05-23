@@ -32,6 +32,7 @@ application {
 
 val pages: Map<String, String> = mapOf(
     "register" to ":web:web-pages-register",
+    "course" to ":web:web-pages-course",
     "index" to ":web:web-pages-home",
 )
 
