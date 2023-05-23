@@ -1,3 +1,5 @@
+import org.gradle.configurationcache.extensions.capitalized
+
 plugins {
     kotlin("jvm")
     kotlin("plugin.serialization")
@@ -33,27 +35,55 @@ val pages: Map<String, String> = mapOf(
     "index" to ":web:web-pages-home",
 )
 
-
-val copyWebResources = tasks.register("copyWebResources") {
-    dependsOn(pages.values.map { tasks.getByPath(":$it:jsBrowserDevelopmentExecutableDistribution") })
-
-    doLast {
-        val destination = projectDir.resolve("resources/web-generated")
+val destination = projectDir.resolve("resources/web-generated")
 
 //        projectDir.resolve("resource-merger/static/styles.css")
 //            .copyTo(destination.resolve("styles.css"))
 
-        val index = projectDir.resolve("resource-merger/static/index.html")
-            .readText()
+val indexHtmlFile = projectDir.resolve("resource-merger/static/index.html")
+val indexHtmlContent = indexHtmlFile
+    .readText()
 
-        for ((path, projectPath) in pages) {
-            val srcJsFile =
-                project(projectPath).buildDir.resolve("developmentExecutable/${projectPath.substringAfterLast(":")}.js")
-            val destJsFile = destination.resolve("$path.js")
-            srcJsFile.copyTo(destJsFile, overwrite = true)
-            destination.resolve("$path.html").writeText(index.replace("{{SCRIPT_PATH}}", destJsFile.name))
-        }
+val copyAllWebResources = tasks.register("copyAllWebResources")
+
+for ((path, projectPath) in pages) {
+    val pageProject = project(projectPath)
+    val srcJsFile =
+        pageProject.buildDir.resolve("developmentExecutable/${projectPath.substringAfterLast(":")}.js")
+    val destJsFile = destination.resolve("$path.js")
+
+    // Temp workaround for Compose bug
+    pageProject.afterEvaluate {
+        pageProject.tasks.getByName("jsProductionExecutableCompileSync").enabled = false
+        pageProject.tasks.getByName("jsBrowserProductionWebpack").enabled = false
     }
+
+    tasks.register("copyWebResources${path.capitalized()}Js", Copy::class) {
+        dependsOn(pageProject.tasks.getByName("jsBrowserDevelopmentWebpack"))
+        from(srcJsFile)
+        rename { "$path.js" }
+        into(destination)
+    }.let {
+        copyAllWebResources.get().dependsOn(it)
+    }
+
+    tasks.register("copyWebResources${path.capitalized()}Html") {
+        val output = destination.resolve("$path.html")
+        outputs.file(output)
+        inputs.file(indexHtmlFile)
+        inputs.property("dstJsFileName", destJsFile.name)
+
+        val newContent = indexHtmlContent.replace("{{SCRIPT_PATH}}", destJsFile.name)
+
+        doLast {
+            output.writeText(newContent)
+        }
+
+        copyAllWebResources.get().dependsOn(this)
+    }.let {
+        copyAllWebResources.get().dependsOn(it)
+    }
+
 }
 
-tasks.getByName("processResources").dependsOn(copyWebResources)
+tasks.getByName("processResources").dependsOn(copyAllWebResources)
