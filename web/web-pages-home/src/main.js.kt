@@ -9,7 +9,7 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
@@ -34,13 +34,10 @@ private fun MainContent() {
 @Composable
 fun HomePageContent() {
     MaterialTheme {
-        var notifyMenu = false
-        var personalMenu = false
-        var settingMenu = false
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            createTopAppBar(notifyMenu, personalMenu, settingMenu)
+            createTopAppBar()
             Text(
                 text = "Courses",
                 fontSize = MaterialTheme.typography.headlineLarge.fontSize,
@@ -56,10 +53,10 @@ fun HomePageContent() {
 }
 
 @Composable
-private fun createTopAppBar(notifyMenu: Boolean, personalMenu: Boolean, settingMenu: Boolean) {
-    var notifyMenu1 = notifyMenu
-    var personalMenu1 = personalMenu
-    var settingMenu1 = settingMenu
+private fun createTopAppBar() {
+    var notifyMenu1 by remember { mutableStateOf(false) }
+    var personalMenu1 by remember { mutableStateOf(false) }
+    var settingMenu1 by remember { mutableStateOf(false) }
     TopAppBar(
         title = {
             Text(text = "Solvo")
@@ -75,7 +72,7 @@ private fun createTopAppBar(notifyMenu: Boolean, personalMenu: Boolean, settingM
             }
             IconButton(onClick = {
                 personalMenu1 = true
-                window.location.href = "register.html"
+                // window.location.href = "register.html"
             }) {
                 Icon(Icons.Filled.Person, null)
             }
@@ -85,27 +82,33 @@ private fun createTopAppBar(notifyMenu: Boolean, personalMenu: Boolean, settingM
             DropdownMenu(
                 expanded = notifyMenu1,
                 onDismissRequest = { notifyMenu1 = false },
-                offset = DpOffset(x = 10.dp, y = (-60).dp)
+                offset = DpOffset(x = 10.dp, y = 0.dp)
             ) {
                 DropdownMenuItem(
                     text = {},
                     onClick = {},
                 )
             }
-//                    DropdownMenu(
-//                        expanded = personalMenu,
-//                        onDismissRequest = { personalMenu = false},
-//                        offset = DpOffset(x = 10.dp, y = (-60).dp)
-//                    ) {
-//
-//                    }
-//                    DropdownMenu(
-//                        expanded = settingMenu,
-//                        onDismissRequest = { settingMenu = false},
-//                        offset = DpOffset(x = 10.dp, y = (-60).dp)
-//                    ) {
-//
-//                    }
+            DropdownMenu(
+                expanded = personalMenu1,
+                onDismissRequest = { personalMenu1 = false },
+                offset = DpOffset(x = 10.dp, y = 0.dp)
+            ) {
+                DropdownMenuItem(
+                    text = {},
+                    onClick = {},
+                )
+            }
+            DropdownMenu(
+                expanded = settingMenu1,
+                onDismissRequest = { settingMenu1 = false },
+                offset = DpOffset(x = 10.dp, y = 0.dp)
+            ) {
+                DropdownMenuItem(
+                    text = {},
+                    onClick = {},
+                )
+            }
         },
         colors = TopAppBarDefaults.mediumTopAppBarColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer
