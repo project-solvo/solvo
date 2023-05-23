@@ -4,7 +4,6 @@ package org.solvo.web.document
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
@@ -15,6 +14,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.solvo.web.ui.theme.AppTheme
 import org.w3c.dom.Window
 
 @Suppress("FunctionName", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
@@ -25,7 +25,7 @@ fun SolvoWindow(
         val windowState = createWindowState()
 
         setContent {
-            MaterialTheme {
+            AppTheme(useDarkTheme = true) {
                 val currentSize by windowState.size.collectAsState()
                 Box(Modifier.size(currentSize)) {
                     content(windowState)
