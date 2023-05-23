@@ -15,7 +15,7 @@ class Comment(
     val parent: Uuid?,
     val author: User,
     val subComments: List<LightComment>,
-//    val content: RichContent,
+    val content: String,
 )
 
 
