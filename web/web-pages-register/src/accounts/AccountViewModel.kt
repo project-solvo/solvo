@@ -8,6 +8,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.AccountChecker
 import org.solvo.model.AuthStatus
+import org.solvo.model.utils.DatabaseModel
 import org.solvo.web.document.Cookies
 import org.solvo.web.requests.client
 
@@ -125,7 +126,7 @@ class RegisterLoginViewModel {
 private fun AuthStatus.render(): String? {
     return when (this) {
         AuthStatus.INVALID_USERNAME -> "Must consist of English characters, digits, '-' or '_'"
-        AuthStatus.USERNAME_TOO_LONG -> "Username is too long. Maximum length is ${AccountChecker.USERNAME_MAX_LENGTH} characters"
+        AuthStatus.USERNAME_TOO_LONG -> "Username is too long. Maximum length is ${DatabaseModel.USERNAME_MAX_LENGTH} characters"
         AuthStatus.DUPLICATED_USERNAME -> "Username is already taken. Please pick another one"
         AuthStatus.SUCCESS -> null
         AuthStatus.USER_NOT_FOUND -> "User not found"

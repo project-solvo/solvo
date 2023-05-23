@@ -1,11 +1,12 @@
 package org.solvo.server.database
 
-import org.jetbrains.exposed.dao.id.IntIdTable
-import org.solvo.model.AccountChecker
+import org.jetbrains.exposed.dao.id.UUIDTable
+import org.solvo.model.utils.DatabaseModel
+import java.util.*
 
-class AuthInfo(val userId: Int, val username: String, val hash: ByteArray)
+class AuthInfo(val userId: UUID, val username: String, val hash: ByteArray)
 
-object AuthTable : IntIdTable() {
-    val username = varchar("username", AccountChecker.USERNAME_MAX_LENGTH).uniqueIndex()
-    val hash = binary("hash", AccountChecker.HASH_SIZE)
+object AuthTable : UUIDTable("AuthInfo", "userId") {
+    val username = varchar("username", DatabaseModel.USERNAME_MAX_LENGTH).uniqueIndex()
+    val hash = binary("hash", DatabaseModel.HASH_SIZE)
 }
