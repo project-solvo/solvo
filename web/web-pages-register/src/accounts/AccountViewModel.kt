@@ -88,7 +88,7 @@ class RegisterLoginViewModel {
 
 private fun AuthStatus.render(): String? {
     return when (this) {
-        AuthStatus.INVALID_USERNAME -> "Invalid username. Username must consist of English characters, digits, '-' or '_'"
+        AuthStatus.INVALID_USERNAME -> "Must consist of English characters, digits, '-' or '_'"
         AuthStatus.USERNAME_TOO_LONG -> "Username is too long. Maximum length is ${AccountChecker.USERNAME_MAX_LENGTH} characters"
         AuthStatus.DUPLICATED_USERNAME -> "Username is already taken. Please pick another one"
         AuthStatus.SUCCESS -> null
