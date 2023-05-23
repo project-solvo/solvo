@@ -60,10 +60,7 @@ for ((path, projectPath) in pages) {
     val destJsFile = destination.resolve("$path.js")
 
     // Temp workaround for Compose bug
-    pageProject.afterEvaluate {
-        pageProject.tasks.getByName("jsProductionExecutableCompileSync").enabled = false
-        pageProject.tasks.getByName("jsBrowserProductionWebpack").enabled = false
-    }
+    disableProductionTasks(pageProject)
 
     tasks.register("copyWebResources${path.capitalized()}Js", Copy::class) {
         dependsOn(pageProject.tasks.getByName(WEBPACK_TASK_NAME))
@@ -100,6 +97,7 @@ val staticResources = listOf(
 )
 
 val webCommon = project(":web:web-common")
+disableProductionTasks(webCommon)
 
 for (staticResourceName in staticResources) {
     val extension = staticResourceName.substringAfterLast(".")
@@ -117,3 +115,10 @@ for (staticResourceName in staticResources) {
 }
 
 tasks.getByName("processResources").dependsOn(copyAllWebResources)
+
+fun disableProductionTasks(pageProject: Project) {
+    pageProject.afterEvaluate {
+        pageProject.tasks.getByName("jsProductionExecutableCompileSync").enabled = false
+        pageProject.tasks.getByName("jsBrowserProductionWebpack").enabled = false
+    }
+}
