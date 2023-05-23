@@ -1,5 +1,6 @@
 package org.solvo.server.modules
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -31,7 +32,7 @@ fun Application.accountModule() {
             val hash = digestFunction(request.password)
 
             if (authTable.getId(username) != null) {
-                call.respond(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
+                call.respondAuth(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
                 return@post
             }
 
@@ -40,7 +41,7 @@ fun Application.accountModule() {
                 authTable.addAuth(username, hash)
             }
 
-            call.respond(AuthResponse(status))
+            call.respondAuth(AuthResponse(status))
         }
         post("/login") {
             val request = call.receive<AuthRequest>()
@@ -49,11 +50,11 @@ fun Application.accountModule() {
 
             val id = authTable.getId(username)
             if (id == null) {
-                call.respond(AuthResponse(AuthStatus.USER_NOT_FOUND))
+                call.respondAuth(AuthResponse(AuthStatus.USER_NOT_FOUND))
                 return@post
             }
 
-            call.respond(
+            call.respondAuth(
                 if (authTable.matchHash(id, hash)) {
                     AuthResponse(AuthStatus.SUCCESS, tokenGenerator.generateToken(id))
                 } else {
@@ -61,5 +62,13 @@ fun Application.accountModule() {
                 }
             )
         }
+    }
+}
+
+private suspend fun ApplicationCall.respondAuth(authResponse: AuthResponse) {
+    if (authResponse.status == AuthStatus.SUCCESS) {
+        respond(authResponse)
+    } else {
+        respond(HttpStatusCode.BadRequest, authResponse)
     }
 }
