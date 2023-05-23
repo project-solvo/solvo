@@ -36,7 +36,7 @@ fun CommentCard(
             Column {
                 Text(comment.content)
             }
-            π
+
             Divider(Modifier.fillMaxWidth())
 
             val showComments by derivedStateOf { comment.subComments.take(3) }
