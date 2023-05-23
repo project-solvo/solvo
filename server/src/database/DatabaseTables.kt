@@ -42,7 +42,7 @@ object CommentTable: UUIDTable("") {
 }
 
 object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
-    val author = reference("userId", AuthTable)
+    val author = reference("userId", UserTable)
 
     val anonymity = bool("anonymity")
     val likes = uinteger("likesCount")

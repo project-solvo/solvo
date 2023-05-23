@@ -12,12 +12,12 @@ import org.solvo.model.api.AuthRequest
 import org.solvo.model.api.AuthResponse
 import org.solvo.model.api.AuthStatus
 import org.solvo.server.TokenGeneratorImpl
-import org.solvo.server.database.AuthTableFacadeImpl
+import org.solvo.server.database.AccountDBFacadeImpl
 import org.solvo.server.database.DatabaseFactory
 
 fun Application.accountModule() {
     DatabaseFactory.init()
-    val authTable = AuthTableFacadeImpl().apply {
+    val accountDB = AccountDBFacadeImpl().apply {
         runBlocking {
             // initialization here
         }
@@ -31,14 +31,14 @@ fun Application.accountModule() {
             val username = request.username
             val hash = digestFunction(request.password)
 
-            if (authTable.getId(username) != null) {
+            if (accountDB.getId(username) != null) {
                 call.respondAuth(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
                 return@post
             }
 
             val status = checkUserNameValidity(username)
             if (status == AuthStatus.SUCCESS) {
-                authTable.addAuth(username, hash)
+                accountDB.addAuth(username, hash)
             }
 
             call.respondAuth(AuthResponse(status))
@@ -48,14 +48,14 @@ fun Application.accountModule() {
             val username = request.username
             val hash = digestFunction(request.password)
 
-            val id = authTable.getId(username)
+            val id = accountDB.getId(username)
             if (id == null) {
                 call.respondAuth(AuthResponse(AuthStatus.USER_NOT_FOUND))
                 return@post
             }
 
             call.respondAuth(
-                if (authTable.matchHash(id, hash)) {
+                if (accountDB.matchHash(id, hash)) {
                     AuthResponse(AuthStatus.SUCCESS, tokenGenerator.generateToken(id))
                 } else {
                     AuthResponse(AuthStatus.WRONG_PASSWORD)
