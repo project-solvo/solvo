@@ -9,7 +9,7 @@ object AccountChecker {
     private val regex = Regex("^[a-zA-Z0-9_-]+$")
 
     fun checkUserNameValidity(username: String): AuthStatus {
-        if (username.length > 16) {
+        if (username.length > USERNAME_MAX_LENGTH) {
             return AuthStatus.USERNAME_TOO_LONG
         }
         val valid = regex.matches(username)
