@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
 import androidx.compose.material3.Button
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -24,131 +23,129 @@ import org.solvo.web.requests.backgroundScope
 
 @Composable
 fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
-    MaterialTheme {
-        Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally,
+    Column(
+        modifier = Modifier.fillMaxSize(),
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally,
 
-            ) {
-            val isRegister by viewModel.isRegister.collectAsState()
-            val usernameError by viewModel.usernameError.collectAsState()
-            val passwordError by viewModel.passwordError.collectAsState()
-            val verifyPasswordError by viewModel.verifyPasswordError.collectAsState()
-            Text(
-                "Solvo",
-                modifier = Modifier.padding(bottom = 20.dp),
-                fontSize = 30.sp,
-                fontStyle = FontStyle.Normal,
+        ) {
+        val isRegister by viewModel.isRegister.collectAsState()
+        val usernameError by viewModel.usernameError.collectAsState()
+        val passwordError by viewModel.passwordError.collectAsState()
+        val verifyPasswordError by viewModel.verifyPasswordError.collectAsState()
+        Text(
+            "Solvo",
+            modifier = Modifier.padding(bottom = 20.dp),
+            fontSize = 30.sp,
+            fontStyle = FontStyle.Normal,
+        )
+
+        Row(
+            modifier = Modifier.padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = viewModel.username.value,
+                onValueChange = { viewModel.setUsername(it) },
+                isError = (usernameError != null),
+                label = { Text("Username") },
+                shape = RoundedCornerShape(8.dp)
             )
+        }
+        AnimatedVisibility(usernameError != null) {
+            usernameError?.let {
+                Text(
+                    text = it,
+                    fontSize = 10.sp,
+                    color = Color.Red,
+                )
+            }
+        }
 
+        Row(
+            modifier = Modifier.padding(10.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            OutlinedTextField(
+                value = viewModel.password.value,
+                onValueChange = { viewModel.setPassword(it) },
+                isError = (passwordError != null),
+                label = { Text("Password") },
+                shape = RoundedCornerShape(8.dp)
+            )
+        }
+        AnimatedVisibility(passwordError != null) {
+            passwordError?.let {
+                Text(
+                    text = it,
+                    fontSize = 10.sp,
+                    color = Color.Red,
+                )
+            }
+        }
+
+        AnimatedVisibility(isRegister) {
             Row(
                 modifier = Modifier.padding(10.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 OutlinedTextField(
-                    value = viewModel.username.value,
-                    onValueChange = { viewModel.setUsername(it) },
-                    isError = (usernameError != null),
-                    label = { Text("Username") },
+                    value = viewModel.verifyPassword.value,
+                    onValueChange = { viewModel.setVerifyPassword(it) },
+                    isError = (verifyPasswordError != null),
+                    label = { Text("Verify Password") },
                     shape = RoundedCornerShape(8.dp)
                 )
             }
-            AnimatedVisibility(usernameError != null) {
-                usernameError?.let {
-                    Text(
-                        text = it,
-                        fontSize = 10.sp,
-                        color = Color.Red,
-                    )
-                }
-            }
-
-            Row(
-                modifier = Modifier.padding(10.dp),
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                OutlinedTextField(
-                    value = viewModel.password.value,
-                    onValueChange = { viewModel.setPassword(it) },
-                    isError = (passwordError != null),
-                    label = { Text("Password") },
-                    shape = RoundedCornerShape(8.dp)
+        }
+        AnimatedVisibility(verifyPasswordError != null) {
+            verifyPasswordError?.let {
+                Text(
+                    text = it,
+                    fontSize = 10.sp,
+                    color = Color.Red,
                 )
             }
-            AnimatedVisibility(passwordError != null) {
-                passwordError?.let {
-                    Text(
-                        text = it,
-                        fontSize = 10.sp,
-                        color = Color.Red,
-                    )
-                }
-            }
+        }
 
-            AnimatedVisibility(isRegister) {
-                Row(
-                    modifier = Modifier.padding(10.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    OutlinedTextField(
-                        value = viewModel.verifyPassword.value,
-                        onValueChange = { viewModel.setVerifyPassword(it) },
-                        isError = (verifyPasswordError != null),
-                        label = { Text("Verify Password") },
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                }
-            }
-            AnimatedVisibility(verifyPasswordError != null) {
-                verifyPasswordError?.let {
-                    Text(
-                        text = it,
-                        fontSize = 10.sp,
-                        color = Color.Red,
-                    )
-                }
-            }
-
-            Button(
-                onClick = {
-                    println("Click Login: ${viewModel.isProcessing.value}")
-                    if (viewModel.isProcessing.compareAndSet(expect = false, update = true)) {
-                        backgroundScope.launch {
-                            try {
-                                viewModel.onClickProceed()
-                            } finally {
-                                viewModel.isProcessing.compareAndSet(expect = true, update = false)
-                            }
+        Button(
+            onClick = {
+                println("Click Login: ${viewModel.isProcessing.value}")
+                if (viewModel.isProcessing.compareAndSet(expect = false, update = true)) {
+                    backgroundScope.launch {
+                        try {
+                            viewModel.onClickProceed()
+                        } finally {
+                            viewModel.isProcessing.compareAndSet(expect = true, update = false)
                         }
                     }
-                },
-                enabled = !viewModel.isProcessing.value,
-                modifier = Modifier.padding(10.dp),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(if (isRegister) "Sign up" else "Login")
-            }
-
-            val signUpMessage = buildAnnotatedString {
-                append("Does not have an account? Please ")
-                pushStyle(SpanStyle(color = Color.Blue))
-                append("sign up")
-                pop()
-            }
-
-            val loginMessage = buildAnnotatedString {
-                append("Already have an account? Please ")
-                pushStyle(SpanStyle(color = Color.Blue))
-                append("login")
-                pop()
-            }
-
-            ClickableText(
-                text = if (!isRegister) signUpMessage else loginMessage,
-                onClick = { viewModel.onClickSwitch() },
-            )
-
+                }
+            },
+            enabled = !viewModel.isProcessing.value,
+            modifier = Modifier.padding(10.dp),
+            shape = RoundedCornerShape(8.dp)
+        ) {
+            Text(if (isRegister) "Sign up" else "Login")
         }
+
+        val signUpMessage = buildAnnotatedString {
+            append("Does not have an account? Please ")
+            pushStyle(SpanStyle(color = Color.Blue))
+            append("sign up")
+            pop()
+        }
+
+        val loginMessage = buildAnnotatedString {
+            append("Already have an account? Please ")
+            pushStyle(SpanStyle(color = Color.Blue))
+            append("login")
+            pop()
+        }
+
+        ClickableText(
+            text = if (!isRegister) signUpMessage else loginMessage,
+            onClick = { viewModel.onClickSwitch() },
+        )
+
     }
 }
