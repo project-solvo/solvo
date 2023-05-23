@@ -9,8 +9,9 @@ import org.solvo.model.AuthResponse
 class AccountRequests(
     override val client: Client,
 ) : Requests {
-    suspend fun register(username: String, password: String): AuthResponse {
-        val resp = http.post("${origin}/register") {
+    suspend fun authenticate(username: String, password: String, isRegister: Boolean): AuthResponse {
+        val path = if (isRegister) "${origin}/register" else "${origin}/login"
+        val resp = http.post(path) {
             contentType(ContentType.Application.Json)
             setBody(
                 AuthRequest(

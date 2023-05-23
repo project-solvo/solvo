@@ -51,9 +51,21 @@ class RegisterLoginViewModel {
         val username = username.value
         val password = password.value
 
-        val register = client.accounts.register(username, password)
-        if (register.status == AuthStatus.SUCCESS) {
-            Cookies.setCookie("token", register.token)
+        val status = client.accounts.authenticate(username, password, isRegister.value)
+        when (status.status) {
+            AuthStatus.SUCCESS -> {
+                if (isRegister.value) {
+                    isRegister.value = false
+                    onClickProceed()
+                } else {
+                    Cookies.setCookie("token", status.token)
+                }
+            }
+            AuthStatus.INVALID_USERNAME -> TODO()
+            AuthStatus.USERNAME_TOO_LONG -> TODO()
+            AuthStatus.DUPLICATED_USERNAME -> TODO()
+            AuthStatus.USER_NOT_FOUND -> TODO()
+            AuthStatus.WRONG_PASSWORD -> TODO()
         }
     }
 
