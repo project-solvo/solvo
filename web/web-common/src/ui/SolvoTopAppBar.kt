@@ -1,5 +1,6 @@
 package org.solvo.web.ui
 
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
@@ -14,7 +15,9 @@ import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
 
 @Composable
-fun SolvoTopAppBar() {
+fun SolvoTopAppBar(
+    navigationIcon: @Composable () -> Unit = {}
+) {
     var notifyMenu1 by remember { mutableStateOf(false) }
     var personalMenu1 by remember { mutableStateOf(false) }
     var settingMenu1 by remember { mutableStateOf(false) }
@@ -24,8 +27,13 @@ fun SolvoTopAppBar() {
         },
         Modifier.fillMaxWidth(),
         navigationIcon = {
-            IconButton(onClick = {/* Go to home page */ }) {
-                Icon(Icons.Filled.Home, null)
+            Row {
+                navigationIcon()
+                IconButton(onClick = {
+                    window.location.href = window.location.origin
+                }) {
+                    Icon(Icons.Filled.Home, null)
+                }
             }
         },
         actions = {
