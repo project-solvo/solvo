@@ -1,4 +1,4 @@
-## Accounts
+## Authentication
 
 ### POST `/register`
 
