@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -107,17 +108,14 @@ fun QuestionCards(questions: List<Question>) {
 
     Column(Modifier.wrapContentHeight()) {
         questions.forEachIndexed { index, question ->
-            ElevatedCard(
-                onClick = {
-                    checkedIndex = index
-                },
-                modifier = Modifier.padding(10.dp).padding(start = 20.dp).height(60.dp).width(160.dp),
-                shape = RoundedCornerShape(8.dp),
-                colors = CardDefaults.cardColors(
-                    // change color when the question is selected
-                    containerColor = if (checkedIndex == index) MaterialTheme.colorScheme.primary
-                    else MaterialTheme.colorScheme.secondary
-                )
+            Row(
+                modifier = Modifier.padding(10.dp).padding(start = 20.dp)
+                    .height(60.dp).width(160.dp).clickable { checkedIndex = index }
+                    .background(
+                        color = if (checkedIndex == index) MaterialTheme.colorScheme.primary
+                        else MaterialTheme.colorScheme.secondary,
+                        shape = RoundedCornerShape(8.dp)
+                    ),
             ) {
                 Text(
                     text = question.qid,
