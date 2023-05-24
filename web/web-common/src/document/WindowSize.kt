@@ -12,6 +12,7 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeWindow
@@ -40,14 +41,22 @@ fun SolvoWindow(
     }
 }
 
-internal fun createWindowState(): WindowState {
+internal fun ComposeWindow.createWindowState(): WindowState {
     val state = WindowState()
+
     window.onresize = {
 //        val canvas = canvas
 //        canvas.asDynamic().style.width = window.innerWidth.toString() + "px"
 //        canvas.asDynamic().style.height = window.innerHeight.toString() + "px"
 
         state.size.value = window.innerSize
+
+        if (state.density.value.density != window.devicePixelRatio.toFloat()) {
+            val newDensity = Density(window.devicePixelRatio.toFloat(), 1f)
+            state.density.value = newDensity
+            layer.setDensity(newDensity)
+        }
+
         true.asDynamic()
     }
     return state
@@ -61,8 +70,12 @@ class WindowState {
     val isInDarkMode: MutableStateFlow<Boolean?> =
         MutableStateFlow(Cookies.getCookie("is-in-dark-mode")?.toBooleanStrictOrNull())
 
+    val density: MutableStateFlow<Density> = MutableStateFlow(window.currentDensity())
+
     fun setDarkMode(dark: Boolean?) {
         isInDarkMode.value = dark
         Cookies.setCookie("is-in-dark-mode", dark.toString())
     }
 }
+
+fun Window.currentDensity() = Density(devicePixelRatio.toFloat(), 1f)
