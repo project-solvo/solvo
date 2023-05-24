@@ -9,3 +9,9 @@ class DatabaseModel {
         const val TERM_TIME_MAX_LENGTH = 32
     }
 }
+
+enum class UserPermission: Comparable<UserPermission> {
+    DEFAULT,
+    OPERATOR,
+    ROOT,
+}

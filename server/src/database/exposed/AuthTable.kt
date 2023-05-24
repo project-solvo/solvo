@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.exposed
 
 import org.jetbrains.exposed.sql.Table
 import org.solvo.model.utils.DatabaseModel

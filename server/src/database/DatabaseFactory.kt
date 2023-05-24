@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.solvo.server.database.exposed.*
 
 object DatabaseFactory {
     fun init() {
@@ -15,7 +16,14 @@ object DatabaseFactory {
             SchemaUtils.create(
                 AuthTable,
                 UserTable,
-                StaticResourceTable
+                StaticResourceTable,
+                CourseTable,
+                TermTable,
+                ArticleTable,
+                QuestionTable,
+                AnswerTable,
+                CommentTable,
+                CommentedObjectTable,
             )
         }
     }
