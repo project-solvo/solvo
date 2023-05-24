@@ -7,12 +7,10 @@ object UserTable: UUIDTable("UserInfo", "userId") {
     val username = varchar("username", DatabaseModel.USERNAME_MAX_LENGTH).uniqueIndex()
 
     val avatar = reference("avatar", StaticResourceTable).nullable()
-    val permission = integer("permissionLevel").default(UserPermission.DEFAULT)
+    val permission = enumeration<UserPermission>("permissionLevel").default(UserPermission.DEFAULT)
 }
 
-class UserPermission {
-    companion object {
-        const val DEFAULT = 0
-        const val ROOT = 1
-    }
+enum class UserPermission {
+    DEFAULT,
+    ROOT,
 }

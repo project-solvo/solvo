@@ -2,6 +2,7 @@ package org.solvo.server.database
 
 import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Table
 import org.solvo.model.utils.DatabaseModel
 
 object CourseTable: IntIdTable("Courses", "courseId") {
@@ -17,8 +18,8 @@ object ArticleTable: UUIDTable("Articles", "ArticleId") {
     val course = reference("courseId", CourseTable)
     val term = reference("termId", TermTable)
 
-    val stars = uinteger("starsCount")
-    val views = uinteger("viewsCount")
+    val stars = uinteger("starsCount").default(0u)
+    val views = uinteger("viewsCount").default(0u)
 }
 
 object QuestionTable: UUIDTable("Questions", "QuestionId") {
@@ -30,23 +31,26 @@ object AnswerTable: UUIDTable("Answers", "AnswerId") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
     val question = reference("questionId", AnswerTable)
 
-    val upvote = uinteger("upvoteCount")
-    val downvote = uinteger("downvoteCount")
+    val upvote = uinteger("upvoteCount").default(0u)
+    val downvote = uinteger("downvoteCount").default(0u)
 }
 
-object CommentTable: UUIDTable("") {
+object CommentTable: Table("Comments") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
     val parent = reference("parentCOID", CommentedObjectTable)
 
-    val pinned = bool("pinned")
+    val pinned = bool("pinned").default(false)
+
+    override val primaryKey = PrimaryKey(coid)
 }
 
 object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
     val author = reference("userId", UserTable)
+    val content = largeText("content")
 
-    val anonymity = bool("anonymity")
-    val likes = uinteger("likesCount")
-    val comments = uinteger("commentsCount")
+    val anonymity = bool("anonymity").default(false)
+    val likes = uinteger("likesCount").default(0u)
+    val comments = uinteger("commentsCount").default(0u)
 
     val postTime = long("postTime")
     val lastEditTime = long("lastEditTime")
