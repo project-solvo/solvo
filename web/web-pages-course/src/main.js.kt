@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Artical
@@ -33,7 +34,6 @@ fun main() {
 @Composable
 fun CoursePageContent() {
     Box {
-        // show left column menu
         Column(
             modifier = Modifier.fillMaxSize().padding(100.dp).verticalScroll(rememberScrollState())
         ) {
@@ -41,7 +41,7 @@ fun CoursePageContent() {
         }
     }
     Box {
-        var menuOpen by remember { mutableStateOf(false) }
+        var menuOpen by remember { mutableStateOf(true) }
         SolvoTopAppBar {
             IconButton(onClick = { menuOpen = !menuOpen }) {
                 Icon(Icons.Filled.Menu, null)
@@ -71,6 +71,7 @@ fun CoursePageContent() {
                     }
                 }
                 for (courseName in years) {
+                    // construct list of past papers
                     PastPaperCard(courseName)
                 }
             }
@@ -95,6 +96,7 @@ private fun PastPaperCard(item: Artical) {
         )
 
         AnimatedVisibility(questionListOpen) {
+            // construct list of questions
             QuestionCards(item.questions)
         }
     }
@@ -103,12 +105,29 @@ private fun PastPaperCard(item: Artical) {
 @Composable
 fun QuestionCards(questions: List<Question>) {
     Column {
-        for (question in questions) {
+        // record the current selected question
+        val clickedList = remember {
+            mutableStateListOf<Boolean>().apply {
+                questions.forEach { _ ->
+                    this.add(false)
+                }
+            }
+        }
+        questions.forEachIndexed { index, question ->
             ElevatedCard(
                 onClick = {
+                    // change the state of the record list.
+                    clickedList.forEachIndexed { i, _ ->
+                        clickedList[i] = i == index
+                    }
                 },
                 modifier = Modifier.padding(10.dp).height(60.dp).width(160.dp).offset(20.dp).clickable {},
                 shape = RoundedCornerShape(8.dp),
+                colors = CardDefaults.cardColors(
+                    // change color when the question is selected
+                    containerColor = if (clickedList[index]) MaterialTheme.colorScheme.primary
+                    else MaterialTheme.colorScheme.secondary
+                )
             ) {
                 Text(
                     text = question.qid,
