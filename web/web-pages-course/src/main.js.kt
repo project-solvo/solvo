@@ -30,20 +30,20 @@ fun main() {
 
 @Composable
 fun CoursePageContent() {
+    var menuOpen by remember { mutableStateOf(false) }
+    SolvoTopAppBar {
+        IconButton(onClick = { menuOpen = !menuOpen }) {
+            Icon(Icons.Filled.Menu, null)
+        }
+    }
     Box {
         Column(
             modifier = Modifier.fillMaxSize().padding(100.dp).verticalScroll(rememberScrollState())
         ) {
+            // content
 
         }
-    }
-    Box {
-        var menuOpen by remember { mutableStateOf(true) }
-        SolvoTopAppBar {
-            IconButton(onClick = { menuOpen = !menuOpen }) {
-                Icon(Icons.Filled.Menu, null)
-            }
-        }
+
         // show left column menu
         AnimatedVisibility(
             menuOpen,
@@ -51,7 +51,7 @@ fun CoursePageContent() {
             exit = slideOutHorizontally(targetOffsetX = { -it })
         ) {
             Column(
-                modifier = Modifier.offset(0.dp, 60.dp).verticalScroll(rememberScrollState())
+                modifier = Modifier.verticalScroll(rememberScrollState())
                     .width(250.dp)
                     .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
             ) {

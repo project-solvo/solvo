@@ -2,8 +2,10 @@
 
 package org.solvo.web.document
 
-import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.collectAsState
@@ -27,7 +29,7 @@ fun SolvoWindow(
         setContent {
             AppTheme(useDarkTheme = true) {
                 val currentSize by windowState.size.collectAsState()
-                Box(Modifier.size(currentSize)) {
+                Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
                     content(windowState)
                 }
             }
