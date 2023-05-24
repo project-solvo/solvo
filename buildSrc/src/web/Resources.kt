@@ -5,18 +5,21 @@ import org.gradle.api.tasks.Copy
 import org.gradle.api.tasks.TaskProvider
 import org.gradle.configurationcache.extensions.capitalized
 import org.gradle.kotlin.dsl.register
+import projectLevelCache
 import rootProject
 import java.io.File
 
-@Suppress("PropertyName")
-val WEBPACK_TASK_NAME = "jsBrowserDevelopmentWebpack"
+const val WEBPACK_TASK_NAME = "jsBrowserDevelopmentWebpack"
 
-@Suppress("PropertyName")
-val DEVELOPMENT_EXECUTABLE = "developmentExecutable"
+const val DEVELOPMENT_EXECUTABLE = "developmentExecutable"
 
 
-val indexHtmlFile get() = rootProject.project(":server").projectDir.resolve("resource-merger/static/index.html")
-val indexHtmlContent = indexHtmlFile.readText()
+val indexHtmlFile by projectLevelCache {
+    rootProject.project(":server").projectDir.resolve("resource-merger/static/index.html")
+}
+val indexHtmlContent by projectLevelCache {
+    indexHtmlFile.readText()
+}
 
 fun Project.registerCopyStaticResourcesTasks(destination: File, configureEach: (TaskProvider<Copy>) -> Unit = {}) {
     val staticResources = listOf(
@@ -50,7 +53,7 @@ fun Project.registerCoopyWebResourceHtmlTask(
     jsAppFilePath: String,
     configureEach: (TaskProvider<*>) -> Unit = {}
 ) {
-    tasks.register("copyWebResources${destinationFilename.capitalized()}Html") {
+    tasks.register("copyWebResources_${destinationFilename}.html") {
         group = "solvo"
         val output = destination.resolve("$destinationFilename.html")
         outputs.file(output)

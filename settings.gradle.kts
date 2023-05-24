@@ -27,6 +27,7 @@ fun includeProject(projectPath: String, dir: String? = null) {
 includeProject(":model")
 includeProject(":server")
 includeProject(":web:web-common")
+includeProject(":web:web-editor")
 includeProject(":web:web-comments")
 includeProject(":web:web-pages-register")
 includeProject(":web:web-pages-home")

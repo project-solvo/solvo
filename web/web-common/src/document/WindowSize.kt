@@ -46,6 +46,7 @@ internal fun createWindowState(): WindowState {
 //        val canvas = canvas
 //        canvas.asDynamic().style.width = window.innerWidth.toString() + "px"
 //        canvas.asDynamic().style.height = window.innerHeight.toString() + "px"
+
         state.size.value = window.innerSize
         true.asDynamic()
     }
