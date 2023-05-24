@@ -16,7 +16,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.Artical
+import org.solvo.model.Article
 import org.solvo.model.Question
 import org.solvo.web.document.SolvoWindow
 import org.solvo.web.document.WindowState
@@ -57,20 +57,21 @@ fun CoursePageContent(windowState: WindowState) {
                     .width(250.dp)
                     .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
             ) {
+                // testing data.
                 val years = remember {
-                    mutableListOf<Artical>().apply {
+                    mutableListOf<Article>().apply {
                         for (i in 2018 until 2023) {
                             val questions =
                                 listOf(
                                     Question("1a"), Question("1b"),
                                     Question("2a"), Question("2b")
                                 )
-                            this.add(Artical(i.toString(), questions))
+                            this.add(Article(i.toString(), questions))
                         }
                     }
                 }
+                // construct list of past papers
                 for (courseName in years) {
-                    // construct list of past papers
                     PastPaperCard(courseName)
                 }
             }
@@ -79,7 +80,7 @@ fun CoursePageContent(windowState: WindowState) {
 }
 
 @Composable
-private fun PastPaperCard(item: Artical) {
+private fun PastPaperCard(item: Article) {
     var questionListOpen by remember { mutableStateOf(false) }
 
     ElevatedCard(
@@ -110,7 +111,10 @@ fun QuestionCards(questions: List<Question>) {
         questions.forEachIndexed { index, question ->
             Row(
                 modifier = Modifier.padding(10.dp).padding(start = 20.dp)
-                    .height(60.dp).width(160.dp).clickable { checkedIndex = index }
+                    .height(60.dp).width(160.dp).clickable {
+                        checkedIndex = index
+
+                    }
                     .background(
                         color = if (checkedIndex == index) MaterialTheme.colorScheme.primary
                         else MaterialTheme.colorScheme.secondary,

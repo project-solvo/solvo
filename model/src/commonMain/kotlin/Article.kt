@@ -5,7 +5,7 @@ import org.solvo.model.annotations.Immutable
 
 @Immutable
 @Serializable
-class Artical(
+class Article(
     val year: String,
     val questions: List<Question>,
 )
