@@ -18,6 +18,7 @@ import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.web.document.SolvoWindow
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichEditorDisplayMode
+import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoTopAppBar
 import org.w3c.dom.Element
 
@@ -171,7 +172,7 @@ internal class RichEditor internal constructor(
                         theme : "default",
                         previewTheme : "default",
                         editorTheme : "default",
-                        markdown : "# Test",
+                        markdown : "",
                         codeFold : true,
                         syncScrolling : true,
                         saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
@@ -247,7 +248,13 @@ internal fun main() {
                     Text("Test")
                 }
                 Box(Modifier.size(400.dp)) {
-                    RichEditor(Modifier.fillMaxSize())
+                    RichText(
+                        """
+                        ```math
+                        \int^\infty_{\infty} f(x)\ dx
+                        ```
+                    """.trimIndent(), Modifier.fillMaxSize()
+                    )
                 }
 //                RichText(
 //                    """

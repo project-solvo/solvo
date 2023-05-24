@@ -22,11 +22,12 @@ class RichEditorState internal constructor(
     /**
      * Input markdown
      */
-    var contentMarkdown: String
+    val contentMarkdown: String
         get() = richEditor.editor.getMarkdown() as String
-        set(value) {
-            richEditor.editor.setValue(value)
-        }
+
+    suspend fun setContentMarkdown(value: String) {
+        richEditor.onEditorLoaded { richEditor.editor.setValue(value) }
+    }
 
     /**
      * Preview HTML
