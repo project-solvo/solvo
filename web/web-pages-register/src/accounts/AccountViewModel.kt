@@ -24,6 +24,7 @@ class RegisterLoginViewModel {
     val verifyPassword: State<String> get() = _verifyPassword
 
     val usernameError: MutableStateFlow<String?> = MutableStateFlow(null)
+    val usernameValid: MutableStateFlow<Boolean> = MutableStateFlow(false)
     val passwordError: MutableStateFlow<String?> = MutableStateFlow(null)
     val verifyPasswordError: MutableStateFlow<String?> = MutableStateFlow(null)
 
@@ -36,6 +37,17 @@ class RegisterLoginViewModel {
         _username.value = username.trim()
         val validity = AccountChecker.checkUserNameValidity(username)
         usernameError.value = validity.render()
+    }
+
+    suspend fun checkUsernameValidity() {
+        if (isRegister.value) {
+            val response = client.accounts.checkUsername(_username.value)
+            if (!response.validity) {
+                usernameError.value = AuthStatus.DUPLICATED_USERNAME.render()
+            } else {
+                usernameValid.value = true
+            }
+        }
     }
 
     fun setPassword(password: String) {
@@ -120,6 +132,7 @@ class RegisterLoginViewModel {
     private fun flushErrors() {
         usernameError.value = null
         passwordError.value = null
+        usernameValid.value = false
     }
 }
 

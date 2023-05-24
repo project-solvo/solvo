@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import org.solvo.model.api.AuthRequest
 import org.solvo.model.api.AuthResponse
+import org.solvo.model.api.UsernameValidityResponse
 
 class AccountRequests(
     override val client: Client,
@@ -20,6 +21,14 @@ class AccountRequests(
                 )
             )
         }.body<AuthResponse>()
+        return resp
+    }
+
+    suspend fun checkUsername(username: String): UsernameValidityResponse {
+        val path = "${origin}/register/${username}"
+        val resp = http.get(path) {
+            contentType(ContentType.Application.Json)
+        }.body<UsernameValidityResponse>()
         return resp
     }
 }

@@ -1,6 +1,6 @@
 ## Accounts
 
-### POST `/accounts/register`
+### POST `/register`
 
 #### Request
 
@@ -32,7 +32,27 @@
 }
 ```
 
-### POST `/accounts/login`
+### GET `/register/{username}`
+
+#### Response 200
+
+- Username can be registered 
+
+```json
+{
+    "validity": true
+}
+```
+
+- Username already registered
+
+```json
+{
+    "validity": false
+}
+```
+
+### POST `/login`
 
 #### Request
 

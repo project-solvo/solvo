@@ -10,6 +10,7 @@ import org.solvo.model.api.AccountChecker.checkUserNameValidity
 import org.solvo.model.api.AuthRequest
 import org.solvo.model.api.AuthResponse
 import org.solvo.model.api.AuthStatus
+import org.solvo.model.api.UsernameValidityResponse
 import org.solvo.server.ServerContext
 
 fun Application.accountModule() {
@@ -34,6 +35,12 @@ fun Application.accountModule() {
 
             call.respondAuth(AuthResponse(status))
         }
+
+        get("/register/{username}") {
+            val username = call.parameters["username"]!!
+            call.respond(UsernameValidityResponse(accountDB.getId(username) == null))
+        }
+
         post("/login") {
             val request = call.receive<AuthRequest>()
             val username = request.username

@@ -14,6 +14,11 @@ class AuthResponse(
     val token: String = "",
 )
 
+@Serializable
+class UsernameValidityResponse(
+    val validity: Boolean
+)
+
 enum class AuthStatus{
     SUCCESS,
     INVALID_USERNAME,
