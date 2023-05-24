@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 //tcl mode by Ford_Lawnmower :: Based on Velocity mode by Steve O'Hara
 
@@ -45,20 +45,20 @@
             var beforeParams = state.beforeParams;
             state.beforeParams = false;
             var ch = stream.next();
-            if ((ch == '"' || ch == "'") && state.inParams)
+            if ((ch == '"' || ch == "'") && state.inParams) {
                 return chain(stream, state, tokenString(ch));
-            else if (/[\[\]{}\(\),;\.]/.test(ch)) {
+            } else if (/[\[\]{}\(\),;\.]/.test(ch)) {
                 if (ch == "(" && beforeParams) state.inParams = true;
                 else if (ch == ")") state.inParams = false;
                 return null;
             } else if (/\d/.test(ch)) {
                 stream.eatWhile(/[\w\.]/);
                 return "number";
-            } else if (ch == "#" && stream.eat("*")) {
-                return chain(stream, state, tokenComment);
-            } else if (ch == "#" && stream.match(/ *\[ *\[/)) {
-                return chain(stream, state, tokenUnparsed);
-            } else if (ch == "#" && stream.eat("#")) {
+            } else if (ch == "#") {
+                if (stream.eat("*"))
+                    return chain(stream, state, tokenComment);
+                if (ch == "#" && stream.match(/ *\[ *\[/))
+                    return chain(stream, state, tokenUnparsed);
                 stream.skipToEnd();
                 return "comment";
             } else if (ch == '"') {
@@ -138,7 +138,8 @@
             token: function (stream, state) {
                 if (stream.eatSpace()) return null;
                 return state.tokenize(stream, state);
-            }
+            },
+            lineComment: "#"
         };
     });
     CodeMirror.defineMIME("text/x-tcl", "tcl");

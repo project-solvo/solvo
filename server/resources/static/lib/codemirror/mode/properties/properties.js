@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -34,7 +34,8 @@
                 }
 
                 if (sol) {
-                    while (stream.eatSpace()) ;
+                    while (stream.eatSpace()) {
+                    }
                 }
 
                 var ch = stream.next();
@@ -52,7 +53,7 @@
                     state.position = "quote";
                     return null;
                 } else if (ch === "\\" && state.position === "quote") {
-                    if (stream.next() !== "u") {    // u = Unicode sequence \u1234
+                    if (stream.eol()) {  // end of line?
                         // Multiline value
                         state.nextMultiline = true;
                     }

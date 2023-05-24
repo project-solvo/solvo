@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -22,9 +22,10 @@
             "abstract as assert boolean break byte case catch char class const continue def default " +
             "do double else enum extends final finally float for goto if implements import in " +
             "instanceof int interface long native new package private protected public return " +
-            "short static strictfp super switch synchronized threadsafe throw throws transient " +
+            "short static strictfp super switch synchronized threadsafe throw throws trait transient " +
             "try void volatile while");
-        var blockKeywords = words("catch class do else finally for if switch try while enum interface def");
+        var blockKeywords = words("catch class def do else enum finally for if interface switch trait try while");
+        var standaloneKeywords = words("return break continue");
         var atoms = words("null true false this");
 
         var curPunc;
@@ -55,7 +56,7 @@
                     stream.skipToEnd();
                     return "comment";
                 }
-                if (expectExpression(state.lastToken)) {
+                if (expectExpression(state.lastToken, false)) {
                     return startString(ch, stream, state);
                 }
             }
@@ -83,6 +84,7 @@
             }
             if (keywords.propertyIsEnumerable(cur)) {
                 if (blockKeywords.propertyIsEnumerable(cur)) curPunc = "newstatement";
+                else if (standaloneKeywords.propertyIsEnumerable(cur)) curPunc = "standalone";
                 return "keyword";
             }
             return "variable";
@@ -109,9 +111,14 @@
                             break;
                         }
                     }
-                    if (quote == '"' && next == "$" && !escaped && stream.eat("{")) {
-                        state.tokenize.push(tokenBaseUntilBrace());
-                        return "string";
+                    if (quote == '"' && next == "$" && !escaped) {
+                        if (stream.eat("{")) {
+                            state.tokenize.push(tokenBaseUntilBrace());
+                            return "string";
+                        } else if (stream.match(/^\w/, false)) {
+                            state.tokenize.push(tokenVariableDeref);
+                            return "string";
+                        }
                     }
                     escaped = !escaped && next == "\\";
                 }
@@ -143,6 +150,15 @@
             return t;
         }
 
+        function tokenVariableDeref(stream, state) {
+            var next = stream.match(/^(\.|[\w\$_]+)/)
+            if (!next) {
+                state.tokenize.pop()
+                return state.tokenize[state.tokenize.length - 1](stream, state)
+            }
+            return next[0] == "." ? null : "variable"
+        }
+
         function tokenComment(stream, state) {
             var maybeEnd = false, ch;
             while (ch = stream.next()) {
@@ -155,9 +171,10 @@
             return "comment";
         }
 
-        function expectExpression(last) {
+        function expectExpression(last, newline) {
             return !last || last == "operator" || last == "->" || /[\.\[\{\(,;:]/.test(last) ||
-                last == "newstatement" || last == "keyword" || last == "proplabel";
+                last == "newstatement" || last == "keyword" || last == "proplabel" ||
+                (last == "standalone" && !newline);
         }
 
         function Context(indented, column, type, align, prev) {
@@ -199,7 +216,7 @@
                     state.indented = stream.indentation();
                     state.startOfLine = true;
                     // Automatic semicolon insertion
-                    if (ctx.type == "statement" && !expectExpression(state.lastToken)) {
+                    if (ctx.type == "statement" && !expectExpression(state.lastToken, true)) {
                         popContext(state);
                         ctx = state.context;
                     }
@@ -231,9 +248,9 @@
             },
 
             indent: function (state, textAfter) {
-                if (!state.tokenize[state.tokenize.length - 1].isBase) return 0;
+                if (!state.tokenize[state.tokenize.length - 1].isBase) return CodeMirror.Pass;
                 var firstChar = textAfter && textAfter.charAt(0), ctx = state.context;
-                if (ctx.type == "statement" && !expectExpression(state.lastToken)) ctx = ctx.prev;
+                if (ctx.type == "statement" && !expectExpression(state.lastToken, true)) ctx = ctx.prev;
                 var closing = firstChar == ctx.type;
                 if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : config.indentUnit);
                 else if (ctx.align) return ctx.column + (closing ? 0 : 1);
@@ -241,7 +258,11 @@
             },
 
             electricChars: "{}",
-            fold: "brace"
+            closeBrackets: {triples: "'\""},
+            fold: "brace",
+            blockCommentStart: "/*",
+            blockCommentEnd: "*/",
+            lineComment: "//"
         };
     });
 

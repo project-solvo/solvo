@@ -2,11 +2,11 @@
     position: absolute;
     left: 0;
     right: 0;
-    background: white;
+    background: inherit;
     z-index: 15;
     padding: .1em .8em;
     overflow: hidden;
-    color: #333;
+    color: inherit;
 }
 
 .CodeMirror-dialog-top {

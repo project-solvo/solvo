@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -85,7 +85,6 @@
             'or'
         ]);
         var operators = wordObj([":=", "and then", "and", "or", "<<", ">>"]);
-        var curPunc;
 
         function chain(newtok, stream, state) {
             state.tokenize.push(newtok);
@@ -93,7 +92,6 @@
         }
 
         function tokenBase(stream, state) {
-            curPunc = null;
             if (stream.eatSpace()) return null;
             var ch = stream.next();
             if (ch == '"' || ch == "'") {

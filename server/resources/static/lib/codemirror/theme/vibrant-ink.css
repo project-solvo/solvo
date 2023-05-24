@@ -5,15 +5,15 @@
     color: white;
 }
 
-.cm-s-vibrant-ink .CodeMirror-selected {
-    background: #35493c !important;
+.cm-s-vibrant-ink div.CodeMirror-selected {
+    background: #35493c;
 }
 
-.cm-s-vibrant-ink.CodeMirror ::selection {
+.cm-s-vibrant-ink .CodeMirror-line::selection, .cm-s-vibrant-ink .CodeMirror-line > span::selection, .cm-s-vibrant-ink .CodeMirror-line > span > span::selection {
     background: rgba(53, 73, 60, 0.99);
 }
 
-.cm-s-vibrant-ink.CodeMirror ::-moz-selection {
+.cm-s-vibrant-ink .CodeMirror-line::-moz-selection, .cm-s-vibrant-ink .CodeMirror-line > span::-moz-selection, .cm-s-vibrant-ink .CodeMirror-line > span > span::-moz-selection {
     background: rgba(53, 73, 60, 0.99);
 }
 
@@ -35,7 +35,7 @@
 }
 
 .cm-s-vibrant-ink .CodeMirror-cursor {
-    border-left: 1px solid white !important;
+    border-left: 1px solid white;
 }
 
 .cm-s-vibrant-ink .cm-keyword {
@@ -55,11 +55,11 @@
 }
 
 .cm-s-vibrant-ink span.cm-variable-2, .cm-s-vibrant span.cm-tag {
-    color: #FFC66D
+    color: #FFC66D;
 }
 
-.cm-s-vibrant-ink span.cm-variable-3, .cm-s-vibrant span.cm-def {
-    color: #FFC66D
+.cm-s-vibrant-ink span.cm-variable-3, .cm-s-vibrant span.cm-def, .cm-s-vibrant span.cm-type {
+    color: #FFC66D;
 }
 
 .cm-s-vibrant-ink .cm-operator {
@@ -72,11 +72,11 @@
 }
 
 .cm-s-vibrant-ink .cm-string {
-    color: #A5C25C
+    color: #A5C25C;
 }
 
 .cm-s-vibrant-ink .cm-string-2 {
-    color: red
+    color: red;
 }
 
 .cm-s-vibrant-ink .cm-meta {
@@ -104,7 +104,7 @@
 }
 
 .cm-s-vibrant-ink .cm-link {
-    color: blue;
+    color: #5656F3;
 }
 
 .cm-s-vibrant-ink .cm-error {
@@ -112,7 +112,7 @@
 }
 
 .cm-s-vibrant-ink .CodeMirror-activeline-background {
-    background: #27282E !important;
+    background: #27282E;
 }
 
 .cm-s-vibrant-ink .CodeMirror-matchingbracket {

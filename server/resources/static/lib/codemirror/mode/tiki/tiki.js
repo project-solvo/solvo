@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -52,35 +52,27 @@
                 case "{": //plugin
                     stream.eat("/");
                     stream.eatSpace();
-                    var tagName = "";
-                    var c;
-                    while ((c = stream.eat(/[^\s\u00a0=\"\'\/?(}]/))) tagName += c;
+                    stream.eatWhile(/[^\s\u00a0=\"\'\/?(}]/);
                     state.tokenize = inPlugin;
                     return "tag";
-                    break;
                 case "_": //bold
-                    if (stream.eat("_")) {
+                    if (stream.eat("_"))
                         return chain(inBlock("strong", "__", inText));
-                    }
                     break;
                 case "'": //italics
-                    if (stream.eat("'")) {
-                        // Italic text
+                    if (stream.eat("'"))
                         return chain(inBlock("em", "''", inText));
-                    }
                     break;
                 case "(":// Wiki Link
-                    if (stream.eat("(")) {
+                    if (stream.eat("("))
                         return chain(inBlock("variable-2", "))", inText));
-                    }
                     break;
                 case "[":// Weblink
                     return chain(inBlock("variable-3", "]", inText));
                     break;
                 case "|": //table
-                    if (stream.eat("|")) {
+                    if (stream.eat("|"))
                         return chain(inBlock("comment", "||"));
-                    }
                     break;
                 case "-":
                     if (stream.eat("=")) {//titleBar
@@ -90,22 +82,19 @@
                     }
                     break;
                 case "=": //underline
-                    if (stream.match("==")) {
+                    if (stream.match("=="))
                         return chain(inBlock("tw-underline", "===", inText));
-                    }
                     break;
                 case ":":
-                    if (stream.eat(":")) {
+                    if (stream.eat(":"))
                         return chain(inBlock("comment", "::"));
-                    }
                     break;
                 case "^": //box
                     return chain(inBlock("tw-box", "^"));
                     break;
                 case "~": //np
-                    if (stream.match("np~")) {
+                    if (stream.match("np~"))
                         return chain(inBlock("meta", "~/np~"));
-                    }
                     break;
             }
 
@@ -156,7 +145,7 @@
                 type = "equals";
 
                 if (peek == ">") {
-                    ch = stream.next();
+                    stream.next();
                     peek = stream.peek();
                 }
 

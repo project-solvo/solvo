@@ -1,17 +1,8 @@
 /* Based on the theme at http://bonsaiden.github.com/JavaScript-Garden */
 
-/*<!--match-->*/
-.cm-s-midnight span.CodeMirror-matchhighlight {
-    background: #494949;
-}
-
-.cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight {
-    background: #314D67 !important;
-}
-
 /*<!--activeline-->*/
 .cm-s-midnight .CodeMirror-activeline-background {
-    background: #253540 !important;
+    background: #253540;
 }
 
 .cm-s-midnight.CodeMirror {
@@ -19,20 +10,15 @@
     color: #D1EDFF;
 }
 
-.cm-s-midnight.CodeMirror {
-    border-top: 1px solid black;
-    border-bottom: 1px solid black;
-}
-
 .cm-s-midnight div.CodeMirror-selected {
-    background: #314D67 !important;
+    background: #314D67;
 }
 
-.cm-s-midnight.CodeMirror ::selection {
+.cm-s-midnight .CodeMirror-line::selection, .cm-s-midnight .CodeMirror-line > span::selection, .cm-s-midnight .CodeMirror-line > span > span::selection {
     background: rgba(49, 77, 103, .99);
 }
 
-.cm-s-midnight.CodeMirror ::-moz-selection {
+.cm-s-midnight .CodeMirror-line::-moz-selection, .cm-s-midnight .CodeMirror-line > span::-moz-selection, .cm-s-midnight .CodeMirror-line > span > span::-moz-selection {
     background: rgba(49, 77, 103, .99);
 }
 
@@ -54,7 +40,7 @@
 }
 
 .cm-s-midnight .CodeMirror-cursor {
-    border-left: 1px solid #F8F8F0 !important;
+    border-left: 1px solid #F8F8F0;
 }
 
 .cm-s-midnight span.cm-comment {

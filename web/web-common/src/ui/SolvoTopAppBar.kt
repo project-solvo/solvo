@@ -10,11 +10,11 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
+import org.solvo.web.document.LocalSolvoWindow
 import org.solvo.web.document.WindowState
 
 @Composable
 fun SolvoTopAppBar(
-    windowState: WindowState,
     navigationIcon: @Composable () -> Unit = {}
 ) {
     var notifyMenu1 by remember { mutableStateOf(false) }
@@ -36,16 +36,17 @@ fun SolvoTopAppBar(
             }
         },
         actions = {
+            val windowState = LocalSolvoWindow.current
             IconButton(onClick = {
                 windowState.setDarkMode(
-                    when (windowState.isInDarkMode.value) {
+                    when (windowState.preferDarkMode.value) {
                         null -> false
                         false -> true
                         true -> null
                     }
                 )
             }) {
-                val isInDarkMode by windowState.isInDarkMode.collectAsState()
+                val isInDarkMode by windowState.preferDarkMode.collectAsState()
                 Icon(
                     when (isInDarkMode) {
                         null -> Icons.Default.BrightnessAuto

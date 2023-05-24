@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 // Utility function that allows modes to be combined. The mode given
 // as the base argument takes care of most of the normal mode
@@ -68,8 +68,8 @@
                 else return state.overlayCur;
             },
 
-            indent: base.indent && function (state, textAfter) {
-                return base.indent(state.base, textAfter);
+            indent: base.indent && function (state, textAfter, line) {
+                return base.indent(state.base, textAfter, line);
             },
             electricChars: base.electricChars,
 
@@ -78,8 +78,13 @@
             },
 
             blankLine: function (state) {
-                if (base.blankLine) base.blankLine(state.base);
-                if (overlay.blankLine) overlay.blankLine(state.overlay);
+                var baseToken, overlayToken;
+                if (base.blankLine) baseToken = base.blankLine(state.base);
+                if (overlay.blankLine) overlayToken = overlay.blankLine(state.overlay);
+
+                return overlayToken == null ?
+                    baseToken :
+                    (combine && baseToken != null ? baseToken + " " + overlayToken : overlayToken);
             }
         };
     };

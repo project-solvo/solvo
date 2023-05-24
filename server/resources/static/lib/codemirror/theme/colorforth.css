@@ -21,7 +21,7 @@
 }
 
 .cm-s-colorforth .CodeMirror-cursor {
-    border-left: 1px solid white !important;
+    border-left: 1px solid white;
 }
 
 .cm-s-colorforth span.cm-comment {
@@ -61,7 +61,7 @@
     color: #EEE;
 }
 
-.cm-s-colorforth span.cm-variable-3 {
+.cm-s-colorforth span.cm-variable-3, .cm-s-colorforth span.cm-type {
     color: #DDD;
 }
 
@@ -95,8 +95,8 @@
     color: #f00;
 }
 
-.cm-s-colorforth .CodeMirror-selected {
-    background: #333d53 !important;
+.cm-s-colorforth div.CodeMirror-selected {
+    background: #333d53;
 }
 
 .cm-s-colorforth span.cm-compilation {
@@ -104,5 +104,5 @@
 }
 
 .cm-s-colorforth .CodeMirror-activeline-background {
-    background: #253540 !important;
+    background: #253540;
 }

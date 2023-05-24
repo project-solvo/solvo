@@ -46,7 +46,7 @@ THE SOFTWARE.
     color: black;
 }
 
-.cm-s-xq-light span.cm-variable-3 {
+.cm-s-xq-light span.cm-variable-3, .cm-s-xq-light span.cm-type {
     color: black;
 }
 
@@ -70,7 +70,7 @@ THE SOFTWARE.
 }
 
 .cm-s-xq-light span.cm-qualifier {
-    color: grey
+    color: grey;
 }
 
 .cm-s-xq-light span.cm-builtin {
@@ -94,7 +94,7 @@ THE SOFTWARE.
 }
 
 .cm-s-xq-light .CodeMirror-activeline-background {
-    background: #e8f2ff !important;
+    background: #e8f2ff;
 }
 
 .cm-s-xq-light .CodeMirror-matchingbracket {

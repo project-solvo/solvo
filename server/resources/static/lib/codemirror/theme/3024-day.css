@@ -14,14 +14,14 @@
 }
 
 .cm-s-3024-day div.CodeMirror-selected {
-    background: #d6d5d4 !important;
-}
-
-.cm-s-3024-day.CodeMirror ::selection {
     background: #d6d5d4;
 }
 
-.cm-s-3024-day.CodeMirror ::-moz-selection {
+.cm-s-3024-day .CodeMirror-line::selection, .cm-s-3024-day .CodeMirror-line > span::selection, .cm-s-3024-day .CodeMirror-line > span > span::selection {
+    background: #d6d5d4;
+}
+
+.cm-s-3024-day .CodeMirror-line::-moz-selection, .cm-s-3024-day .CodeMirror-line > span::-moz-selection, .cm-s-3024-day .CodeMirror-line > span > span::selection {
     background: #d9d9d9;
 }
 
@@ -43,7 +43,7 @@
 }
 
 .cm-s-3024-day .CodeMirror-cursor {
-    border-left: 1px solid #5c5855 !important;
+    border-left: 1px solid #5c5855;
 }
 
 .cm-s-3024-day span.cm-comment {
@@ -100,7 +100,7 @@
 }
 
 .cm-s-3024-day .CodeMirror-activeline-background {
-    background: #e8f2ff !important;
+    background: #e8f2ff;
 }
 
 .cm-s-3024-day .CodeMirror-matchingbracket {

@@ -4,14 +4,14 @@
 }
 
 .cm-s-the-matrix div.CodeMirror-selected {
-    background: #2D2D2D !important;
+    background: #2D2D2D;
 }
 
-.cm-s-the-matrix.CodeMirror ::selection {
+.cm-s-the-matrix .CodeMirror-line::selection, .cm-s-the-matrix .CodeMirror-line > span::selection, .cm-s-the-matrix .CodeMirror-line > span > span::selection {
     background: rgba(45, 45, 45, 0.99);
 }
 
-.cm-s-the-matrix.CodeMirror ::-moz-selection {
+.cm-s-the-matrix .CodeMirror-line::-moz-selection, .cm-s-the-matrix .CodeMirror-line > span::-moz-selection, .cm-s-the-matrix .CodeMirror-line > span > span::-moz-selection {
     background: rgba(45, 45, 45, 0.99);
 }
 
@@ -33,7 +33,7 @@
 }
 
 .cm-s-the-matrix .CodeMirror-cursor {
-    border-left: 1px solid #00FF00 !important;
+    border-left: 1px solid #00FF00;
 }
 
 .cm-s-the-matrix span.cm-keyword {
@@ -61,7 +61,7 @@
     color: #C6F;
 }
 
-.cm-s-the-matrix span.cm-variable-3 {
+.cm-s-the-matrix span.cm-variable-3, .cm-s-the-matrix span.cm-type {
     color: #96F;
 }
 
@@ -70,7 +70,7 @@
 }
 
 .cm-s-the-matrix span.cm-operator {
-    color: #999
+    color: #999;
 }
 
 .cm-s-the-matrix span.cm-comment {

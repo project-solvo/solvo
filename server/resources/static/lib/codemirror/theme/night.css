@@ -6,14 +6,14 @@
 }
 
 .cm-s-night div.CodeMirror-selected {
-    background: #447 !important;
+    background: #447;
 }
 
-.cm-s-night.CodeMirror ::selection {
+.cm-s-night .CodeMirror-line::selection, .cm-s-night .CodeMirror-line > span::selection, .cm-s-night .CodeMirror-line > span > span::selection {
     background: rgba(68, 68, 119, .99);
 }
 
-.cm-s-night.CodeMirror ::-moz-selection {
+.cm-s-night .CodeMirror-line::-moz-selection, .cm-s-night .CodeMirror-line > span::-moz-selection, .cm-s-night .CodeMirror-line > span > span::-moz-selection {
     background: rgba(68, 68, 119, .99);
 }
 
@@ -35,11 +35,11 @@
 }
 
 .cm-s-night .CodeMirror-cursor {
-    border-left: 1px solid white !important;
+    border-left: 1px solid white;
 }
 
 .cm-s-night span.cm-comment {
-    color: #6900a1;
+    color: #8900d1;
 }
 
 .cm-s-night span.cm-atom {
@@ -66,16 +66,12 @@
     color: #99b2ff;
 }
 
-.cm-s-night span.cm-variable-3, .cm-s-night span.cm-def {
+.cm-s-night span.cm-variable-3, .cm-s-night span.cm-def, .cm-s-night span.cm-type {
     color: white;
 }
 
 .cm-s-night span.cm-bracket {
     color: #8da6ce;
-}
-
-.cm-s-night span.cm-comment {
-    color: #6900a1;
 }
 
 .cm-s-night span.cm-builtin, .cm-s-night span.cm-special {
@@ -91,7 +87,7 @@
 }
 
 .cm-s-night .CodeMirror-activeline-background {
-    background: #1C005A !important;
+    background: #1C005A;
 }
 
 .cm-s-night .CodeMirror-matchingbracket {

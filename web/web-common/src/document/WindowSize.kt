@@ -7,10 +7,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -29,11 +26,13 @@ fun SolvoWindow(
         val windowState = createWindowState()
 
         setContent {
-            val isInDarkMode by windowState.isInDarkMode.collectAsState()
+            val isInDarkMode by windowState.preferDarkMode.collectAsState()
             AppTheme(useDarkTheme = isInDarkMode ?: isSystemInDarkTheme()) {
                 val currentSize by windowState.size.collectAsState()
-                Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
-                    content(windowState)
+                CompositionLocalProvider(LocalSolvoWindow provides windowState) {
+                    Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
+                        content(windowState)
+                    }
                 }
             }
 
@@ -67,15 +66,22 @@ val Window.innerSize get() = DpSize(window.innerWidth.dp, window.innerHeight.dp)
 @Stable
 class WindowState {
     val size: MutableStateFlow<DpSize> = MutableStateFlow(window.innerSize)
-    val isInDarkMode: MutableStateFlow<Boolean?> =
+    val preferDarkMode: MutableStateFlow<Boolean?> =
         MutableStateFlow(Cookies.getCookie("is-in-dark-mode")?.toBooleanStrictOrNull())
 
     val density: MutableStateFlow<Density> = MutableStateFlow(window.currentDensity())
 
     fun setDarkMode(dark: Boolean?) {
-        isInDarkMode.value = dark
+        preferDarkMode.value = dark
         Cookies.setCookie("is-in-dark-mode", dark.toString())
     }
+
 }
 
+@Composable
+fun WindowState.isInDarkMode(): Boolean = preferDarkMode.value ?: isSystemInDarkTheme()
+
 fun Window.currentDensity() = Density(devicePixelRatio.toFloat(), 1f)
+
+
+val LocalSolvoWindow: ProvidableCompositionLocal<WindowState> = staticCompositionLocalOf { error("Not avialable") }

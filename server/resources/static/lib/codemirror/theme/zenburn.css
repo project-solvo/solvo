@@ -17,10 +17,10 @@
 }
 
 .cm-s-zenburn .CodeMirror-cursor {
-    border-left: 1px solid white !important;
+    border-left: 1px solid white;
 }
 
-.cm-s-zenburn {
+.cm-s-zenburn.CodeMirror {
     background-color: #3f3f3f;
     color: #dcdccc;
 }
@@ -114,10 +114,10 @@
     background: #000000;
 }
 
-.cm-s-zenburn .CodeMirror-selected {
+.cm-s-zenburn div.CodeMirror-selected {
     background: #545454;
 }
 
-.cm-s-zenburn .CodeMirror-focused .CodeMirror-selected {
+.cm-s-zenburn .CodeMirror-focused div.CodeMirror-selected {
     background: #4f4f4f;
 }

@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 // Open simple dialogs on top of an editor. Relies on dialog.css.
 
@@ -25,6 +25,7 @@
         } else { // Assuming it's a detached DOM element.
             dialog.appendChild(template);
         }
+        CodeMirror.addClass(wrap, 'dialog-opened');
         return dialog;
     }
 
@@ -48,6 +49,7 @@
             } else {
                 if (closed) return;
                 closed = true;
+                CodeMirror.rmClass(dialog.parentNode, 'dialog-opened');
                 dialog.parentNode.removeChild(dialog);
                 me.focus();
 
@@ -57,9 +59,13 @@
 
         var inp = dialog.getElementsByTagName("input")[0], button;
         if (inp) {
+            inp.focus();
+
             if (options.value) {
                 inp.value = options.value;
-                inp.select();
+                if (options.selectValueOnOpen !== false) {
+                    inp.select();
+                }
             }
 
             if (options.onInput)
@@ -83,9 +89,9 @@
                 if (e.keyCode == 13) callback(inp.value, e);
             });
 
-            if (options.closeOnBlur !== false) CodeMirror.on(inp, "blur", close);
-
-            inp.focus();
+            if (options.closeOnBlur !== false) CodeMirror.on(dialog, "focusout", function (evt) {
+                if (evt.relatedTarget !== null) close();
+            });
         } else if (button = dialog.getElementsByTagName("button")[0]) {
             CodeMirror.on(button, "click", function () {
                 close();
@@ -108,6 +114,7 @@
         function close() {
             if (closed) return;
             closed = true;
+            CodeMirror.rmClass(dialog.parentNode, 'dialog-opened');
             dialog.parentNode.removeChild(dialog);
             me.focus();
         }
@@ -152,6 +159,7 @@
             if (closed) return;
             closed = true;
             clearTimeout(doneTimer);
+            CodeMirror.rmClass(dialog.parentNode, 'dialog-opened');
             dialog.parentNode.removeChild(dialog);
         }
 

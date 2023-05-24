@@ -4,14 +4,14 @@
 }
 
 .cm-s-rubyblue div.CodeMirror-selected {
-    background: #38566F !important;
+    background: #38566F;
 }
 
-.cm-s-rubyblue.CodeMirror ::selection {
+.cm-s-rubyblue .CodeMirror-line::selection, .cm-s-rubyblue .CodeMirror-line > span::selection, .cm-s-rubyblue .CodeMirror-line > span > span::selection {
     background: rgba(56, 86, 111, 0.99);
 }
 
-.cm-s-rubyblue.CodeMirror ::-moz-selection {
+.cm-s-rubyblue .CodeMirror-line::-moz-selection, .cm-s-rubyblue .CodeMirror-line > span::-moz-selection, .cm-s-rubyblue .CodeMirror-line > span > span::-moz-selection {
     background: rgba(56, 86, 111, 0.99);
 }
 
@@ -33,7 +33,7 @@
 }
 
 .cm-s-rubyblue .CodeMirror-cursor {
-    border-left: 1px solid white !important;
+    border-left: 1px solid white;
 }
 
 .cm-s-rubyblue span.cm-comment {
@@ -66,7 +66,7 @@
     color: #7BD827;
 }
 
-.cm-s-rubyblue span.cm-variable-3, .cm-s-rubyblue span.cm-def {
+.cm-s-rubyblue span.cm-variable-3, .cm-s-rubyblue span.cm-def, .cm-s-rubyblue span.cm-type {
     color: white;
 }
 
@@ -91,5 +91,5 @@
 }
 
 .cm-s-rubyblue .CodeMirror-activeline-background {
-    background: #173047 !important;
+    background: #173047;
 }

@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -17,7 +17,7 @@
         }
 
         var singleOperators = new RegExp("^[\\+\\-\\*/&|\\^~<>!@'\\\\]");
-        var singleDelimiters = new RegExp('^[\\(\\[\\{\\},:=;]');
+        var singleDelimiters = new RegExp('^[\\(\\[\\{\\},:=;\\.]');
         var doubleOperators = new RegExp("^((==)|(~=)|(<=)|(>=)|(<<)|(>>)|(\\.[\\+\\-\\*/\\^\\\\]))");
         var doubleDelimiters = new RegExp("^((!=)|(\\+=)|(\\-=)|(\\*=)|(/=)|(&=)|(\\|=)|(\\^=))");
         var tripleDelimiters = new RegExp("^((>>=)|(<<=))");
@@ -102,14 +102,10 @@
             ;
 
             // Handle Strings
-            if (stream.match(/^"([^"]|(""))*"/)) {
-                return 'string';
+            var m = stream.match(/^"(?:[^"]|"")*("|$)/) || stream.match(/^'(?:[^']|'')*('|$)/)
+            if (m) {
+                return m[1] ? 'string' : "string error";
             }
-            ;
-            if (stream.match(/^'([^']|(''))*'/)) {
-                return 'string';
-            }
-            ;
 
             // Handle words
             if (stream.match(keywords)) {
@@ -160,7 +156,11 @@
                     state.tokenize = tokenTranspose;
                 }
                 return style;
-            }
+            },
+
+            lineComment: '%',
+
+            fold: 'indent'
         };
     });
 

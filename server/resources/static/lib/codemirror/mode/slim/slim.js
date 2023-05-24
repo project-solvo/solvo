@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 // Slim Highlighting for CodeMirror copyright (c) HicknHack Software Gmbh
 
@@ -168,7 +168,7 @@
             };
             return function (stream, state) {
                 rubyState = state.rubyState;
-                state.rubyState = rubyMode.startState();
+                state.rubyState = CodeMirror.startState(rubyMode);
                 state.tokenize = runSplat;
                 return ruby(stream, state);
             };
@@ -324,7 +324,7 @@
 
         function startSubMode(mode, state) {
             var subMode = getMode(mode);
-            var subState = subMode.startState && subMode.startState();
+            var subState = CodeMirror.startState(subMode);
 
             state.subMode = subMode;
             state.subState = subState;
@@ -521,8 +521,8 @@
         var mode = {
             // default to html mode
             startState: function () {
-                var htmlState = htmlMode.startState();
-                var rubyState = rubyMode.startState();
+                var htmlState = CodeMirror.startState(htmlMode);
+                var rubyState = CodeMirror.startState(rubyMode);
                 return {
                     htmlState: htmlState,
                     rubyState: rubyState,

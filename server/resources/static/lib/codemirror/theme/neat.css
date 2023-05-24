@@ -41,7 +41,7 @@
 }
 
 .cm-s-neat .CodeMirror-activeline-background {
-    background: #e8f2ff !important;
+    background: #e8f2ff;
 }
 
 .cm-s-neat .CodeMirror-matchingbracket {

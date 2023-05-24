@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -41,11 +41,11 @@
                     state.pair = false;
                     state.pairStart = false;
                     /* document start */
-                    if (stream.match(/---/)) {
+                    if (stream.match('---')) {
                         return "def";
                     }
                     /* document end */
-                    if (stream.match(/\.\.\./)) {
+                    if (stream.match('...')) {
                         return "def";
                     }
                     /* array list item */
@@ -66,12 +66,12 @@
                     return 'meta';
                 }
 
-                /* list seperator */
+                /* list separator */
                 if (state.inlineList > 0 && !esc && ch == ',') {
                     stream.next();
                     return 'meta';
                 }
-                /* pairs seperator */
+                /* pairs separator */
                 if (state.inlinePairs > 0 && !esc && ch == ',') {
                     state.keyCol = 0;
                     state.pair = false;
@@ -132,10 +132,13 @@
                     literal: false,
                     escaped: false
                 };
-            }
+            },
+            lineComment: "#",
+            fold: "indent"
         };
     });
 
     CodeMirror.defineMIME("text/x-yaml", "yaml");
+    CodeMirror.defineMIME("text/yaml", "yaml");
 
 });

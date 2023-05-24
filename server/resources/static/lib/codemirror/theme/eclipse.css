@@ -28,7 +28,7 @@
     color: #0000C0;
 }
 
-.cm-s-eclipse span.cm-variable-3 {
+.cm-s-eclipse span.cm-variable-3, .cm-s-eclipse span.cm-type {
     color: #0000C0;
 }
 
@@ -81,7 +81,7 @@
 }
 
 .cm-s-eclipse .CodeMirror-activeline-background {
-    background: #e8f2ff !important;
+    background: #e8f2ff;
 }
 
 .cm-s-eclipse .CodeMirror-matchingbracket {

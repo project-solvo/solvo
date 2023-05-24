@@ -1,17 +1,23 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/5/LICENSE
 
 (function (mod) {
     if (typeof exports == "object" && typeof module == "object") // CommonJS
-        mod(require("../../lib/codemirror"));
+        mod(require("../../lib/codemirror"), require("../css/css"));
     else if (typeof define == "function" && define.amd) // AMD
-        define(["../../lib/codemirror"], mod);
+        define(["../../lib/codemirror", "../css/css"], mod);
     else // Plain browser env
         mod(CodeMirror);
 })(function (CodeMirror) {
     "use strict";
 
     CodeMirror.defineMode("sass", function (config) {
+        var cssMode = CodeMirror.mimeModes["text/css"];
+        var propertyKeywords = cssMode.propertyKeywords || {},
+            colorKeywords = cssMode.colorKeywords || {},
+            valueKeywords = cssMode.valueKeywords || {},
+            fontProperties = cssMode.fontProperties || {};
+
         function tokenRegexp(words) {
             return new RegExp("^" + words.join("|"));
         }
@@ -24,6 +30,12 @@
         var opRegexp = tokenRegexp(operators);
 
         var pseudoElementsRegexp = /^::?[a-zA-Z_][\w\-]*/;
+
+        var word;
+
+        function isEndLine(stream) {
+            return !stream.peek() || stream.match(/\s+$/, false);
+        }
 
         function urlTokens(stream, state) {
             var ch = stream.peek();
@@ -80,6 +92,9 @@
                 if (endingString) {
                     if (nextChar !== quote && greedy) {
                         stream.next();
+                    }
+                    if (isEndLine(stream)) {
+                        state.cursorHalf = 0;
                     }
                     state.tokenizer = tokenBase;
                     return "string";
@@ -152,14 +167,20 @@
                 // first half i.e. before : for key-value pairs
                 // including selectors
 
+                if (ch === "-") {
+                    if (stream.match(/^-\w+-/)) {
+                        return "meta";
+                    }
+                }
+
                 if (ch === ".") {
                     stream.next();
                     if (stream.match(/^[\w-]+/)) {
                         indent(state);
-                        return "atom";
+                        return "qualifier";
                     } else if (stream.peek() === "#") {
                         indent(state);
-                        return "atom";
+                        return "tag";
                     }
                 }
 
@@ -168,11 +189,11 @@
                     // ID selectors
                     if (stream.match(/^[\w-]+/)) {
                         indent(state);
-                        return "atom";
+                        return "builtin";
                     }
                     if (stream.peek() === "#") {
                         indent(state);
-                        return "atom";
+                        return "tag";
                     }
                 }
 
@@ -215,7 +236,7 @@
                 }
 
                 if (ch === "@") {
-                    if (stream.match(/@extend/)) {
+                    if (stream.match('@extend')) {
                         if (!stream.match(/\s*[\w]/))
                             dedent(state);
                     }
@@ -225,34 +246,45 @@
                 // Indent Directives
                 if (stream.match(/^@(else if|if|media|else|for|each|while|mixin|function)/)) {
                     indent(state);
-                    return "meta";
+                    return "def";
                 }
 
                 // Other Directives
                 if (ch === "@") {
                     stream.next();
                     stream.eatWhile(/[\w-]/);
-                    return "meta";
+                    return "def";
                 }
 
                 if (stream.eatWhile(/[\w-]/)) {
                     if (stream.match(/ *: *[\w-\+\$#!\("']/, false)) {
-                        return "propery";
+                        word = stream.current().toLowerCase();
+                        var prop = state.prevProp + "-" + word;
+                        if (propertyKeywords.hasOwnProperty(prop)) {
+                            return "property";
+                        } else if (propertyKeywords.hasOwnProperty(word)) {
+                            state.prevProp = word;
+                            return "property";
+                        } else if (fontProperties.hasOwnProperty(word)) {
+                            return "property";
+                        }
+                        return "tag";
                     } else if (stream.match(/ *:/, false)) {
                         indent(state);
                         state.cursorHalf = 1;
-                        return "atom";
+                        state.prevProp = stream.current().toLowerCase();
+                        return "property";
                     } else if (stream.match(/ *,/, false)) {
-                        return "atom";
+                        return "tag";
                     } else {
                         indent(state);
-                        return "atom";
+                        return "tag";
                     }
                 }
 
                 if (ch === ":") {
                     if (stream.match(pseudoElementsRegexp)) { // could be a pseudo-element
-                        return "keyword";
+                        return "variable-3";
                     }
                     stream.next();
                     state.cursorHalf = 1;
@@ -266,7 +298,7 @@
                     stream.next();
                     // Hex numbers
                     if (stream.match(/[0-9a-fA-F]{6}|[0-9a-fA-F]{3}/)) {
-                        if (!stream.peek()) {
+                        if (isEndLine(stream)) {
                             state.cursorHalf = 0;
                         }
                         return "number";
@@ -275,7 +307,7 @@
 
                 // Numbers
                 if (stream.match(/^-?[0-9\.]+/)) {
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
                     return "number";
@@ -283,14 +315,14 @@
 
                 // Units
                 if (stream.match(/^(px|em|in)\b/)) {
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
                     return "unit";
                 }
 
                 if (stream.match(keywordsRegexp)) {
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
                     return "keyword";
@@ -298,7 +330,7 @@
 
                 if (stream.match(/^url/) && stream.peek() === "(") {
                     state.tokenizer = urlTokens;
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
                     return "atom";
@@ -308,23 +340,21 @@
                 if (ch === "$") {
                     stream.next();
                     stream.eatWhile(/[\w-]/);
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
-                    return "variable-3";
+                    return "variable-2";
                 }
 
                 // bang character for !important, !default, etc.
                 if (ch === "!") {
                     stream.next();
-                    if (!stream.peek()) {
-                        state.cursorHalf = 0;
-                    }
+                    state.cursorHalf = 0;
                     return stream.match(/^[\w]+/) ? "keyword" : "operator";
                 }
 
                 if (stream.match(opRegexp)) {
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
                     return "operator";
@@ -332,14 +362,24 @@
 
                 // attributes
                 if (stream.eatWhile(/[\w-]/)) {
-                    if (!stream.peek()) {
+                    if (isEndLine(stream)) {
                         state.cursorHalf = 0;
                     }
-                    return "attribute";
+                    word = stream.current().toLowerCase();
+                    if (valueKeywords.hasOwnProperty(word)) {
+                        return "atom";
+                    } else if (colorKeywords.hasOwnProperty(word)) {
+                        return "keyword";
+                    } else if (propertyKeywords.hasOwnProperty(word)) {
+                        state.prevProp = stream.current().toLowerCase();
+                        return "property";
+                    } else {
+                        return "tag";
+                    }
                 }
 
                 //stream.eatSpace();
-                if (!stream.peek()) {
+                if (isEndLine(stream)) {
                     state.cursorHalf = 0;
                     return null;
                 }
@@ -407,9 +447,14 @@
 
             indent: function (state) {
                 return state.scopes[0].offset;
-            }
+            },
+
+            blockCommentStart: "/*",
+            blockCommentEnd: "*/",
+            lineComment: "//",
+            fold: "indent"
         };
-    });
+    }, "css");
 
     CodeMirror.defineMIME("text/x-sass", "sass");
 

@@ -10,14 +10,14 @@
 }
 
 .cm-s-mbo div.CodeMirror-selected {
-    background: #716C62 !important;
+    background: #716C62;
 }
 
-.cm-s-mbo.CodeMirror ::selection {
+.cm-s-mbo .CodeMirror-line::selection, .cm-s-mbo .CodeMirror-line > span::selection, .cm-s-mbo .CodeMirror-line > span > span::selection {
     background: rgba(113, 108, 98, .99);
 }
 
-.cm-s-mbo.CodeMirror ::-moz-selection {
+.cm-s-mbo .CodeMirror-line::-moz-selection, .cm-s-mbo .CodeMirror-line > span::-moz-selection, .cm-s-mbo .CodeMirror-line > span > span::-moz-selection {
     background: rgba(113, 108, 98, .99);
 }
 
@@ -39,7 +39,7 @@
 }
 
 .cm-s-mbo .CodeMirror-cursor {
-    border-left: 1px solid #ffffec !important;
+    border-left: 1px solid #ffffec;
 }
 
 .cm-s-mbo span.cm-comment {
@@ -105,11 +105,11 @@
 }
 
 .cm-s-mbo .CodeMirror-activeline-background {
-    background: #494b41 !important;
+    background: #494b41;
 }
 
 .cm-s-mbo .CodeMirror-matchingbracket {
-    color: #222 !important;
+    color: #ffb928 !important;
 }
 
 .cm-s-mbo .CodeMirror-matchingtag {
