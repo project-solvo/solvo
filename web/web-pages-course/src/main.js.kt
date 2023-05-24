@@ -91,7 +91,7 @@ private fun PastPaperCard(item: Article) {
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
-            text = item.year,
+            text = item.termYear,
             modifier = Modifier.padding(8.dp),
             style = MaterialTheme.typography.titleLarge,
         )
@@ -122,7 +122,7 @@ fun QuestionCards(questions: List<Question>) {
                     ),
             ) {
                 Text(
-                    text = question.qid,
+                    text = question.content,
                     modifier = Modifier.padding(8.dp),
                     style = MaterialTheme.typography.titleLarge,
                 )

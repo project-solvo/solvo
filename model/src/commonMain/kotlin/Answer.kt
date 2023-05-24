@@ -10,19 +10,12 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 
 @Immutable
 @Serializable
-class Question(
-    val coid: Uuid?,
+class Answer(
+    val coid: Uuid,
     val author: User?,
     val content: String,
-    val anonymity: Boolean = false,
+    val anonymity: Boolean,
 
-    val answers: List<Answer> = listOf(),
+    val question: Uuid,
     val comments: List<Comment> = listOf(),
-) {
-    // to pass compilation
-    constructor(content: String) : this(
-        coid = null,
-        author = null,
-        content = content,
-        )
-}
+)

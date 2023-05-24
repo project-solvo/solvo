@@ -14,26 +14,32 @@ object TermTable: IntIdTable("Terms", "termId") {
     val termTime = varchar("termTime", DatabaseModel.TERM_TIME_MAX_LENGTH).uniqueIndex()
 }
 
-object ArticleTable: UUIDTable("Articles", "ArticleId") {
+object ArticleTable: Table("Articles") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
     val course = reference("courseId", CourseTable)
     val term = reference("termId", TermTable)
 
     val stars = uinteger("starsCount").default(0u)
     val views = uinteger("viewsCount").default(0u)
+
+    override val primaryKey = PrimaryKey(ArticleTable.coid)
 }
 
-object QuestionTable: UUIDTable("Questions", "QuestionId") {
+object QuestionTable: Table("Questions") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
-    val article = reference("articleId", ArticleTable)
+    val article = reference("articleId", ArticleTable.coid)
+
+    override val primaryKey = PrimaryKey(QuestionTable.coid)
 }
 
-object AnswerTable: UUIDTable("Answers", "AnswerId") {
+object AnswerTable: Table("Answers") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
-    val question = reference("questionId", AnswerTable)
+    val question = reference("questionId", QuestionTable.coid)
 
     val upvote = uinteger("upvoteCount").default(0u)
     val downvote = uinteger("downvoteCount").default(0u)
+
+    override val primaryKey = PrimaryKey(AnswerTable.coid)
 }
 
 object CommentTable: Table("Comments") {

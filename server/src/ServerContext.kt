@@ -8,6 +8,8 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.solvo.server.database.AccountDBFacade
 import org.solvo.server.database.AccountDBFacadeImpl
+import org.solvo.server.database.ResourcesDBFacade
+import org.solvo.server.database.ResourcesDBFacadeImpl
 import org.solvo.server.database.exposed.*
 import org.solvo.server.utils.*
 
@@ -16,11 +18,17 @@ object ServerContext {
     val tokens: TokenGenerator = TokenGeneratorImpl()
     val paths: ServerResourcesPath = ServerResourcesPathImpl()
 
-    val accountDB: AccountDBFacade = AccountDBFacadeImpl()
+    val accounts: AccountDBFacade = AccountDBFacadeImpl()
+    val resources: ResourcesDBFacade = ResourcesDBFacadeImpl()
 
     fun init() {
         DatabaseFactory.init()
-        accountDB.apply {
+        accounts.apply {
+            runBlocking {
+                // initialization here
+            }
+        }
+        resources.apply {
             runBlocking {
                 // initialization here
             }
