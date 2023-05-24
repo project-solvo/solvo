@@ -16,19 +16,20 @@ import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Course
 import org.solvo.web.document.SolvoWindow
+import org.solvo.web.document.WindowState
 import org.solvo.web.ui.SolvoTopAppBar
 
 fun main() {
     onWasmReady {
         SolvoWindow {
-            HomePageContent()
+            HomePageContent(this)
         }
     }
 }
 
 @Composable
-fun HomePageContent() {
-    SolvoTopAppBar()
+fun HomePageContent(windowState: WindowState) {
+    SolvoTopAppBar(windowState)
     Column(
         modifier = Modifier.fillMaxSize().padding(100.dp).verticalScroll(rememberScrollState())
     ) {

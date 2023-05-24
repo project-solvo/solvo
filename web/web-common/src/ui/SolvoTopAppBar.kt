@@ -3,19 +3,18 @@ package org.solvo.web.ui
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Notifications
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
+import org.solvo.web.document.WindowState
 
 @Composable
 fun SolvoTopAppBar(
+    windowState: WindowState,
     navigationIcon: @Composable () -> Unit = {}
 ) {
     var notifyMenu1 by remember { mutableStateOf(false) }
@@ -37,6 +36,24 @@ fun SolvoTopAppBar(
             }
         },
         actions = {
+            IconButton(onClick = {
+                windowState.setDarkMode(
+                    when (windowState.isInDarkMode.value) {
+                        null -> false
+                        false -> true
+                        true -> null
+                    }
+                )
+            }) {
+                val isInDarkMode by windowState.isInDarkMode.collectAsState()
+                Icon(
+                    when (isInDarkMode) {
+                        null -> Icons.Default.BrightnessAuto
+                        false -> Icons.Default.LightMode
+                        true -> Icons.Default.DarkMode
+                    }, null
+                )
+            }
             IconButton(onClick = { notifyMenu1 = true }) {
                 Icon(Icons.Filled.Notifications, null)
             }

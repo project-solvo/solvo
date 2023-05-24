@@ -3,6 +3,7 @@
 package org.solvo.web.document
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +28,8 @@ fun SolvoWindow(
         val windowState = createWindowState()
 
         setContent {
-            AppTheme(useDarkTheme = true) {
+            val isInDarkMode by windowState.isInDarkMode.collectAsState()
+            AppTheme(useDarkTheme = isInDarkMode ?: isSystemInDarkTheme()) {
                 val currentSize by windowState.size.collectAsState()
                 Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
                     content(windowState)
@@ -53,6 +55,13 @@ internal fun createWindowState(): WindowState {
 val Window.innerSize get() = DpSize(window.innerWidth.dp, window.innerHeight.dp)
 
 @Stable
-class WindowState(
+class WindowState {
     val size: MutableStateFlow<DpSize> = MutableStateFlow(window.innerSize)
-)
+    val isInDarkMode: MutableStateFlow<Boolean?> =
+        MutableStateFlow(Cookies.getCookie("is-in-dark-mode")?.toBooleanStrictOrNull())
+
+    fun setDarkMode(dark: Boolean?) {
+        isInDarkMode.value = dark
+        Cookies.setCookie("is-in-dark-mode", dark.toString())
+    }
+}
