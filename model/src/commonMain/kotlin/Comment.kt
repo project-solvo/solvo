@@ -14,9 +14,9 @@ class Comment(
     val coid: Uuid,
     val author: User?,
     val content: String,
-    val anonymity: Boolean,
+    val anonymity: Boolean = false,
 
-    val pinned: Boolean,
+    val pinned: Boolean = false,
 
     val parent: Uuid,
     val subComments: List<LightComment> = listOf(),
