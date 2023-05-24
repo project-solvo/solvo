@@ -79,7 +79,10 @@ class WindowState {
 }
 
 @Composable
-fun WindowState.isInDarkMode(): Boolean = preferDarkMode.value ?: isSystemInDarkTheme()
+fun WindowState.isInDarkMode(): Boolean {
+    val preferDark by preferDarkMode.collectAsState()
+    return preferDark ?: isSystemInDarkTheme()
+}
 
 fun Window.currentDensity() = Density(devicePixelRatio.toFloat(), 1f)
 

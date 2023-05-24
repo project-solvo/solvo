@@ -19,21 +19,20 @@ import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Article
 import org.solvo.model.Question
 import org.solvo.web.document.SolvoWindow
-import org.solvo.web.document.WindowState
 import org.solvo.web.ui.SolvoTopAppBar
 
 fun main() {
     onWasmReady {
         SolvoWindow {
-            CoursePageContent(this)
+            CoursePageContent()
         }
     }
 }
 
 @Composable
-fun CoursePageContent(windowState: WindowState) {
+fun CoursePageContent() {
     var menuOpen by remember { mutableStateOf(false) }
-    SolvoTopAppBar(windowState) {
+    SolvoTopAppBar {
         IconButton(onClick = { menuOpen = !menuOpen }) {
             Icon(Icons.Filled.Menu, null)
         }

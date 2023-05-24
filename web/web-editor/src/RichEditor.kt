@@ -26,13 +26,13 @@ fun RichEditor(
     isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
 ) {
     LaunchedEffect(isInDarkTheme) {
-        richEditorState.isInDarkTheme = isInDarkTheme
+        richEditorState.richEditor.setInDarkTheme(isInDarkTheme)
     }
     LaunchedEffect(displayMode) {
-        richEditorState.displayMode = displayMode
+        richEditorState.richEditor.setDisplayMode(displayMode)
     }
     LaunchedEffect(isToolbarVisible) {
-        richEditorState.isToolbarVisible = isToolbarVisible
+        richEditorState.richEditor.setToolbarVisible(isToolbarVisible)
     }
 
     Text("Sample editor")

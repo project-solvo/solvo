@@ -24,6 +24,7 @@ class WebBuildPlugin : Plugin<Project> {
 
         kotlinMultiplatformExtension.apply {
             js(IR) {
+                moduleName = project.name
                 browser()
                 binaries.executable()
             }
