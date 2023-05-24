@@ -110,7 +110,7 @@ fun QuestionCards(questions: List<Question>) {
                 onClick = {
                     checkedIndex = index
                 },
-                modifier = Modifier.padding(10.dp).height(60.dp).width(160.dp).offset(20.dp),
+                modifier = Modifier.padding(10.dp).padding(start = 20.dp).height(60.dp).width(160.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
                     // change color when the question is selected
