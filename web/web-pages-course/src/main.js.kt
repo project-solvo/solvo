@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -13,9 +12,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Artical
@@ -82,11 +79,12 @@ fun CoursePageContent() {
 @Composable
 private fun PastPaperCard(item: Artical) {
     var questionListOpen by remember { mutableStateOf(false) }
+
     ElevatedCard(
         onClick = {
             questionListOpen = !questionListOpen
         },
-        modifier = Modifier.padding(10.dp).width(200.dp).clickable {},
+        modifier = Modifier.padding(10.dp).width(200.dp),
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
@@ -104,28 +102,19 @@ private fun PastPaperCard(item: Artical) {
 
 @Composable
 fun QuestionCards(questions: List<Question>) {
-    Column {
-        // record the current selected question
-        val clickedList = remember {
-            mutableStateListOf<Boolean>().apply {
-                questions.forEach { _ ->
-                    this.add(false)
-                }
-            }
-        }
+    var checkedIndex: Int by remember { mutableStateOf(-1) }
+
+    Column(Modifier.wrapContentHeight()) {
         questions.forEachIndexed { index, question ->
             ElevatedCard(
                 onClick = {
-                    // change the state of the record list.
-                    clickedList.forEachIndexed { i, _ ->
-                        clickedList[i] = i == index
-                    }
+                    checkedIndex = index
                 },
-                modifier = Modifier.padding(10.dp).height(60.dp).width(160.dp).offset(20.dp).clickable {},
+                modifier = Modifier.padding(10.dp).height(60.dp).width(160.dp).offset(20.dp),
                 shape = RoundedCornerShape(8.dp),
                 colors = CardDefaults.cardColors(
                     // change color when the question is selected
-                    containerColor = if (clickedList[index]) MaterialTheme.colorScheme.primary
+                    containerColor = if (checkedIndex == index) MaterialTheme.colorScheme.primary
                     else MaterialTheme.colorScheme.secondary
                 )
             ) {
