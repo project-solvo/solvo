@@ -14,12 +14,6 @@ kotlin {
     }
 }
 
-registerCopyWebStaticResourceTask("editormd.min.js", resourcesGeneratedDir)
-registerCopyWebStaticResourceTask("zepto.min.js", resourcesGeneratedDir)
-registerCopyWebStaticResourceTask("jquery.min.js", resourcesGeneratedDir)
-registerCopyWebStaticResourceTask("editormd.css", resourcesGeneratedDir)
-registerCopyWebStaticResourceTask("lib", resourcesGeneratedDir.resolve("lib"))
-registerCopyWebStaticResourceTask("images", resourcesGeneratedDir.resolve("images"))
-registerCopyWebStaticResourceTask("css", resourcesGeneratedDir.resolve("css"))
-registerCopyWebStaticResourceTask("fonts", resourcesGeneratedDir.resolve("fonts"))
-
+webResources {
+    richTextEditor()
+}
