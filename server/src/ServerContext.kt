@@ -17,6 +17,7 @@ object ServerContext {
     val localtime: ServerLocalTime = ServerLocalTimeImpl()
     val tokens: TokenGenerator = TokenGeneratorImpl()
     val paths: ServerResourcesPath = ServerResourcesPathImpl()
+    val files: FileManager = FileManagerImpl()
 
     val accounts: AccountDBFacade = AccountDBFacadeImpl()
     val resources: ResourcesDBFacade = ResourcesDBFacadeImpl()

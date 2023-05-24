@@ -16,7 +16,7 @@ import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
 import org.slf4j.event.Level
-import org.solvo.server.modules.accountModule
+import org.solvo.server.modules.authenticateModule
 
 object ServerMain {
     @JvmStatic
@@ -32,7 +32,7 @@ object ServerMain {
 
 fun Application.solvoModule() {
     basicModule()
-    accountModule()
+    authenticateModule()
 }
 
 

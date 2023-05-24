@@ -13,7 +13,7 @@ import org.solvo.model.api.AuthStatus
 import org.solvo.model.api.UsernameValidityResponse
 import org.solvo.server.ServerContext
 
-fun Application.accountModule() {
+fun Application.authenticateModule() {
     val accountDB = ServerContext.accounts
     val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
 

@@ -10,7 +10,6 @@ import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AuthTable
 import org.solvo.server.database.exposed.UserTable
-import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
 interface AccountDBFacade {
@@ -30,7 +29,7 @@ interface AccountDBFacade {
     suspend fun getPermission(uid: UUID): UserPermission?
     suspend fun getBannedUntil(uid: UUID): Long?
     suspend fun isBanned(uid: UUID): Boolean
-    suspend fun getAvatarUrl(uid: UUID): String?
+    suspend fun getAvatar(uid: UUID): UUID?
 }
 
 class AccountDBFacadeImpl : AccountDBFacade {
@@ -143,11 +142,10 @@ class AccountDBFacadeImpl : AccountDBFacade {
         } else bannedUntil
     }
 
-    override suspend fun getAvatarUrl(uid: UUID): String? = dbQuery {
+    override suspend fun getAvatar(uid: UUID): UUID? = dbQuery {
         UserTable
             .select(UserTable.id eq uid)
             .map { it[UserTable.avatar]?.value }
             .singleOrNull()
-            ?.let { ServerContext.paths.staticResourcePath(it, StaticResourcePurpose.USER_AVATAR) }
     }
 }
