@@ -2,12 +2,19 @@ package org.solvo.server.utils
 
 import java.util.*
 
-object ServerResourcesPath {
-    fun databasePath(): String {
-        return "/db"
+interface ServerResourcesPath {
+    fun databasePath(): String
+    fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String
+}
+
+class ServerResourcesPathImpl : ServerResourcesPath {
+    private val host: String = "jb" // TODO
+
+    override fun databasePath(): String {
+        return "$host/db"
     }
 
-    fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String {
-        return "/resource/$purpose/$resourceId"
+    override fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String {
+        return "$host/resource/$purpose/$resourceId"
     }
 }

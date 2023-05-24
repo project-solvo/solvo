@@ -6,9 +6,11 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
 import org.solvo.model.utils.UserPermission
+import org.solvo.server.ServerContext
+import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AuthTable
 import org.solvo.server.database.exposed.UserTable
-import org.solvo.server.utils.ServerLocalTime
+import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
 interface AccountDBFacade {
@@ -28,25 +30,25 @@ interface AccountDBFacade {
     suspend fun getPermission(uid: UUID): UserPermission?
     suspend fun getBannedUntil(uid: UUID): Long?
     suspend fun isBanned(uid: UUID): Boolean
-    suspend fun getAvatar(uid: UUID): UUID?
+    suspend fun getAvatarUrl(uid: UUID): String?
 }
 
 class AccountDBFacadeImpl : AccountDBFacade {
-    override suspend fun getId(username: String): UUID? = DatabaseFactory.dbQuery {
+    override suspend fun getId(username: String): UUID? = dbQuery {
         UserTable
             .select(UserTable.username eq username)
             .map { it[UserTable.id].value }
             .singleOrNull()
     }
 
-    override suspend fun matchHash(uid: UUID, hash: ByteArray): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun matchHash(uid: UUID, hash: ByteArray): Boolean = dbQuery {
         AuthTable
             .select(AuthTable.userId eq uid)
             .map { it[AuthTable.hash] }
             .singleOrNull()
     }.contentEquals(hash)
 
-    override suspend fun addAccount(username: String, hash: ByteArray): UUID? = DatabaseFactory.dbQuery {
+    override suspend fun addAccount(username: String, hash: ByteArray): UUID? = dbQuery {
         val userId = UserTable.insert {
             it[UserTable.username] = username
         }.resultedValues?.singleOrNull()?.let { it[UserTable.id].value }
@@ -59,30 +61,30 @@ class AccountDBFacadeImpl : AccountDBFacade {
         userId
     }
 
-    override suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean = dbQuery {
         UserTable.update({ UserTable.id eq uid }) {
             it[UserTable.avatar] = resourceId
         } > 0
     }
 
-    override suspend fun modifyUsername(uid: UUID, username: String): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun modifyUsername(uid: UUID, username: String): Boolean = dbQuery {
         UserTable.update({ UserTable.id eq uid }) {
             it[UserTable.username] = username
         } > 0
     }
 
-    override suspend fun modifyPassword(uid: UUID, hash: ByteArray): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun modifyPassword(uid: UUID, hash: ByteArray): Boolean = dbQuery {
         AuthTable.update({ AuthTable.userId eq uid }) {
             it[AuthTable.hash] = hash
         } > 0
     }
 
-    override suspend fun deleteAccount(uid: UUID): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun deleteAccount(uid: UUID): Boolean = dbQuery {
         if (UserTable.deleteWhere { UserTable.id eq uid } == 0) return@dbQuery false
         AuthTable.deleteWhere { AuthTable.userId eq uid } > 0
     }
 
-    override suspend fun op(operatorId: UUID, uid: UUID): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun op(operatorId: UUID, uid: UUID): Boolean = dbQuery {
         val operatorPermission = getPermission(operatorId)
         val userPermission = getPermission(uid)
 
@@ -93,7 +95,7 @@ class AccountDBFacadeImpl : AccountDBFacade {
         } else false
     }
 
-    override suspend fun deOp(operatorId: UUID, uid: UUID): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun deOp(operatorId: UUID, uid: UUID): Boolean = dbQuery {
         val operatorPermission = getPermission(operatorId)
         val userPermission = getPermission(uid)
 
@@ -104,7 +106,7 @@ class AccountDBFacadeImpl : AccountDBFacade {
         } else false
     }
 
-    override suspend fun banUntil(operatorId: UUID, uid: UUID, time: Long): Boolean = DatabaseFactory.dbQuery {
+    override suspend fun banUntil(operatorId: UUID, uid: UUID, time: Long): Boolean = dbQuery {
         val operatorPermission = getPermission(operatorId) ?: return@dbQuery false
         val userPermission = getPermission(uid) ?: return@dbQuery false
 
@@ -115,14 +117,14 @@ class AccountDBFacadeImpl : AccountDBFacade {
         } else false
     }
 
-    override suspend fun getPermission(uid: UUID): UserPermission? = DatabaseFactory.dbQuery {
+    override suspend fun getPermission(uid: UUID): UserPermission? = dbQuery {
         UserTable
             .select(UserTable.id eq uid)
             .map { it[UserTable.permission] }
             .singleOrNull()
     }
 
-    override suspend fun getBannedUntil(uid: UUID): Long? = DatabaseFactory.dbQuery {
+    override suspend fun getBannedUntil(uid: UUID): Long? = dbQuery {
         UserTable
             .select(UserTable.id eq uid)
             .map { it[UserTable.bannedUntil] }
@@ -132,8 +134,8 @@ class AccountDBFacadeImpl : AccountDBFacade {
 
     override suspend fun isBanned(uid: UUID): Boolean = getBannedUntil(uid) != null
 
-    private suspend fun checkBanned(uid: UUID, bannedUntil: Long): Long? = DatabaseFactory.dbQuery {
-        if (ServerLocalTime.now() > bannedUntil) {
+    private suspend fun checkBanned(uid: UUID, bannedUntil: Long): Long? = dbQuery {
+        if (ServerContext.localtime.now() > bannedUntil) {
             UserTable.update({ UserTable.id eq uid }) {
                 it[UserTable.bannedUntil] = null
             }
@@ -141,10 +143,11 @@ class AccountDBFacadeImpl : AccountDBFacade {
         } else bannedUntil
     }
 
-    override suspend fun getAvatar(uid: UUID): UUID? = DatabaseFactory.dbQuery {
+    override suspend fun getAvatarUrl(uid: UUID): String? = dbQuery {
         UserTable
             .select(UserTable.id eq uid)
             .map { it[UserTable.avatar]?.value }
             .singleOrNull()
+            ?.let { ServerContext.paths.staticResourcePath(it, StaticResourcePurpose.USER_AVATAR) }
     }
 }

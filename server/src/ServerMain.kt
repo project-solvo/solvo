@@ -25,6 +25,7 @@ object ServerMain {
         println("Loopback: http://localhost:$port/")
 
         val server = embeddedServer(Netty, port = port, module = Application::solvoModule)
+        ServerContext.init()
         server.start(wait = true)
     }
 }

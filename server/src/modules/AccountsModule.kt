@@ -6,23 +6,14 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
-import kotlinx.coroutines.runBlocking
 import org.solvo.model.api.AccountChecker.checkUserNameValidity
 import org.solvo.model.api.AuthRequest
 import org.solvo.model.api.AuthResponse
 import org.solvo.model.api.AuthStatus
-import org.solvo.server.TokenGeneratorImpl
-import org.solvo.server.database.AccountDBFacadeImpl
-import org.solvo.server.database.DatabaseFactory
+import org.solvo.server.ServerContext
 
 fun Application.accountModule() {
-    DatabaseFactory.init()
-    val accountDB = AccountDBFacadeImpl().apply {
-        runBlocking {
-            // initialization here
-        }
-    }
-    val tokenGenerator = TokenGeneratorImpl()
+    val accountDB = ServerContext.accountDB
     val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
 
     routing {
@@ -56,7 +47,7 @@ fun Application.accountModule() {
 
             call.respondAuth(
                 if (accountDB.matchHash(id, hash)) {
-                    AuthResponse(AuthStatus.SUCCESS, tokenGenerator.generateToken(id))
+                    AuthResponse(AuthStatus.SUCCESS, ServerContext.tokens.generateToken(id))
                 } else {
                     AuthResponse(AuthStatus.WRONG_PASSWORD)
                 }

@@ -4,7 +4,7 @@ import org.jetbrains.exposed.dao.id.IntIdTable
 import org.jetbrains.exposed.dao.id.UUIDTable
 import org.jetbrains.exposed.sql.Table
 import org.solvo.model.utils.DatabaseModel
-import org.solvo.server.utils.ServerLocalTime
+import org.solvo.server.ServerContext
 
 object CourseTable: IntIdTable("Courses", "courseId") {
     val courseName = varchar("courseName", DatabaseModel.COURSE_NAME_MAX_LENGTH).uniqueIndex()
@@ -53,7 +53,7 @@ object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
     val likes = uinteger("likesCount").default(0u)
     val comments = uinteger("commentsCount").default(0u)
 
-    val postTime = long("postTime").default(ServerLocalTime.now())
-    val lastEditTime = long("lastEditTime").default(ServerLocalTime.now())
-    val lastCommentTime = long("lastCommentTime").default(ServerLocalTime.now())
+    val postTime = long("postTime").default(ServerContext.localtime.now())
+    val lastEditTime = long("lastEditTime").default(ServerContext.localtime.now())
+    val lastCommentTime = long("lastCommentTime").default(ServerContext.localtime.now())
 }

@@ -1,4 +1,4 @@
-package org.solvo.server
+package org.solvo.server.utils
 
 import org.solvo.model.utils.getRandomString
 import java.util.*

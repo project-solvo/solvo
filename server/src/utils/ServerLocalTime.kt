@@ -1,7 +1,10 @@
 package org.solvo.server.utils
 
-object ServerLocalTime {
-    fun now(): Long {
+interface ServerLocalTime {
+    fun now(): Long
+}
+class ServerLocalTimeImpl: ServerLocalTime {
+    override fun now(): Long {
         return System.currentTimeMillis()
     }
 }
