@@ -4,6 +4,10 @@ plugins {
 
 repositories {
     mavenCentral()
+    google()
+    maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/wasm/experimental")
+    maven("https://maven.pkg.jetbrains.space/kotlin/p/kotlin/bootstrap")
 }
 
 sourceSets.main.get().kotlin.srcDir("src")
@@ -26,8 +30,19 @@ dependencies {
     api("org.jetbrains.kotlin:kotlin-gradle-plugin-api:${version("kotlin")}")
     api("org.jetbrains.kotlinx:atomicfu-gradle-plugin:${version("atomicfu")}")
     api("org.jetbrains.kotlin:kotlin-gradle-plugin:${version("kotlin")}")
+    api("org.jetbrains.compose:compose-gradle-plugin:${version("compose")}")
     api(gradleApi())
+    api(kotlin("script-runtime"))
     api(gradleKotlinDsl())
+}
+
+gradlePlugin {
+    plugins {
+        create("org.solvo.web-build") {
+            id = "org.solvo.web-build"
+            implementationClass = "WebBuildPlugin"
+        }
+    }
 }
 
 kotlin.sourceSets.all {

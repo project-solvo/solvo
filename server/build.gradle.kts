@@ -1,4 +1,4 @@
-import org.gradle.configurationcache.extensions.capitalized
+import web.*
 
 plugins {
     kotlin("jvm")
@@ -41,84 +41,33 @@ val destination = projectDir.resolve("resources/web-generated")
 //        projectDir.resolve("resource-merger/static/styles.css")
 //            .copyTo(destination.resolve("styles.css"))
 
-val indexHtmlFile = projectDir.resolve("resource-merger/static/index.html")
-val indexHtmlContent = indexHtmlFile
-    .readText()
-
 val copyAllWebResources = tasks.register("copyAllWebResources")
 
-@Suppress("PropertyName")
-val WEBPACK_TASK_NAME = "jsBrowserDevelopmentWebpack"
-
-@Suppress("PropertyName")
-val DEVELOPMENT_EXECUTABLE = "developmentExecutable"
-
-for ((path, projectPath) in pages) {
-    val pageProject = project(projectPath)
-    val srcJsFile =
-        pageProject.buildDir.resolve("$DEVELOPMENT_EXECUTABLE/${projectPath.substringAfterLast(":")}.js")
-    val destJsFile = destination.resolve("$path.js")
-
-    // Temp workaround for Compose bug
-    disableProductionTasks(pageProject)
-
-    tasks.register("copyWebResources${path.capitalized()}Js", Copy::class) {
-        dependsOn(pageProject.tasks.getByName(WEBPACK_TASK_NAME))
-        from(srcJsFile)
-        rename { "$path.js" }
-        into(destination)
-    }.let {
-        copyAllWebResources.get().dependsOn(it)
-    }
-
-    tasks.register("copyWebResources${path.capitalized()}Html") {
-        val output = destination.resolve("$path.html")
-        outputs.file(output)
-        inputs.file(indexHtmlFile)
-        inputs.property("dstJsFileName", destJsFile.name)
-
-        val newContent = indexHtmlContent.replace("{{SCRIPT_PATH}}", destJsFile.name)
-
-        doLast {
-            output.writeText(newContent)
-        }
-
-        copyAllWebResources.get().dependsOn(this)
-    }.let {
-        copyAllWebResources.get().dependsOn(it)
-    }
-
-}
+registerCopyIndexPagesTasks(destination)
 
 
-val staticResources = listOf(
-    "skiko.js",
-    "skiko.wasm",
-)
-
-val webCommon = project(":web:web-common")
-disableProductionTasks(webCommon)
-
-for (staticResourceName in staticResources) {
-    val extension = staticResourceName.substringAfterLast(".")
-    val capitalizedName =
-        staticResourceName.substringBeforeLast(".").capitalized()
-            .plus(extension.capitalized())
-
-    tasks.register("copyWebResources$capitalizedName", Copy::class) {
-        dependsOn(webCommon.tasks.getByName(WEBPACK_TASK_NAME))
-        from(webCommon.buildDir.resolve("$DEVELOPMENT_EXECUTABLE").resolve(staticResourceName))
-        into(destination)
-    }.let {
-        copyAllWebResources.get().dependsOn(it)
-    }
+registerCopyStaticResourcesTasks(destination) {
+    copyAllWebResources.get().dependsOn(it)
 }
 
 tasks.getByName("processResources").dependsOn(copyAllWebResources)
 
-fun disableProductionTasks(pageProject: Project) {
-    pageProject.afterEvaluate {
-        pageProject.tasks.getByName("jsProductionExecutableCompileSync").enabled = false
-        pageProject.tasks.getByName("jsBrowserProductionWebpack").enabled = false
+fun registerCopyIndexPagesTasks(destination: File) {
+    for ((path, projectPath) in pages) {
+        val pageProject = project(projectPath)
+        val srcJsFile =
+            pageProject.buildDir.resolve("$DEVELOPMENT_EXECUTABLE/${projectPath.substringAfterLast(":")}.js")
+
+        // Temp workaround for Compose bug
+        disableWebProductionTasks(pageProject)
+
+        // `$path.js`
+        registerCopyWebResourceJsTask(path, pageProject, srcJsFile, destination) {
+            copyAllWebResources.get().dependsOn(it)
+        }
+        // `index.html`
+        registerCoopyWebResourceHtmlTask(path, destination, "$path.js") {
+            copyAllWebResources.get().dependsOn(it)
+        }
     }
 }

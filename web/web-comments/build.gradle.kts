@@ -1,6 +1,7 @@
 @file:Suppress("UNUSED_VARIABLE")
 
 plugins {
+    id("org.solvo.web-build")
     kotlin("multiplatform")
     id("org.jetbrains.compose")
 }

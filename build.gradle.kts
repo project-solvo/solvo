@@ -5,7 +5,7 @@ plugins {
     kotlin("jvm") apply false
     kotlin("plugin.serialization") version Versions.kotlin apply false
     id("kotlinx-atomicfu") apply false
-    id("org.jetbrains.compose") version Versions.compose apply false
+    id("org.jetbrains.compose")
 }
 
 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
