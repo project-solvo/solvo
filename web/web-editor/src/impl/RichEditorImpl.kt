@@ -1,8 +1,8 @@
 package org.solvo.web.editor.impl
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.ElevatedCard
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -157,6 +157,7 @@ internal class RichEditor internal constructor(
             element.id = id
 
             element.asDynamic().style.`class` = "rich-text"
+            div.asDynamic().style.position = "absolute"
 
             div.appendChild(element)
             document.body!!.appendChild(div)
@@ -184,8 +185,8 @@ internal class RichEditor internal constructor(
                         taskList : true,
                         tocm            : true,         // Using [TOCM]
                         tex : true,                   // 开启科学公式TeX语言支持，默认关闭
-                        flowChart : false,             // 开启流程图支持，默认关闭
-                        sequenceDiagram : false,       // 开启时序/序列图支持，默认关闭,
+                        flowChart : true,             // 开启流程图支持，默认关闭
+                        sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
                         //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
                         //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
                         //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
@@ -195,7 +196,6 @@ internal class RichEditor internal constructor(
                         imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
                         imageUploadURL : "./php/upload.php",
                         onload : function() {
-                        console.log(require('web-editor'));
                             require('web-editor').org.solvo.web.editor.impl.onRichEditorInitialized(this);
                             //this.fullscreen();
                             //this.unwatch();
@@ -235,7 +235,20 @@ internal fun main() {
         SolvoWindow {
             Column {
                 SolvoTopAppBar()
-                RichEditor(Modifier.padding(vertical = 36.dp).fillMaxSize())
+
+                ElevatedCard({}, Modifier.fillMaxWidth()) {
+                    Text("Test2")
+                }
+                Box(Modifier.size(400.dp)) {
+                    RichEditor(Modifier.fillMaxSize())
+                }
+
+                ElevatedCard({}, Modifier.fillMaxWidth()) {
+                    Text("Test")
+                }
+                Box(Modifier.size(400.dp)) {
+                    RichEditor(Modifier.fillMaxSize())
+                }
 //                RichText(
 //                    """
 //                    # Title
