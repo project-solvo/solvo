@@ -1,4 +1,4 @@
-package org.solvo.web.ui
+package org.solvo.web.ui.modifiers
 
 import androidx.compose.foundation.Indication
 import androidx.compose.foundation.clickable

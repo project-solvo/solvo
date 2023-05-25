@@ -7,6 +7,7 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
@@ -21,7 +22,7 @@ fun SolvoTopAppBar(
     var settingMenu1 by remember { mutableStateOf(false) }
     TopAppBar(
         title = {
-            Text(text = "Solvo")
+            Text(text = "Solvo", fontWeight = FontWeight.W800)
         },
         Modifier.fillMaxWidth(),
         navigationIcon = {

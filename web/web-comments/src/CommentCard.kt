@@ -17,14 +17,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.LightComment
-import org.solvo.model.foundation.Uuid
-import org.solvo.web.document.SolvoWindow
-import org.solvo.web.editor.RichText
 import org.solvo.web.ui.Rounded
-import org.solvo.web.ui.SolvoTopAppBar
-import org.solvo.web.ui.clickable
+import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.theme.UNICODE_FONT
 
 
@@ -37,53 +32,45 @@ fun CommentCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val subCommentsState by rememberUpdatedState(subComments)
-    val shape = RoundedCornerShape(8.dp)
+    val shape = RoundedCornerShape(16.dp)
     Card(modifier.clickable(indication = null, onClick = onClickCard), shape = shape) {
-        Column(Modifier.padding(top = 4.dp).fillMaxSize(), verticalArrangement = Arrangement.Bottom) {
-            // content
-            Column(Modifier.padding(horizontal = 8.dp).weight(1f)) {
-                content()
-            }
+        // content
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 20.dp).weight(1f)) {
+            content()
+        }
 
-            Divider(
-                Modifier.padding(vertical = 4.dp).fillMaxWidth().height(1.dp),
-                thickness = 1.dp,
-                color = MaterialTheme.colorScheme.outline
-            )
-
-            val showComments by derivedStateOf { subCommentsState.take(3) }
-            if (showComments.isNotEmpty()) {
-                Column(
-                    Modifier.padding(horizontal = 8.dp, vertical = 6.dp)
-                        .background(Color(0x212121), shape = shape)
-                        .fillMaxWidth()
-                        .wrapContentHeight(),
-                    verticalArrangement = Arrangement.spacedBy(6.dp)
-                ) {
-                    for (subComment in showComments) {
-                        CommentLine(
-                            subComment,
-                            Modifier.clickable(indication = null) { onClickComment?.invoke(subComment) },
-                        )
-                    }
-
+        val showComments by derivedStateOf { subCommentsState.take(3) }
+        if (showComments.isNotEmpty()) {
+            Column(
+                Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                    .background(Color(0x212121), shape = shape)
+                    .fillMaxWidth()
+                    .wrapContentHeight(),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
+            ) {
+                for (subComment in showComments) {
                     CommentLine(
-                        Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
-                        icon = {
-                            Image(
-                                Icons.Outlined.Chat, "Show More Comments", Modifier.fillMaxSize(),
-                                colorFilter = ColorFilter.tint(LocalContentColor.current)
-                            )
-                        },
-                        message = {
-                            Text(
-                                remember(subComments.size) { "See all ${subComments.size} comments" },
-                                textDecoration = TextDecoration.Underline,
-                                color = MaterialTheme.colorScheme.primary
-                            )
-                        },
+                        subComment,
+                        Modifier.clickable(indication = null) { onClickComment?.invoke(subComment) },
                     )
                 }
+
+                CommentLine(
+                    Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
+                    icon = {
+                        Image(
+                            Icons.Outlined.Chat, "Show More Comments", Modifier.fillMaxSize(),
+                            colorFilter = ColorFilter.tint(LocalContentColor.current)
+                        )
+                    },
+                    message = {
+                        Text(
+                            remember(subComments.size) { "See all ${subComments.size} comments" },
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary
+                        )
+                    },
+                )
             }
         }
     }
@@ -136,40 +123,17 @@ private fun CommentLine(
                     authorName()
                 }
             }
-            Text(": ", fontWeight = FontWeight.Light)
+            Text(": ", fontWeight = FontWeight.Medium)
         }
 
-        message()
-    }
-}
-
-
-fun main() {
-    onWasmReady {
-        SolvoWindow {
-            SolvoTopAppBar()
-            Box(Modifier.padding(32.dp).fillMaxSize().weight(0.6f)) {
-                Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
-                    repeat(3) {
-                        CommentCard(
-                            listOf(
-                                LightComment(Uuid.random(), "评论", "", "我说中文"),
-                                LightComment(Uuid.random(), "Commenter2", "", "[Image] Content 2"),
-                            ),
-                            Modifier.weight(1.0f, fill = true)
-                        ) {
-                            RichText(
-                                """
-                                ```math
-                                \sqrt{x^2}
-                                ```
-                            """.trimIndent(),
-                                modifier = Modifier.weight(1.0f).fillMaxWidth()
-                            )
-                        }
-                    }
-                }
-            }
+        ProvideTextStyle(
+            LocalTextStyle.current.copy(
+                fontWeight = FontWeight.Medium,
+                fontSize = 18.sp,
+                fontFamily = UNICODE_FONT,
+            )
+        ) {
+            message()
         }
     }
 }

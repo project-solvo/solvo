@@ -16,6 +16,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.launch
@@ -37,6 +38,7 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
             "Solvo",
             modifier = Modifier.padding(bottom = 20.dp),
             fontSize = 30.sp,
+            fontWeight = FontWeight.W800,
             fontStyle = FontStyle.Normal,
         )
 

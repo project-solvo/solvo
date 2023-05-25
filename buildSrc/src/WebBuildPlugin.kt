@@ -59,6 +59,7 @@ class WebBuildPlugin : Plugin<Project> {
         }
 
         registerCopyWebStaticResourceTask("styles.css", resourcesGeneratedDir)
+        registerCopyWebStaticResourceTask("fonts", resourcesGeneratedDir.resolve("fonts"))
 
         disableWebProductionTasks(this)
 //        afterEvaluate {
