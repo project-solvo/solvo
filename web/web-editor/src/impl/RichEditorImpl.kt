@@ -237,17 +237,17 @@ internal fun main() {
             Column {
                 SolvoTopAppBar()
 
-                ElevatedCard({}, Modifier.fillMaxWidth()) {
+                ElevatedCard({}, Modifier.fillMaxWidth().height(50.dp)) {
                     Text("Test2")
                 }
-                Box(Modifier.size(400.dp)) {
+                Box(Modifier.size(width = 1000.dp, height = 400.dp)) {
                     RichEditor(Modifier.fillMaxSize())
                 }
 
                 ElevatedCard({}, Modifier.fillMaxWidth()) {
                     Text("Test")
                 }
-                Box(Modifier.size(400.dp)) {
+                Box(Modifier.size(width = 1000.dp, height = 400.dp)) {
                     RichText(
                         """
                         ```math
