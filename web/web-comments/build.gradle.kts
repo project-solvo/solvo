@@ -16,4 +16,5 @@ kotlin {
 
 webResources {
     richTextEditor()
+    registerCopyWebStaticResourceTask("fonts", resourcesGeneratedDir.resolve("fonts"))
 }

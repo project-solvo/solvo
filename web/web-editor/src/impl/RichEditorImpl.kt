@@ -170,8 +170,12 @@ internal class RichEditor internal constructor(
     }
 
     private fun dispose() {
-        document.removeChild(element)
-        RichEditorIdManager.removeInstance(this.id)
+        try {
+            document.removeChild(element)
+            RichEditorIdManager.removeInstance(this.id)
+        } catch (e: Throwable) {
+            e.printStackTrace()
+        }
     }
 
     companion object {

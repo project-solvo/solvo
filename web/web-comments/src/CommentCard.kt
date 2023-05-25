@@ -25,6 +25,7 @@ import org.solvo.web.editor.RichText
 import org.solvo.web.ui.Rounded
 import org.solvo.web.ui.SolvoTopAppBar
 import org.solvo.web.ui.clickable
+import org.solvo.web.ui.theme.UNICODE_FONT
 
 
 @Composable
@@ -104,7 +105,9 @@ private fun CommentLine(
             }
         },
         authorName = { Text(subComment.authorName) },
-    ) { Text(subComment.content) }
+    ) {
+        Text(subComment.content)
+    }
 }
 
 @Composable
@@ -127,6 +130,7 @@ private fun CommentLine(
                     LocalTextStyle.current.copy(
                         fontWeight = FontWeight.SemiBold,
                         fontSize = 18.sp,
+                        fontFamily = UNICODE_FONT,
                     )
                 ) {
                     authorName()
@@ -149,7 +153,7 @@ fun main() {
                     repeat(3) {
                         CommentCard(
                             listOf(
-                                LightComment(Uuid.random(), "评论", "", "Content 1"),
+                                LightComment(Uuid.random(), "评论", "", "我说中文"),
                                 LightComment(Uuid.random(), "Commenter2", "", "[Image] Content 2"),
                             ),
                             Modifier.weight(1.0f, fill = true)

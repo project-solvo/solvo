@@ -30,7 +30,9 @@ fun SolvoWindow(
             val isInDarkMode by windowState.preferDarkMode.collectAsState()
             AppTheme(useDarkTheme = isInDarkMode ?: isSystemInDarkTheme()) {
                 val currentSize by windowState.size.collectAsState()
-                CompositionLocalProvider(LocalSolvoWindow provides windowState) {
+                CompositionLocalProvider(
+                    LocalSolvoWindow provides windowState,
+                ) {
                     Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
                         content()
                     }
