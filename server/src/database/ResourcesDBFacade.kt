@@ -10,6 +10,7 @@ import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
 interface ResourcesDBFacade {
+    suspend fun contains(resourceId: UUID): Boolean
     suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID? = null): UUID
     suspend fun getPurpose(resourceId: UUID): StaticResourcePurpose?
     suspend fun getParent(resourceId: UUID): UUID?
@@ -17,6 +18,10 @@ interface ResourcesDBFacade {
 }
 
 class ResourcesDBFacadeImpl : ResourcesDBFacade {
+    override suspend fun contains(resourceId: UUID): Boolean = dbQuery {
+        !StaticResourceTable.select(StaticResourceTable.id eq resourceId).empty()
+    }
+
     override suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID?): UUID = dbQuery {
         StaticResourceTable.insert {
             it[StaticResourceTable.purpose] = purpose

@@ -8,4 +8,6 @@ import org.solvo.model.annotations.Immutable
 class Course(
     val code: String,
     val name: String,
-)
+) {
+    override fun toString(): String = "$code $name"
+}

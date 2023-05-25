@@ -11,16 +11,16 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 @Immutable
 @Serializable
 class Comment(
-    val coid: Uuid,
-    val author: User?, // null if anonymous
-    val content: String, // markdown
-    val anonymity: Boolean = false,
+    override var coid: Uuid? = null,
+    override var author: User? = null,
+    override val content: String, // markdown
+    override val anonymity: Boolean = false,
 
     val pinned: Boolean = false,
 
     val parent: Uuid,
     val subComments: List<LightComment> = listOf(),
-)
+): Commentable
 
 
 // shown as sub-comments below a parent comment.

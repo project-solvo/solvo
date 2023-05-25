@@ -1,6 +1,8 @@
 package org.solvo.model.api
 
 import kotlinx.serialization.Serializable
+import org.solvo.model.Answer
+import org.solvo.model.Article
 
 @Serializable
 class AuthRequest(
@@ -28,3 +30,17 @@ enum class AuthStatus{
     WRONG_PASSWORD,
 }
 
+@Serializable
+class ArticleExchange(
+    val article: Article,
+)
+
+@Serializable
+class AnswerExchange(
+    val answer: Answer,
+)
+
+@Serializable
+class UploadImageResponse(
+    val url: String,
+)

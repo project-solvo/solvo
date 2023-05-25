@@ -5,11 +5,13 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
+import org.solvo.model.User
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AuthTable
 import org.solvo.server.database.exposed.UserTable
+import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
 interface AccountDBFacade {
@@ -30,6 +32,8 @@ interface AccountDBFacade {
     suspend fun getBannedUntil(uid: UUID): Long?
     suspend fun isBanned(uid: UUID): Boolean
     suspend fun getAvatar(uid: UUID): UUID?
+    suspend fun getUsername(uid: UUID): String?
+    suspend fun getUserInfo(uid: UUID): User?
 }
 
 class AccountDBFacadeImpl : AccountDBFacade {
@@ -146,6 +150,26 @@ class AccountDBFacadeImpl : AccountDBFacade {
         UserTable
             .select(UserTable.id eq uid)
             .map { it[UserTable.avatar]?.value }
+            .singleOrNull()
+    }
+
+    override suspend fun getUsername(uid: UUID): String? = dbQuery {
+        UserTable
+            .select(UserTable.id eq uid)
+            .map { it[UserTable.username] }
+            .singleOrNull()
+    }
+
+    override suspend fun getUserInfo(uid: UUID): User? = dbQuery {
+        UserTable
+            .select(UserTable.id eq uid)
+            .map { User(
+                uid,
+                it[UserTable.username],
+                it[UserTable.avatar]?.value?.let{ avatarId ->
+                    ServerContext.paths.staticResourcePath(avatarId, StaticResourcePurpose.USER_AVATAR)
+                }
+            ) }
             .singleOrNull()
     }
 }

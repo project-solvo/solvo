@@ -11,11 +11,11 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 @Immutable
 @Serializable
 class Answer(
-    val coid: Uuid,
-    val author: User?,
-    val content: String,
-    val anonymity: Boolean,
+    override var coid: Uuid? = null,
+    override var author: User? = null,
+    override val content: String,
+    override val anonymity: Boolean = false,
 
     val question: Uuid,
     val comments: List<Comment> = listOf(),
-)
+): Commentable

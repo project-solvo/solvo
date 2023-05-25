@@ -6,10 +6,7 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.solvo.server.database.AccountDBFacade
-import org.solvo.server.database.AccountDBFacadeImpl
-import org.solvo.server.database.ResourcesDBFacade
-import org.solvo.server.database.ResourcesDBFacadeImpl
+import org.solvo.server.database.*
 import org.solvo.server.database.exposed.*
 import org.solvo.server.utils.*
 
@@ -21,6 +18,8 @@ object ServerContext {
 
     val accounts: AccountDBFacade = AccountDBFacadeImpl()
     val resources: ResourcesDBFacade = ResourcesDBFacadeImpl()
+    val articles: ArticleDBFacade = ArticleDBFacadeImpl()
+    val answers: AnswerDBFacade = AnswerDBFacadeImpl()
 
     fun init() {
         DatabaseFactory.init()

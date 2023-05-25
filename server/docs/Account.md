@@ -16,7 +16,7 @@
 
 - File of new avatar
 
-#### Response 403
+#### Response 401
 
 - Do not have permission to change avatar
 

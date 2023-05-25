@@ -2,6 +2,7 @@ package org.solvo.server.modules
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -68,5 +69,13 @@ private suspend fun ApplicationCall.respondAuth(authResponse: AuthResponse) {
         respond(authResponse)
     } else {
         respond(HttpStatusCode.BadRequest, authResponse)
+    }
+}
+
+fun AuthenticationConfig.authBearer() {
+    bearer("authBearer") {
+        authenticate { tokenCredential ->
+            ServerContext.tokens.matchToken(tokenCredential.token)?.let { UserIdPrincipal(it.toString()) }
+        }
     }
 }

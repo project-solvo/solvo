@@ -18,6 +18,8 @@ import kotlinx.serialization.json.JsonElement
 import org.slf4j.event.Level
 import org.solvo.server.modules.accountModule
 import org.solvo.server.modules.authenticateModule
+import org.solvo.server.modules.contentModule
+import org.solvo.server.modules.uploadModule
 
 object ServerMain {
     @JvmStatic
@@ -25,18 +27,19 @@ object ServerMain {
         val port = 80
         println("Loopback: http://localhost:$port/")
 
-        val server = embeddedServer(Netty, port = port, module = Application::solvoModule)
+        val server = embeddedServer(Netty, port = port, module = Application::solvoModules)
         ServerContext.init()
         server.start(wait = true)
     }
 }
 
-fun Application.solvoModule() {
+fun Application.solvoModules() {
     basicModule()
     authenticateModule()
     accountModule()
+    uploadModule()
+    contentModule()
 }
-
 
 fun Application.basicModule() {
     install(CallLogging) {

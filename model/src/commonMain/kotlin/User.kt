@@ -10,5 +10,5 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 class User(
     val id: @Serializable(UuidAsStringSerializer::class) Uuid,
     val username: String,
-    val avatarUrl: String,
+    val avatarUrl: String?,
 )
