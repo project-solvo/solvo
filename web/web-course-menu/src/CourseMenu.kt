@@ -51,10 +51,7 @@ fun CourseMenuContent(state: CourseState) {
             }
         }
         // show left column menu
-        CourseMenu(
-            state, state.menuOpen.value, articles,
-            { state.onClickArticle(it) }, { a, q -> state.onClickQuestion(a, q) }
-        )
+        CourseMenu(state, state.menuOpen.value, articles)
     }
 }
 
@@ -64,8 +61,8 @@ fun CourseMenu(
     state: CourseState,
     isOpen: Boolean,
     articles: MutableList<Article>,
-    onClickArticle: (article: Article) -> Unit,
-    onClickQuestion: (article: Article, question: Question) -> Unit,
+    onClickArticle: ((article: Article) -> Unit)? = null,
+    onClickQuestion: ((article: Article, question: Question) -> Unit)? = null,
 ) {
     AnimatedVisibility(
         isOpen,
@@ -81,7 +78,10 @@ fun CourseMenu(
             articles.forEach { article ->
                 ElevatedCard(
                     onClick = {
-                        onClickArticle(article)
+                        state.onClickArticle(article)
+                        if (onClickArticle != null) {
+                            onClickArticle(article)
+                        }
                     },
                     modifier = Modifier.padding(10.dp).width(200.dp),
                     shape = RoundedCornerShape(8.dp),
@@ -101,7 +101,10 @@ fun CourseMenu(
                                 Row(
                                     modifier = Modifier.padding(10.dp).padding(start = 20.dp)
                                         .height(60.dp).width(160.dp).clickable {
-                                            onClickQuestion(article, question)
+                                            state.onClickQuestion(article, question)
+                                            if (onClickQuestion != null) {
+                                                onClickQuestion(article, question)
+                                            }
                                         }
                                         .background(
                                             color = if (
