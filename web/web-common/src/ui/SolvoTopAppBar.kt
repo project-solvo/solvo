@@ -11,7 +11,6 @@ import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
 import org.solvo.web.document.LocalSolvoWindow
-import org.solvo.web.document.WindowState
 
 @Composable
 fun SolvoTopAppBar(

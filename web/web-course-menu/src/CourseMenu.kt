@@ -24,34 +24,44 @@ import org.solvo.web.ui.SolvoTopAppBar
 fun main() {
     onWasmReady {
         SolvoWindow {
-            CoursePageContent()
+            val model = remember { CourseState() }
+            CourseMenuContent(model)
         }
     }
 }
 
 @Composable
-fun CoursePageContent() {
-    var menuOpen by remember { mutableStateOf(false) }
-    var clickedYear by remember { mutableStateOf(-1) }
+fun CourseMenuContent(state: CourseState) {
     SolvoTopAppBar {
-        IconButton(onClick = { menuOpen = !menuOpen }) {
+        IconButton(onClick = { state.switchMenuOpen() }) {
             Icon(Icons.Filled.Menu, null)
         }
     }
     Box {
-        Column(
-            modifier = Modifier.fillMaxSize().padding(100.dp).verticalScroll(rememberScrollState())
-        ) {
-            // content
-
+        val articles = remember {
+            mutableListOf<Article>().apply {
+                for (i in 2018 until 2023) {
+                    val questions =
+                        listOf(
+                            Question("1a"), Question("1b"),
+                            Question("2a"), Question("2b")
+                        )
+                    this.add(Article(i.toString(), questions))
+                }
+            }
         }
         // show left column menu
+        CourseMenu(
+            state, state.menuOpen.value, articles,
+            { state.onClickArticle(it) }, { a, q -> state.onClickQuestion(a, q) }
+        )
     }
 }
 
 
 @Composable
 fun CourseMenu(
+    state: CourseState,
     isOpen: Boolean,
     articles: MutableList<Article>,
     onClickArticle: (article: Article) -> Unit,
@@ -68,42 +78,38 @@ fun CourseMenu(
                 .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
         ) {
             // construct list of past papers
-            articles.forEachIndexed { index, year ->
-                var questionListOpen by remember { mutableStateOf(false) }
-
+            articles.forEach { article ->
                 ElevatedCard(
                     onClick = {
-                        questionListOpen = !questionListOpen
+                        onClickArticle(article)
                     },
                     modifier = Modifier.padding(10.dp).width(200.dp),
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = year.termYear,
+                        text = article.termYear,
                         modifier = Modifier.padding(8.dp),
                         style = MaterialTheme.typography.titleLarge,
                     )
-
-                    AnimatedVisibility(questionListOpen) {
+                    AnimatedVisibility(
+                        state.questionListOpen.value
+                                && state.clickedArticle.value == article
+                    ) {
                         // construct list of questions
-                        var checkedIndex: Int by remember { mutableStateOf(-1) }
-
                         Column(Modifier.wrapContentHeight()) {
-                            year.questions.forEachIndexed { i, question ->
+                            article.questions.forEach { question ->
                                 Row(
                                     modifier = Modifier.padding(10.dp).padding(start = 20.dp)
                                         .height(60.dp).width(160.dp).clickable {
-                                            checkedIndex = i
-                                            onClickArticle(year)
-//                                            clickedYear = index
+                                            onClickQuestion(article, question)
                                         }
                                         .background(
-                                            color = if (checkedIndex == i
-//                                                && index == clickedYear
+                                            color = if (
+                                                state.questionIndex.value == question
+                                                && article == state.clickedArticle.value
                                             ) MaterialTheme.colorScheme.primary
                                             else MaterialTheme.colorScheme.secondary,
                                             shape = RoundedCornerShape(8.dp)
-
                                         ),
                                 ) {
                                     Text(
