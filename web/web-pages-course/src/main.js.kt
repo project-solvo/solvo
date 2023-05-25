@@ -15,6 +15,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.datetime.internal.JSJoda.Year
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Article
 import org.solvo.model.Question
@@ -32,6 +33,7 @@ fun main() {
 @Composable
 fun CoursePageContent() {
     var menuOpen by remember { mutableStateOf(false) }
+    var clickedYear by remember { mutableStateOf(-1) }
     SolvoTopAppBar {
         IconButton(onClick = { menuOpen = !menuOpen }) {
             Icon(Icons.Filled.Menu, null)
@@ -44,7 +46,6 @@ fun CoursePageContent() {
             // content
 
         }
-
         // show left column menu
         AnimatedVisibility(
             menuOpen,
@@ -70,62 +71,54 @@ fun CoursePageContent() {
                     }
                 }
                 // construct list of past papers
-                for (courseName in years) {
-                    PastPaperCard(courseName)
+                years.forEachIndexed { index, year ->
+                    var questionListOpen by remember { mutableStateOf(false) }
+
+                    ElevatedCard(
+                        onClick = {
+                            questionListOpen = !questionListOpen
+                        },
+                        modifier = Modifier.padding(10.dp).width(200.dp),
+                        shape = RoundedCornerShape(8.dp),
+                    ) {
+                        Text(
+                            text = year.termYear,
+                            modifier = Modifier.padding(8.dp),
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+
+                        AnimatedVisibility(questionListOpen) {
+                            // construct list of questions
+                            var checkedIndex: Int by remember { mutableStateOf(-1) }
+
+                            Column(Modifier.wrapContentHeight()) {
+                                year.questions.forEachIndexed { i, question ->
+                                    Row(
+                                        modifier = Modifier.padding(10.dp).padding(start = 20.dp)
+                                            .height(60.dp).width(160.dp).clickable {
+                                                checkedIndex = i
+                                                clickedYear = index
+                                            }
+                                            .background(
+                                                color = if (checkedIndex == i && index == clickedYear) MaterialTheme.colorScheme.primary
+                                                else MaterialTheme.colorScheme.secondary,
+                                                shape = RoundedCornerShape(8.dp)
+
+                                            ),
+                                    ) {
+                                        Text(
+                                            text = question.content,
+                                            modifier = Modifier.padding(8.dp),
+                                            style = MaterialTheme.typography.titleLarge,
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
     }
 }
 
-@Composable
-private fun PastPaperCard(item: Article) {
-    var questionListOpen by remember { mutableStateOf(false) }
-
-    ElevatedCard(
-        onClick = {
-            questionListOpen = !questionListOpen
-        },
-        modifier = Modifier.padding(10.dp).width(200.dp),
-        shape = RoundedCornerShape(8.dp),
-    ) {
-        Text(
-            text = item.termYear,
-            modifier = Modifier.padding(8.dp),
-            style = MaterialTheme.typography.titleLarge,
-        )
-
-        AnimatedVisibility(questionListOpen) {
-            // construct list of questions
-            QuestionCards(item.questions)
-        }
-    }
-}
-
-@Composable
-fun QuestionCards(questions: List<Question>) {
-    var checkedIndex: Int by remember { mutableStateOf(-1) }
-
-    Column(Modifier.wrapContentHeight()) {
-        questions.forEachIndexed { index, question ->
-            Row(
-                modifier = Modifier.padding(10.dp).padding(start = 20.dp)
-                    .height(60.dp).width(160.dp).clickable {
-                        checkedIndex = index
-
-                    }
-                    .background(
-                        color = if (checkedIndex == index) MaterialTheme.colorScheme.primary
-                        else MaterialTheme.colorScheme.secondary,
-                        shape = RoundedCornerShape(8.dp)
-                    ),
-            ) {
-                Text(
-                    text = question.content,
-                    modifier = Modifier.padding(8.dp),
-                    style = MaterialTheme.typography.titleLarge,
-                )
-            }
-        }
-    }
-}
