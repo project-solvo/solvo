@@ -1,32 +1,25 @@
+@file:OptIn(ExperimentalJsExport::class)
+
 package org.solvo.web.editor.impl
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.Text
 import androidx.compose.runtime.*
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.dp
+import io.ktor.util.collections.*
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.document
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
-import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.web.document.SolvoWindow
-import org.solvo.web.editor.RichEditor
+import kotlinx.coroutines.*
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import org.solvo.web.editor.RichEditorDisplayMode
-import org.solvo.web.editor.RichText
-import org.solvo.web.ui.SolvoTopAppBar
 import org.w3c.dom.Element
+import kotlin.time.Duration.Companion.seconds
 
 
 @Suppress("SpellCheckingInspection")
 internal val editormd: dynamic = js("""editormd""")
 
-@OptIn(ExperimentalJsExport::class)
 @JsExport
 @JsName("onRichEditorInitialized")
 fun onRichEditorInitialized(jsEditor: dynamic) {
@@ -35,9 +28,17 @@ fun onRichEditorInitialized(jsEditor: dynamic) {
     editor.notifyLoaded()
 }
 
+@JsExport
+@JsName("onRichEditorChanged")
+fun onRichEditorChanged(jsEditor: dynamic) {
+    val id = jsEditor.id as String
+    val editor = RichEditorIdManager.getInstanceById(id)!!
+    editor.notifyChanged()
+}
+
 internal object RichEditorIdManager {
     private val id = atomic(0)
-    private val instances = mutableMapOf<String, RichEditor>()
+    private val instances = ConcurrentMap<String, RichEditor>()
 
     fun nextId(): String = "rich-text-" + id.incrementAndGet()
 
@@ -53,6 +54,9 @@ internal object RichEditorIdManager {
         return instances[id]
     }
 }
+
+// Load only one editor at the same time
+private val editorChangedLock = Mutex()
 
 @Stable
 internal class RichEditor internal constructor(
@@ -74,9 +78,27 @@ internal class RichEditor internal constructor(
 
     private val editorLoaded = CompletableDeferred<Unit>()
 
-    internal suspend inline fun <R> onEditorLoaded(crossinline action: () -> R): R {
+    private var editorChanged: CompletableDeferred<Unit>? = null
+
+    internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
         editorLoaded.join()
         return action()
+    }
+
+    internal suspend fun <R> expectEditorChange(action: suspend () -> R) {
+        return editorChangedLock.withLock {
+            val def = CompletableDeferred<Unit>()
+            editorChanged = def
+            try {
+                action()
+                println("Waiting for complete")
+                withTimeout(2.seconds) { def.await() }
+                println("Complete wait")
+            } catch (e: Throwable) {
+                editorChanged = null
+                if (e !is CancellationException) throw e
+            }
+        }
     }
 
     suspend fun setToolbarVisible(value: Boolean) {
@@ -143,6 +165,10 @@ internal class RichEditor internal constructor(
         editorLoaded.complete(Unit)
     }
 
+    internal fun notifyChanged() {
+        editorChanged?.complete(Unit)
+    }
+
     private fun dispose() {
         document.removeChild(element)
         RichEditorIdManager.removeInstance(this.id)
@@ -197,7 +223,7 @@ internal class RichEditor internal constructor(
                         imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
                         imageUploadURL : "./php/upload.php",
                         onload : function() {
-                            require('web-editor').org.solvo.web.editor.impl.onRichEditorInitialized(this);
+                            require('./web-editor').org.solvo.web.editor.impl.onRichEditorInitialized(this);
                             //this.fullscreen();
                             //this.unwatch();
                             //this.watch().fullscreen();
@@ -206,6 +232,9 @@ internal class RichEditor internal constructor(
                             //this.width("100%");
                             //this.height(480);
                             //this.resize("100%", 640);
+                        },
+                        onchange : function() {
+                            require('./web-editor').org.solvo.web.editor.impl.onRichEditorChanged(this);
                         }
                     }
     """
@@ -231,38 +260,3 @@ internal class RichEditor internal constructor(
 }
 
 
-internal fun main() {
-    onWasmReady {
-        SolvoWindow {
-            Column {
-                SolvoTopAppBar()
-
-                ElevatedCard({}, Modifier.fillMaxWidth().height(50.dp)) {
-                    Text("Test2")
-                }
-                Box(Modifier.size(width = 1000.dp, height = 400.dp)) {
-                    RichEditor(Modifier.fillMaxSize())
-                }
-
-                ElevatedCard({}, Modifier.fillMaxWidth()) {
-                    Text("Test")
-                }
-                Box(Modifier.size(width = 1000.dp, height = 400.dp)) {
-                    RichText(
-                        """
-                        ```math
-                        \int^\infty_{\infty} f(x)\ dx
-                        ```
-                    """.trimIndent(), Modifier.fillMaxSize()
-                    )
-                }
-//                RichText(
-//                    """
-//                    # Title
-//                    ${'$'}${'$'}x^2${'$'}${'$'}
-//                """.trimIndent()
-//                )
-            }
-        }
-    }
-}

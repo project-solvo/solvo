@@ -12,8 +12,8 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 @Serializable
 class Comment(
     val coid: Uuid,
-    val author: User?,
-    val content: String,
+    val author: User?, // null if anonymous
+    val content: String, // markdown
     val anonymity: Boolean = false,
 
     val pinned: Boolean = false,

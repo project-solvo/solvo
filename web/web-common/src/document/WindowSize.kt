@@ -5,6 +5,7 @@ package org.solvo.web.document
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
@@ -20,7 +21,7 @@ import org.w3c.dom.Window
 
 @Suppress("FunctionName", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 fun SolvoWindow(
-    content: @Composable WindowState.() -> Unit = { }
+    content: @Composable ColumnScope.() -> Unit = { }
 ) {
     ComposeWindow().apply {
         val windowState = createWindowState()
@@ -31,7 +32,7 @@ fun SolvoWindow(
                 val currentSize by windowState.size.collectAsState()
                 CompositionLocalProvider(LocalSolvoWindow provides windowState) {
                     Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
-                        content(windowState)
+                        content()
                     }
                 }
             }

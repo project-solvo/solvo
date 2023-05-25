@@ -10,10 +10,6 @@ import java.util.*
 
 actual typealias Uuid = UUID
 
-fun main() {
-    
-}
-
 actual object UuidAsStringSerializer : KSerializer<Uuid> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor
 

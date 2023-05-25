@@ -26,7 +26,11 @@ class RichEditorState internal constructor(
         get() = richEditor.editor.getMarkdown() as String
 
     suspend fun setContentMarkdown(value: String) {
-        richEditor.onEditorLoaded { richEditor.editor.setValue(value) }
+        richEditor.onEditorLoaded {
+            richEditor.expectEditorChange {
+                richEditor.editor.setValue(value)
+            }
+        }
     }
 
     /**

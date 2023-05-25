@@ -36,6 +36,10 @@ class WebBuildPlugin : Plugin<Project> {
                         implementation(project(":web:web-common"))
                     }
                 }
+                getByName("jsTest") {
+                    kotlin.setSrcDirs(listOf("test"))
+                    resources.srcDir(listOf("testResources"))
+                }
             }
         }
         compose.experimental.apply {

@@ -5,6 +5,8 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import kotlinx.browser.document
+import kotlinx.coroutines.CancellationException
+import org.intellij.lang.annotations.Language
 import org.solvo.web.document.LocalSolvoWindow
 import org.solvo.web.document.isInDarkMode
 import org.solvo.web.editor.impl.RichEditor
@@ -12,14 +14,11 @@ import org.w3c.dom.asList
 
 @Composable
 fun RichText(
-    text: String,
+    @Language("markdown") text: String,
     modifier: Modifier = Modifier,
     isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
 ) {
     val state = rememberRichEditorState()
-    LaunchedEffect(text) {
-        state.setContentMarkdown(text)
-    }
     RichEditor(
         modifier, state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
@@ -28,6 +27,13 @@ fun RichText(
     )
     LaunchedEffect(true) {
         hidePreviewCloseButton(state.richEditor)
+    }
+    LaunchedEffect(text) {
+        try {
+            state.setContentMarkdown(text)
+        } catch (e: CancellationException) {
+            println("Cancelled: ${state.richEditor.id}")
+        }
     }
 }
 
