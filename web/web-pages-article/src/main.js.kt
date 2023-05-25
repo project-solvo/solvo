@@ -1,13 +1,15 @@
 package org.solvo.web
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.Newspaper
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,7 +75,7 @@ private fun ArticlePageContent(
 
 @Composable
 private fun AnswersList() {
-    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(24.dp)) {
+    Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.spacedBy(12.dp)) {
         repeat(2) {
             // TODO: 2023/5/25 view model 
             CommentCard(
@@ -113,8 +115,8 @@ private fun PaperTitle(
     questionNumber: String,
 ) {
     Text(courseName, fontWeight = FontWeight.W800, fontSize = 22.sp)
-    Text(year, Modifier.padding(start = 8.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
-    Text(questionNumber, Modifier.padding(start = 8.dp), fontWeight = FontWeight.W600, fontSize = 16.sp)
+    Text(year, Modifier.padding(start = 16.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
+    Text(questionNumber, Modifier.padding(start = 6.dp), fontWeight = FontWeight.W600, fontSize = 16.sp)
 }
 
 @Composable
@@ -138,7 +140,7 @@ private fun PaperView(
             }
         }
 
-        Card(Modifier.fillMaxSize()) {
+        Column(Modifier.fillMaxSize()) {
             content()
         }
     }
@@ -147,18 +149,23 @@ private fun PaperView(
 @Composable
 private fun ControlBar(
     modifier: Modifier = Modifier,
-    icons: @Composable RowScope.() -> Unit,
+    content: @Composable RowScope.() -> Unit,
 ) {
-    Row(
-        Modifier
-            .background(color = MaterialTheme.colorScheme.primaryContainer)
+//    val shape = RoundedCornerShape(12.dp)
+    Surface(
+        Modifier,
+//            .padding(12.dp)
+//            .clip(shape)
+//            .background(color = MaterialTheme.colorScheme.surfaceColorAtElevation(1.dp)),
+//            .border(color = MaterialTheme.colorScheme.outline, width = 1.dp, shape = shape)
+        tonalElevation = 1.dp
     ) {
         Row(
             modifier.padding(horizontal = 12.dp, vertical = 8.dp).height(32.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            icons()
+            content()
         }
     }
 }

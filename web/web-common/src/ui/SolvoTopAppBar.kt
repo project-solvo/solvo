@@ -112,8 +112,5 @@ fun SolvoTopAppBar(
                 )
             }
         },
-        colors = TopAppBarDefaults.mediumTopAppBarColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer
-        )
     )
 }
