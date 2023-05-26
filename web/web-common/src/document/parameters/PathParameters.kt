@@ -1,8 +1,8 @@
-package org.solvo.web.document
+package org.solvo.web.document.parameters
 
 import androidx.compose.runtime.*
 import kotlinx.browser.window
-import org.solvo.model.api.WebPagePatterns
+import org.solvo.model.api.WebPagePathPatterns
 import org.w3c.dom.events.Event
 
 interface PathParameters : RememberObserver {
@@ -13,11 +13,14 @@ interface PathParameters : RememberObserver {
     val allParameters: State<Map<String, String>>
 
     @Stable
-    fun param(name: String): State<String?>
+    fun paramNullable(name: String): State<String?>
+
+    @Stable
+    fun param(name: String): State<String>
 }
 
 /**
- * See [WebPagePatterns] for possible names
+ * See [WebPagePathPatterns] for possible names
  */
 operator fun PathParameters.get(name: String): String? = allParameters.value[name]
 
@@ -25,17 +28,6 @@ operator fun PathParameters.get(name: String): String? = allParameters.value[nam
 fun PathParameters(
     pattern: String,
 ): PathParameters = PathParametersImpl(pattern)
-
-@Composable
-fun rememberPathParameters(
-    pattern: String,
-): PathParameters {
-    val parameters: PathParameters = remember(pattern) { PathParameters(pattern) }
-    LaunchedEffect(pattern) {
-        parameters.pattern = pattern
-    }
-    return parameters
-}
 
 internal class PathParametersImpl(
     pattern: String,
@@ -62,11 +54,19 @@ internal class PathParametersImpl(
 
     private val _allParameters: MutableState<Map<String, String>> = mutableStateOf(mapOf())
     override val allParameters: State<Map<String, String>> get() = _allParameters
-    private val observedParams = mutableMapOf<String, MutableState<String?>>() // can implement with derived states
-
-    override fun param(name: String): State<String?> {
+    override fun paramNullable(name: String): State<String?> {
         return observedParams.getOrPut(name) {
             mutableStateOf(null)
+        }
+    }
+
+    private val observedParams = mutableMapOf<String, MutableState<String?>>() // can implement with derived states
+    private val observedParamsNotNull =
+        mutableMapOf<String, MutableState<String>>() // can implement with derived states
+
+    override fun param(name: String): State<String> {
+        return observedParamsNotNull.getOrPut(name) {
+            mutableStateOf(get(name) ?: error("Cannot find path parameter '$name'"))
         }
     }
 

@@ -1,4 +1,4 @@
-package org.solvo.web.document
+package org.solvo.web.document.parameters
 
 internal object PathParameterParser {
     fun parse(pattern: String, url: String): Map<String, String> {

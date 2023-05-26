@@ -10,7 +10,7 @@ import io.ktor.util.*
 import io.ktor.util.pipeline.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import org.solvo.model.api.WebPagePatterns
+import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.server.ServerMain
 
 // See docs/WebPages.md
@@ -23,11 +23,11 @@ fun Application.webPageModule() {
         routeStatic("/skiko.wasm", "/skiko.wasm")
 
         // WEB PAGES
-        routeWebPage(WebPagePatterns.home, "/index")
-        routeWebPage(WebPagePatterns.auth, "/auth")
-        routeWebPage(WebPagePatterns.course, "/course")
-        routeWebPage(WebPagePatterns.article, "/article")
-        routeWebPage(WebPagePatterns.question, "/article")
+        routeWebPage(WebPagePathPatterns.home, "/index")
+        routeWebPage(WebPagePathPatterns.auth, "/auth")
+        routeWebPage(WebPagePathPatterns.course, "/course")
+        routeWebPage(WebPagePathPatterns.article, "/article")
+        routeWebPage(WebPagePathPatterns.question, "/article")
     }
 }
 

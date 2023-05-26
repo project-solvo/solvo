@@ -2,8 +2,11 @@
 
 package org.solvo.model.api
 
+import org.solvo.model.annotations.Immutable
+
 // See docs/WebPages.md
-object WebPagePatterns {
+@Immutable
+object WebPagePathPatterns {
     const val VAR_COURSE_CODE = "{courseCode}"
     const val VAR_ARTICLE_CODE = "{articleCode}"
     const val VAR_QUESTION_CODE = "{questionCode}"

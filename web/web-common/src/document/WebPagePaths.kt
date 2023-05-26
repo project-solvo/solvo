@@ -1,12 +1,12 @@
 package org.solvo.web.document
 
-import org.solvo.model.api.WebPagePatterns
-import org.solvo.model.api.WebPagePatterns.VAR_ARTICLE_CODE
-import org.solvo.model.api.WebPagePatterns.VAR_COURSE_CODE
-import org.solvo.model.api.WebPagePatterns.VAR_QUESTION_CODE
+import org.solvo.model.api.WebPagePathPatterns
+import org.solvo.model.api.WebPagePathPatterns.VAR_ARTICLE_CODE
+import org.solvo.model.api.WebPagePathPatterns.VAR_COURSE_CODE
+import org.solvo.model.api.WebPagePathPatterns.VAR_QUESTION_CODE
 
 object WebPagePaths {
-    val patterns = WebPagePatterns
+    val patterns = WebPagePathPatterns
 
     fun home() = patterns.home
     fun auth() = patterns.auth

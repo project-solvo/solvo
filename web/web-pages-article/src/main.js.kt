@@ -23,15 +23,22 @@ import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Article
+import org.solvo.model.Course
 import org.solvo.model.LightComment
 import org.solvo.model.Question
+import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentCard
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.CourseMenuState
 import org.solvo.web.document.History
+import org.solvo.web.document.parameters.article
+import org.solvo.web.document.parameters.course
+import org.solvo.web.document.parameters.question
+import org.solvo.web.document.parameters.rememberPathParameters
 import org.solvo.web.editor.RichText
 import org.solvo.web.requests.client
+import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
@@ -53,14 +60,29 @@ fun main() {
             CourseMenu(menuState, model.allArticles, onClickQuestion = { article: Article, question: Question ->
                 History.navigate { question(article.course.code, article.code, question.code) }
             })
-            ArticlePageContent()
+
+
+            val pathParameters = rememberPathParameters(WebPagePathPatterns.article)
+            val course by pathParameters.course().collectAsState(null)
+            val article by pathParameters.article().collectAsState(null)
+            val question by pathParameters.question().collectAsState(null)
+
+            LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
+                ArticlePageContent(
+                    course = course ?: return@LoadableContent,
+                    article = article ?: return@LoadableContent,
+                    question = question ?: return@LoadableContent,
+                )
+            }
         }
     }
 }
 
 @Composable
 private fun ArticlePageContent(
-
+    course: Course,
+    article: Article,
+    question: Question,
 ) {
     Row(Modifier.fillMaxSize()) {
         val window = LocalSolvoWindow.current
@@ -69,8 +91,10 @@ private fun ArticlePageContent(
         var leftWidth by remember { mutableStateOf(windowSize.width * (1.0f - 0.618f)) }
         Box(Modifier.width(leftWidth)) {
             PaperView(
-                courseTitle = { PaperTitle("Models of Computation", "2022", "1a") },
-                onChangeSize = { },
+                courseTitle = { PaperTitle(course, article.name, question.code) },
+                onChangeLayout = {
+                    // TODO change article page layout
+                },
                 {
                     var image: ImageBitmap? by remember { mutableStateOf(null) }
                     LaunchedEffect(true) {
@@ -191,11 +215,12 @@ private fun AnswersList() {
 
 @Composable
 private fun PaperTitle(
-    courseName: String,
+    course: Course,
     year: String,
     questionNumber: String,
 ) {
-    Text(courseName, fontWeight = FontWeight.W800, fontSize = 22.sp)
+    Text(course.code, fontWeight = FontWeight.W800, fontSize = 22.sp)
+    Text(course.name, Modifier.padding(start = 4.dp), fontWeight = FontWeight.W800, fontSize = 22.sp)
     Text(year, Modifier.padding(start = 16.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
     Text(questionNumber, Modifier.padding(start = 6.dp), fontWeight = FontWeight.W600, fontSize = 16.sp)
 }
@@ -203,7 +228,7 @@ private fun PaperTitle(
 @Composable
 private fun PaperView(
     courseTitle: @Composable RowScope. () -> Unit,
-    onChangeSize: () -> Unit,
+    onChangeLayout: () -> Unit,
     content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
@@ -212,7 +237,7 @@ private fun PaperView(
         ControlBar(Modifier.fillMaxWidth()) {
             courseTitle()
             Spacer(Modifier.weight(1f))
-            IconButton(onChangeSize) {
+            IconButton(onChangeLayout) {
                 if (isExpanded) {
                     Icon(Icons.Default.Compress, "Compress")
                 } else {

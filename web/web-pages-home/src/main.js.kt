@@ -1,12 +1,10 @@
 package org.solvo.web
 
-import androidx.compose.animation.*
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Course
 import org.solvo.web.document.History
+import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 
@@ -29,48 +28,30 @@ fun main() {
 
             val model = remember { HomePageViewModel() }
             val courses by model.courses
-            HomePageContent(courses)
+
+            LoadableContent(isLoading = courses == null, Modifier.fillMaxSize()) {
+                HomePageContent(courses.orEmpty())
+            }
         }
     }
 }
 
 @Composable
 fun HomePageContent(
-    courses: List<Course>?,
+    courses: List<Course>,
 ) {
-    Box(
-        modifier = Modifier.fillMaxSize()
-    ) {
-        AnimatedVisibility(
-            courses == null,
-            enter = slideInVertically { 0 } + fadeIn(),
-            exit = slideOutVertically { -it } + fadeOut(),
+    Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
+        Text(
+            text = "Courses",
+            modifier = Modifier.padding(vertical = 12.dp, horizontal = 32.dp),
+            style = MaterialTheme.typography.headlineLarge,
+        )
+        FlowRow(
+            modifier = Modifier.padding(16.dp),
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(Modifier.fillMaxWidth().padding(start = 64.dp), horizontalArrangement = Arrangement.Center) {
-                CircularProgressIndicator()
-            }
-        }
-
-        AnimatedVisibility(
-            courses != null,
-            enter = slideInVertically { 0 } + fadeIn(),
-            exit = slideOutVertically { -it } + fadeOut(),
-        ) {
-            // Course title
-            Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
-                Text(
-                    text = "Courses",
-                    modifier = Modifier.padding(vertical = 12.dp, horizontal = 32.dp),
-                    style = MaterialTheme.typography.headlineLarge,
-                )
-                FlowRow(
-                    modifier = Modifier.padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    for (courseName in courses.orEmpty()) {
-                        CourseCard(courseName)
-                    }
-                }
+            for (courseName in courses) {
+                CourseCard(courseName)
             }
         }
     }
