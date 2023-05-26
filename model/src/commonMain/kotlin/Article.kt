@@ -16,19 +16,19 @@ class Article(
     override val content: String,
     override val anonymity: Boolean = false,
 
+    val code: String,
     val name: String,
     val course: Course,
-    val termYear: String,
 
     val questions: List<Question>,
     val comments: List<Comment> = listOf(),
 ): Commentable {
-    // to pass compilation
+    // FIXME to pass compilation
     constructor(termYear: String, questions: List<Question>): this(
         content = "",
+        code = termYear,
         name = "",
         course = Course("", ""),
-        termYear = termYear,
         questions = questions,
     )
 }
@@ -40,7 +40,7 @@ class ArticleUpstream(
     override val anonymity: Boolean,
 
     val name: String,
-    val course: Course,
+    val courseCode: String,
     val termYear: String,
 
     val questions: List<QuestionUpstream>,

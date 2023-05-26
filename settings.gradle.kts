@@ -24,13 +24,22 @@ fun includeProject(projectPath: String, dir: String? = null) {
     if (dir != null) project(projectPath).projectDir = file(dir)
 }
 
+
+// SHARED
 includeProject(":model")
+
+// BACKEND
 includeProject(":server")
+
+// WEB COMMON
 includeProject(":web:web-common")
 includeProject(":web:web-editor")
 includeProject(":web:web-course-menu")
 includeProject(":web:web-comments")
-includeProject(":web:web-pages-register")
+
+// WEB PAGES
+
+includeProject(":web:web-pages-auth")
 includeProject(":web:web-pages-article")
 includeProject(":web:web-pages-home")
 includeProject(":web:web-pages-course")

@@ -7,7 +7,7 @@ interface Requests {
 }
 
 @Suppress("UnusedReceiverParameter")
-val Requests.origin get() = window.location.origin
+val Requests.origin get() = window.location.origin.removeSuffix("/")
 val Requests.apiUrl get() = "$origin/api"
 
 val Requests.http get() = client.http

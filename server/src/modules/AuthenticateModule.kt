@@ -25,15 +25,16 @@ inline fun Application.routeApi(crossinline block: Route.() -> Unit) {
 }
 
 
+val AuthDigest = getDigestFunction("SHA-256") { "ktor$it" }
+
 fun Application.authenticateModule() {
     val accountDB = ServerContext.Databases.accounts
-    val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
 
     routeApi {
         post("/register") {
             val request = call.receive<AuthRequest>()
             val username = request.username
-            val hash = digestFunction(request.password)
+            val hash = AuthDigest(request.password)
 
             if (accountDB.getId(username) != null) {
                 call.respondAuth(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
@@ -56,7 +57,7 @@ fun Application.authenticateModule() {
         post("/login") {
             val request = call.receive<AuthRequest>()
             val username = request.username
-            val hash = digestFunction(request.password)
+            val hash = AuthDigest(request.password)
 
             val id = accountDB.getId(username)
             if (id == null) {

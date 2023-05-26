@@ -8,8 +8,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
-import org.solvo.web.document.LocalSolvoWindow
-import org.solvo.web.document.isInDarkMode
+import org.solvo.web.ui.LocalSolvoWindow
+import org.solvo.web.ui.isInDarkMode
 
 
 @Composable

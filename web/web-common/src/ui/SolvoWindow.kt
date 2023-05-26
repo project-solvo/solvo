@@ -1,6 +1,6 @@
 @file:Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 
-package org.solvo.web.document
+package org.solvo.web.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.isSystemInDarkTheme
@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.solvo.web.document.Cookies
 import org.solvo.web.ui.theme.AppTheme
 import org.w3c.dom.Window
 

@@ -2,10 +2,14 @@ package org.solvo.web.requests
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
+import org.solvo.model.Article
 import org.solvo.model.Course
 
-class CourseRequests(
+open class CourseRequests(
     override val client: Client,
 ) : Requests {
-    suspend fun getAllCourses(): List<Course> = http.get("${apiUrl}/courses").body<List<Course>>()
+    suspend fun getAllCourses(): List<Course> = http.get("${apiUrl}/courses").body()
+    suspend fun getCourse(code: String): Course? = http.get("${apiUrl}/courses/$code").bodyOrNull()
+    suspend fun getAllArticles(course: String): List<Article>? =
+        http.get("${apiUrl}/courses/$course/articles").bodyOrNull()
 }

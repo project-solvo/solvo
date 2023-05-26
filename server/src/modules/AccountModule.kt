@@ -28,7 +28,7 @@ fun Application.accountModule() {
                     call.respond(UploadImageResponse(path))
                 }
                 get("/avatar") {
-                    val uidStr =  call.parameters["uid"]
+                    val uidStr = call.parameters["uid"]
                     val resourceId = ServerContext.Databases.accounts.getAvatar(UUID.fromString(uidStr))
                     if (resourceId == null) {
                         call.respond(HttpStatusCode.NotFound)

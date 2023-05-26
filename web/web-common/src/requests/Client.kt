@@ -4,7 +4,10 @@ import io.ktor.client.*
 import io.ktor.client.engine.js.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.statement.*
+import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
+import io.ktor.util.reflect.*
 import kotlinx.browser.window
 import kotlinx.serialization.json.Json
 
@@ -30,4 +33,9 @@ class Client {
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }
     val courses: CourseRequests by lazy { CourseRequests(this) }
+}
+
+suspend inline fun <reified T> HttpResponse.bodyOrNull(): T? {
+    if (!this.status.isSuccess()) return null
+    return call.bodyNullable(typeInfo<T>()) as T
 }

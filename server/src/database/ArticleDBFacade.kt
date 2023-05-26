@@ -53,8 +53,7 @@ class ArticleDBFacadeImpl(
     }
 
     override suspend fun post(content: ArticleUpstream, author: User): UUID? = dbQuery {
-        if (content.course.code.length > DatabaseModel.COURSE_CODE_MAX_LENGTH
-            || content.course.name.length > DatabaseModel.COURSE_NAME_MAX_LENGTH
+        if (content.courseCode.length > DatabaseModel.COURSE_CODE_MAX_LENGTH
             || content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
             || content.name.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
         ) {
@@ -63,8 +62,8 @@ class ArticleDBFacadeImpl(
         super.post(content, author)
     }
 
-    override suspend fun associateTableUpdates(coid: UUID, content: ArticleUpstream, author: User): UUID = dbQuery {
-        val courseId = courseDB.getOrInsertId(content.course)
+    override suspend fun associateTableUpdates(coid: UUID, content: ArticleUpstream, author: User): UUID? = dbQuery {
+        val courseId = courseDB.getId(content.courseCode) ?: return@dbQuery null
         val termId = termDB.getOrInsertId(content.termYear)
 
         assert(ArticleTable.insert {
@@ -80,7 +79,7 @@ class ArticleDBFacadeImpl(
     override suspend fun view(coid: UUID): ArticleDownstream? = dbQuery {
         val curViews = ArticleTable.select { ArticleTable.coid eq coid }.map { it[ArticleTable.views] }.singleOrNull()
             ?: return@dbQuery null
-        ArticleTable.update ({ ArticleTable.coid eq coid }) { it[views] = curViews + 1u }
+        ArticleTable.update({ ArticleTable.coid eq coid }) { it[views] = curViews + 1u }
 
         val questionIndexes: List<String> = ArticleTable
             .join(QuestionTable, JoinType.INNER, ArticleTable.coid, QuestionTable.article)

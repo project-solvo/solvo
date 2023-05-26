@@ -4,12 +4,12 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.api.AccountChecker
 import org.solvo.model.api.AuthStatus
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.web.document.Cookies
+import org.solvo.web.document.History
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
 
@@ -77,7 +77,7 @@ class AuthenticationViewModel : AbstractViewModel() {
                     onClickProceed()
                 } else {
                     Cookies.setCookie("token", response.token)
-                    window.location.href = window.location.origin
+                    History.navigate { home() }
                 }
             }
 

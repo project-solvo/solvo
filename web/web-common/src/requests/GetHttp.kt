@@ -1,4 +1,4 @@
-package org.solvo.web.ui
+package org.solvo.web.requests
 
 import org.khronos.webgl.ArrayBuffer
 import org.khronos.webgl.Int8Array

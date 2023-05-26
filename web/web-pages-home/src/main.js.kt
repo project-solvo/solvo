@@ -16,11 +16,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Course
-import org.solvo.web.document.SolvoWindow
-import org.solvo.web.ui.SolvoTopAppBar
+import org.solvo.web.document.History
+import org.solvo.web.ui.SolvoWindow
+import org.solvo.web.ui.foundation.SolvoTopAppBar
 
 fun main() {
     onWasmReady {
@@ -80,7 +80,7 @@ fun HomePageContent(
 private fun CourseCard(item: Course) {
     ElevatedCard(
         onClick = {
-            window.location.href = window.location.origin + "/course.html?code=${item.code}"
+            History.navigate { course(item.code) }
         },
         modifier = Modifier.padding(25.dp).height(200.dp).width(350.dp).clickable {},
         shape = RoundedCornerShape(8.dp),

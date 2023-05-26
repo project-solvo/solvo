@@ -7,8 +7,10 @@ import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.solvo.model.Course
+import org.solvo.model.foundation.Uuid
 import org.solvo.server.database.*
 import org.solvo.server.database.exposed.*
+import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.*
 
 object ServerContext {
@@ -30,18 +32,16 @@ object ServerContext {
 
     fun init() {
         DatabaseFactory.init()
-        Databases.accounts.apply {
-            runBlocking {
+        runBlocking {
+            val alex: Uuid
+            Databases.accounts.apply {
+                alex = addAccount("Alex", AuthDigest("alex123")) ?: getId("Alex")!!
                 // initialization here
             }
-        }
-        Databases.resources.apply {
-            runBlocking {
+            Databases.resources.apply {
                 // initialization here
             }
-        }
-        Databases.courses.apply {
-            runBlocking {
+            Databases.courses.apply {
                 // TODO: 2023/5/26 this is dummy data
                 getOrInsertId(Course("50001", "Algorithm Design and Analysis"))
                 getOrInsertId(Course("50002", "Software Engineering Design"))
@@ -52,13 +52,30 @@ object ServerContext {
                 getOrInsertId(Course("50008", "Probability and Statistics"))
                 getOrInsertId(Course("50009", "Symbolic Reasoning"))
             }
+//            Databases.articles.apply {
+//                post(
+//                    ArticleUpstream(
+//                        content = "My content",
+//                        anonymity = true,
+//                        name = "Paper 2022",
+//                        courseCode = "50001",
+//                        termYear = "2022",
+//                        questions = listOf()
+//                    ),
+//                    User(
+//                        alex,
+//                        "",
+//                        null
+//                    )
+//                )
+//            }
         }
     }
 
     object DatabaseFactory {
         fun init() {
             val driverClassName = "org.h2.Driver"
-            val jdbcURL = "jdbc:h2:./db"
+            val jdbcURL = "jdbc:h2:./db;MODE=MYSQL"
             Database.connect(jdbcURL, driverClassName)
             transaction {
                 SchemaUtils.create(

@@ -1,4 +1,5 @@
 import web.*
+import java.util.*
 
 plugins {
     kotlin("jvm")
@@ -30,11 +31,14 @@ application {
     mainClass.set("org.solvo.server.ServerMain")
 }
 
-val pages: Map<String, String> = mapOf(
-    "register" to ":web:web-pages-register",
-    "course" to ":web:web-pages-course",
-    "index" to ":web:web-pages-home",
-)
+val pages: Map<String, String> by projectLevelCache {
+    Properties().apply {
+        project(":web").projectDir.resolve("web-pages.properties").bufferedReader().use {
+            load(it)
+        }
+    }.mapKeys { it.key.toString().trim() }
+        .mapValues { it.value.toString().trim() }
+}
 
 val destination = projectDir.resolve("resources/web-generated")
 

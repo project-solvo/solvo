@@ -16,7 +16,7 @@ class Question(
     override val content: String,
     override val anonymity: Boolean = false,
 
-    val index: String,
+    val code: String,
     var article: Article? = null,
     val answers: List<Answer> = listOf(),
     val comments: List<Comment> = listOf(),

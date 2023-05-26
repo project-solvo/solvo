@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Article
 import org.solvo.model.Question
-import org.solvo.web.document.SolvoWindow
-import org.solvo.web.ui.SolvoTopAppBar
+import org.solvo.web.ui.SolvoWindow
+import org.solvo.web.ui.foundation.SolvoTopAppBar
 
 fun main() {
     onWasmReady {
@@ -47,17 +47,17 @@ fun CourseMenuContent(state: CourseMenuState) {
                         listOf(
                             Question(
                                 content = "1a",
-                                index = "1a"
+                                code = "1a"
                             ), Question(
                                 content = "1b",
-                                index = "1a"
+                                code = "1a"
                             ),
                             Question(
                                 content = "2a",
-                                index = "1a"
+                                code = "1a"
                             ), Question(
                                 content = "2b",
-                                index = "1a"
+                                code = "1a"
                             )
                         )
                     this.add(Article(i.toString(), questions))
@@ -100,7 +100,7 @@ fun CourseMenu(
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = article.termYear,
+                        text = article.code,
                         modifier = Modifier.padding(8.dp),
                         style = MaterialTheme.typography.titleLarge,
                     )

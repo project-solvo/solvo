@@ -10,9 +10,9 @@ import androidx.compose.ui.unit.TextUnit
 import kotlinx.browser.document
 import kotlinx.coroutines.CancellationException
 import org.intellij.lang.annotations.Language
-import org.solvo.web.document.LocalSolvoWindow
-import org.solvo.web.document.isInDarkMode
 import org.solvo.web.editor.impl.RichEditor
+import org.solvo.web.ui.LocalSolvoWindow
+import org.solvo.web.ui.isInDarkMode
 import org.w3c.dom.asList
 
 @Composable

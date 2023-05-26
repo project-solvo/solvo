@@ -1,4 +1,4 @@
-package org.solvo.web.ui
+package org.solvo.web.ui.foundation
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box

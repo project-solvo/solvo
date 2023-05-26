@@ -1,4 +1,4 @@
-package org.solvo.web.ui
+package org.solvo.web.ui.foundation
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -10,8 +10,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
-import kotlinx.browser.window
-import org.solvo.web.document.LocalSolvoWindow
+import org.solvo.web.document.History
+import org.solvo.web.ui.LocalSolvoWindow
 
 @Composable
 fun SolvoTopAppBar(
@@ -29,7 +29,7 @@ fun SolvoTopAppBar(
             Row {
                 navigationIcon()
                 IconButton(onClick = {
-                    window.location.href = window.location.origin
+                    History.navigate { home() }
                 }) {
                     Icon(Icons.Filled.Home, null)
                 }
@@ -90,7 +90,7 @@ fun SolvoTopAppBar(
                 DropdownMenuItem(
                     text = { Text("Log out") },
                     onClick = {
-                        window.location.href = "register.html"
+                        History.navigate { auth() }
                         personalMenu1 = false
                     },
                 )

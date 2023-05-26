@@ -19,7 +19,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.browser.window
+import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Article
 import org.solvo.model.LightComment
@@ -28,12 +29,13 @@ import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentCard
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.CourseMenuState
-import org.solvo.web.document.LocalSolvoWindow
-import org.solvo.web.document.SolvoWindow
+import org.solvo.web.document.History
 import org.solvo.web.editor.RichText
-import org.solvo.web.ui.SolvoTopAppBar
-import org.solvo.web.ui.VerticalDraggableDivider
-import org.solvo.web.ui.getUrl
+import org.solvo.web.requests.client
+import org.solvo.web.ui.LocalSolvoWindow
+import org.solvo.web.ui.SolvoWindow
+import org.solvo.web.ui.foundation.SolvoTopAppBar
+import org.solvo.web.ui.foundation.VerticalDraggableDivider
 
 
 fun main() {
@@ -49,8 +51,7 @@ fun main() {
             }
 
             CourseMenu(menuState, model.allArticles, onClickQuestion = { article: Article, question: Question ->
-                window.location.href =
-                    window.location.origin + "/course.html?course=${article.course.code}&article=${article.coid}&question=${question.index}"
+                History.navigate { question(article.course.code, article.code, question.code) }
             })
             ArticlePageContent()
         }
@@ -74,7 +75,10 @@ private fun ArticlePageContent(
                     var image: ImageBitmap? by remember { mutableStateOf(null) }
                     LaunchedEffect(true) {
                         image =
-                            org.jetbrains.skia.Image.makeFromEncoded(getUrl("https://him188.github.io/static/images/WACCLangSpec_00.png"))
+                            org.jetbrains.skia.Image.makeFromEncoded(
+                                client.http.get("https://him188.github.io/static/images/WACCLangSpec_00.png")
+                                    .readBytes()
+                            )
                                 .toComposeImageBitmap()
                     }
                     if (image == null) {
