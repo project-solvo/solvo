@@ -15,7 +15,7 @@ import org.solvo.model.api.UsernameValidityResponse
 import org.solvo.server.ServerContext
 
 fun Application.authenticateModule() {
-    val accountDB = ServerContext.accounts
+    val accountDB = ServerContext.Databases.accounts
     val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
 
     routing {

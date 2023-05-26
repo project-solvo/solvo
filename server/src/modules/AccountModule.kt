@@ -29,7 +29,7 @@ fun Application.accountModule() {
                 }
                 get("/avatar") {
                     val uidStr =  call.parameters["uid"]
-                    val resourceId = ServerContext.accounts.getAvatar(UUID.fromString(uidStr))
+                    val resourceId = ServerContext.Databases.accounts.getAvatar(UUID.fromString(uidStr))
                     if (resourceId == null) {
                         call.respond(HttpStatusCode.NotFound)
                         return@get
@@ -43,7 +43,7 @@ fun Application.accountModule() {
 }
 
 private suspend fun deleteOldAvatar(uid: UUID) {
-    val oldAvatarId = ServerContext.accounts.getAvatar(uid)
+    val oldAvatarId = ServerContext.Databases.accounts.getAvatar(uid)
     if (oldAvatarId != null) {
         val path = ServerContext.paths.staticResourcePath(oldAvatarId, StaticResourcePurpose.USER_AVATAR)
         ServerContext.files.delete(path)

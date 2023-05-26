@@ -1,5 +1,6 @@
 package org.solvo.server.modules
 
+import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.request.*
@@ -8,10 +9,13 @@ import io.ktor.server.routing.*
 import org.solvo.model.Answer
 import org.solvo.model.Article
 import org.solvo.model.api.UploadImageResponse
+import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.StaticResourcePurpose
 
 fun Application.uploadModule() {
+    val db = ServerContext.Databases
+
     authentication { authBearer() }
 
     routing {
@@ -21,7 +25,18 @@ fun Application.uploadModule() {
                     val uid = getUserId() ?: return@put
                     val article = call.receive<Article>()
 
-                    if (uploadNewContentConcerningAnonymity(article, uid, ServerContext.articles)) {
+                    for (question in article.questions) {
+                        if (question.index.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) {
+                            call.respond(HttpStatusCode.BadRequest)
+                            return@put
+                        }
+                    }
+
+                    if (uploadNewContentConcerningAnonymity(article, uid, db.articles)) {
+                        assert(article.questions.map { question ->
+                            question.article = article
+                            uploadNewContentConcerningAnonymity(question, uid, db.questions)
+                        }.all { it })
                         call.respond(article)
                     }
                 }
@@ -30,7 +45,7 @@ fun Application.uploadModule() {
                     val uid = getUserId() ?: return@put
                     val answer = call.receive<Answer>()
 
-                    if (uploadNewContentConcerningAnonymity(answer, uid, ServerContext.answers)) {
+                    if (uploadNewContentConcerningAnonymity(answer, uid, db.answers)) {
                         call.respond(answer)
                     }
                 }

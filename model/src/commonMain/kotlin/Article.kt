@@ -25,8 +25,6 @@ class Article(
 ): Commentable {
     // to pass compilation
     constructor(termYear: String, questions: List<Question>): this(
-        coid = null,
-        author = null,
         content = "",
         name = "",
         course = Course("", ""),

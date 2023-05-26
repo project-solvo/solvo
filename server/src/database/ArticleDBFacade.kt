@@ -1,18 +1,14 @@
 package org.solvo.server.database
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.statements.InsertStatement
 import org.solvo.model.Article
-import org.solvo.model.Course
-import org.solvo.model.Question
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
-import org.solvo.server.database.exposed.CourseTable
-import org.solvo.server.database.exposed.TermTable
 import java.util.*
 
 interface ArticleDBFacade : CommentedObjectDBFacade<Article> {
@@ -21,21 +17,16 @@ interface ArticleDBFacade : CommentedObjectDBFacade<Article> {
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
 }
 
-class ArticleDBFacadeImpl : ArticleDBFacade {
-    private val commentedObjectDB = CommentedObjectDBFacadeImpl<Article>()
-    private val questionDB = QuestionDBFacadeImpl()
+class ArticleDBFacadeImpl(
+    private val courseDB: CourseDBFacade,
+    private val termDB: TermDBFacade,
+) : ArticleDBFacade, CommentedObjectDBFacadeImpl<Article>() {
+    override val associatedTable: Table = ArticleTable
 
     override suspend fun getId(courseCode: String, term: String, name: String): UUID? = dbQuery {
-        val courseId = CourseTable
-            .select(CourseTable.code eq courseCode)
-            .map { it[CourseTable.id] }
-            .singleOrNull()
-            ?: return@dbQuery null
-        val termId = TermTable
-            .select(TermTable.termTime eq term)
-            .map { it[TermTable.id] }
-            .singleOrNull()
-            ?: return@dbQuery null
+        val courseId = courseDB.getId(courseCode) ?: return@dbQuery null
+        val termId = termDB.getId(term) ?: return@dbQuery null
+
         ArticleTable
             .select(
                 (ArticleTable.course eq courseId)
@@ -43,14 +34,6 @@ class ArticleDBFacadeImpl : ArticleDBFacade {
                         and (ArticleTable.name eq name)
             ).map { it[ArticleTable.coid].value }
             .singleOrNull()
-    }
-
-    override suspend fun star(uid: UUID, coid: UUID): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun unStar(uid: UUID, coid: UUID): Boolean {
-        TODO("Not yet implemented")
     }
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
@@ -65,63 +48,34 @@ class ArticleDBFacadeImpl : ArticleDBFacade {
         ) {
             return@dbQuery null
         }
-
-        val articleId = commentedObjectDB.post(content) ?: return@dbQuery null
-
-        val courseId = getOrInsertCourseId(content.course)
-        val termId = getOrInsertTermId(content.termYear)
-
-        assert(ArticleTable.insert {
-            it[ArticleTable.coid] = articleId
-            it[ArticleTable.name] = content.name
-            it[ArticleTable.course] = courseId
-            it[ArticleTable.term] = termId
-        }.resultedValues?.singleOrNull() != null)
-
-        for (question: Question in content.questions) {
-            assert(questionDB.post(question, articleId) != null)
-        }
-
-        articleId
+        super.post(content)
     }
 
-    private suspend fun getOrInsertTermId(termTime: String): Int = dbQuery {
-        TermTable
-            .select(TermTable.termTime eq termTime)
-            .map { it[TermTable.id].value }
-            .singleOrNull()
-            ?: TermTable.insertAndGetId { it[TermTable.termTime] = termTime }.value
+    override suspend fun associateTableArgsCompute(content: Article): List<Any?> {
+        val courseId = courseDB.getOrInsertId(content.course)
+        val termId = termDB.getOrInsertId(content.termYear)
+        return listOf(courseId, termId)
     }
 
-    private suspend fun getOrInsertCourseId(course: Course): Int = dbQuery {
-        CourseTable
-            .select(CourseTable.code eq course.code)
-            .map { it[CourseTable.id].value }
-            .singleOrNull()
-            ?: CourseTable.insertAndGetId {
-                it[CourseTable.code] = course.code
-                it[CourseTable.name] = course.name
-            }.value
-    }
+    override fun associateTableUpdates(it: InsertStatement<Number>, coid: UUID, content: Article, args: List<Any?>) {
+        val courseId = args[0] as Int
+        val termId = args[1] as Int
 
-    override suspend fun modify(content: Article): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun delete(coid: UUID): Boolean {
-        TODO("Not yet implemented")
+        it[ArticleTable.coid] = coid
+        it[ArticleTable.name] = content.name
+        it[ArticleTable.course] = courseId
+        it[ArticleTable.term] = termId
     }
 
     override suspend fun view(coid: UUID): Article? {
         TODO("Not yet implemented")
     }
 
-    override suspend fun like(uid: UUID, coid: UUID): Boolean {
+    override suspend fun star(uid: UUID, coid: UUID): Boolean {
         TODO("Not yet implemented")
     }
 
-    override suspend fun unLike(uid: UUID, coid: UUID): Boolean {
+    override suspend fun unStar(uid: UUID, coid: UUID): Boolean {
         TODO("Not yet implemented")
     }
-
 }

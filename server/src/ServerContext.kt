@@ -16,19 +16,25 @@ object ServerContext {
     val paths: ServerResourcesPath = ServerResourcesPathImpl()
     val files: FileManager = FileManagerImpl()
 
-    val accounts: AccountDBFacade = AccountDBFacadeImpl()
-    val resources: ResourcesDBFacade = ResourcesDBFacadeImpl()
-    val articles: ArticleDBFacade = ArticleDBFacadeImpl()
-    val answers: AnswerDBFacade = AnswerDBFacadeImpl()
+    object Databases {
+        val accounts: AccountDBFacade = AccountDBFacadeImpl()
+        val resources: ResourcesDBFacade = ResourcesDBFacadeImpl()
+
+        val courses: CourseDBFacade = CourseDBFacadeImpl()
+        val terms: TermDBFacade = TermDBFacadeImpl()
+        val questions: QuestionDBFacade = QuestionDBFacadeImpl()
+        val answers: AnswerDBFacade = AnswerDBFacadeImpl(questions)
+        val articles: ArticleDBFacade = ArticleDBFacadeImpl(courses, terms)
+    }
 
     fun init() {
         DatabaseFactory.init()
-        accounts.apply {
+        Databases.accounts.apply {
             runBlocking {
                 // initialization here
             }
         }
-        resources.apply {
+        Databases.resources.apply {
             runBlocking {
                 // initialization here
             }

@@ -32,12 +32,12 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
 }
 
 suspend fun uploadNewImage(uid: UUID, input: InputStream, purpose: StaticResourcePurpose): String {
-    val newImageId = ServerContext.resources.addResource(purpose)
+    val newImageId = ServerContext.Databases.resources.addResource(purpose)
     val path = ServerContext.paths.staticResourcePath(newImageId, purpose)
 
     ServerContext.files.write(input, path)
     if (purpose == StaticResourcePurpose.USER_AVATAR) {
-        ServerContext.accounts.modifyAvatar(uid, newImageId)
+        ServerContext.Databases.accounts.modifyAvatar(uid, newImageId)
     }
     return path
 }
@@ -47,7 +47,7 @@ suspend fun <T: Commentable> PipelineContext<Unit, ApplicationCall>.uploadNewCon
     uid: UUID,
     database: CommentedObjectDBFacade<T>,
 ): Boolean {
-    commentable.author = ServerContext.accounts.getUserInfo(uid)
+    commentable.author = ServerContext.Databases.accounts.getUserInfo(uid)
 
     val coid = database.post(commentable)
     return if (coid == null) {

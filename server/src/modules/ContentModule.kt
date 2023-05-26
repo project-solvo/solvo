@@ -14,7 +14,7 @@ fun Application.contentModule() {
             val resourceIdStr = call.parameters["resourceId"]!!
 
             val resourceId = UUID.fromString(resourceIdStr)
-            val purpose = ServerContext.resources.getPurpose(resourceId)
+            val purpose = ServerContext.Databases.resources.getPurpose(resourceId)
             if (purpose == null) {
                 call.respond(HttpStatusCode.NotFound)
                 return@get

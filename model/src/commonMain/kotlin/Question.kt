@@ -17,14 +17,13 @@ class Question(
     override val anonymity: Boolean = false,
 
     val index: String,
+    var article: Article? = null,
     val answers: List<Answer> = listOf(),
     val comments: List<Comment> = listOf(),
-): Commentable {
+) : Commentable {
     // to pass compilation
     constructor(content: String) : this(
-        coid = null,
-        author = null,
         content = content,
         index = "1a"
-        )
+    )
 }
