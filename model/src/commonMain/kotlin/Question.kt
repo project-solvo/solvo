@@ -22,10 +22,6 @@ class Question(
     val comments: List<Comment> = listOf(),
 ) : Commentable {
     // to pass compilation
-    constructor(content: String) : this(
-        content = content,
-        index = "1a"
-    )
 }
 
 @Immutable
@@ -35,7 +31,7 @@ class QuestionUpstream(
     override val anonymity: Boolean,
 
     val index: String,
-): CommentableUpstream
+) : CommentableUpstream
 
 @Immutable
 @Serializable
@@ -50,4 +46,4 @@ class QuestionDownstream(
     val article: Uuid,
     val answers: List<AnswerDownstream>,
     val comments: List<CommentDownstream>,
-): CommentableDownstream
+) : CommentableDownstream

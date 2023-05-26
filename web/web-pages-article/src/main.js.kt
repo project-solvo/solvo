@@ -4,10 +4,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Compress
-import androidx.compose.material.icons.filled.East
-import androidx.compose.material.icons.filled.Expand
-import androidx.compose.material.icons.filled.West
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
@@ -22,10 +19,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.browser.window
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.model.Article
 import org.solvo.model.LightComment
+import org.solvo.model.Question
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentCard
+import org.solvo.web.comments.CourseMenu
+import org.solvo.web.comments.CourseMenuState
 import org.solvo.web.document.LocalSolvoWindow
 import org.solvo.web.document.SolvoWindow
 import org.solvo.web.editor.RichText
@@ -37,7 +39,19 @@ import org.solvo.web.ui.getUrl
 fun main() {
     onWasmReady {
         SolvoWindow {
-            SolvoTopAppBar()
+            val model = remember { ArticlePageViewModel() }
+
+            val menuState = remember { CourseMenuState() }
+            SolvoTopAppBar {
+                IconButton(onClick = { menuState.switchMenuOpen() }) {
+                    Icon(Icons.Filled.Menu, null)
+                }
+            }
+
+            CourseMenu(menuState, model.allArticles, onClickQuestion = { article: Article, question: Question ->
+                window.location.href =
+                    window.location.origin + "/course.html?course=${article.course.code}&article=${article.coid}&question=${question.index}"
+            })
             ArticlePageContent()
         }
     }

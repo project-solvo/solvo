@@ -12,7 +12,8 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -24,14 +25,14 @@ import org.solvo.web.ui.SolvoTopAppBar
 fun main() {
     onWasmReady {
         SolvoWindow {
-            val model = remember { CourseState() }
+            val model = remember { CourseMenuState() }
             CourseMenuContent(model)
         }
     }
 }
 
 @Composable
-fun CourseMenuContent(state: CourseState) {
+fun CourseMenuContent(state: CourseMenuState) {
     SolvoTopAppBar {
         IconButton(onClick = { state.switchMenuOpen() }) {
             Icon(Icons.Filled.Menu, null)
@@ -41,32 +42,43 @@ fun CourseMenuContent(state: CourseState) {
         // testing data
         val articles = remember {
             mutableListOf<Article>().apply {
-                for (i in 2018 until 2023) {
+                for (i in 2018..<2023) {
                     val questions =
                         listOf(
-                            Question("1a"), Question("1b"),
-                            Question("2a"), Question("2b")
+                            Question(
+                                content = "1a",
+                                index = "1a"
+                            ), Question(
+                                content = "1b",
+                                index = "1a"
+                            ),
+                            Question(
+                                content = "2a",
+                                index = "1a"
+                            ), Question(
+                                content = "2b",
+                                index = "1a"
+                            )
                         )
                     this.add(Article(i.toString(), questions))
                 }
             }
         }
         // show left column menu
-        CourseMenu(state, state.menuOpen.value, articles)
+        CourseMenu(state, articles)
     }
 }
 
 
 @Composable
 fun CourseMenu(
-    state: CourseState,
-    isOpen: Boolean,
-    articles: MutableList<Article>? = null,
+    state: CourseMenuState,
+    articles: List<Article>,
     onClickArticle: ((article: Article) -> Unit)? = null,
     onClickQuestion: ((article: Article, question: Question) -> Unit)? = null,
 ) {
     AnimatedVisibility(
-        isOpen,
+        state.menuOpen.value,
         enter = slideInHorizontally(),
         exit = slideOutHorizontally(targetOffsetX = { -it })
     ) {
@@ -76,7 +88,7 @@ fun CourseMenu(
                 .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
         ) {
             // construct list of past papers
-            articles?.forEach { article ->
+            articles.forEach { article ->
                 ElevatedCard(
                     onClick = {
                         state.onClickArticle(article)

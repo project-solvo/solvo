@@ -1,12 +1,15 @@
 package org.solvo.web.comments
 
-import androidx.compose.runtime.*
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateOf
 import org.solvo.model.Article
 import org.solvo.model.Question
 
 
 @Stable
-class CourseState {
+class CourseMenuState {
 
     private var _questionIndex: MutableState<Question?> = mutableStateOf(null)
     val questionIndex: State<Question?> get() = _questionIndex
