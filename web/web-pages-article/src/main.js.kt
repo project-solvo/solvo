@@ -4,12 +4,19 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Compress
+import androidx.compose.material.icons.filled.East
+import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.West
+import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.graphics.ImageBitmap
+import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -24,6 +31,7 @@ import org.solvo.web.document.SolvoWindow
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoTopAppBar
 import org.solvo.web.ui.VerticalDraggableDivider
+import org.solvo.web.ui.getUrl
 
 
 fun main() {
@@ -49,7 +57,26 @@ private fun ArticlePageContent(
                 courseTitle = { PaperTitle("Models of Computation", "2022", "1a") },
                 onChangeSize = { },
                 {
-                    Image(Icons.Default.Newspaper, "Paper", Modifier.fillMaxSize())
+                    var image: ImageBitmap? by remember { mutableStateOf(null) }
+                    LaunchedEffect(true) {
+                        image =
+                            org.jetbrains.skia.Image.makeFromEncoded(getUrl("https://him188.github.io/static/images/WACCLangSpec_00.png"))
+                                .toComposeImageBitmap()
+                    }
+                    if (image == null) {
+                        Image(
+                            Icons.Outlined.Description,
+                            "Article Content",
+                            Modifier.fillMaxSize(),
+                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surface)
+                        )
+                    } else {
+                        Image(
+                            image!!,
+                            "Article Content",
+                            Modifier.fillMaxSize(),
+                        )
+                    }
                 },
                 Modifier.fillMaxSize()
             )
