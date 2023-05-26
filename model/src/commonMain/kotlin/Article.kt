@@ -53,7 +53,7 @@ class ArticleDownstream(
     override val author: User?,
     override val content: String,
     override val anonymity: Boolean,
-    override val likes: Int,
+    override val likes: UInt,
 
     val name: String,
     val course: Course,
@@ -61,6 +61,6 @@ class ArticleDownstream(
 
     val questionIndexes: List<String>,
     val comments: List<CommentDownstream>,
-    val stars: Int,
-    val views: Int,
+    val stars: UInt,
+    val views: UInt,
 ): CommentableDownstream

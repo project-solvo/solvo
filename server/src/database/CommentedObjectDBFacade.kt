@@ -5,6 +5,7 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.CommentableDownstream
 import org.solvo.model.CommentableUpstream
 import org.solvo.model.User
+import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
@@ -42,6 +43,7 @@ abstract class CommentedObjectDBFacadeImpl<T: CommentableUpstream> : CommentedOb
     override suspend fun modifyContent(coid: UUID, content: String): Boolean = dbQuery {
         CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
             it[CommentedObjectTable.content] = content
+            it[CommentedObjectTable.lastEditTime] = ServerContext.localtime.now()
         } > 0
     }
 

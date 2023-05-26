@@ -19,5 +19,5 @@ interface CommentableDownstream {
     val author: User?
     val content: String
     val anonymity: Boolean
-    val likes: Int
+    val likes: UInt
 }

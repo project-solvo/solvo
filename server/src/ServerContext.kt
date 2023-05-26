@@ -22,9 +22,9 @@ object ServerContext {
 
         val courses: CourseDBFacade = CourseDBFacadeImpl()
         val terms: TermDBFacade = TermDBFacadeImpl()
-        val questions: QuestionDBFacade = QuestionDBFacadeImpl()
-        val answers: AnswerDBFacade = AnswerDBFacadeImpl(questions)
-        val articles: ArticleDBFacade = ArticleDBFacadeImpl(courses, terms)
+        val answers: AnswerDBFacade = AnswerDBFacadeImpl(accounts)
+        val questions: QuestionDBFacade = QuestionDBFacadeImpl(answers, accounts)
+        val articles: ArticleDBFacade = ArticleDBFacadeImpl(courses, terms, accounts)
     }
 
     fun init() {

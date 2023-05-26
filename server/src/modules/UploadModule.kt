@@ -49,6 +49,10 @@ fun Application.uploadModule() {
                     val author = ServerContext.Databases.accounts.getUserInfo(uid)!!
                     val answer = call.receive<AnswerUpstream>()
 
+                    if (!db.questions.contains(answer.question)) {
+                        call.respond(HttpStatusCode.BadRequest)
+                        return@put
+                    }
                     val answerId = db.answers.post(answer, author)
                     if (answerId != null) {
                         call.respond(answerId)

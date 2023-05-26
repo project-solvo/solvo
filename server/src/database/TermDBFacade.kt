@@ -8,6 +8,7 @@ import org.solvo.server.database.exposed.TermTable
 
 interface TermDBFacade {
     suspend fun getId(term: String): Int?
+    suspend fun getTerm(termId: Int): String?
     suspend fun getOrInsertId(term: String): Int
 }
 
@@ -16,6 +17,13 @@ class TermDBFacadeImpl : TermDBFacade {
         TermTable
             .select(TermTable.termTime eq term)
             .map { it[TermTable.id].value }
+            .singleOrNull()
+    }
+
+    override suspend fun getTerm(termId: Int): String? = dbQuery {
+        TermTable
+            .select(TermTable.id eq termId)
+            .map { it[TermTable.termTime] }
             .singleOrNull()
     }
 

@@ -10,6 +10,7 @@ import java.util.*
 interface CommentDBFacade: CommentedObjectDBFacade<CommentUpstream> {
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
+    override suspend fun view(coid: UUID): CommentableDownstream?
 }
 
 class CommentDBFacadeImpl : CommentDBFacade, CommentedObjectDBFacadeImpl<CommentUpstream>() {

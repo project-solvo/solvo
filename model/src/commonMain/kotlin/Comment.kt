@@ -50,7 +50,7 @@ class CommentDownstream(
     override val author: User?,
     override val content: String,
     override val anonymity: Boolean,
-    override val likes: Int,
+    override val likes: UInt,
 
     val parent: Uuid,
     val pinned: Boolean,
@@ -64,7 +64,7 @@ class FullCommentDownstream(
     override val author: User?,
     override val content: String,
     override val anonymity: Boolean,
-    override val likes: Int,
+    override val likes: UInt,
 
     val parent: Uuid,
     val pinned: Boolean,

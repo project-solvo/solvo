@@ -1,27 +1,30 @@
 package org.solvo.server.database
 
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.Table
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
 import org.solvo.model.ArticleDownstream
 import org.solvo.model.ArticleUpstream
 import org.solvo.model.User
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
+import org.solvo.server.database.exposed.CommentedObjectTable
+import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
 interface ArticleDBFacade : CommentedObjectDBFacade<ArticleUpstream> {
     suspend fun getId(courseCode: String, term: String, name: String): UUID?
+    suspend fun getExistingTermsOfCourse(courseId: Int): List<String>
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
+    suspend fun viewAll(courseId: Int, termId: Int): List<ArticleDownstream>
+    override suspend fun view(coid: UUID): ArticleDownstream?
 }
 
 class ArticleDBFacadeImpl(
     private val courseDB: CourseDBFacade,
     private val termDB: TermDBFacade,
+    private val accountDB: AccountDBFacade,
 ) : ArticleDBFacade, CommentedObjectDBFacadeImpl<ArticleUpstream>() {
     override val associatedTable: Table = ArticleTable
 
@@ -36,6 +39,13 @@ class ArticleDBFacadeImpl(
                         and (ArticleTable.name eq name)
             ).map { it[ArticleTable.coid].value }
             .singleOrNull()
+    }
+
+    override suspend fun getExistingTermsOfCourse(courseId: Int): List<String> = dbQuery {
+        ArticleTable
+            .select(ArticleTable.course eq courseId)
+            .map { termDB.getTerm(it[ArticleTable.term].value)!! }
+            .distinct()
     }
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
@@ -67,8 +77,46 @@ class ArticleDBFacadeImpl(
         return@dbQuery coid
     }
 
-    override suspend fun view(coid: UUID): ArticleDownstream? {
-        TODO("Not yet implemented")
+    override suspend fun view(coid: UUID): ArticleDownstream? = dbQuery {
+        val curViews = ArticleTable.select { ArticleTable.coid eq coid }.map { it[ArticleTable.views] }.singleOrNull()
+            ?: return@dbQuery null
+        ArticleTable.update ({ ArticleTable.coid eq coid }) { it[views] = curViews + 1u }
+
+        val questionIndexes: List<String> = ArticleTable
+            .join(QuestionTable, JoinType.INNER, ArticleTable.coid, QuestionTable.article)
+            .select(ArticleTable.coid eq coid)
+            .map { it[QuestionTable.index] }
+            .sorted()
+
+        ArticleTable
+            .join(CommentedObjectTable, JoinType.INNER, ArticleTable.coid, CommentedObjectTable.id)
+            .select(ArticleTable.coid eq coid)
+            .map {
+                ArticleDownstream(
+                    coid = it[ArticleTable.coid].value,
+                    author = if (it[CommentedObjectTable.anonymity]) {
+                        null
+                    } else {
+                        accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
+                    },
+                    content = it[CommentedObjectTable.content],
+                    anonymity = it[CommentedObjectTable.anonymity],
+                    likes = it[CommentedObjectTable.likes],
+                    name = it[ArticleTable.name],
+                    course = courseDB.getCourse(it[ArticleTable.course].value)!!,
+                    termYear = termDB.getTerm(it[ArticleTable.term].value)!!,
+                    questionIndexes = questionIndexes,
+                    comments = listOf(), // TODO
+                    stars = it[ArticleTable.stars],
+                    views = it[ArticleTable.views],
+                )
+            }.singleOrNull()
+    }
+
+    override suspend fun viewAll(courseId: Int, termId: Int): List<ArticleDownstream> = dbQuery {
+        ArticleTable
+            .select { (ArticleTable.course eq courseId) and (ArticleTable.term eq termId) }
+            .mapNotNull { view(it[ArticleTable.coid].value) }
     }
 
     override suspend fun star(uid: UUID, coid: UUID): Boolean {
