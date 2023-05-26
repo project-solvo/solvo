@@ -41,7 +41,7 @@ class AnswerDBFacadeImpl : AnswerDBFacade {
         assert(AnswerTable.insert {
             it[AnswerTable.coid] = coid
             it[AnswerTable.question] = content.question
-        }.resultedValues != null)
+        }.resultedValues?.singleOrNull() != null)
 
         coid
     }

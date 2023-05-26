@@ -16,6 +16,7 @@ class Question(
     override val content: String,
     override val anonymity: Boolean = false,
 
+    val index: String,
     val answers: List<Answer> = listOf(),
     val comments: List<Comment> = listOf(),
 ): Commentable {
@@ -24,5 +25,6 @@ class Question(
         coid = null,
         author = null,
         content = content,
+        index = "1a"
         )
 }

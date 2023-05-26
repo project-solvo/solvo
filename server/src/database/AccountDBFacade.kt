@@ -1,11 +1,9 @@
 package org.solvo.server.database
 
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.update
 import org.solvo.model.User
+import org.solvo.model.utils.DatabaseModel
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -52,9 +50,10 @@ class AccountDBFacadeImpl : AccountDBFacade {
     }.contentEquals(hash)
 
     override suspend fun addAccount(username: String, hash: ByteArray): UUID? = dbQuery {
-        val userId = UserTable.insert {
+        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) return@dbQuery null
+        val userId = UserTable.insertIgnoreAndGetId {
             it[UserTable.username] = username
-        }.resultedValues?.singleOrNull()?.let { it[UserTable.id].value }
+        }?.value
         if (userId != null) {
             AuthTable.insert {
                 it[AuthTable.userId] = userId
@@ -71,6 +70,7 @@ class AccountDBFacadeImpl : AccountDBFacade {
     }
 
     override suspend fun modifyUsername(uid: UUID, username: String): Boolean = dbQuery {
+        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) return@dbQuery false
         UserTable.update({ UserTable.id eq uid }) {
             it[UserTable.username] = username
         } > 0

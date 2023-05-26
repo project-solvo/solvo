@@ -6,16 +6,14 @@
 
 ```json5
 {
-    "article": {
-        coid: null,
-        auther: null,
-        content: "..",
-        anonymity: true, // true or false
-        course: { code: "50000", name: "CourseName" },
-        termYear: "..",
-        questions: [/* q1, q2, .. */],
-        comments: []
-    }
+    coid: null,
+    auther: null,
+    content: "..",
+    anonymity: true, // true or false
+    course: { code: "50000", name: "CourseName" },
+    termYear: "..",
+    questions: [/* q1, q2, .. */],
+    comments: []
 }
 ```
 
@@ -31,16 +29,14 @@
 
 ```json5
 {
-    "article": {
-        coid: 123, // allocated COID
-        auther: null, // null if anonymous, otherwise the poster
-        content: "..",
-        anonymity: true, // true or false
-        course: { code: "50000", name: "CourseName" },
-        termYear: "..",
-        questions: [/* q1, q2, .. */],
-        comments: []
-    }
+    coid: 123, // allocated COID
+    auther: null, // null if anonymous, otherwise the poster
+    content: "..",
+    anonymity: true, // true or false
+    course: { code: "50000", name: "CourseName" },
+    termYear: "..",
+    questions: [/* q1, q2, .. */],
+    comments: []
 }
 ```
 
@@ -50,14 +46,12 @@
 
 ```json5
 {
-    "answer": {
-        coid: null,
-        auther: null,
-        content: "..",
-        anonymity: true, // true or false
-        question: 124, // COID of question
-        comments: []
-    }
+    coid: null,
+    auther: null,
+    content: "..",
+    anonymity: true, // true or false
+    question: 124, // COID of question
+    comments: []
 }
 ```
 
@@ -73,14 +67,12 @@
 
 ```json5
 {
-    "article": {
-        coid: 125, // allocated COID
-        auther: null, // null if anonymous, otherwise the poster
-        content: "..",
-        anonymity: true, // true or false
-        questions: 124,
-        comments: []
-    }
+    coid: 125, // allocated COID
+    auther: null, // null if anonymous, otherwise the poster
+    content: "..",
+    anonymity: true, // true or false
+    questions: 124,
+    comments: []
 }
 ```
 
@@ -100,6 +92,6 @@
 
 ```json5
 {
-    "url": ".."
+    url: ".."
 }
 ```

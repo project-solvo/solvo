@@ -1,7 +1,7 @@
 package org.solvo.server.database
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.solvo.model.Commentable
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -20,11 +20,11 @@ interface CommentedObjectDBFacade<T: Commentable> {
 
 class CommentedObjectDBFacadeImpl<T: Commentable>: CommentedObjectDBFacade<T> {
     override suspend fun post(content: T): UUID? = dbQuery {
-        CommentedObjectTable.insert {
+        CommentedObjectTable.insertIgnoreAndGetId {
             it[CommentedObjectTable.author] = content.author!!.id
             it[CommentedObjectTable.content] = content.content
             it[CommentedObjectTable.anonymity] = content.anonymity
-        }.resultedValues?.map { it[CommentedObjectTable.id].value }?.singleOrNull()
+        }?.value
     }
 
     override suspend fun modify(content: T): Boolean {

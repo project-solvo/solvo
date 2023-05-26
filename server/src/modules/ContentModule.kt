@@ -11,11 +11,7 @@ import java.util.*
 fun Application.contentModule() {
     routing {
         get("/images/{resourceId}") {
-            val resourceIdStr = call.parameters["resourceId"]
-            if (resourceIdStr == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
-            }
+            val resourceIdStr = call.parameters["resourceId"]!!
 
             val resourceId = UUID.fromString(resourceIdStr)
             val purpose = ServerContext.resources.getPurpose(resourceId)
@@ -27,22 +23,21 @@ fun Application.contentModule() {
             val path = ServerContext.paths.staticResourcePath(resourceId, purpose)
             call.respondFile(File(path))
         }
-        route("/courses/{courseCode}") {
+        route("/courses") {
             get {
 
             }
-            route("/{termName}") {
-                get {
+            get("/{courseCode}") {
 
-                }
+            }
+            get("/{courseCode}/{termName}") {
 
-                get("/{articleID}") {
+            }
+            get("/{courseCode}/{termName}/{articleName}") {
 
-                }
+            }
+            get("/{courseCode}/{termName}/{articleName}/{questionIndex}") {
 
-                get("/{articleID}/{questionIndex}") {
-
-                }
             }
         }
     }

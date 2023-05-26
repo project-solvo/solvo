@@ -2,7 +2,7 @@ package org.solvo.server.database
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
-import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.StaticResourceTable
@@ -23,10 +23,10 @@ class ResourcesDBFacadeImpl : ResourcesDBFacade {
     }
 
     override suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID?): UUID = dbQuery {
-        StaticResourceTable.insert {
+        StaticResourceTable.insertAndGetId {
             it[StaticResourceTable.purpose] = purpose
             it[coid] = parentCOID
-        }.resultedValues?.singleOrNull()!![StaticResourceTable.id].value
+        }.value
     }
 
     override suspend fun getPurpose(resourceId: UUID): StaticResourcePurpose? = dbQuery {

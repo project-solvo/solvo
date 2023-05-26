@@ -5,8 +5,12 @@ class DatabaseModel {
         const val USERNAME_MAX_LENGTH = 16
         const val HASH_SIZE = 32
 
+        const val COURSE_CODE_MAX_LENGTH = 16
         const val COURSE_NAME_MAX_LENGTH = 64
         const val TERM_TIME_MAX_LENGTH = 32
+
+        const val ARTICLE_NAME_MAX_LENGTH = 128
+        const val QUESTION_INDEX_MAX_LENGTH = 8
     }
 }
 

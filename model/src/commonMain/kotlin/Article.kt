@@ -16,6 +16,7 @@ class Article(
     override val content: String,
     override val anonymity: Boolean = false,
 
+    val name: String,
     val course: Course,
     val termYear: String,
 
@@ -27,6 +28,7 @@ class Article(
         coid = null,
         author = null,
         content = "",
+        name = "",
         course = Course("", ""),
         termYear = termYear,
         questions = questions,
