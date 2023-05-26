@@ -156,8 +156,11 @@ internal class RichEditor internal constructor(
 
     fun setSize(size: IntSize, density: Density) {
         _size.value = size
-        element.asDynamic().style.width = (size.width / density.density).toString() + "px"
-        element.asDynamic().style.height = (size.height / density.density).toString() + "px"
+        val widthPx = size.width / density.density
+        element.asDynamic().style.width = widthPx.toString() + "px"
+        val heightPx = size.height / density.density
+        element.asDynamic().style.height = heightPx.toString() + "px"
+        editor.resize()
     }
 
     suspend fun setFontSize(size: TextUnit, density: Density) {
