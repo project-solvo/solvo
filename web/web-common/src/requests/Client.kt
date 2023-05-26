@@ -6,15 +6,9 @@ import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.serialization.kotlinx.json.*
 import kotlinx.browser.window
-import kotlinx.coroutines.CoroutineExceptionHandler
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
 
 val client = Client()
-
-val backgroundScope = CoroutineScope(CoroutineExceptionHandler { _, throwable ->
-    window.alert(throwable.toString())
-})
 
 class Client {
     val origin = window.location.origin
@@ -35,4 +29,5 @@ class Client {
     }
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }
+    val courses: CourseRequests by lazy { CourseRequests(this) }
 }

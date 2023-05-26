@@ -7,7 +7,9 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.size
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Density
@@ -34,7 +36,13 @@ fun SolvoWindow(
                     LocalSolvoWindow provides windowState,
                 ) {
                     Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
-                        content()
+                        CompositionLocalProvider(
+                            LocalContentColor provides MaterialTheme.colorScheme.contentColorFor(
+                                MaterialTheme.colorScheme.background
+                            )
+                        ) {
+                            content()
+                        }
                     }
                 }
             }

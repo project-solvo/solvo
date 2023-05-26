@@ -16,8 +16,6 @@ import org.solvo.server.utils.StaticResourcePurpose
 fun Application.uploadModule() {
     val db = ServerContext.Databases
 
-    authentication { authBearer() }
-
     routing {
         authenticate("authBearer") {
             route("/upload") {

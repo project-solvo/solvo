@@ -19,8 +19,7 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.launch
-import org.solvo.web.requests.backgroundScope
+import org.solvo.web.viewModel.launchInBackground
 
 @Composable
 fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
@@ -114,7 +113,7 @@ fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
             onClick = {
                 println("Click Login: ${viewModel.isProcessing.value}")
                 if (viewModel.isProcessing.compareAndSet(expect = false, update = true)) {
-                    backgroundScope.launch {
+                    viewModel.launchInBackground {
                         try {
                             viewModel.onClickProceed()
                         } finally {
