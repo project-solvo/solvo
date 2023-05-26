@@ -2,8 +2,11 @@ package org.solvo.web.editor
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.TextUnit
 import kotlinx.browser.document
 import kotlinx.coroutines.CancellationException
 import org.intellij.lang.annotations.Language
@@ -16,6 +19,7 @@ import org.w3c.dom.asList
 fun RichText(
     @Language("markdown") text: String,
     modifier: Modifier = Modifier,
+    fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
 ) {
     val state = rememberRichEditorState()
@@ -27,6 +31,10 @@ fun RichText(
     )
     LaunchedEffect(true) {
         hidePreviewCloseButton(state.richEditor)
+    }
+    val density by rememberUpdatedState(LocalDensity.current)
+    LaunchedEffect(fontSize) {
+        state.richEditor.setFontSize(fontSize, density)
     }
     LaunchedEffect(text) {
         try {

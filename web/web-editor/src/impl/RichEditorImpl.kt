@@ -6,12 +6,15 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
+import androidx.compose.ui.unit.TextUnit
 import io.ktor.util.collections.*
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.document
-import kotlinx.coroutines.*
+import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.w3c.dom.Element
 import kotlin.time.Duration.Companion.seconds
@@ -64,10 +67,6 @@ internal class RichEditor internal constructor(
     val element: Element,
     val editor: dynamic,
 ) : RememberObserver {
-    private val coroutineScope = CoroutineScope(CoroutineExceptionHandler { _, throwable ->
-        throwable.printStackTrace()
-    })
-
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
 
     private val _positionInRoot = mutableStateOf(Offset.Zero)
@@ -161,6 +160,16 @@ internal class RichEditor internal constructor(
         element.asDynamic().style.height = (size.height / density.density).toString() + "px"
     }
 
+    suspend fun setFontSize(size: TextUnit, density: Density) {
+        onEditorLoaded {
+            val px =
+                with(density) { (size / 2).toPx() } // I don't know why, but `/ 2` makes it more close to normal Compose font size 
+            val markdownTextArea =
+                document.querySelector("#${id} > div.editormd-preview.editormd-preview-theme-dark > div")!!
+            markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
+        }
+    }
+
     internal fun notifyLoaded() {
         editorLoaded.complete(Unit)
     }
@@ -192,6 +201,7 @@ internal class RichEditor internal constructor(
 
             div.appendChild(element)
             document.body!!.appendChild(div)
+
             val editor = editormd(
                 id, js(
                     """
