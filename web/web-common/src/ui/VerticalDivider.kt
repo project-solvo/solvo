@@ -59,7 +59,7 @@ fun VerticalDraggableDivider(
     IconOnDivider(
         width, Icons.Default.MoreVert,
         colorFilter = ColorFilter.tint(
-            color = MaterialTheme.colorScheme.onBackground
+            color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 .compositeOver(backgroundColor)
         )
     ) {
