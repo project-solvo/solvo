@@ -37,12 +37,14 @@ fun Modifier.cursorHoverIcon(
     Modifier.hoverable(hoverInteractions)
 }
 
+// https://developer.mozilla.org/en-US/docs/Web/CSS/cursor
 enum class CursorIcon(
     val value: String
 ) {
     AUTO("auto"),
     DEFAULT("default"),
     COL_RESIZE("col-resize"),
+    POINTER("pointer"),
 }
 
 fun Document.setCursorIcon(cursorIcon: CursorIcon) {

@@ -14,12 +14,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.LightComment
 import org.solvo.web.ui.Rounded
+import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
+import org.solvo.web.ui.modifiers.cursorHoverIcon
 import org.solvo.web.ui.theme.UNICODE_FONT
 
 
@@ -66,8 +69,10 @@ fun CommentCard(
                     message = {
                         Text(
                             remember(subComments.size) { "See all ${subComments.size} comments" },
+                            Modifier.cursorHoverIcon(CursorIcon.POINTER),
                             textDecoration = TextDecoration.Underline,
-                            color = MaterialTheme.colorScheme.primary
+                            color = MaterialTheme.colorScheme.primary,
+                            textAlign = TextAlign.Center
                         )
                     },
                 )

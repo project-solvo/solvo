@@ -2,18 +2,17 @@ package org.solvo.web
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Compress
-import androidx.compose.material.icons.filled.Expand
-import androidx.compose.material.icons.filled.Newspaper
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.outlined.PostAdd
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -48,7 +47,7 @@ private fun ArticlePageContent(
         Box(Modifier.width(leftWidth)) {
             PaperView(
                 courseTitle = { PaperTitle("Models of Computation", "2022", "1a") },
-                onClickExpand = { },
+                onChangeSize = { },
                 {
                     Image(Icons.Default.Newspaper, "Paper", Modifier.fillMaxSize())
                 },
@@ -63,7 +62,44 @@ private fun ArticlePageContent(
 
         Column {
             ControlBar(Modifier.fillMaxWidth()) {
+                Box(Modifier.fillMaxWidth()) {
+                    Row(
+                        Modifier.fillMaxHeight().align(Alignment.Center),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        TextButton({}, contentPadding = buttonContentPaddings) {
+                            Icon(Icons.Default.West, "Previous")
+                            Text("Previous", Modifier.padding(horizontal = 4.dp))
+                        }
 
+                        Text("2 / 4", Modifier.padding(horizontal = 16.dp), fontFamily = FontFamily.Monospace)
+
+                        TextButton({}, contentPadding = buttonContentPaddings) {
+                            Text("Next", Modifier.padding(horizontal = 4.dp))
+                            Icon(Icons.Default.East, "Next")
+                        }
+                    }
+
+                    Box(Modifier.align(Alignment.CenterEnd)) {
+                        FilledTonalButton(
+                            {},
+                            shape = RoundedCornerShape(12.dp),
+                            contentPadding = buttonContentPaddings
+                        ) {
+                            Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+
+                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    "Draft Answer",
+                                    Modifier.padding(start = 4.dp),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.W500,
+                                )
+                            }
+                        }
+                    }
+                }
             }
 
             Box(Modifier.padding(vertical = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
@@ -80,7 +116,7 @@ private fun AnswersList() {
             // TODO: 2023/5/25 view model 
             CommentCard(
                 listOf(
-                    LightComment(Uuid.random(), "评论", "", "我说中文"),
+                    LightComment(Uuid.random(), "查尔斯", "", "你是好人！"),
                     LightComment(Uuid.random(), "Commenter2", "", "[Image] Content 2"),
                 ),
                 Modifier.weight(1.0f, fill = true)
@@ -122,7 +158,7 @@ private fun PaperTitle(
 @Composable
 private fun PaperView(
     courseTitle: @Composable RowScope. () -> Unit,
-    onClickExpand: () -> Unit,
+    onChangeSize: () -> Unit,
     content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
@@ -131,7 +167,7 @@ private fun PaperView(
         ControlBar(Modifier.fillMaxWidth()) {
             courseTitle()
             Spacer(Modifier.weight(1f))
-            IconButton(onClickExpand) {
+            IconButton(onChangeSize) {
                 if (isExpanded) {
                     Icon(Icons.Default.Compress, "Compress")
                 } else {
@@ -146,10 +182,19 @@ private fun PaperView(
     }
 }
 
+object ControlBarScope {
+    val buttonContentPaddings = PaddingValues(
+        start = 12.dp,
+        top = 3.dp,
+        end = 12.dp,
+        bottom = 3.dp
+    )
+}
+
 @Composable
 private fun ControlBar(
     modifier: Modifier = Modifier,
-    content: @Composable RowScope.() -> Unit,
+    content: @Composable context(ControlBarScope) RowScope.() -> Unit,
 ) {
 //    val shape = RoundedCornerShape(12.dp)
     Surface(
@@ -165,7 +210,7 @@ private fun ControlBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            content()
+            content(ControlBarScope, this)
         }
     }
 }
