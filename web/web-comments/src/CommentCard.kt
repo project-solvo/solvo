@@ -2,17 +2,22 @@ package org.solvo.web.comments
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Person2
+import androidx.compose.material.icons.filled.Person4
 import androidx.compose.material.icons.outlined.Chat
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -37,8 +42,27 @@ fun CommentCard(
     val subCommentsState by rememberUpdatedState(subComments)
     val shape = RoundedCornerShape(16.dp)
     Card(modifier.clickable(indication = null, onClick = onClickCard), shape = shape) {
+        AuthorLine(
+            icon = {
+                AvatarBox(Modifier.size(48.dp)) {
+                    Image(
+                        Icons.Default.Person4,
+                        "Avatar",
+                        Modifier.matchParentSize(),
+                    )
+                }
+            },
+            authorName = {
+                Text("Alex")
+            },
+            date = {
+                Text("May 05, 2023")
+            },
+            Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+        )
+
         // content
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 20.dp).weight(1f)) {
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).weight(1f)) {
             content()
         }
 
@@ -59,7 +83,9 @@ fun CommentCard(
                 }
 
                 CommentLine(
-                    Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
+                    Modifier
+                        .cursorHoverIcon(CursorIcon.POINTER)
+                        .clickable(indication = null) { onClickComment?.invoke(null) },
                     icon = {
                         Image(
                             Icons.Outlined.Chat, "Show More Comments", Modifier.fillMaxSize(),
@@ -69,7 +95,6 @@ fun CommentCard(
                     message = {
                         Text(
                             remember(subComments.size) { "See all ${subComments.size} comments" },
-                            Modifier.cursorHoverIcon(CursorIcon.POINTER),
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center
@@ -82,6 +107,66 @@ fun CommentCard(
 }
 
 @Composable
+private fun AvatarBox(
+    modifier: Modifier = Modifier,
+    image: @Composable BoxScope.() -> Unit,
+) {
+    Box(
+        modifier
+            .clip(CircleShape)
+            .background(color = Color.Gray)
+            .border(color = MaterialTheme.colorScheme.outline, width = 1.dp, shape = CircleShape)
+    ) {
+        image()
+    }
+}
+
+
+@Composable
+private fun AuthorLine(
+    icon: @Composable BoxScope.() -> Unit,
+    authorName: @Composable () -> Unit,
+    date: @Composable () -> Unit,
+    modifier: Modifier = Modifier
+) {
+    Row(modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(48.dp)) {
+            icon.invoke(this)
+        }
+
+        Spacer(Modifier.width(12.dp)) // 8.dp
+        Column {
+            Row(Modifier.height(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                ProvideTextStyle(AuthorNameTextStyle) {
+                    authorName()
+                }
+            }
+            Row(Modifier.height(24.dp), verticalAlignment = Alignment.CenterVertically) {
+                ProvideTextStyle(DateTextStyle) {
+                    date()
+                }
+            }
+        }
+    }
+}
+
+val AuthorNameTextStyle = TextStyle(
+    fontWeight = FontWeight.Bold,
+    fontSize = 20.sp,
+    fontFamily = UNICODE_FONT,
+    textAlign = TextAlign.Center,
+    lineHeight = 22.sp,
+)
+
+val DateTextStyle = TextStyle(
+    fontWeight = FontWeight.SemiBold,
+    fontSize = 16.sp,
+    fontFamily = UNICODE_FONT,
+    textAlign = TextAlign.Center,
+    lineHeight = 18.sp,
+)
+
+@Composable
 private fun CommentLine(
     subComment: LightComment,
     modifier: Modifier = Modifier
@@ -90,10 +175,13 @@ private fun CommentLine(
         modifier,
         icon = {
             Rounded {
-                Image(
-                    Icons.Default.Person, "Comment Author", Modifier.size(32.dp),
-                    colorFilter = ColorFilter.tint(LocalContentColor.current)
-                )
+                AvatarBox(Modifier.size(24.dp)) {
+                    Image(
+                        Icons.Default.Person2,
+                        "Avatar",
+                        Modifier.matchParentSize(),
+                    )
+                }
             }
         },
         authorName = { Text(subComment.authorName) },
@@ -118,17 +206,11 @@ private fun CommentLine(
 
         if (authorName != null) {
             Row(Modifier.height(24.dp), verticalAlignment = Alignment.CenterVertically) {
-                ProvideTextStyle(
-                    LocalTextStyle.current.copy(
-                        fontWeight = FontWeight.SemiBold,
-                        fontSize = 18.sp,
-                        fontFamily = UNICODE_FONT,
-                    )
-                ) {
+                ProvideTextStyle(AuthorNameTextStyle) {
                     authorName()
                 }
             }
-            Text(": ", fontWeight = FontWeight.Medium)
+            Text(": ", fontWeight = FontWeight.Bold, fontSize = 18.sp, fontFamily = UNICODE_FONT)
         }
 
         ProvideTextStyle(
