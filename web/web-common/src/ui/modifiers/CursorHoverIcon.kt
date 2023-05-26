@@ -26,7 +26,7 @@ fun Modifier.cursorHoverIcon(
     val isHovered by hoverInteractions.collectIsHoveredAsState()
     if (isHovered) {
         LaunchedEffect(true) {
-            document.setCursorIcon(CursorIcon.COL_RESIZE)
+            document.setCursorIcon(hoverIcon)
         }
     } else {
         LaunchedEffect(true) {
