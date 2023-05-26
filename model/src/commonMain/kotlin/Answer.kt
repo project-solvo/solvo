@@ -19,3 +19,27 @@ class Answer(
     val question: Uuid,
     val comments: List<Comment> = listOf(),
 ): Commentable
+
+@Immutable
+@Serializable
+class AnswerUpstream(
+    override val content: String,
+    override val anonymity: Boolean,
+
+    val question: Uuid,
+): CommentableUpstream
+
+@Immutable
+@Serializable
+class AnswerDownstream(
+    override val coid: Uuid,
+    override val author: User?,
+    override val content: String,
+    override val anonymity: Boolean,
+    override val likes: Int,
+
+    val question: Uuid,
+    val comments: List<Comment>,
+    val upVotes: Int,
+    val downVotes: Int,
+): CommentableDownstream

@@ -27,3 +27,25 @@ class Question(
         index = "1a"
     )
 }
+
+@Immutable
+@Serializable
+class QuestionUpstream(
+    val content: String,
+    val index: String,
+)
+
+@Immutable
+@Serializable
+class QuestionDownstream(
+    override val coid: Uuid,
+    override val author: User?,
+    override val content: String,
+    override val anonymity: Boolean,
+    override val likes: Int,
+
+    val index: String,
+    var article: Uuid,
+    val answers: List<Answer>,
+    val comments: List<Comment>,
+): CommentableDownstream

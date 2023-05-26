@@ -32,3 +32,48 @@ class LightComment(
     val authorAvatarUrl: String,
     val content: String,
 )
+
+@Immutable
+@Serializable
+class CommentUpstream(
+    override val content: String,
+    override val anonymity: Boolean,
+
+    val parent: Uuid,
+    val pinned: Boolean,
+): CommentableUpstream
+
+@Immutable
+@Serializable
+class CommentDownstream(
+    override val coid: Uuid,
+    override val author: User?,
+    override val content: String,
+    override val anonymity: Boolean,
+    override val likes: Int,
+
+    val parent: Uuid,
+    val pinned: Boolean,
+    val subComments: List<LightCommentDownstream>,
+): CommentableDownstream
+
+@Immutable
+@Serializable
+class FullCommentDownstream(
+    override val coid: Uuid,
+    override val author: User?,
+    override val content: String,
+    override val anonymity: Boolean,
+    override val likes: Int,
+
+    val parent: Uuid,
+    val pinned: Boolean,
+    val subComments: List<CommentDownstream>,
+): CommentableDownstream
+
+@Immutable
+@Serializable
+class LightCommentDownstream(
+    val author: User?,
+    val content: String,
+)
