@@ -2,50 +2,38 @@ package org.solvo.server.database
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.solvo.model.Commentable
+import org.solvo.model.CommentableDownstream
+import org.solvo.model.CommentableUpstream
+import org.solvo.model.User
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
 
-interface CommentedObjectDBFacade<T : Commentable> {
+interface CommentedObjectDBFacade<T: CommentableUpstream> {
     suspend fun contains(coid: UUID): Boolean
-    suspend fun post(content: T): UUID?
+    suspend fun post(content: T, author: User): UUID?
     suspend fun modifyContent(coid: UUID, content: String): Boolean
     suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean
     suspend fun delete(coid: UUID): Boolean
-    suspend fun view(coid: UUID): T?
+    suspend fun view(coid: UUID): CommentableDownstream?
     suspend fun like(uid: UUID, coid: UUID): Boolean
     suspend fun unLike(uid: UUID, coid: UUID): Boolean
 }
 
-abstract class CommentedObjectDBFacadeImpl<T : Commentable> : CommentedObjectDBFacade<T> {
+abstract class CommentedObjectDBFacadeImpl<T: CommentableUpstream> : CommentedObjectDBFacade<T> {
     abstract val associatedTable: Table
 
-    override suspend fun post(content: T): UUID? = dbQuery {
+    override suspend fun post(content: T, author: User): UUID? = dbQuery {
         val coid = CommentedObjectTable.insertIgnoreAndGetId {
-            it[CommentedObjectTable.author] = content.author!!.id
+            it[CommentedObjectTable.author] = author.id
             it[CommentedObjectTable.content] = content.content
             it[CommentedObjectTable.anonymity] = content.anonymity
         }?.value ?: return@dbQuery null
 
-        val args = associateTableArgsCompute(content)
-        assert(associatedTable.insert {
-            associateTableUpdates(it, coid, content, args)
-        }.resultedValues?.singleOrNull() != null)
-
-        coid
+        associateTableUpdates(coid, content, author)
     }
 
-    protected open suspend fun associateTableArgsCompute(content: T): List<Any?> { return listOf() }
-
-    protected abstract fun associateTableUpdates(
-        it: InsertStatement<Number>,
-        coid: UUID,
-        content: T,
-        args: List<Any?>,
-    )
-
+    protected abstract suspend fun associateTableUpdates(coid: UUID, content: T, author: User): UUID?
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
         !associatedTable.select(CommentedObjectTable.id eq coid).empty()
@@ -71,7 +59,7 @@ abstract class CommentedObjectDBFacadeImpl<T : Commentable> : CommentedObjectDBF
         success
     }
 
-    abstract override suspend fun view(coid: UUID): T?
+    abstract override suspend fun view(coid: UUID): CommentableDownstream?
 
     override suspend fun like(uid: UUID, coid: UUID): Boolean {
         TODO("Not yet implemented")

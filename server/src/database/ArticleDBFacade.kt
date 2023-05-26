@@ -3,15 +3,17 @@ package org.solvo.server.database
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.Table
 import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.statements.InsertStatement
-import org.solvo.model.Article
+import org.solvo.model.ArticleDownstream
+import org.solvo.model.ArticleUpstream
+import org.solvo.model.User
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
 import java.util.*
 
-interface ArticleDBFacade : CommentedObjectDBFacade<Article> {
+interface ArticleDBFacade : CommentedObjectDBFacade<ArticleUpstream> {
     suspend fun getId(courseCode: String, term: String, name: String): UUID?
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
@@ -20,7 +22,7 @@ interface ArticleDBFacade : CommentedObjectDBFacade<Article> {
 class ArticleDBFacadeImpl(
     private val courseDB: CourseDBFacade,
     private val termDB: TermDBFacade,
-) : ArticleDBFacade, CommentedObjectDBFacadeImpl<Article>() {
+) : ArticleDBFacade, CommentedObjectDBFacadeImpl<ArticleUpstream>() {
     override val associatedTable: Table = ArticleTable
 
     override suspend fun getId(courseCode: String, term: String, name: String): UUID? = dbQuery {
@@ -40,7 +42,7 @@ class ArticleDBFacadeImpl(
         !ArticleTable.select(ArticleTable.coid eq coid).empty()
     }
 
-    override suspend fun post(content: Article): UUID? = dbQuery {
+    override suspend fun post(content: ArticleUpstream, author: User): UUID? = dbQuery {
         if (content.course.code.length > DatabaseModel.COURSE_CODE_MAX_LENGTH
             || content.course.name.length > DatabaseModel.COURSE_NAME_MAX_LENGTH
             || content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
@@ -48,26 +50,24 @@ class ArticleDBFacadeImpl(
         ) {
             return@dbQuery null
         }
-        super.post(content)
+        super.post(content, author)
     }
 
-    override suspend fun associateTableArgsCompute(content: Article): List<Any?> {
+    override suspend fun associateTableUpdates(coid: UUID, content: ArticleUpstream, author: User): UUID = dbQuery {
         val courseId = courseDB.getOrInsertId(content.course)
         val termId = termDB.getOrInsertId(content.termYear)
-        return listOf(courseId, termId)
+
+        assert(ArticleTable.insert {
+            it[ArticleTable.coid] = coid
+            it[ArticleTable.name] = content.name
+            it[ArticleTable.course] = courseId
+            it[ArticleTable.term] = termId
+        }.resultedValues?.singleOrNull() != null)
+
+        return@dbQuery coid
     }
 
-    override fun associateTableUpdates(it: InsertStatement<Number>, coid: UUID, content: Article, args: List<Any?>) {
-        val courseId = args[0] as Int
-        val termId = args[1] as Int
-
-        it[ArticleTable.coid] = coid
-        it[ArticleTable.name] = content.name
-        it[ArticleTable.course] = courseId
-        it[ArticleTable.term] = termId
-    }
-
-    override suspend fun view(coid: UUID): Article? {
+    override suspend fun view(coid: UUID): ArticleDownstream? {
         TODO("Not yet implemented")
     }
 

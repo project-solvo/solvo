@@ -34,7 +34,7 @@
 
 #### Response 200
 
-- `List<Article>`: list of all articles (possibly none) of given course at given term
+- `List<ArticleDownstream>`: list of all articles (possibly none) of given course at given term
 
 ### GET `/courses/{courseCode}/{termName}/{articleName}`
 
@@ -44,7 +44,29 @@
 
 #### Response 200
 
-- `List<Question>`: list of questions of the article found 
+- `ArticleDownstream`:
+
+```json5
+{
+    coid: 120,  // allocated article COID
+    auther: null,  // null if anonymous, otherwise the author
+    content: "This is some description of the paper",
+    anonymity: true,  // true or false
+    likes: 10, 
+
+    name: "Fancy Paper Name",
+    course: {
+        code: "50000",
+        name: "CourseName"
+    },
+    termYear: "2021-22",
+    
+    questionIndexes: ["1a", "1b", "2a", "2b", "3"],
+    comments: [/* List of comments */],
+    stars: 3,
+    views: 130,
+}
+```
 
 ### GET `/courses/{courseCode}/{termName}/{articleName}/{questionIndex}`
 
@@ -54,14 +76,37 @@
 
 #### Response 200
 
+- `QuestionDownstream`:
+
 ```json5
 {
-  coid: 123,  // allocated COID
-  auther: null,  // null if anonymous, otherwise the author
-  content: "..",
-  anonymity: true,  // true or false
-  index: "1a",
-  answers: [/* List of answers with their comments */],
-  comments: [/* List of comments */]
+    coid: 123,  // allocated question COID
+    auther: {
+        id: 234, 
+        username: "Jerry",
+        avatarUrl: null
+    },   // null if anonymous, otherwise the author
+    content: "What is 1 + 1?",
+    anonymity: false,  // true or false
+    likes: 10,
+
+    index: "1a",
+    article: 120,  // COID of its paper
+    answers: [
+        {
+            coid: 12345,  // allocated answer COID
+            auther: null,   // null if anonymous, otherwise the author
+            content: "1 + 1 = 2",
+            anonymity: true,  // true or false
+            likes: 10,
+            
+            question: 123,  // COID of its question
+            comments: [/* List of comments */],
+            upVotes: 10,
+            downVotes: 0
+        },
+        // ...
+    ],
+    comments: [/* List of comments */],
 }
 ```

@@ -4,16 +4,33 @@
 
 #### Request
 
+`ArticleUpstream`:
+
 ```json5
 {
-    coid: null,
-    auther: null,
-    content: "..",
-    anonymity: true, // true or false
-    course: { code: "50000", name: "CourseName" },
-    termYear: "..",
-    questions: [/* q1, q2, .. */],
-    comments: []
+  content: "This is some description of the paper",
+  anonymity: true, // true or false
+
+  name: "Fancy Paper Name",
+  course: {
+    code: "50000",
+    name: "CourseName"
+  },
+  termYear: "2021-22",
+    
+  questions: [
+    {
+      content: "What is 1 + 1?",
+      anonymity: true, // usually same as article anonymity
+      index: "1a"
+    },
+    {
+      content: "What is 1 + 2?",
+      anonymity: true,
+      index: "1b"
+    }, 
+      // ...
+  ],
 }
 ```
 
@@ -23,35 +40,25 @@
 
 #### Response 400
 
-- Article upload failed due to invalid attributes of Article
+- Article upload failed due to invalid attributes of Article (like question index too long)
 
 #### Response 200
 
-```json5
-{
-    coid: 123, // allocated COID
-    auther: null, // null if anonymous, otherwise the poster
-    content: "..",
-    anonymity: true, // true or false
-    course: { code: "50000", name: "CourseName" },
-    termYear: "..",
-    questions: [/* q1, q2, .. */],
-    comments: []
-}
-```
+- `UUID`: COID of uploaded article
+
 
 ### PUT `/upload/answer`
 
 #### Request
 
+`AnswerUpstream`:
+
 ```json5
 {
-    coid: null,
-    auther: null,
-    content: "..",
+    content: "1 + 1 = 2",
     anonymity: true, // true or false
-    question: 124, // COID of question
-    comments: []
+    
+    question: 123, // COID of question
 }
 ```
 
@@ -65,16 +72,7 @@
 
 #### Response 200
 
-```json5
-{
-    coid: 125, // allocated COID
-    auther: null, // null if anonymous, otherwise the poster
-    content: "..",
-    anonymity: true, // true or false
-    questions: 124,
-    comments: []
-}
-```
+- `UUID`: COID of uploaded answer
 
 ### PUT `/upload/image`
 

@@ -6,8 +6,8 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.solvo.model.Answer
-import org.solvo.model.Article
+import org.solvo.model.AnswerUpstream
+import org.solvo.model.ArticleUpstream
 import org.solvo.model.api.UploadImageResponse
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext
@@ -23,7 +23,8 @@ fun Application.uploadModule() {
             route("/upload") {
                 put("/article") {
                     val uid = getUserId() ?: return@put
-                    val article = call.receive<Article>()
+                    val author = ServerContext.Databases.accounts.getUserInfo(uid)!!
+                    val article = call.receive<ArticleUpstream>()
 
                     for (question in article.questions) {
                         if (question.index.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) {
@@ -32,21 +33,27 @@ fun Application.uploadModule() {
                         }
                     }
 
-                    if (uploadNewContentConcerningAnonymity(article, uid, db.articles)) {
+                    val articleId = db.articles.post(article, author)
+                    if (articleId != null) {
                         assert(article.questions.map { question ->
-                            question.article = article
-                            uploadNewContentConcerningAnonymity(question, uid, db.questions)
+                            db.questions.post(question, author, articleId) != null
                         }.all { it })
-                        call.respond(article)
+                        call.respond(articleId)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest)
                     }
                 }
 
                 put("/answer") {
                     val uid = getUserId() ?: return@put
-                    val answer = call.receive<Answer>()
+                    val author = ServerContext.Databases.accounts.getUserInfo(uid)!!
+                    val answer = call.receive<AnswerUpstream>()
 
-                    if (uploadNewContentConcerningAnonymity(answer, uid, db.answers)) {
-                        call.respond(answer)
+                    val answerId = db.answers.post(answer, author)
+                    if (answerId != null) {
+                        call.respond(answerId)
+                    } else {
+                        call.respond(HttpStatusCode.BadRequest)
                     }
                 }
 

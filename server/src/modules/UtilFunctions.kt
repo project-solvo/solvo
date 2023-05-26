@@ -5,9 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.util.pipeline.*
-import org.solvo.model.Commentable
 import org.solvo.server.ServerContext
-import org.solvo.server.database.CommentedObjectDBFacade
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.InputStream
 import java.util.*
@@ -40,22 +38,4 @@ suspend fun uploadNewImage(uid: UUID, input: InputStream, purpose: StaticResourc
         ServerContext.Databases.accounts.modifyAvatar(uid, newImageId)
     }
     return path
-}
-
-suspend fun <T: Commentable> PipelineContext<Unit, ApplicationCall>.uploadNewContentConcerningAnonymity(
-    commentable: T,
-    uid: UUID,
-    database: CommentedObjectDBFacade<T>,
-): Boolean {
-    commentable.author = ServerContext.Databases.accounts.getUserInfo(uid)
-
-    val coid = database.post(commentable)
-    return if (coid == null) {
-        call.respond(HttpStatusCode.BadRequest)
-        false
-    } else {
-        commentable.coid = coid
-        if (commentable.anonymity) commentable.author = null
-        true
-    }
 }

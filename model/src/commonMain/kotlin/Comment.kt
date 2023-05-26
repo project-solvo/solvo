@@ -68,7 +68,7 @@ class FullCommentDownstream(
 
     val parent: Uuid,
     val pinned: Boolean,
-    val subComments: List<CommentDownstream>,
+    val subComments: List<FullCommentDownstream>,
 ): CommentableDownstream
 
 @Immutable

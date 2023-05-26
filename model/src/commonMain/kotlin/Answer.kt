@@ -39,7 +39,7 @@ class AnswerDownstream(
     override val likes: Int,
 
     val question: Uuid,
-    val comments: List<Comment>,
+    val comments: List<CommentDownstream>,
     val upVotes: Int,
     val downVotes: Int,
 ): CommentableDownstream

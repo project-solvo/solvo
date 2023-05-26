@@ -31,9 +31,11 @@ class Question(
 @Immutable
 @Serializable
 class QuestionUpstream(
-    val content: String,
+    override val content: String,
+    override val anonymity: Boolean,
+
     val index: String,
-)
+): CommentableUpstream
 
 @Immutable
 @Serializable
@@ -46,6 +48,6 @@ class QuestionDownstream(
 
     val index: String,
     var article: Uuid,
-    val answers: List<Answer>,
-    val comments: List<Comment>,
+    val answers: List<AnswerDownstream>,
+    val comments: List<CommentDownstream>,
 ): CommentableDownstream
