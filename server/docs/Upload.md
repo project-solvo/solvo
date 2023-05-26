@@ -80,7 +80,7 @@
 
 #### Request
 
-- File of image to be uploaded
+- `File`: File of image to be uploaded
 
 #### Response 401
 
@@ -88,10 +88,8 @@
 
 #### Response 200
 
-- Url of image uploaded
-
 ```json5
 {
-    url: ".."
+    url: ".." // Url of image uploaded
 }
 ```

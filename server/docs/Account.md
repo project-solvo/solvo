@@ -8,13 +8,13 @@
 
 #### Response 200
 
-- Respond with the avatar file of user {uid}
+- `File`: Avatar file of user {uid}
 
 ### PUT `/account/{uid}/newAvatar`
 
 #### Request
 
-- File of new avatar
+- `File`: File of new avatar
 
 #### Response 401
 
@@ -22,10 +22,8 @@
 
 #### Response 200
 
-- Url of new avatar uploaded
-
 ```json5
 {
-    "url": ".."
+    "url": ".." // Url of new avatar uploaded
 }
 ```

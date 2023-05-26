@@ -8,13 +8,13 @@
 
 #### Response 200
 
-- File of the requested image
+- `File`: File of the requested image
 
 ### GET `/courses`
 
 #### Response 200
 
-- list of all courses
+- `List<Course>`: list of all courses
 
 ### GET `/courses/{courseCode}`
 
@@ -24,7 +24,7 @@
 
 #### Response 200
 
-- list of all possible terms of articles in that course
+- `List<String>`: list of all possible terms of articles in that course
 
 ### GET `/courses/{courseCode}/{termName}`
 
@@ -34,7 +34,7 @@
 
 #### Response 200
 
-- list of all articles (possibly none) of given course at given term
+- `List<Article>`: list of all articles (possibly none) of given course at given term
 
 ### GET `/courses/{courseCode}/{termName}/{articleName}`
 
@@ -44,7 +44,7 @@
 
 #### Response 200
 
-- list of indexes of questions of the article found 
+- `List<Question>`: list of questions of the article found 
 
 ### GET `/courses/{courseCode}/{termName}/{articleName}/{questionIndex}`
 
