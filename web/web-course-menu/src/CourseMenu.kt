@@ -38,6 +38,7 @@ fun CourseMenuContent(state: CourseState) {
         }
     }
     Box {
+        // testing data
         val articles = remember {
             mutableListOf<Article>().apply {
                 for (i in 2018 until 2023) {
@@ -60,7 +61,7 @@ fun CourseMenuContent(state: CourseState) {
 fun CourseMenu(
     state: CourseState,
     isOpen: Boolean,
-    articles: MutableList<Article>,
+    articles: MutableList<Article>? = null,
     onClickArticle: ((article: Article) -> Unit)? = null,
     onClickQuestion: ((article: Article, question: Question) -> Unit)? = null,
 ) {
@@ -75,7 +76,7 @@ fun CourseMenu(
                 .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
         ) {
             // construct list of past papers
-            articles.forEach { article ->
+            articles?.forEach { article ->
                 ElevatedCard(
                     onClick = {
                         state.onClickArticle(article)
