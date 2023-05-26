@@ -12,15 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.graphics.ImageBitmap
-import androidx.compose.ui.graphics.toComposeImageBitmap
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.ktor.client.request.*
-import io.ktor.client.statement.*
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.Article
 import org.solvo.model.Course
@@ -37,12 +33,12 @@ import org.solvo.web.document.parameters.course
 import org.solvo.web.document.parameters.question
 import org.solvo.web.document.parameters.rememberPathParameters
 import org.solvo.web.editor.RichText
-import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.VerticalDraggableDivider
+import org.solvo.web.ui.image.rememberImagePainter
 
 
 fun main() {
@@ -95,33 +91,18 @@ private fun ArticlePageContent(
                 onChangeLayout = {
                     // TODO change article page layout
                 },
-                {
-                    var image: ImageBitmap? by remember { mutableStateOf(null) }
-                    LaunchedEffect(true) {
-                        image =
-                            org.jetbrains.skia.Image.makeFromEncoded(
-                                client.http.get("https://him188.github.io/static/images/WACCLangSpec_00.png")
-                                    .readBytes()
-                            )
-                                .toComposeImageBitmap()
-                    }
-                    if (image == null) {
-                        Image(
-                            Icons.Outlined.Description,
-                            "Article Content",
-                            Modifier.fillMaxSize(),
-                            colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surface)
-                        )
-                    } else {
-                        Image(
-                            image!!,
-                            "Article Content",
-                            Modifier.fillMaxSize(),
-                        )
-                    }
-                },
                 Modifier.fillMaxSize()
-            )
+            ) {
+                Image(
+                    rememberImagePainter(
+                        "https://him188.github.io/static/images/WACCLangSpec_00.png",
+                        default = Icons.Outlined.Description,
+                    ),
+                    "Article Content",
+                    Modifier.fillMaxSize(),
+                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surface)
+                )
+            }
         }
 
         VerticalDraggableDivider(
@@ -229,9 +210,9 @@ private fun PaperTitle(
 private fun PaperView(
     courseTitle: @Composable RowScope. () -> Unit,
     onChangeLayout: () -> Unit,
-    content: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
+    content: @Composable () -> Unit,
 ) {
     Column(modifier) {
         ControlBar(Modifier.fillMaxWidth()) {
