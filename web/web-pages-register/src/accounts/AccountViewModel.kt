@@ -14,7 +14,7 @@ import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
 
 @Stable
-class RegisterLoginViewModel : AbstractViewModel() {
+class AuthenticationViewModel : AbstractViewModel() {
     private val _username: MutableState<String> = mutableStateOf("")
     val username: State<String> get() = _username
 

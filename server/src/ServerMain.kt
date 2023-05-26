@@ -35,6 +35,7 @@ object ServerMain {
 
 fun Application.solvoModules() {
     basicModule()
+
     authenticateModule()
     accountModule()
     uploadModule()

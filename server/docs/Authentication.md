@@ -1,6 +1,6 @@
 ## Authentication
 
-### POST `/register`
+### POST `/api/register`
 
 #### Request
 
@@ -32,7 +32,7 @@
 }
 ```
 
-### GET `/register/{username}`
+### GET `/api/register/{username}`
 
 #### Response 200
 
@@ -52,7 +52,7 @@
 }
 ```
 
-### POST `/login`
+### POST `/api/login`
 
 #### Request
 

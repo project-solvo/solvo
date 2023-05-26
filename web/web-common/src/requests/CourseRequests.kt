@@ -7,5 +7,5 @@ import org.solvo.model.Course
 class CourseRequests(
     override val client: Client,
 ) : Requests {
-    suspend fun getAllCourses(): List<Course> = http.get("${origin}/courses").body<List<Course>>()
+    suspend fun getAllCourses(): List<Course> = http.get("${apiUrl}/courses").body<List<Course>>()
 }

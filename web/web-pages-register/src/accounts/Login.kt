@@ -22,7 +22,7 @@ import androidx.compose.ui.unit.sp
 import org.solvo.web.viewModel.launchInBackground
 
 @Composable
-fun LoginSignUpContent(viewModel: RegisterLoginViewModel) {
+fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,

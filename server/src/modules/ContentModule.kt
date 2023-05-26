@@ -12,7 +12,7 @@ import java.util.*
 fun Application.contentModule() {
     val db = ServerContext.Databases
 
-    routing {
+    routeApi {
         get("/images/{resourceId}") {
             val resourceIdStr = call.parameters["resourceId"]!!
 

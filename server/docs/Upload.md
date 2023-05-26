@@ -1,6 +1,6 @@
 ## Uploads
 
-### PUT `/upload/article`
+### PUT `/api/upload/article`
 
 #### Request
 
@@ -46,8 +46,7 @@
 
 - `UUID`: COID of uploaded article
 
-
-### PUT `/upload/answer`
+### PUT `/api/upload/answer`
 
 #### Request
 
@@ -74,7 +73,7 @@
 
 - `UUID`: COID of uploaded answer
 
-### PUT `/upload/image`
+### PUT `/api/upload/image`
 
 #### Request
 

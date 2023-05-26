@@ -11,7 +11,7 @@ class AccountRequests(
     override val client: Client,
 ) : Requests {
     suspend fun authenticate(username: String, password: String, isRegister: Boolean): AuthResponse {
-        val path = if (isRegister) "${origin}/register" else "${origin}/login"
+        val path = if (isRegister) "${apiUrl}/register" else "${apiUrl}/login"
         val resp = http.post(path) {
             contentType(ContentType.Application.Json)
             setBody(
@@ -25,7 +25,7 @@ class AccountRequests(
     }
 
     suspend fun checkUsername(username: String): UsernameValidityResponse {
-        val path = "${origin}/register/${username}"
+        val path = "${apiUrl}/register/${username}"
         val resp = http.get(path) {
             contentType(ContentType.Application.Json)
         }.body<UsernameValidityResponse>()

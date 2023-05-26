@@ -14,11 +14,22 @@ import org.solvo.model.api.AuthStatus
 import org.solvo.model.api.UsernameValidityResponse
 import org.solvo.server.ServerContext
 
+
+@KtorDsl
+inline fun Application.routeApi(crossinline block: Route.() -> Unit) {
+    routing {
+        route("api") {
+            block()
+        }
+    }
+}
+
+
 fun Application.authenticateModule() {
     val accountDB = ServerContext.Databases.accounts
     val digestFunction = getDigestFunction("SHA-256") { "ktor$it" }
 
-    routing {
+    routeApi {
         post("/register") {
             val request = call.receive<AuthRequest>()
             val username = request.username

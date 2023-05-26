@@ -1,6 +1,6 @@
 ## Content
 
-### GET `/images/{resourceId}`
+### GET `/api/images/{resourceId}`
 
 #### Response 404
 
@@ -10,13 +10,13 @@
 
 - `File`: File of the requested image
 
-### GET `/courses`
+### GET `/api/courses`
 
 #### Response 200
 
 - `List<Course>`: list of all courses
 
-### GET `/courses/{courseCode}`
+### GET `/api/courses/{courseCode}`
 
 #### Response 404
 
@@ -26,7 +26,7 @@
 
 - `List<String>`: list of all possible terms of articles in that course
 
-### GET `/courses/{courseCode}/{termName}`
+### GET `/api/courses/{courseCode}/{termName}`
 
 #### Response 404
 
@@ -36,7 +36,7 @@
 
 - `List<ArticleDownstream>`: list of all articles (possibly none) of given course at given term
 
-### GET `/courses/{courseCode}/{termName}/{articleName}`
+### GET `/api/courses/{courseCode}/{termName}/{articleName}`
 
 #### Response 404
 
@@ -68,7 +68,7 @@
 }
 ```
 
-### GET `/courses/{courseCode}/{termName}/{articleName}/{questionIndex}`
+### GET `/api/courses/{courseCode}/{termName}/{articleName}/{questionIndex}`
 
 #### Response 404
 

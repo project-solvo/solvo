@@ -1,6 +1,6 @@
 ## Accounts
 
-### GET `/account/{uid}/avatar`
+### GET `/api/account/{uid}/avatar`
 
 #### Response 404
 
@@ -10,7 +10,7 @@
 
 - `File`: Avatar file of user {uid}
 
-### PUT `/account/{uid}/newAvatar`
+### PUT `/api/account/{uid}/newAvatar`
 
 #### Request
 

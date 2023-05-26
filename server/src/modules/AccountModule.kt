@@ -15,7 +15,7 @@ import java.util.*
 fun Application.accountModule() {
     authentication { authBearer() }
 
-    routing {
+    routeApi {
         authenticate("authBearer") {
             route("/account/{uid}") {
                 put("/newAvatar") {
