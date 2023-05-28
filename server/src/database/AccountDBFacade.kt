@@ -1,175 +1,73 @@
 package org.solvo.server.database
 
-import org.jetbrains.exposed.sql.*
-import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.User
-import org.solvo.model.utils.DatabaseModel
-import org.solvo.model.utils.UserPermission
+import org.solvo.model.api.AccountChecker
+import org.solvo.model.api.AuthResponse
+import org.solvo.model.api.AuthStatus
 import org.solvo.server.ServerContext
-import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
-import org.solvo.server.database.exposed.AuthTable
-import org.solvo.server.database.exposed.UserTable
+import org.solvo.server.database.control.AccountDBControl
+import org.solvo.server.database.control.ResourcesDBControl
 import org.solvo.server.utils.StaticResourcePurpose
+import java.io.File
+import java.io.InputStream
 import java.util.*
 
 interface AccountDBFacade {
-    suspend fun getId(username: String): UUID?
-
-    suspend fun matchHash(uid: UUID, hash: ByteArray): Boolean
-    suspend fun modifyUsername(uid: UUID, username: String): Boolean
-    suspend fun modifyPassword(uid: UUID, hash: ByteArray): Boolean
-
-    suspend fun addAccount(username: String, hash: ByteArray): UUID?
-    suspend fun deleteAccount(uid: UUID): Boolean
-    suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean
-    suspend fun op(operatorId: UUID, uid: UUID): Boolean
-    suspend fun deOp(operatorId: UUID, uid: UUID): Boolean
-    suspend fun banUntil(operatorId: UUID, uid: UUID, time: Long): Boolean
-
-    suspend fun getPermission(uid: UUID): UserPermission?
-    suspend fun getBannedUntil(uid: UUID): Long?
-    suspend fun isBanned(uid: UUID): Boolean
-    suspend fun getAvatar(uid: UUID): UUID?
-    suspend fun getUsername(uid: UUID): String?
+    suspend fun register(username: String, hash: ByteArray): AuthResponse
+    suspend fun getUsernameValidity(username: String): Boolean
+    suspend fun login(username: String, hash: ByteArray): AuthResponse
+    suspend fun getUserAvatar(uid: UUID): File?
+    suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentDBFacade: ContentDBFacade): String
     suspend fun getUserInfo(uid: UUID): User?
 }
 
-class AccountDBFacadeImpl : AccountDBFacade {
-    override suspend fun getId(username: String): UUID? = dbQuery {
-        UserTable
-            .select(UserTable.username eq username)
-            .map { it[UserTable.id].value }
-            .singleOrNull()
-    }
-
-    override suspend fun matchHash(uid: UUID, hash: ByteArray): Boolean = dbQuery {
-        AuthTable
-            .select(AuthTable.userId eq uid)
-            .map { it[AuthTable.hash] }
-            .singleOrNull()
-    }.contentEquals(hash)
-
-    override suspend fun addAccount(username: String, hash: ByteArray): UUID? = dbQuery {
-        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) return@dbQuery null
-        val userId = UserTable.insertIgnoreAndGetId {
-            it[UserTable.username] = username
-        }?.value
-        if (userId != null) {
-            AuthTable.insert {
-                it[AuthTable.userId] = userId
-                it[AuthTable.hash] = hash
-            }
+class AccountDBFacadeImpl(
+    private val accounts: AccountDBControl,
+    private val resources: ResourcesDBControl,
+) : AccountDBFacade {
+    override suspend fun register(username: String, hash: ByteArray): AuthResponse {
+        if (accounts.getId(username) != null) {
+            return AuthResponse(AuthStatus.DUPLICATED_USERNAME)
         }
-        userId
+
+        val status = AccountChecker.checkUserNameValidity(username)
+        if (status == AuthStatus.SUCCESS) {
+            accounts.addAccount(username, hash)
+        }
+        return AuthResponse(status)
     }
 
-    override suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean = dbQuery {
-        UserTable.update({ UserTable.id eq uid }) {
-            it[UserTable.avatar] = resourceId
-        } > 0
+    override suspend fun login(username: String, hash: ByteArray): AuthResponse {
+        val id = accounts.getId(username) ?: return AuthResponse(AuthStatus.USER_NOT_FOUND)
+
+        return if (accounts.matchHash(id, hash)) {
+            AuthResponse(AuthStatus.SUCCESS, ServerContext.tokens.generateToken(id))
+        } else {
+            AuthResponse(AuthStatus.WRONG_PASSWORD)
+        }
     }
 
-    override suspend fun modifyUsername(uid: UUID, username: String): Boolean = dbQuery {
-        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) return@dbQuery false
-        UserTable.update({ UserTable.id eq uid }) {
-            it[UserTable.username] = username
-        } > 0
+    override suspend fun getUsernameValidity(username: String): Boolean {
+        return accounts.getId(username) == null
     }
 
-    override suspend fun modifyPassword(uid: UUID, hash: ByteArray): Boolean = dbQuery {
-        AuthTable.update({ AuthTable.userId eq uid }) {
-            it[AuthTable.hash] = hash
-        } > 0
+    override suspend fun getUserAvatar(uid: UUID): File? {
+        val resourceId = accounts.getAvatar(uid) ?: return null
+        val path = ServerContext.paths.staticResourcePath(resourceId, StaticResourcePurpose.USER_AVATAR)
+        return File(path)
     }
 
-    override suspend fun deleteAccount(uid: UUID): Boolean = dbQuery {
-        if (UserTable.deleteWhere { UserTable.id eq uid } == 0) return@dbQuery false
-        AuthTable.deleteWhere { AuthTable.userId eq uid } > 0
+    override suspend fun getUserInfo(uid: UUID): User? {
+        return accounts.getUserInfo(uid)
     }
 
-    override suspend fun op(operatorId: UUID, uid: UUID): Boolean = dbQuery {
-        val operatorPermission = getPermission(operatorId)
-        val userPermission = getPermission(uid)
+    override suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentDBFacade: ContentDBFacade): String {
+        val oldAvatarId = accounts.getAvatar(uid)
+        if (oldAvatarId != null) {
+            val path = ServerContext.paths.staticResourcePath(oldAvatarId, StaticResourcePurpose.USER_AVATAR)
+            ServerContext.files.delete(path)
+        }
 
-        if (operatorPermission == UserPermission.ROOT && userPermission == UserPermission.DEFAULT) {
-            UserTable.update({ UserTable.id eq uid }) {
-                it[UserTable.permission] = UserPermission.OPERATOR
-            } > 0
-        } else false
-    }
-
-    override suspend fun deOp(operatorId: UUID, uid: UUID): Boolean = dbQuery {
-        val operatorPermission = getPermission(operatorId)
-        val userPermission = getPermission(uid)
-
-        if (operatorPermission != UserPermission.ROOT && userPermission != UserPermission.OPERATOR) {
-            UserTable.update({ UserTable.id eq uid }) {
-                it[UserTable.permission] = UserPermission.DEFAULT
-            } > 0
-        } else false
-    }
-
-    override suspend fun banUntil(operatorId: UUID, uid: UUID, time: Long): Boolean = dbQuery {
-        val operatorPermission = getPermission(operatorId) ?: return@dbQuery false
-        val userPermission = getPermission(uid) ?: return@dbQuery false
-
-        if (operatorPermission > userPermission) {
-            UserTable.update({ UserTable.id eq uid }) {
-                it[UserTable.bannedUntil] = time
-            } > 0
-        } else false
-    }
-
-    override suspend fun getPermission(uid: UUID): UserPermission? = dbQuery {
-        UserTable
-            .select(UserTable.id eq uid)
-            .map { it[UserTable.permission] }
-            .singleOrNull()
-    }
-
-    override suspend fun getBannedUntil(uid: UUID): Long? = dbQuery {
-        UserTable
-            .select(UserTable.id eq uid)
-            .map { it[UserTable.bannedUntil] }
-            .singleOrNull()
-            ?.let { checkBanned(uid, it) }
-    }
-
-    override suspend fun isBanned(uid: UUID): Boolean = getBannedUntil(uid) != null
-
-    private suspend fun checkBanned(uid: UUID, bannedUntil: Long): Long? = dbQuery {
-        if (ServerContext.localtime.now() > bannedUntil) {
-            UserTable.update({ UserTable.id eq uid }) {
-                it[UserTable.bannedUntil] = null
-            }
-            null
-        } else bannedUntil
-    }
-
-    override suspend fun getAvatar(uid: UUID): UUID? = dbQuery {
-        UserTable
-            .select(UserTable.id eq uid)
-            .map { it[UserTable.avatar]?.value }
-            .singleOrNull()
-    }
-
-    override suspend fun getUsername(uid: UUID): String? = dbQuery {
-        UserTable
-            .select(UserTable.id eq uid)
-            .map { it[UserTable.username] }
-            .singleOrNull()
-    }
-
-    override suspend fun getUserInfo(uid: UUID): User? = dbQuery {
-        UserTable
-            .select(UserTable.id eq uid)
-            .map { User(
-                uid,
-                it[UserTable.username],
-                it[UserTable.avatar]?.value?.let{ avatarId ->
-                    ServerContext.paths.staticResourcePath(avatarId, StaticResourcePurpose.USER_AVATAR)
-                }
-            ) }
-            .singleOrNull()
+        return contentDBFacade.postImage(uid, input, StaticResourcePurpose.USER_AVATAR, accounts)
     }
 }

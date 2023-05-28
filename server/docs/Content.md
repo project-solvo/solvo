@@ -24,19 +24,9 @@
 
 #### Response 200
 
-- `List<String>`: list of all possible terms of articles in that course
+- `List<String>`: list of all articles (possibly none) in that course
 
-### GET `/api/courses/{courseCode}/{termName}`
-
-#### Response 404
-
-- Course or term does not exist
-
-#### Response 200
-
-- `List<ArticleDownstream>`: list of all articles (possibly none) of given course at given term
-
-### GET `/api/courses/{courseCode}/{termName}/{articleName}`
+### GET `/api/courses/{courseCode}/articles/{articleName}`
 
 #### Response 404
 
@@ -68,7 +58,7 @@
 }
 ```
 
-### GET `/api/courses/{courseCode}/{termName}/{articleName}/{questionIndex}`
+### GET `/api/courses/{courseCode}/articles/{articleName}/{questionIndex}`
 
 #### Response 404
 

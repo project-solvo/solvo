@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteWhere
@@ -9,7 +9,7 @@ import org.solvo.server.database.exposed.StaticResourceTable
 import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
-interface ResourcesDBFacade {
+interface ResourcesDBControl {
     suspend fun contains(resourceId: UUID): Boolean
     suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID? = null): UUID
     suspend fun getPurpose(resourceId: UUID): StaticResourcePurpose?
@@ -17,7 +17,7 @@ interface ResourcesDBFacade {
     suspend fun deleteResource(resourceId: UUID): Boolean
 }
 
-class ResourcesDBFacadeImpl : ResourcesDBFacade {
+class ResourcesDBControlImpl : ResourcesDBControl {
     override suspend fun contains(resourceId: UUID): Boolean = dbQuery {
         !StaticResourceTable.select(StaticResourceTable.id eq resourceId).empty()
     }

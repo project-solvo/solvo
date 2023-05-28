@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -13,16 +13,16 @@ import org.solvo.server.database.exposed.CommentedObjectTable
 import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
-interface QuestionDBFacade : CommentedObjectDBFacade<QuestionUpstream> {
+interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
     suspend fun post(content: QuestionUpstream, author: User, articleId: UUID): UUID?
     suspend fun getId(articleId: UUID, index: String): UUID?
     override suspend fun view(coid: UUID): QuestionDownstream?
 }
 
-class QuestionDBFacadeImpl(
-    private val answerDB: AnswerDBFacade,
-    private val accountDB: AccountDBFacade,
-) : QuestionDBFacade, CommentedObjectDBFacadeImpl<QuestionUpstream>() {
+class QuestionDBControlImpl(
+    private val answerDB: AnswerDBControl,
+    private val accountDB: AccountDBControl,
+) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>() {
     override val associatedTable: Table = QuestionTable
 
     override suspend fun getId(articleId: UUID, index: String): UUID? = dbQuery {

@@ -7,7 +7,6 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
-import org.solvo.model.api.AccountChecker.checkUserNameValidity
 import org.solvo.model.api.AuthRequest
 import org.solvo.model.api.AuthResponse
 import org.solvo.model.api.AuthStatus
@@ -28,7 +27,9 @@ inline fun Application.routeApi(crossinline block: Route.() -> Unit) {
 val AuthDigest = getDigestFunction("SHA-256") { "ktor$it" }
 
 fun Application.authenticateModule() {
-    val accountDB = ServerContext.Databases.accounts
+    val accounts = ServerContext.Databases.accounts
+
+    authentication { authBearer() }
 
     routeApi {
         post("/register") {
@@ -36,22 +37,15 @@ fun Application.authenticateModule() {
             val username = request.username
             val hash = AuthDigest(request.password)
 
-            if (accountDB.getId(username) != null) {
-                call.respondAuth(AuthResponse(AuthStatus.DUPLICATED_USERNAME))
-                return@post
-            }
-
-            val status = checkUserNameValidity(username)
-            if (status == AuthStatus.SUCCESS) {
-                accountDB.addAccount(username, hash)
-            }
-
-            call.respondAuth(AuthResponse(status))
+            val response = accounts.register(username, hash)
+            call.respondAuth(response)
         }
 
         get("/register/{username}") {
             val username = call.parameters["username"]!!
-            call.respond(UsernameValidityResponse(accountDB.getId(username) == null))
+
+            val validity = accounts.getUsernameValidity(username)
+            call.respond(UsernameValidityResponse(validity))
         }
 
         post("/login") {
@@ -59,19 +53,8 @@ fun Application.authenticateModule() {
             val username = request.username
             val hash = AuthDigest(request.password)
 
-            val id = accountDB.getId(username)
-            if (id == null) {
-                call.respondAuth(AuthResponse(AuthStatus.USER_NOT_FOUND))
-                return@post
-            }
-
-            call.respondAuth(
-                if (accountDB.matchHash(id, hash)) {
-                    AuthResponse(AuthStatus.SUCCESS, ServerContext.tokens.generateToken(id))
-                } else {
-                    AuthResponse(AuthStatus.WRONG_PASSWORD)
-                }
-            )
+            val response = accounts.login(username, hash)
+            call.respondAuth(response)
         }
     }
 }

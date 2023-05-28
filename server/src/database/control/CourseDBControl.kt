@@ -1,21 +1,24 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insertAndGetId
+import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.solvo.model.Course
+import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CourseTable
 
-interface CourseDBFacade {
+interface CourseDBControl {
     suspend fun all(): List<Course>
     suspend fun getId(courseCode: String): Int?
     suspend fun getCourse(courseId: Int): Course?
-    suspend fun getOrInsertId(course: Course): Int
+    suspend fun getIdOrInsert(course: Course): Int
+    suspend fun insert(course: Course): Int?
 }
 
-class CourseDBFacadeImpl : CourseDBFacade {
+class CourseDBControlImpl : CourseDBControl {
     override suspend fun all(): List<Course> = dbQuery {
         CourseTable.selectAll().map { Course(it[CourseTable.code], it[CourseTable.name]) }
     }
@@ -34,11 +37,22 @@ class CourseDBFacadeImpl : CourseDBFacade {
             .singleOrNull()
     }
 
-    override suspend fun getOrInsertId(course: Course): Int = dbQuery {
+    override suspend fun getIdOrInsert(course: Course): Int = dbQuery {
         getId(course.code) ?: CourseTable.insertAndGetId {
             it[CourseTable.code] = course.code
             it[CourseTable.name] = course.name
         }.value
     }
 
+    override suspend fun insert(course: Course): Int? = dbQuery {
+        if (course.code.length > DatabaseModel.COURSE_CODE_MAX_LENGTH
+            || course.name.length > DatabaseModel.COURSE_NAME_MAX_LENGTH) {
+            return@dbQuery null
+        }
+
+        CourseTable.insertIgnoreAndGetId {
+            it[CourseTable.code] = course.code
+            it[CourseTable.name] = course.name
+        }?.value
+    }
 }

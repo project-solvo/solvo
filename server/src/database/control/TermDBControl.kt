@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -6,13 +6,13 @@ import org.jetbrains.exposed.sql.select
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.TermTable
 
-interface TermDBFacade {
+interface TermDBControl {
     suspend fun getId(term: String): Int?
     suspend fun getTerm(termId: Int): String?
     suspend fun getOrInsertId(term: String): Int
 }
 
-class TermDBFacadeImpl : TermDBFacade {
+class TermDBControlImpl : TermDBControl {
     override suspend fun getId(term: String): Int? = dbQuery {
         TermTable
             .select(TermTable.termTime eq term)

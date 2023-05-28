@@ -9,53 +9,39 @@ import io.ktor.server.routing.*
 import org.solvo.model.AnswerUpstream
 import org.solvo.model.ArticleUpstream
 import org.solvo.model.api.UploadImageResponse
-import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.StaticResourcePurpose
 
 fun Application.uploadModule() {
-    val db = ServerContext.Databases
+    val accounts = ServerContext.Databases.accounts
+    val contents = ServerContext.Databases.contents
 
     routeApi {
         authenticate("authBearer") {
             route("/upload") {
                 put("/article") {
                     val uid = getUserId() ?: return@put
-                    val author = ServerContext.Databases.accounts.getUserInfo(uid)!!
+                    val author = accounts.getUserInfo(uid)!!
                     val article = call.receive<ArticleUpstream>()
 
-                    for (question in article.questions) {
-                        if (question.index.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) {
-                            call.respond(HttpStatusCode.BadRequest)
-                            return@put
-                        }
-                    }
-
-                    val articleId = db.articles.post(article, author)
-                    if (articleId != null) {
-                        assert(article.questions.map { question ->
-                            db.questions.post(question, author, articleId) != null
-                        }.all { it })
-                        call.respond(articleId)
-                    } else {
+                    val articleId = contents.postArticle(article, author)
+                    if (articleId == null) {
                         call.respond(HttpStatusCode.BadRequest)
+                    } else {
+                        call.respond(articleId)
                     }
                 }
 
                 put("/answer") {
                     val uid = getUserId() ?: return@put
-                    val author = ServerContext.Databases.accounts.getUserInfo(uid)!!
+                    val author = accounts.getUserInfo(uid)!!
                     val answer = call.receive<AnswerUpstream>()
 
-                    if (!db.questions.contains(answer.question)) {
+                    val answerId = contents.postAnswer(answer, author)
+                    if (answerId == null) {
                         call.respond(HttpStatusCode.BadRequest)
-                        return@put
-                    }
-                    val answerId = db.answers.post(answer, author)
-                    if (answerId != null) {
-                        call.respond(answerId)
                     } else {
-                        call.respond(HttpStatusCode.BadRequest)
+                        call.respond(answerId)
                     }
                 }
 
@@ -63,7 +49,7 @@ fun Application.uploadModule() {
                     val uid = getUserId() ?: return@put
 
                     val input = call.receiveStream()
-                    val path = uploadNewImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
+                    val path = contents.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
 
                     call.respond(UploadImageResponse(path))
                 }

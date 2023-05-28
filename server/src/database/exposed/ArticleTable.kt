@@ -13,7 +13,7 @@ object ArticleTable: Table("Articles") {
     val views = uinteger("viewsCount").default(0u)
 
     init {
-        uniqueIndex(name, course, term)
+        uniqueIndex(name, course)
     }
 
     override val primaryKey = PrimaryKey(ArticleTable.coid)

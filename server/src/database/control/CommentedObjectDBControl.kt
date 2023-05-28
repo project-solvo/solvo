@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -10,7 +10,7 @@ import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
 
-interface CommentedObjectDBFacade<T: CommentableUpstream> {
+interface CommentedObjectDBControl<T: CommentableUpstream> {
     suspend fun contains(coid: UUID): Boolean
     suspend fun post(content: T, author: User): UUID?
     suspend fun modifyContent(coid: UUID, content: String): Boolean
@@ -21,7 +21,7 @@ interface CommentedObjectDBFacade<T: CommentableUpstream> {
     suspend fun unLike(uid: UUID, coid: UUID): Boolean
 }
 
-abstract class CommentedObjectDBFacadeImpl<T: CommentableUpstream> : CommentedObjectDBFacade<T> {
+abstract class CommentedObjectDBControlImpl<T: CommentableUpstream> : CommentedObjectDBControl<T> {
     abstract val associatedTable: Table
 
     override suspend fun post(content: T, author: User): UUID? = dbQuery {

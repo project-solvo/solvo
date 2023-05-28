@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
@@ -12,40 +12,30 @@ import org.solvo.server.database.exposed.CommentedObjectTable
 import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
-interface ArticleDBFacade : CommentedObjectDBFacade<ArticleUpstream> {
-    suspend fun getId(courseCode: String, term: String, name: String): UUID?
-    suspend fun getExistingTermsOfCourse(courseId: Int): List<String>
+interface ArticleDBControl : CommentedObjectDBControl<ArticleUpstream> {
+    suspend fun getId(courseCode: String, name: String): UUID?
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
-    suspend fun viewAll(courseId: Int, termId: Int): List<ArticleDownstream>
+    suspend fun viewAll(courseId: Int): List<ArticleDownstream>
     override suspend fun view(coid: UUID): ArticleDownstream?
 }
 
-class ArticleDBFacadeImpl(
-    private val courseDB: CourseDBFacade,
-    private val termDB: TermDBFacade,
-    private val accountDB: AccountDBFacade,
-) : ArticleDBFacade, CommentedObjectDBFacadeImpl<ArticleUpstream>() {
+class ArticleDBControlImpl(
+    private val courseDB: CourseDBControl,
+    private val termDB: TermDBControl,
+    private val accountDB: AccountDBControl,
+) : ArticleDBControl, CommentedObjectDBControlImpl<ArticleUpstream>() {
     override val associatedTable: Table = ArticleTable
 
-    override suspend fun getId(courseCode: String, term: String, name: String): UUID? = dbQuery {
+    override suspend fun getId(courseCode: String, name: String): UUID? = dbQuery {
         val courseId = courseDB.getId(courseCode) ?: return@dbQuery null
-        val termId = termDB.getId(term) ?: return@dbQuery null
 
         ArticleTable
             .select(
                 (ArticleTable.course eq courseId)
-                        and (ArticleTable.term eq termId)
                         and (ArticleTable.name eq name)
             ).map { it[ArticleTable.coid].value }
             .singleOrNull()
-    }
-
-    override suspend fun getExistingTermsOfCourse(courseId: Int): List<String> = dbQuery {
-        ArticleTable
-            .select(ArticleTable.course eq courseId)
-            .map { termDB.getTerm(it[ArticleTable.term].value)!! }
-            .distinct()
     }
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
@@ -53,8 +43,7 @@ class ArticleDBFacadeImpl(
     }
 
     override suspend fun post(content: ArticleUpstream, author: User): UUID? = dbQuery {
-        if (content.courseCode.length > DatabaseModel.COURSE_CODE_MAX_LENGTH
-            || content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
+        if (content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
             || content.name.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
         ) {
             return@dbQuery null
@@ -112,9 +101,9 @@ class ArticleDBFacadeImpl(
             }.singleOrNull()
     }
 
-    override suspend fun viewAll(courseId: Int, termId: Int): List<ArticleDownstream> = dbQuery {
+    override suspend fun viewAll(courseId: Int): List<ArticleDownstream> = dbQuery {
         ArticleTable
-            .select { (ArticleTable.course eq courseId) and (ArticleTable.term eq termId) }
+            .select { ArticleTable.course eq courseId }
             .mapNotNull { view(it[ArticleTable.coid].value) }
     }
 

@@ -1,4 +1,4 @@
-package org.solvo.server.database
+package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.Table
 import org.solvo.model.CommentUpstream
@@ -7,13 +7,13 @@ import org.solvo.model.User
 import org.solvo.server.database.exposed.CommentTable
 import java.util.*
 
-interface CommentDBFacade: CommentedObjectDBFacade<CommentUpstream> {
+interface CommentDBControl: CommentedObjectDBControl<CommentUpstream> {
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
     override suspend fun view(coid: UUID): CommentableDownstream?
 }
 
-class CommentDBFacadeImpl : CommentDBFacade, CommentedObjectDBFacadeImpl<CommentUpstream>() {
+class CommentDBControlImpl : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>() {
     override val associatedTable: Table = CommentTable
     override suspend fun pin(uid: UUID, coid: UUID): Boolean {
         TODO("Not yet implemented")
