@@ -8,10 +8,7 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.solvo.model.Course
 import org.solvo.model.foundation.Uuid
-import org.solvo.server.database.AccountDBFacade
-import org.solvo.server.database.AccountDBFacadeImpl
-import org.solvo.server.database.ContentDBFacade
-import org.solvo.server.database.ContentDBFacadeImpl
+import org.solvo.server.database.*
 import org.solvo.server.database.control.*
 import org.solvo.server.database.exposed.*
 import org.solvo.server.modules.AuthDigest
@@ -38,15 +35,19 @@ object ServerContext {
         private val _questions: QuestionDBControl = QuestionDBControlImpl(_answers, _accounts)
         private val _articles: ArticleDBControl = ArticleDBControlImpl(_courses, _terms, _accounts)
 
+        private val config: ConfigFacade = ConfigFacadeImpl()
+
         val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _resources)
         val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _answers, _resources)
 
         fun init() {
             runBlocking {
+                if (config.containsConfig("initialized")) return@runBlocking
                 val alex: Uuid
-                _accounts.apply {
-                    alex = addAccount("Alex", AuthDigest("alex123")) ?: getId("Alex")!!
-                    // initialization here
+                accounts.apply {
+                    register("Alex", AuthDigest("alex123"))
+                    val token = login("Alex", AuthDigest("alex123")).token
+                    alex = tokens.matchToken(token)!!
                 }
                 contents.apply {
                     // TODO: 2023/5/26 this is dummy data
@@ -58,24 +59,24 @@ object ServerContext {
                     newCourse(Course("50006", "Compilers"))
                     newCourse(Course("50008", "Probability and Statistics"))
                     newCourse(Course("50009", "Symbolic Reasoning"))
-                }
-//            articles.apply {
-//                post(
-//                    ArticleUpstream(
-//                        content = "My content",
-//                        anonymity = true,
-//                        name = "Paper 2022",
-//                        courseCode = "50001",
-//                        termYear = "2022",
-//                        questions = listOf()
-//                    ),
-//                    User(
-//                        alex,
-//                        "",
-//                        null
+
+//                    postArticle(
+//                        ArticleUpstream(
+//                            content = "My content",
+//                            anonymity = true,
+//                            name = "Paper 2022",
+//                            courseCode = "50001",
+//                            termYear = "2022",
+//                            questions = listOf()
+//                        ),
+//                        User(
+//                            alex,
+//                            "",
+//                            null
+//                        )
 //                    )
-//                )
-//            }
+                }
+                config.setConfig("initialized")
             }
         }
     }
@@ -87,6 +88,7 @@ object ServerContext {
             Database.connect(jdbcURL, driverClassName)
             transaction {
                 SchemaUtils.create(
+                    ConfigTable,
                     AuthTable,
                     UserTable,
                     StaticResourceTable,
