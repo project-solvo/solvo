@@ -4,7 +4,6 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.ArticleDownstream
 import org.solvo.model.ArticleUpstream
-import org.solvo.model.User
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
@@ -42,16 +41,16 @@ class ArticleDBControlImpl(
         !ArticleTable.select(ArticleTable.coid eq coid).empty()
     }
 
-    override suspend fun post(content: ArticleUpstream, author: User): UUID? = dbQuery {
+    override suspend fun post(content: ArticleUpstream, authorId: UUID): UUID? = dbQuery {
         if (content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
             || content.name.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
         ) {
             return@dbQuery null
         }
-        super.post(content, author)
+        super.post(content, authorId)
     }
 
-    override suspend fun associateTableUpdates(coid: UUID, content: ArticleUpstream, author: User): UUID? = dbQuery {
+    override suspend fun associateTableUpdates(coid: UUID, content: ArticleUpstream, authorId: UUID): UUID? = dbQuery {
         val courseId = courseDB.getId(content.courseCode) ?: return@dbQuery null
         val termId = termDB.getOrInsertId(content.termYear)
 

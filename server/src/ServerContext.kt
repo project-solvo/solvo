@@ -8,7 +8,6 @@ import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransacti
 import org.jetbrains.exposed.sql.transactions.transaction
 import org.solvo.model.ArticleUpstream
 import org.solvo.model.Course
-import org.solvo.model.User
 import org.solvo.model.foundation.Uuid
 import org.solvo.server.database.*
 import org.solvo.server.database.control.*
@@ -71,11 +70,7 @@ object ServerContext {
                             termYear = "2022",
                             questions = listOf()
                         ),
-                        User(
-                            alex,
-                            "",
-                            null
-                        )
+                        alex
                     )
                 }
                 config.setConfig("initialized")

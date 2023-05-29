@@ -7,7 +7,6 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.solvo.model.AnswerDownstream
 import org.solvo.model.AnswerUpstream
-import org.solvo.model.User
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AnswerTable
 import org.solvo.server.database.exposed.CommentedObjectTable
@@ -25,11 +24,11 @@ class AnswerDBControlImpl(
 ) : AnswerDBControl, CommentedObjectDBControlImpl<AnswerUpstream>() {
     override val associatedTable: Table = AnswerTable
 
-    override suspend fun post(content: AnswerUpstream, author: User): UUID? = dbQuery {
-        super.post(content, author)
+    override suspend fun post(content: AnswerUpstream, authorId: UUID): UUID? = dbQuery {
+        super.post(content, authorId)
     }
 
-    override suspend fun associateTableUpdates(coid: UUID, content: AnswerUpstream, author: User): UUID = dbQuery {
+    override suspend fun associateTableUpdates(coid: UUID, content: AnswerUpstream, authorId: UUID): UUID = dbQuery {
         assert(AnswerTable.insert {
             it[AnswerTable.coid] = coid
             it[AnswerTable.question] = content.question

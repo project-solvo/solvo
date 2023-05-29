@@ -3,7 +3,6 @@ package org.solvo.server.database.control
 import org.jetbrains.exposed.sql.Table
 import org.solvo.model.CommentUpstream
 import org.solvo.model.CommentableDownstream
-import org.solvo.model.User
 import org.solvo.server.database.exposed.CommentTable
 import java.util.*
 
@@ -23,7 +22,7 @@ class CommentDBControlImpl : CommentDBControl, CommentedObjectDBControlImpl<Comm
         TODO("Not yet implemented")
     }
 
-    override suspend fun associateTableUpdates(coid: UUID, content: CommentUpstream, author: User): UUID? {
+    override suspend fun associateTableUpdates(coid: UUID, content: CommentUpstream, authorId: UUID): UUID? {
         TODO("Not yet implemented")
     }
 

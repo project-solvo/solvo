@@ -21,10 +21,9 @@ fun Application.uploadModule() {
             route("/upload") {
                 put("/article") {
                     val uid = getUserId() ?: return@put
-                    val author = accounts.getUserInfo(uid)!!
                     val article = call.receive<ArticleUpstream>()
 
-                    val articleId = contents.postArticle(article, author)
+                    val articleId = contents.postArticle(article, uid)
                     if (articleId == null) {
                         call.respond(HttpStatusCode.BadRequest)
                     } else {
@@ -34,10 +33,9 @@ fun Application.uploadModule() {
 
                 put("/answer") {
                     val uid = getUserId() ?: return@put
-                    val author = accounts.getUserInfo(uid)!!
                     val answer = call.receive<AnswerUpstream>()
 
-                    val answerId = contents.postAnswer(answer, author)
+                    val answerId = contents.postAnswer(answer, uid)
                     if (answerId == null) {
                         call.respond(HttpStatusCode.BadRequest)
                     } else {

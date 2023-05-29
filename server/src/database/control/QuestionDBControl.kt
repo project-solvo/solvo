@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.AnswerDownstream
 import org.solvo.model.QuestionDownstream
 import org.solvo.model.QuestionUpstream
-import org.solvo.model.User
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AnswerTable
@@ -14,7 +13,7 @@ import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
 interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
-    suspend fun post(content: QuestionUpstream, author: User, articleId: UUID): UUID?
+    suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID?
     suspend fun getId(articleId: UUID, index: String): UUID?
     override suspend fun view(coid: UUID): QuestionDownstream?
 }
@@ -33,12 +32,12 @@ class QuestionDBControlImpl(
     }
 
     @Deprecated("not supported", ReplaceWith("post(content, author, articleId)"))
-    override suspend fun post(content: QuestionUpstream, author: User): UUID =
+    override suspend fun post(content: QuestionUpstream, authorId: UUID): UUID =
         error("Directly posting a question not supported")
 
-    override suspend fun post(content: QuestionUpstream, author: User, articleId: UUID): UUID? = dbQuery {
+    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? = dbQuery {
             if (content.index.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return@dbQuery null
-            val coid = super.post(content, author) ?: return@dbQuery null
+            val coid = super.post(content, authorId) ?: return@dbQuery null
             assert(QuestionTable.insert {
                 it[QuestionTable.coid] = coid
                 it[QuestionTable.article] = articleId
@@ -47,7 +46,7 @@ class QuestionDBControlImpl(
             coid
         }
 
-    override suspend fun associateTableUpdates(coid: UUID, content: QuestionUpstream, author: User): UUID = coid
+    override suspend fun associateTableUpdates(coid: UUID, content: QuestionUpstream, authorId: UUID): UUID = coid
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
         val answers: List<AnswerDownstream> = QuestionTable
