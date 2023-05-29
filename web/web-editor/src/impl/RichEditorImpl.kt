@@ -5,18 +5,13 @@ package org.solvo.web.editor.impl
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
-import androidx.compose.ui.unit.Density
-import androidx.compose.ui.unit.IntSize
-import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.*
 import io.ktor.util.collections.*
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.document
-import kotlinx.coroutines.CancellationException
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withTimeout
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.ui.WindowState
 import org.w3c.dom.Element
@@ -66,6 +61,7 @@ internal object RichEditorIdManager {
 
 // Load only one editor at the same time
 private val editorChangedLock = Mutex()
+private val cmRefreshedLock = Mutex()
 
 @Stable
 internal class RichEditor internal constructor(
@@ -74,6 +70,7 @@ internal class RichEditor internal constructor(
     val clipDiv: Element,
     val editor: dynamic, // editor.md object
 ) : RememberObserver {
+    private val scope = CoroutineScope(SupervisorJob())
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
 
     private val _positionInRoot = mutableStateOf(Offset.Zero)
@@ -88,6 +85,7 @@ internal class RichEditor internal constructor(
     private val editorLoaded = CompletableDeferred<Unit>()
 
     private var editorChanged: CompletableDeferred<Unit>? = null
+    private var cmRefreshed: CompletableDeferred<Unit>? = null
 
     internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
         editorLoaded.join()
@@ -100,10 +98,32 @@ internal class RichEditor internal constructor(
             editorChanged = def
             try {
                 action()
-                withTimeout(2.seconds) { def.await() }
+                withTimeout(5.seconds) { def.await() }
             } catch (e: Throwable) {
                 editorChanged = null
-                if (e !is CancellationException) throw e
+                if (e is CancellationException) {
+                    console.error("Timeout expectEditorChange", e)
+                } else {
+                    throw e
+                }
+            }
+        }
+    }
+
+    internal suspend fun <R> expectCodeMirrorRefresh(action: suspend () -> R) {
+        return cmRefreshedLock.withLock {
+            val def = CompletableDeferred<Unit>()
+            cmRefreshed = def
+            try {
+                action()
+                withTimeout(5.seconds) { def.await() }
+            } catch (e: Throwable) {
+                cmRefreshed = null
+                if (e is CancellationException) {
+                    console.error("Timeout expectCodeMirrorRefresh", e)
+                } else {
+                    throw e
+                }
             }
         }
     }
@@ -164,12 +184,57 @@ internal class RichEditor internal constructor(
         positionDiv.asDynamic().style.marginLeft = (offset.x / density.density).toString() + "px"
     }
 
+    init {
+        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+            onEditorLoaded {
+                editor.cm.on("refresh") { cm ->
+                    scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                        cmRefreshedLock.withLock {
+                            cmRefreshed?.complete(Unit)
+                        }
+                    }
+                }
+                Unit
+            }
+        }
+    }
+
+    suspend fun resizeToWrapPreviewContent(onClip: (size: DpSize) -> Unit) {
+        onEditorLoaded {
+            val rect = getHtmlPreviewContent().getBoundingClientRect()
+            setEditorSizePx(
+                rect.width.toFloat(), rect.height.toFloat()
+            )
+
+            onClip(DpSize(rect.width.toFloat().dp, rect.height.toFloat().dp))
+//
+//            /*
+//             * cm.getScrollInfo() → {left, top, width, height, clientWidth, clientHeight}
+//             * Get an {left, top, width, height, clientWidth, clientHeight} object that represents the current scroll position, 
+//             * the size of the scrollable area, and the size of the visible area (minus scrollbars).
+//             */
+//            val info = editor.cm.getScrollInfo()
+//            val lineHeight = editor.cm.defaultTextHeight() as Float
+//            console.log(info)
+//            console.log(lineHeight)
+//
+//            setEditorSize(
+//                IntSize(1000, ((info.height as Float) * lineHeight) as Int),
+//                Density(1.0f)
+//            )
+        }
+    }
+
     suspend fun setEditorSize(size: IntSize, density: Density) {
-        if (_size.value == size) return
+//        if (_size.value == size) return
 
         _size.value = size
         val widthPx = size.width / density.density
         val heightPx = size.height / density.density
+        setEditorSizePx(widthPx, heightPx)
+    }
+
+    private suspend fun RichEditor.setEditorSizePx(widthPx: Float, heightPx: Float) {
         positionDiv.asDynamic().style.width = widthPx.toString() + "px"
         positionDiv.asDynamic().style.height = heightPx.toString() + "px"
         clipDiv.asDynamic().style.width = widthPx.toString() + "px"
@@ -219,6 +284,7 @@ internal class RichEditor internal constructor(
 
     private fun dispose() {
         try {
+            scope.cancel()
             document.removeChild(positionDiv)
             RichEditorIdManager.removeInstance(this.id)
         } catch (e: Throwable) {

@@ -8,6 +8,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import kotlinx.browser.document
 import kotlinx.coroutines.CancellationException
@@ -17,34 +18,48 @@ import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.isInDarkMode
 import org.w3c.dom.asList
 
+class RichTextHeight {
+
+}
+
 @Composable
 fun RichText(
     @Language("markdown") text: String,
     modifier: Modifier = Modifier,
+    onActualContentSizeChange: (DpSize) -> Unit = {},
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
 ) {
     val state = rememberRichEditorState()
+    val density by rememberUpdatedState(LocalDensity.current)
+
     RichEditor(
         modifier, state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
         isToolbarVisible = false,
         propagateScrollState = propagateScrollState,
         scrollOrientation = scrollOrientation,
-        isInDarkTheme = isInDarkTheme
+        isInDarkTheme = isInDarkTheme,
+        onSizeChanged = {
+            state.richEditor.resizeToWrapPreviewContent {
+                onActualContentSizeChange(it)
+            }
+        }
     )
     LaunchedEffect(true) {
         hidePreviewCloseButton(state.richEditor)
     }
-    val density by rememberUpdatedState(LocalDensity.current)
     LaunchedEffect(fontSize) {
         state.richEditor.setFontSize(fontSize, density)
     }
     LaunchedEffect(text) {
         try {
-            state.setContentMarkdown(text)
+            state.setPreviewMarkdownAndClip(text) {
+                onActualContentSizeChange(it)
+            }
+//            state.richEditor.resizeToWrapContent(density)
         } catch (e: CancellationException) {
             println("Cancelled: ${state.richEditor.id}")
         }

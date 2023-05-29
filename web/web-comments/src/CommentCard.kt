@@ -62,7 +62,7 @@ fun CommentCard(
         )
 
         // content
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).weight(1f)) {
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp)) {
             content()
         }
 

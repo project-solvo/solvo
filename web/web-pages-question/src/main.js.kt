@@ -1,15 +1,17 @@
 package org.solvo.web
 
-import PagingContent
 import ControlBar
 import ControlBarScope.buttonContentPaddings
+import PagingContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.Compress
+import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.Description
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
@@ -151,6 +153,36 @@ private fun ArticlePageContent(
     }
 }
 
+@Composable
+private fun AnswersList() {
+    val scrollState = rememberScrollState()
+    Column(
+        Modifier.fillMaxSize().verticalScroll(scrollState),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
+        repeat(6) {
+            // TODO: 2023/5/25 view model 
+            CommentCard(
+                listOf(
+                    LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
+                    LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
+                ),
+                Modifier.fillMaxWidth(),
+            ) {
+                var actualHeight by remember { mutableStateOf(0.dp) }
+                RichText(
+                    """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent(),
+                    modifier = Modifier.height(actualHeight).fillMaxWidth(),
+                    propagateScrollState = scrollState,
+                    onActualContentSizeChange = {
+                        actualHeight = it.height
+                        println("actualSize: $actualHeight")
+                    }
+                )
+            }
+        }
+    }
+}
 
 @Composable
 private fun PaperTitle(
@@ -191,39 +223,3 @@ private fun PaperView(
     }
 }
 
-
-@Composable
-private fun AnswersList() {
-    val scrollState = rememberScrollState()
-    Column(
-        Modifier.fillMaxSize().verticalScroll(scrollState),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        repeat(1) {
-            // TODO: 2023/5/25 view model
-            CommentCard(
-                listOf(
-                    LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
-                    LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
-                ),
-                Modifier.fillMaxWidth().height(4000.dp),
-            ) {
-                RichText(
-                    """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.
-
-Sed aliquam sapien in eros facilisis, at bibendum erat ornare. Proin faucibus iaculis ornare. Suspendisse sed nulla quam. Morbi id quam tellus. Duis ac bibendum dui. Etiam consectetur felis ac eros auctor, et rutrum sapien pulvinar. Donec at ex mollis, sodales mauris commodo, sodales dolor. Aenean non augue dui. Phasellus nec dictum ante. Maecenas nec ullamcorper turpis, sed gravida ipsum. Cras tempus, ex non maximus bibendum, odio ligula luctus nulla, non rhoncus magna urna ac diam. Sed eget purus efficitur, pulvinar elit in, sollicitudin mauris. Nunc sodales nibh eget lacus tincidunt, a iaculis augue maximus.
-
-Proin sagittis tempor nisi id ornare. Fusce non ligula et augue hendrerit molestie. Nam in convallis felis. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Quisque iaculis nisl est, non iaculis massa hendrerit ac. Suspendisse suscipit feugiat nibh eget consectetur. Interdum et malesuada fames ac ante ipsum primis in faucibus.
-
-Integer sed ullamcorper lacus. Curabitur scelerisque egestas tempor. Nulla ligula erat, mattis ac eros at, sollicitudin elementum augue. Suspendisse id congue diam, at iaculis nisl. Sed a maximus sapien. Aliquam sed ipsum magna. Duis rhoncus et diam vel finibus. In quis ultrices quam. Fusce consequat porttitor eros. Sed ac lectus in enim dapibus semper. Cras massa libero, hendrerit eu nibh eu, hendrerit sagittis orci. Aliquam eget pharetra velit. Ut et orci id ligula aliquet iaculis. Ut vel tincidunt nibh. Sed est nisl, congue ut molestie nec, auctor eget dolor.
-
-Suspendisse vitae sapien lacus. Quisque commodo urna eget erat sodales, sit amet efficitur augue condimentum. Aenean purus nunc, ultricies eget interdum id, varius vel lacus. Integer vitae lectus eu leo fermentum ultrices id id arcu. Nullam varius lectus ut mattis ornare. Nam condimentum tincidunt est, ut pellentesque ligula tempus ullamcorper. Etiam convallis, quam viverra euismod placerat, eros nisi imperdiet felis, in vehicula augue nunc venenatis odio. Mauris lacinia justo tortor, sed sodales ligula sollicitudin in. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam interdum ligula, ac lacinia ante pellentesque sodales. Pellentesque et cursus erat, ut convallis lorem. Duis cursus enim ut quam tincidunt malesuada. Nunc sed orci eu mi rutrum condimentum. Mauris posuere efficitur risus at malesuada. Sed dignissim arcu enim, et laoreet libero aliquet eget.
-
-""".trimIndent(),
-                    modifier = Modifier.weight(1.0f).fillMaxWidth(),
-                    propagateScrollState = scrollState,
-                )
-            }
-        }
-    }
-}

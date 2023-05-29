@@ -3,6 +3,7 @@ package org.solvo.web.editor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.sp
 import org.solvo.web.editor.impl.RichEditor
 import org.solvo.web.editor.impl.RichEditorIdManager
@@ -33,6 +34,16 @@ class RichEditorState internal constructor(
             richEditor.expectEditorChange {
                 richEditor.editor.setValue(value)
             }
+        }
+    }
+
+    suspend fun setPreviewMarkdownAndClip(value: String, onClip: (size: DpSize) -> Unit) {
+        richEditor.onEditorLoaded {
+            richEditor.expectEditorChange {
+                richEditor.editor.setValue(value)
+            }
+            richEditor.resizeToWrapPreviewContent(onClip)
+            richEditor.resizeToWrapPreviewContent(onClip)
         }
     }
 

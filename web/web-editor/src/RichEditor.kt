@@ -14,6 +14,7 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.IntSize
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import org.solvo.web.ui.LocalSolvoWindow
@@ -30,6 +31,7 @@ fun RichEditor(
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
+    onSizeChanged: suspend (IntSize) -> Unit = {},
 ) {
     LaunchedEffect(isInDarkTheme) {
         richEditorState.richEditor.setInDarkTheme(isInDarkTheme)
@@ -51,11 +53,29 @@ fun RichEditor(
     }
 
     Box(
-        modifier
-            .onGloballyPositioned {
-                richEditorState.richEditor.setPosition(it.positionInWindow(), density)
-                scope.launch {
-                    richEditorState.richEditor.setEditorBounds(it.boundsInRoot(), density)
+        modifier.onGloballyPositioned {
+            richEditorState.richEditor.setPosition(it.positionInWindow(), density)
+            richEditorState.richEditor.setEditorBounds(it.boundsInRoot(), density)
+
+//                println(
+//                    "onGloballyPositioned: " +
+//                            "boundsInParent=${it.boundsInParent()}, " +
+//                            "boundsInRoot=${it.boundsInRoot()}"
+//                )
+        }.onSizeChanged {
+            scope.launch(start = CoroutineStart.UNDISPATCHED) {
+                richEditorState.richEditor.setEditorSize(it, density)
+                onSizeChanged(it)
+            }
+        }
+    )
+
+    /*
+    Layout(modifier
+        .onGloballyPositioned {
+            richEditorState.richEditor.setPosition(it.positionInWindow(), density)
+            scope.launch {
+                richEditorState.richEditor.setEditorBounds(it.boundsInRoot(), density)
 
 //                println(
 //                    "onGloballyPositioned: " +
@@ -69,6 +89,14 @@ fun RichEditor(
                 richEditorState.richEditor.setEditorSize(it, density)
             }
         }
-    )
+    ) { _, _ ->
+        layout(
+            width = richEditorState.richEditor.size.value.width,
+            height = richEditorState.richEditor.size.value.height,
+        ) {
+            
+        }
+    }
+     */
 }
 
