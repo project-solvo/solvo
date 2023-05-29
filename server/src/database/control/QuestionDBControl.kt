@@ -31,22 +31,18 @@ class QuestionDBControlImpl(
             .singleOrNull()
     }
 
-    @Deprecated("not supported", ReplaceWith("post(content, author, articleId)"))
-    override suspend fun post(content: QuestionUpstream, authorId: UUID): UUID =
-        error("Directly posting a question not supported")
-
-    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? = dbQuery {
-            if (content.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return@dbQuery null
-            val coid = super.post(content, authorId) ?: return@dbQuery null
+    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? {
+        if (content.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return null
+        val coid = insertAndGetCOID(content, authorId) ?: return null
+        dbQuery {
             assert(QuestionTable.insert {
                 it[QuestionTable.coid] = coid
                 it[QuestionTable.article] = articleId
                 it[QuestionTable.index] = content.code
             }.resultedValues?.singleOrNull() != null)
-            coid
         }
-
-    override suspend fun associateTableUpdates(coid: UUID, content: QuestionUpstream, authorId: UUID): UUID = coid
+        return coid
+    }
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
         val answers: List<CommentDownstream> = QuestionTable

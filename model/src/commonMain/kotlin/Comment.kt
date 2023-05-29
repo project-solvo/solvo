@@ -14,9 +14,6 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 class CommentUpstream(
     override val content: String,
     override val anonymity: Boolean,
-
-    val parent: Uuid,
-    val pinned: Boolean = false,
 ) : CommentableUpstream
 
 @Immutable

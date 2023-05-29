@@ -12,6 +12,7 @@ import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
 interface ArticleDBControl : CommentedObjectDBControl<ArticleUpstream> {
+    suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID?
     suspend fun getId(courseCode: String, name: String): UUID?
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
@@ -41,27 +42,23 @@ class ArticleDBControlImpl(
         !ArticleTable.select(ArticleTable.coid eq coid).empty()
     }
 
-    override suspend fun post(content: ArticleUpstream, authorId: UUID): UUID? = dbQuery {
+    override suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
         if (content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
             || content.name.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
-        ) {
-            return@dbQuery null
-        }
-        super.post(content, authorId)
-    }
-
-    override suspend fun associateTableUpdates(coid: UUID, content: ArticleUpstream, authorId: UUID): UUID? = dbQuery {
-        val courseId = courseDB.getId(content.courseCode) ?: return@dbQuery null
+        ) return null
+        val coid = insertAndGetCOID(content, authorId) ?: return null
+        val courseId = courseDB.getId(courseCode) ?: return null
         val termId = termDB.getOrInsertId(content.termYear)
 
-        assert(ArticleTable.insert {
-            it[ArticleTable.coid] = coid
-            it[ArticleTable.name] = content.name
-            it[ArticleTable.course] = courseId
-            it[ArticleTable.term] = termId
-        }.resultedValues?.singleOrNull() != null)
-
-        return@dbQuery coid
+        dbQuery {
+            assert(ArticleTable.insert {
+                it[ArticleTable.coid] = coid
+                it[ArticleTable.name] = content.name
+                it[ArticleTable.course] = courseId
+                it[ArticleTable.term] = termId
+            }.resultedValues?.singleOrNull() != null)
+        }
+        return coid
     }
 
     override suspend fun view(coid: UUID): ArticleDownstream? = dbQuery {

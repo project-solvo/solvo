@@ -81,10 +81,10 @@ fun Application.contentModule() {
                 }
                 putAuthenticated("/upload") {
                     val uid = getUserId() ?: return@putAuthenticated
-                    // TODO: val courseCode = call.parameters.getOrFail("courseCode")
+                    val courseCode = call.parameters.getOrFail("courseCode")
                     val article = call.receive<ArticleUpstream>()
 
-                    val articleId = contents.postArticle(article, uid)
+                    val articleId = contents.postArticle(article, uid, courseCode)
                     if (articleId == null) {
                         call.respond(HttpStatusCode.BadRequest)
                     } else {
@@ -115,10 +115,10 @@ fun Application.contentModule() {
             }
             putAuthenticated("/{questionId}/asAnswer") {
                 val uid = getUserId() ?: return@putAuthenticated
-                // TODO: val questionId = call.parameters.getOrFail("questionId")
+                val questionId = UUID.fromString(call.parameters.getOrFail("questionId"))
                 val answer = call.receive<CommentUpstream>()
 
-                val answerId = contents.postAnswer(answer, uid)
+                val answerId = contents.postAnswer(answer, uid, questionId)
                 if (answerId == null) {
                     call.respond(HttpStatusCode.BadRequest)
                 } else {

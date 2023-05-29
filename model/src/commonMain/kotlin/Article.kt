@@ -15,7 +15,6 @@ class ArticleUpstream(
     override val anonymity: Boolean,
 
     val name: String,
-    val courseCode: String,
     val termYear: String,
 
     val questions: List<QuestionUpstream>,

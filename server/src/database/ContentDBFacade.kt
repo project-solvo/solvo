@@ -11,8 +11,8 @@ import java.util.*
 
 interface ContentDBFacade {
     suspend fun newCourse(course: Course): Int?
-    suspend fun postArticle(article: ArticleUpstream, authorId: UUID): UUID?
-    suspend fun postAnswer(answer: CommentUpstream, authorId: UUID): UUID?
+    suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID?
+    suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
     suspend fun postImage(uid: UUID, input: InputStream, purpose: StaticResourcePurpose): UUID
     suspend fun getImage(resourceId: UUID): File?
     suspend fun allCourses(): List<Course>
@@ -38,12 +38,12 @@ class ContentDBFacadeImpl(
         return courses.insert(course)
     }
 
-    override suspend fun postArticle(article: ArticleUpstream, authorId: UUID): UUID? {
+    override suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
         for (question in article.questions) {
             if (question.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return null
         }
 
-        val articleId = articles.post(article, authorId) ?: return null
+        val articleId = articles.post(article, authorId, courseCode) ?: return null
         assert(article.questions.map { question ->
             questions.post(question, authorId, articleId) != null
         }.all { it })
@@ -51,9 +51,9 @@ class ContentDBFacadeImpl(
         return articleId
     }
 
-    override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID): UUID? {
-        if (!questions.contains(answer.parent)) return null
-        return comments.post(answer, authorId)
+    override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID? {
+        if (!questions.contains(questionId)) return null
+        return comments.post(answer, authorId, questionId)
     }
 
     override suspend fun postImage(

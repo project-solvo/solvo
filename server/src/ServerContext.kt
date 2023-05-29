@@ -9,7 +9,6 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.solvo.model.ArticleUpstream
 import org.solvo.model.Course
 import org.solvo.model.QuestionUpstream
-import org.solvo.model.User
 import org.solvo.model.foundation.Uuid
 import org.solvo.server.database.*
 import org.solvo.server.database.control.*
@@ -64,15 +63,15 @@ object ServerContext {
                     newCourse(Course("50009", "Symbolic Reasoning"))
 
                     postArticle(
-                        ArticleUpstream(
+                        article = ArticleUpstream(
                             content = "My content",
                             anonymity = true,
                             name = "Paper 2022",
-                            courseCode = "50001",
                             termYear = "2022",
                             questions = listOf(QuestionUpstream("Haha", true, "1a"))
                         ),
-                        alex
+                        authorId = alex,
+                        courseCode = "50001"
                     )
                 }
                 config.setConfig("initialized")

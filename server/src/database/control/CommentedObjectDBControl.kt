@@ -9,9 +9,8 @@ import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
 
-interface CommentedObjectDBControl<T: CommentableUpstream> {
+interface CommentedObjectDBControl<T : CommentableUpstream> {
     suspend fun contains(coid: UUID): Boolean
-    suspend fun post(content: T, authorId: UUID): UUID?
     suspend fun modifyContent(coid: UUID, content: String): Boolean
     suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean
     suspend fun delete(coid: UUID): Boolean
@@ -21,21 +20,16 @@ interface CommentedObjectDBControl<T: CommentableUpstream> {
     suspend fun unLike(uid: UUID, coid: UUID): Boolean
 }
 
-abstract class CommentedObjectDBControlImpl<T: CommentableUpstream> : CommentedObjectDBControl<T> {
+abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : CommentedObjectDBControl<T> {
     abstract val associatedTable: Table
 
-    override suspend fun post(content: T, authorId: UUID): UUID? {
-        val coid = dbQuery {
-            CommentedObjectTable.insertIgnoreAndGetId {
-                it[CommentedObjectTable.author] = authorId
-                it[CommentedObjectTable.content] = content.content
-                it[CommentedObjectTable.anonymity] = content.anonymity
-            }?.value
-        } ?: return null
-        return dbQuery { associateTableUpdates(coid, content, authorId) }
+    protected suspend fun insertAndGetCOID(content: T, authorId: UUID): UUID? = dbQuery {
+        CommentedObjectTable.insertIgnoreAndGetId {
+            it[CommentedObjectTable.author] = authorId
+            it[CommentedObjectTable.content] = content.content
+            it[CommentedObjectTable.anonymity] = content.anonymity
+        }?.value
     }
-
-    protected abstract suspend fun associateTableUpdates(coid: UUID, content: T, authorId: UUID): UUID?
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
         !associatedTable.select(CommentedObjectTable.id eq coid).empty()

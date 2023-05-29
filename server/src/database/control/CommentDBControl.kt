@@ -12,7 +12,8 @@ import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
 
-interface CommentDBControl: CommentedObjectDBControl<CommentUpstream> {
+interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
+    suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID): UUID?
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
     override suspend fun view(coid: UUID): CommentDownstream?
@@ -20,20 +21,20 @@ interface CommentDBControl: CommentedObjectDBControl<CommentUpstream> {
 
 class CommentDBControlImpl(
     private val accountDB: AccountDBControl,
-    ) : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>() {
+) : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>() {
     override val associatedTable: Table = CommentTable
 
-    override suspend fun post(content: CommentUpstream, authorId: UUID): UUID? = dbQuery {
-        super.post(content, authorId)
-    }
+    override suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID): UUID? {
+        val coid = insertAndGetCOID(content, authorId) ?: return null
 
-    override suspend fun associateTableUpdates(coid: UUID, content: CommentUpstream, authorId: UUID): UUID = dbQuery {
+        dbQuery {
             assert(CommentTable.insert {
                 it[CommentTable.coid] = coid
-                it[CommentTable.parent] = content.parent
+                it[CommentTable.parent] = parentID
             }.resultedValues?.singleOrNull() != null)
-            return@dbQuery coid
         }
+        return coid
+    }
 
     override suspend fun view(coid: UUID): CommentDownstream? = dbQuery {
         CommentTable
