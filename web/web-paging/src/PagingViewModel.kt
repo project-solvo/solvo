@@ -30,6 +30,7 @@ open class PagingViewModel : AbstractViewModel() {
         }
     }
 
+
     private val answerSize: MutableState<Int> = mutableStateOf(0)
 
     private val _currentPage: MutableState<Int> = mutableStateOf(0)

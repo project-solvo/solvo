@@ -7,4 +7,5 @@ import org.solvo.model.ArticleDownstream
 @Stable
 class ArticlePageViewModel : PagingViewModel() {
     val allArticles: List<ArticleDownstream> = mutableStateListOf()
+
 }

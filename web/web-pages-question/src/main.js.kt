@@ -2,18 +2,23 @@ package org.solvo.web
 
 import PagingContent
 import ControlBar
+import ControlBarScope.buttonContentPaddings
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -118,7 +123,27 @@ private fun ArticlePageContent(
         )
 
         Column {
-            PagingContent(state, question.answers)
+            PagingContent(state, question.answers) {
+                Box(Modifier.align(Alignment.CenterHorizontally)) {
+                    FilledTonalButton(
+                        onClick = {},
+                        shape = RoundedCornerShape(12.dp),
+                        contentPadding = buttonContentPaddings
+                    ) {
+                        Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+
+                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                            Text(
+                                "Draft Answer",
+                                Modifier.padding(start = 4.dp),
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.W500,
+                            )
+                        }
+                    }
+                }
+            }
             Box(Modifier.padding(vertical = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
                 AnswersList()
             }

@@ -1,23 +1,19 @@
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.West
-import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @Composable
 fun PagingContent(
     state: PagingViewModel,
     list: List<Any>,
+    actions: @Composable () -> Unit = {},
 ) {
     ControlBar(Modifier.fillMaxWidth()) {
         Box(Modifier.fillMaxWidth()) {
@@ -54,25 +50,7 @@ fun PagingContent(
                 }
             }
 
-            Box(Modifier.align(Alignment.CenterEnd)) {
-                FilledTonalButton(
-                    {},
-                    shape = RoundedCornerShape(12.dp),
-                    contentPadding = buttonContentPaddings
-                ) {
-                    Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
-
-                    Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                        Text(
-                            "Draft Answer",
-                            Modifier.padding(start = 4.dp),
-                            textAlign = TextAlign.Center,
-                            fontSize = 16.sp,
-                            fontWeight = FontWeight.W500,
-                        )
-                    }
-                }
-            }
+            actions()
         }
     }
 }
