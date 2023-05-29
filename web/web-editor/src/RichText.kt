@@ -2,6 +2,7 @@ package org.solvo.web.editor
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -31,6 +32,7 @@ fun RichText(
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     backgroundColor: Color = Color.Unspecified,
     showScrollbar: Boolean = true,
+    contentColor: Color = LocalContentColor.current,
 ) {
     val state = rememberRichEditorState(0.dp)
     val density by rememberUpdatedState(LocalDensity.current)
@@ -54,6 +56,9 @@ fun RichText(
     }
     LaunchedEffect(fontSize) {
         state.richEditor.setFontSize(fontSize, density)
+    }
+    LaunchedEffect(contentColor) {
+        state.richEditor.setContentColor(contentColor)
     }
     LaunchedEffect(showScrollbar) {
         state.richEditor.setShowScrollBar(showScrollbar)

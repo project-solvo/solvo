@@ -281,6 +281,12 @@ internal class RichEditor internal constructor(
         }
     }
 
+    suspend fun setContentColor(color: Color) {
+        onEditorLoaded {
+            getHtmlPreviewMarkdownBody().asDynamic().style.color = color.toHtmlRgbaString()
+        }
+    }
+
     // class="editormd editormd-vertical editormd-theme-default"
     private fun getHtmlEditormdDiv() =
         document.querySelector("#${id}")
