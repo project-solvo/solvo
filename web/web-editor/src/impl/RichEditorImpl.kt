@@ -67,7 +67,6 @@ private val cmRefreshedLock = Mutex()
 internal class RichEditor internal constructor(
     val id: String,
     val positionDiv: Element,
-    val clipDiv: Element,
     val editor: dynamic, // editor.md object
 ) : RememberObserver {
     private val scope = CoroutineScope(SupervisorJob())
@@ -180,8 +179,10 @@ internal class RichEditor internal constructor(
         if (_positionInRoot.value == offset) return
 
         _positionInRoot.value = offset
-        positionDiv.asDynamic().style.marginTop = (offset.y / density.density).toString() + "px"
-        positionDiv.asDynamic().style.marginLeft = (offset.x / density.density).toString() + "px"
+        val marginTop = (offset.y / density.density).toString() + "px"
+        val marginLeft = (offset.x / density.density).toString() + "px"
+        positionDiv.asDynamic().style.marginTop = marginTop
+        positionDiv.asDynamic().style.marginLeft = marginLeft
     }
 
     init {
@@ -237,8 +238,6 @@ internal class RichEditor internal constructor(
     private suspend fun RichEditor.setEditorSizePx(widthPx: Float, heightPx: Float) {
         positionDiv.asDynamic().style.width = widthPx.toString() + "px"
         positionDiv.asDynamic().style.height = heightPx.toString() + "px"
-        clipDiv.asDynamic().style.width = widthPx.toString() + "px"
-        clipDiv.asDynamic().style.height = heightPx.toString() + "px"
         onEditorLoaded {
             editor.resize()
         }
@@ -248,12 +247,12 @@ internal class RichEditor internal constructor(
         if (_boundsInRoot.value == bounds) return
         _boundsInRoot.value = bounds
 
-        val topPx = bounds.top / density.density
+        val topPx = (bounds.top - positionInRoot.value.y) / density.density
         val rightPx = bounds.right / density.density
         val bottomPx = bounds.bottom / density.density
-        val leftPx = bounds.left / density.density
+        val leftPx = (bounds.left - positionInRoot.value.x) / density.density
 
-        clipDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
+        positionDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
     }
 
     suspend fun setFontSize(size: TextUnit, density: Density) {
@@ -298,18 +297,15 @@ internal class RichEditor internal constructor(
             id: String,
             windowState: WindowState,
         ): RichEditor {
-            val clipDiv = document.createElement("div")
             val positionDiv = document.createElement("div")
             val element = document.createElement("div")
             element.id = id
 
             element.asDynamic().style.`class` = "rich-text"
             positionDiv.asDynamic().style.position = "absolute"
-            clipDiv.asDynamic().style.position = "absolute"
 
             positionDiv.appendChild(element)
-            clipDiv.appendChild(positionDiv)
-            document.body?.appendChild(clipDiv) ?: error("Document body is null")
+            document.body?.appendChild(positionDiv) ?: error("Document body is null")
 
             val editor = editormd(
                 id, js(
@@ -364,7 +360,7 @@ internal class RichEditor internal constructor(
                 )
             )
 
-            val new = RichEditor(id, positionDiv, clipDiv, editor)
+            val new = RichEditor(id, positionDiv, editor)
             RichEditorIdManager.addInstance(id, new)
             return new
         }

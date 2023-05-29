@@ -43,7 +43,7 @@ class RichEditorState internal constructor(
                 richEditor.editor.setValue(value)
             }
             richEditor.resizeToWrapPreviewContent(onClip)
-            richEditor.resizeToWrapPreviewContent(onClip)
+            richEditor.resizeToWrapPreviewContent(onClip) // fix layout bug, like redundant paddings
         }
     }
 
