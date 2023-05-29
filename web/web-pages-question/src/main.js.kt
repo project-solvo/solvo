@@ -1,8 +1,5 @@
 package org.solvo.web
 
-import ControlBar
-import ControlBarScope.buttonContentPaddings
-import PagingContent
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,6 +24,7 @@ import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.foundation.Uuid
+import org.solvo.web.ControlBarScope.buttonContentPaddings
 import org.solvo.web.comments.CommentCard
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.CourseMenuState
@@ -125,30 +123,8 @@ private fun ArticlePageContent(
         )
 
         Column {
-            PagingContent(state, question.answers) {
-                Box(Modifier.align(Alignment.CenterHorizontally)) {
-                    FilledTonalButton(
-                        onClick = {},
-                        shape = RoundedCornerShape(12.dp),
-                        contentPadding = buttonContentPaddings
-                    ) {
-                        Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
-
-                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                            Text(
-                                "Draft Answer",
-                                Modifier.padding(start = 4.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.W500,
-                            )
-                        }
-                    }
-                }
-            }
-            Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
-                AnswersList()
-            }
+            val pageViewModel = rememberPagingState<CommentDownstream>(listOf(), 2)
+            PagingContent(pageViewModel) {}
         }
     }
 }
@@ -209,21 +185,20 @@ private fun PaperView(
     content: @Composable () -> Unit,
 ) {
     Column(modifier) {
-        ControlBar(Modifier.fillMaxWidth()) {
-            courseTitle()
-            Spacer(Modifier.weight(1f))
-            IconButton(onChangeLayout) {
-                if (isExpanded) {
-                    Icon(Icons.Default.Compress, "Compress")
-                } else {
-                    Icon(Icons.Default.Expand, "Expand")
-                }
-            }
-        }
+//        ControlBar(Modifier.fillMaxWidth()) {
+//            courseTitle()
+//            Spacer(Modifier.weight(1f))
+//            IconButton(onChangeLayout) {
+//                if (isExpanded) {
+//                    Icon(Icons.Default.Compress, "Compress")
+//                } else {
+//                    Icon(Icons.Default.Expand, "Expand")
+//                }
+//            }
+//        }
 
         Column(Modifier.fillMaxSize()) {
             content()
         }
     }
 }
-
