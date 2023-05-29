@@ -5,6 +5,7 @@ import io.ktor.server.application.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.pipeline.*
+import org.solvo.model.Course
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -27,6 +28,15 @@ fun Application.contentModule() {
                 call.respond(contents.allCourses())
             }
             get("/{courseCode}") {
+                val courseCode = call.parameters["courseCode"]!!
+//                val articles = contents.cour(courseCode)
+//                if (articles == null) {
+//                    call.respond(HttpStatusCode.NotFound)
+//                } else {
+                call.respond(Course(courseCode, courseCode)) // TODO: 2023/5/29 get course by id 
+//                }
+            }
+            get("/{courseCode}/articles") {
                 val courseCode = call.parameters["courseCode"]!!
                 val articles = contents.allArticlesOfCourse(courseCode)
                 if (articles == null) {
