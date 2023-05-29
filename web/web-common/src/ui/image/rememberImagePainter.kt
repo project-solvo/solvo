@@ -26,12 +26,13 @@ fun rememberImagePainter(
 
     LaunchedEffect(url) {
         try {
+            val data = client.http.get(url).readBytes()
             val bitmap =
-                Image.makeFromEncoded(client.http.get(url).readBytes())
-                    .toComposeImageBitmap()
+                Image.makeFromEncoded(data).toComposeImageBitmap()
 
             painter = BitmapPainter(bitmap, filterQuality = filterQuality)
         } catch (e: Throwable) {
+            console.error("Failed loading image", e)
             if (error != null) {
                 painter = error
             }
@@ -55,7 +56,7 @@ fun rememberImagePainter(
     return rememberImagePainter(url, defaultPainter, onErrorPainter, onError, filterQuality)
 }
 
-private object NoOpPainter : Painter() {
+object NoOpPainter : Painter() {
     override val intrinsicSize: Size get() = Size.Zero
     override fun DrawScope.onDraw() {
     }

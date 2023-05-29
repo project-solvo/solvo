@@ -8,13 +8,12 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.Description
+import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
@@ -108,12 +107,24 @@ private fun ArticlePageContent(
                 Image(
                     rememberImagePainter(
                         "https://him188.github.io/static/images/WACCLangSpec_00.png",
-                        default = Icons.Outlined.Description,
+                        error = Icons.Outlined.BrokenImage,
                     ),
                     "Article Content",
                     Modifier.fillMaxSize(),
-                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.surface)
                 )
+//                val painter by rememberUpdatedState(
+//                    rememberImagePainter(
+//                        "https://him188.github.io/static/images/WACCLangSpec_00.png",
+//                        error = Icons.Outlined.BrokenImage,
+//                    )
+//                )
+//                OverlayLoadableContent(isLoading = painter == NoOpPainter, Modifier.fillMaxSize()) {
+//                    Image(
+//                        painter,
+//                        "Article Content",
+//                        Modifier.fillMaxSize(),
+//                    )
+//                }
             }
         }
 
