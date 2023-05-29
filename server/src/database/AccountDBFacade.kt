@@ -4,6 +4,7 @@ import org.solvo.model.User
 import org.solvo.model.api.AccountChecker
 import org.solvo.model.api.AuthResponse
 import org.solvo.model.api.AuthStatus
+import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.AccountDBControl
 import org.solvo.server.database.control.ResourcesDBControl
@@ -19,6 +20,7 @@ interface AccountDBFacade {
     suspend fun getUserAvatar(uid: UUID): File?
     suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentDBFacade: ContentDBFacade): String
     suspend fun getUserInfo(uid: UUID): User?
+    suspend fun isOp(uid: UUID): Boolean
 }
 
 class AccountDBFacadeImpl(
@@ -74,5 +76,9 @@ class AccountDBFacadeImpl(
         }
 
         return ServerContext.paths.staticResourcePath(newAvatarId, StaticResourcePurpose.USER_AVATAR)
+    }
+
+    override suspend fun isOp(uid: UUID): Boolean {
+        return accounts.getPermission(uid)?.let { it >= UserPermission.OPERATOR } == true
     }
 }

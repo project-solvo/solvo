@@ -23,6 +23,7 @@ interface ContentDBFacade {
     suspend fun viewQuestion(questionId: UUID): QuestionDownstream?
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
     suspend fun tryDeleteImage(resourceId: UUID): Boolean
+    suspend fun getCourseName(courseCode: String): String?
 }
 
 class ContentDBFacadeImpl(
@@ -76,6 +77,11 @@ class ContentDBFacadeImpl(
 
     override suspend fun allCourses(): List<Course> {
         return courses.all()
+    }
+
+    override suspend fun getCourseName(courseCode: String): String? {
+        val courseId = courses.getId(courseCode) ?: return null
+        return courses.getCourse(courseId)?.name
     }
 
     override suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>? {

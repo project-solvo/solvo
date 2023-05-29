@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import io.ktor.util.*
 import org.solvo.model.api.AuthRequest
 import org.solvo.model.api.AuthResponse
@@ -42,7 +43,7 @@ fun Application.authenticateModule() {
         }
 
         get("/register/{username}") {
-            val username = call.parameters["username"]!!
+            val username = call.parameters.getOrFail("username")
 
             val validity = accounts.getUsernameValidity(username)
             call.respond(UsernameValidityResponse(validity))

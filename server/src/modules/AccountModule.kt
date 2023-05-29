@@ -6,6 +6,7 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import org.solvo.model.api.UploadImageResponse
 import org.solvo.server.ServerContext
 import java.util.*
@@ -18,14 +19,14 @@ fun Application.accountModule() {
         authenticate("authBearer") {
             route("/account/{uid}") {
                 put("/newAvatar") {
-                    val uid = matchUserId(call.parameters["uid"]) ?: return@put
+                    val uid = matchUserId(call.parameters.getOrFail("uid")) ?: return@put
                     val input = call.receiveStream()
 
                     val path = accounts.uploadNewAvatar(uid, input, contents)
                     call.respond(UploadImageResponse(path))
                 }
                 get("/avatar") {
-                    val uid = UUID.fromString(call.parameters["uid"])
+                    val uid = UUID.fromString(call.parameters.getOrFail("uid"))
                     val avatar = accounts.getUserAvatar(uid)
                     if (avatar == null) {
                         call.respond(HttpStatusCode.NotFound)

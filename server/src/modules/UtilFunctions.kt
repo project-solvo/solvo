@@ -4,6 +4,8 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
+import io.ktor.server.routing.*
+import io.ktor.util.*
 import io.ktor.util.pipeline.*
 import java.util.*
 
@@ -25,3 +27,9 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
     }
     return UUID.fromString(uidStr)
 }
+
+@KtorDsl
+fun Route.putAuthenticated(
+    path: String,
+    body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
+): Route = authenticate("authBearer") { put(path, body) }
