@@ -26,6 +26,7 @@ import org.solvo.web.ui.isInDarkMode
 @Composable
 fun RichEditor(
     modifier: Modifier = Modifier,
+    onEditorLoaded: () -> Unit = {},
     richEditorState: RichEditorState = rememberRichEditorState(),
     displayMode: RichEditorDisplayMode = RichEditorDisplayMode.EDIT_PREVIEW,
     isToolbarVisible: Boolean = true,
@@ -58,9 +59,14 @@ fun RichEditor(
             richEditorState.richEditor.setBackgroundColor(backgroundColor)
         }
     }
+    LaunchedEffect(true) {
+        richEditorState.richEditor.onEditorLoaded {
+            onEditorLoaded()
+        }
+    }
 
     Box(
-        modifier.onGloballyPositioned {
+        Modifier.onGloballyPositioned {
             richEditorState.richEditor.setPosition(it.positionInWindow(), density)
             richEditorState.richEditor.setEditorBounds(it.boundsInRoot(), density)
 
@@ -74,7 +80,7 @@ fun RichEditor(
                 richEditorState.richEditor.setEditorSize(it, density)
                 onSizeChanged(it)
             }
-        }
+        }.then(modifier)
     )
 
     /*

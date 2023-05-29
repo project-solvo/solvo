@@ -24,6 +24,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.LightCommentDownstream
+import org.solvo.model.User
 import org.solvo.web.ui.foundation.Rounded
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
@@ -33,6 +34,8 @@ import org.solvo.web.ui.theme.UNICODE_FONT
 
 @Composable
 fun CommentCard(
+    author: User?,
+    date: String,
     subComments: List<LightCommentDownstream>,
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
@@ -53,6 +56,7 @@ fun CommentCard(
             icon = {
                 AvatarBox(Modifier.size(48.dp)) {
                     Image(
+                        // TODO: 2023/5/29 avatar 
                         Icons.Default.Person4,
                         "Avatar",
                         Modifier.matchParentSize(),
@@ -60,10 +64,10 @@ fun CommentCard(
                 }
             },
             authorName = {
-                Text("Alex")
+                Text(author?.username ?: "Anonymous")
             },
             date = {
-                Text("May 05, 2023")
+                Text(date)
             },
             Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
         )

@@ -26,6 +26,8 @@ fun RichText(
     @Language("markdown") text: String,
     modifier: Modifier = Modifier,
     onActualContentSizeChange: (DpSize) -> Unit = {},
+    onEditorLoaded: () -> Unit = {},
+    onTextUpdated: () -> Unit = {},
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
@@ -38,7 +40,8 @@ fun RichText(
     val density by rememberUpdatedState(LocalDensity.current)
 
     RichEditor(
-        modifier, state,
+        modifier, richEditorState = state,
+        onEditorLoaded = onEditorLoaded,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
         isToolbarVisible = false,
         propagateScrollState = propagateScrollState,
@@ -68,6 +71,7 @@ fun RichText(
             state.setPreviewMarkdownAndClip(text) {
                 onActualContentSizeChange(it)
             }
+            onTextUpdated()
 //            state.richEditor.resizeToWrapContent(density)
         } catch (e: CancellationException) {
             println("Cancelled: ${state.richEditor.id}")

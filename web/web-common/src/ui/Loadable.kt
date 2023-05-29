@@ -18,6 +18,13 @@ fun LoadableContent(
 ) {
     Box(modifier = modifier) {
         if (LOADABLE_CONTENT_ANIMATION) {
+            AnimatedVisibility(
+                !isLoading,
+                enter = slideInVertically { 0 } + fadeIn(),
+                exit = slideOutVertically { -it } + fadeOut(),
+            ) {
+                content()
+            }
 
             AnimatedVisibility(
                 isLoading,
@@ -28,15 +35,6 @@ fun LoadableContent(
                     loadingContent()
                 }
             }
-
-            AnimatedVisibility(
-                !isLoading,
-                enter = slideInVertically { 0 } + fadeIn(),
-                exit = slideOutVertically { -it } + fadeOut(),
-            ) {
-                // Course title
-                content()
-            }
         } else {
             if (isLoading) {
                 Row(Modifier.fillMaxWidth().padding(start = 64.dp), horizontalArrangement = Arrangement.Center) {
@@ -44,6 +42,31 @@ fun LoadableContent(
                 }
             } else {
                 content()
+            }
+        }
+    }
+}
+
+@Composable
+fun OverlayLoadableContent(
+    isLoading: Boolean,
+    modifier: Modifier = Modifier,
+    loadingContent: @Composable () -> Unit = { CircularProgressIndicator() },
+    content: @Composable (isLoading: Boolean) -> Unit,
+) {
+    Box(modifier = modifier) {
+        Box(Modifier.matchParentSize()) {
+            content(isLoading)
+        }
+
+        AnimatedVisibility(
+            isLoading,
+            Modifier.matchParentSize(),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Row(Modifier.matchParentSize(), horizontalArrangement = Arrangement.Center) {
+                loadingContent()
             }
         }
     }

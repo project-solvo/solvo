@@ -4,7 +4,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Expand
@@ -18,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -35,10 +35,13 @@ import org.solvo.web.document.parameters.rememberPathParameters
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.LocalSolvoWindow
+import org.solvo.web.ui.OverlayLoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.VerticalDraggableDivider
 import org.solvo.web.ui.image.rememberImagePainter
+import kotlin.random.Random
+import kotlin.random.nextUInt
 
 
 fun main() {
@@ -120,15 +123,18 @@ private fun ArticlePageContent(
         )
 
         Column {
-            val pageViewModel = rememberPagingState<CommentDownstream>(listOf(), 2)
+            val pagingState = rememberPagingState(
+                remember { generateSequence { createCommentDownstream() }.take(10).toList() },
+                2
+            )
             PagingContent(
-                pageViewModel,
+                pagingState,
                 controlBar = {
                     PagingControlBar(it) {
                         FilledTonalButton(
                             onClick = {},
                             Modifier.align(Alignment.CenterStart),
-                            shape = RoundedCornerShape(12.dp),
+                            shape = RoundedCornerShape(8.dp),
                             contentPadding = buttonContentPaddings,
                         ) {
                             Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
@@ -145,49 +151,98 @@ private fun ArticlePageContent(
                         }
                     }
                 }
-            ) {
+            ) { items ->
                 Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
-                    AnswersList()
+                    AnswersList(items, Modifier.fillMaxSize())
                 }
             }
         }
     }
 }
 
+private var testCommentId = 0
+private fun createCommentDownstream(): CommentDownstream {
+    return CommentDownstream(
+        Uuid.random(),
+        if (Random.nextBoolean()) {
+            null
+        } else {
+            User(Uuid.random(), "User ${testCommentId++}", null)
+        },
+        DUMMY_TEXT,
+        Random.nextBoolean(),
+        Random.nextUInt(),
+        Random.nextUInt(),
+        Uuid.random(),
+        false,
+        listOf(
+            LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
+            LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
+        )
+    )
+}
+
 @Composable
-private fun AnswersList() {
+private fun AnswersList(
+    items: List<CommentDownstream>,
+    modifier: Modifier = Modifier,
+) {
     val scrollState = rememberScrollState()
     Column(
-        Modifier.verticalScroll(scrollState).fillMaxSize(),
+        modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        repeat(10) {
-            // TODO: 2023/5/25 view model 
+        items.forEach { item ->
             CommentCard(
-                remember {
-                    listOf(
-                        LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
-                        LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
-                    )
-                },
+                item.author,
+                "May 05, 2023", // TODO: 2023/5/29 date
+                item.subComments,
                 Modifier.fillMaxWidth(),
             ) { backgroundColor ->
-//                Text("""Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent(),)
-                var actualHeight by remember { mutableStateOf(0.dp) }
-                RichText(
-                    """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent(),
-                    modifier = Modifier.height(actualHeight).fillMaxWidth(),
-                    propagateScrollState = scrollState,
-                    onActualContentSizeChange = {
-                        actualHeight = it.height
-                    },
-                    backgroundColor = backgroundColor,
-                    showScrollbar = false,
-                )
+                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
+                var editorReady by remember { mutableStateOf(false) }
+                OverlayLoadableContent(
+                    !editorReady || actualHeight == Dp.Unspecified,
+                    Modifier.height(actualHeight.coerceAtLeast(20.dp)).fillMaxWidth(),
+                    loadingContent = { LinearProgressIndicator() },
+                ) {
+                    //                    AnimatedVisibility(
+//                        !isLoading,
+//                        enter = expandVertically(
+//                            spring(
+//                                stiffness = Spring.StiffnessHigh,
+//                                visibilityThreshold = IntSize.VisibilityThreshold
+//                            ),
+//                            expandFrom = Alignment.Top,
+//                            initialHeight = { with(density) { 20.dp.roundToPx() } }
+//                        ),
+//                    ) {
+                    RichText(
+                        DUMMY_TEXT,
+                        modifier = Modifier.height(actualHeight).fillMaxWidth(),
+                        propagateScrollState = scrollState,
+                        onActualContentSizeChange = {
+                            actualHeight = it.height
+                        },
+                        backgroundColor = backgroundColor,
+                        showScrollbar = false,
+                        onTextUpdated = { editorReady = true }
+                    )
+//                    }
+                }
+//                    val showProgress = actualHeight == Dp.Unspecified
+//                    if (showProgress) {
+//                        Box(Modifier.fillMaxWidth()) {
+//                            CircularProgressIndicator(Modifier.align(Alignment.Center))
+//                        }
+//                    }
             }
         }
     }
 }
+
+val DUMMY_TEXT =
+    """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent()
 
 @Composable
 private fun PaperTitle(
