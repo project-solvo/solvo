@@ -146,7 +146,7 @@ private fun ArticlePageContent(
                     }
                 }
             }
-            Box(Modifier.padding(vertical = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
+            Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
                 AnswersList()
             }
         }
