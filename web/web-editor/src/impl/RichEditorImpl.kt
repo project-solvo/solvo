@@ -27,7 +27,8 @@ internal val editormd: dynamic = js("""editormd""")
 @JsName("onRichEditorInitialized")
 fun onRichEditorInitialized(jsEditor: dynamic) {
     val id = jsEditor.id as String
-    val editor = RichEditorIdManager.getInstanceById(id)!!
+    console.log("Editor.md $id initialized")
+    val editor = RichEditorIdManager.getInstanceById(id)
     editor.notifyLoaded()
 }
 
@@ -35,7 +36,8 @@ fun onRichEditorInitialized(jsEditor: dynamic) {
 @JsName("onRichEditorChanged")
 fun onRichEditorChanged(jsEditor: dynamic) {
     val id = jsEditor.id as String
-    val editor = RichEditorIdManager.getInstanceById(id)!!
+    console.log("Editor.md $id changed")
+    val editor = RichEditorIdManager.getInstanceById(id)
     editor.notifyChanged()
 }
 
@@ -53,8 +55,8 @@ internal object RichEditorIdManager {
         instances[id] = richEditor
     }
 
-    fun getInstanceById(id: String): RichEditor? {
-        return instances[id]
+    fun getInstanceById(id: String): RichEditor {
+        return instances[id] ?: error("Could not find RichEditor instance with id '$id'")
     }
 }
 
@@ -170,7 +172,8 @@ internal class RichEditor internal constructor(
             val px =
                 with(density) { (size / 2).toPx() } // I don't know why, but `/ 2` makes it more close to normal Compose font size 
             val markdownTextArea =
-                document.querySelector("#${id} > div.editormd-preview.editormd-preview-theme-dark > div")!!
+                document.querySelector("#${id} > div.editormd-preview > div")
+                    ?: error("Cannot find editor.md div")
             markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
         }
     }
@@ -205,7 +208,7 @@ internal class RichEditor internal constructor(
             div.asDynamic().style.position = "absolute"
 
             div.appendChild(element)
-            document.body!!.appendChild(div)
+            document.body?.appendChild(div) ?: error("Document body is null")
 
             val editor = editormd(
                 id, js(
