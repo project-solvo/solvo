@@ -25,9 +25,10 @@ class QuestionDownstream(
     override val content: String,
     override val anonymity: Boolean,
     override val likes: UInt,
+    override val dislikes: UInt,
 
     val code: String,
     val article: Uuid,
-    val answers: List<AnswerDownstream>,
+    val answers: List<CommentDownstream>,
     val comments: List<CommentDownstream>,
 ) : CommentableDownstream

@@ -2,12 +2,12 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.AnswerDownstream
+import org.solvo.model.CommentDownstream
 import org.solvo.model.QuestionDownstream
 import org.solvo.model.QuestionUpstream
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
-import org.solvo.server.database.exposed.AnswerTable
+import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
@@ -19,7 +19,7 @@ interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
 }
 
 class QuestionDBControlImpl(
-    private val answerDB: AnswerDBControl,
+    private val commentDB: CommentDBControl,
     private val accountDB: AccountDBControl,
 ) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>() {
     override val associatedTable: Table = QuestionTable
@@ -49,10 +49,10 @@ class QuestionDBControlImpl(
     override suspend fun associateTableUpdates(coid: UUID, content: QuestionUpstream, authorId: UUID): UUID = coid
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
-        val answers: List<AnswerDownstream> = QuestionTable
-            .join(AnswerTable, JoinType.INNER, QuestionTable.coid, AnswerTable.question)
+        val answers: List<CommentDownstream> = QuestionTable
+            .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
             .select(QuestionTable.coid eq coid)
-            .mapNotNull { answerDB.view(it[AnswerTable.coid].value) }
+            .mapNotNull { commentDB.view(it[CommentTable.coid].value) }
 
         QuestionTable
             .join(CommentedObjectTable, JoinType.INNER, QuestionTable.coid, CommentedObjectTable.id)
@@ -68,6 +68,7 @@ class QuestionDBControlImpl(
                     content = it[CommentedObjectTable.content],
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
+                    dislikes = it[CommentedObjectTable.dislikes],
                     code = it[QuestionTable.index],
                     article = it[QuestionTable.article].value,
                     answers = answers,

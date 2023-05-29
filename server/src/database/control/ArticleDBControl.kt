@@ -89,6 +89,7 @@ class ArticleDBControlImpl(
                     content = it[CommentedObjectTable.content],
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
+                    dislikes = it[CommentedObjectTable.dislikes],
                     name = it[ArticleTable.name],
                     course = courseDB.getCourse(it[ArticleTable.course].value)!!,
                     termYear = termDB.getTerm(it[ArticleTable.term].value)!!,

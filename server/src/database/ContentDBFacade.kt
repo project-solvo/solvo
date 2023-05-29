@@ -12,7 +12,7 @@ import java.util.*
 interface ContentDBFacade {
     suspend fun newCourse(course: Course): Int?
     suspend fun postArticle(article: ArticleUpstream, authorId: UUID): UUID?
-    suspend fun postAnswer(answer: AnswerUpstream, authorId: UUID): UUID?
+    suspend fun postAnswer(answer: CommentUpstream, authorId: UUID): UUID?
     suspend fun postImage(uid: UUID, input: InputStream, purpose: StaticResourcePurpose): UUID
     suspend fun getImage(resourceId: UUID): File?
     suspend fun allCourses(): List<Course>
@@ -29,7 +29,7 @@ class ContentDBFacadeImpl(
     private val courses: CourseDBControl,
     private val articles: ArticleDBControl,
     private val questions: QuestionDBControl,
-    private val answers: AnswerDBControl,
+    private val comments: CommentDBControl,
     private val resources: ResourcesDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
@@ -50,9 +50,9 @@ class ContentDBFacadeImpl(
         return articleId
     }
 
-    override suspend fun postAnswer(answer: AnswerUpstream, authorId: UUID): UUID? {
-        if (!questions.contains(answer.question)) return null
-        return answers.post(answer, authorId)
+    override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID): UUID? {
+        if (!questions.contains(answer.parent)) return null
+        return comments.post(answer, authorId)
     }
 
     override suspend fun postImage(

@@ -9,6 +9,7 @@ object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
 
     val anonymity = bool("anonymity").default(false)
     val likes = uinteger("likesCount").default(0u)
+    val dislikes = uinteger("dislikesCount").default(0u)
     val comments = uinteger("commentsCount").default(0u)
 
     val postTime = long("postTime").default(ServerContext.localtime.now())

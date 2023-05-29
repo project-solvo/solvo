@@ -27,6 +27,7 @@ class CommentDownstream(
     override val content: String,
     override val anonymity: Boolean,
     override val likes: UInt,
+    override val dislikes: UInt,
 
     val parent: Uuid,
     val pinned: Boolean,
@@ -41,11 +42,13 @@ class FullCommentDownstream(
     override val content: String,
     override val anonymity: Boolean,
     override val likes: UInt,
+    override val dislikes: UInt,
 
     val parent: Uuid,
     val pinned: Boolean,
     val subComments: List<Uuid>,
-) : CommentableDownstream
+) : CommentableDownstream {
+}
 
 @Immutable
 @Serializable

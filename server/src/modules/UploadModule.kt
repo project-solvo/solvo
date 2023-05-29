@@ -6,8 +6,8 @@ import io.ktor.server.auth.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
-import org.solvo.model.AnswerUpstream
 import org.solvo.model.ArticleUpstream
+import org.solvo.model.CommentUpstream
 import org.solvo.model.api.UploadImageResponse
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.StaticResourcePurpose
@@ -33,7 +33,7 @@ fun Application.uploadModule() {
 
                 put("/answer") {
                     val uid = getUserId() ?: return@put
-                    val answer = call.receive<AnswerUpstream>()
+                    val answer = call.receive<CommentUpstream>()
 
                     val answerId = contents.postAnswer(answer, uid)
                     if (answerId == null) {

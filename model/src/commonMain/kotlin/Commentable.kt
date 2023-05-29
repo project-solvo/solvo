@@ -20,4 +20,5 @@ interface CommentableDownstream {
     val content: String
     val anonymity: Boolean
     val likes: UInt
+    val dislikes: UInt
 }

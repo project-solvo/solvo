@@ -34,14 +34,14 @@ object ServerContext {
 
         private val _courses: CourseDBControl = CourseDBControlImpl()
         private val _terms: TermDBControl = TermDBControlImpl()
-        private val _answers: AnswerDBControl = AnswerDBControlImpl(_accounts)
-        private val _questions: QuestionDBControl = QuestionDBControlImpl(_answers, _accounts)
+        private val _comments: CommentDBControl = CommentDBControlImpl(_accounts)
+        private val _questions: QuestionDBControl = QuestionDBControlImpl(_comments, _accounts)
         private val _articles: ArticleDBControl = ArticleDBControlImpl(_courses, _terms, _accounts)
 
         private val config: ConfigFacade = ConfigFacadeImpl()
 
         val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _resources)
-        val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _answers, _resources)
+        val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _resources)
 
         fun init() {
             runBlocking {
@@ -95,7 +95,6 @@ object ServerContext {
                     TermTable,
                     ArticleTable,
                     QuestionTable,
-                    AnswerTable,
                     CommentTable,
                     CommentedObjectTable,
                 )

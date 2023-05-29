@@ -17,6 +17,7 @@ interface CommentedObjectDBControl<T: CommentableUpstream> {
     suspend fun delete(coid: UUID): Boolean
     suspend fun view(coid: UUID): CommentableDownstream?
     suspend fun like(uid: UUID, coid: UUID): Boolean
+    suspend fun dislike(uid: UUID, coid: UUID): Boolean
     suspend fun unLike(uid: UUID, coid: UUID): Boolean
 }
 
@@ -64,6 +65,10 @@ abstract class CommentedObjectDBControlImpl<T: CommentableUpstream> : CommentedO
     abstract override suspend fun view(coid: UUID): CommentableDownstream?
 
     override suspend fun like(uid: UUID, coid: UUID): Boolean {
+        TODO("Not yet implemented")
+    }
+
+    override suspend fun dislike(uid: UUID, coid: UUID): Boolean {
         TODO("Not yet implemented")
     }
 

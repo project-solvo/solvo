@@ -29,6 +29,7 @@ class ArticleDownstream(
     override val content: String,
     override val anonymity: Boolean,
     override val likes: UInt,
+    override val dislikes: UInt,
 
     val name: String,
     val course: Course,
