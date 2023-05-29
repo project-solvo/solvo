@@ -25,12 +25,20 @@ internal class PagingStateImpl<T>(
 ) : PagingState<T> {
     override val items: MutableList<T> = SnapshotStateList<T>().apply { addAll(initialList) }
 
-    private val _pageCount: MutableState<Int> = mutableStateOf(0)
+    private val _pageCount: MutableState<Int> = mutableStateOf(getPageNumber(items.size))
+
+    private fun getPageNumber(size: Int): Int {
+        return if (size % pageSlice == 0) {
+            size / pageSlice
+        } else {
+            size / pageSlice + 1
+        }
+    }
 
     private val _currentPage: MutableState<Int> = mutableStateOf(0)
 
 
-    private val _currentContent: MutableState<List<T>> = mutableStateOf(listOf())
+    private val _currentContent: MutableState<List<T>> = mutableStateOf(getPageItems(0))
     override val pageCount: State<Int>
         get() = _pageCount
     override val currentPage: State<Int>

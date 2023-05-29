@@ -29,7 +29,7 @@ fun <T> PagingContent(
 ) {
     Column {
         controlBar(state)
-        contents(state.items)
+        contents(state.currentContent.value)
     }
 
 }
@@ -57,7 +57,7 @@ fun <T> PagingControlBar(
                 }
 
                 Text(
-                    "${state.currentPage.value + 1} / ${state.pageCount.value + 1}",
+                    "${state.currentPage.value + 1} / ${state.pageCount.value}",
                     Modifier.padding(horizontal = 16.dp),
                     fontFamily = FontFamily.Monospace
                 )

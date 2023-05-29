@@ -208,7 +208,7 @@ private fun AnswersList(
                 item.author,
                 "May 05, 2023", // TODO: 2023/5/29 date
                 item.subComments,
-                Modifier.fillMaxWidth(),
+                Modifier.fillMaxWidth().weight(1f),
             ) { backgroundColor ->
                 var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
                 var editorReady by remember { mutableStateOf(false) }
