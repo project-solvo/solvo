@@ -49,7 +49,8 @@ fun Application.uploadModule() {
                     val uid = getUserId() ?: return@put
 
                     val input = call.receiveStream()
-                    val path = contents.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
+                    val imageId = contents.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
+                    val path = ServerContext.paths.staticResourcePath(imageId, StaticResourcePurpose.TEXT_IMAGE)
 
                     call.respond(UploadImageResponse(path))
                 }

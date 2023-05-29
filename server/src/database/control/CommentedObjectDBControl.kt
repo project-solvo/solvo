@@ -24,14 +24,15 @@ interface CommentedObjectDBControl<T: CommentableUpstream> {
 abstract class CommentedObjectDBControlImpl<T: CommentableUpstream> : CommentedObjectDBControl<T> {
     abstract val associatedTable: Table
 
-    override suspend fun post(content: T, author: User): UUID? = dbQuery {
-        val coid = CommentedObjectTable.insertIgnoreAndGetId {
-            it[CommentedObjectTable.author] = author.id
-            it[CommentedObjectTable.content] = content.content
-            it[CommentedObjectTable.anonymity] = content.anonymity
-        }?.value ?: return@dbQuery null
-
-        associateTableUpdates(coid, content, author)
+    override suspend fun post(content: T, author: User): UUID? {
+        val coid = dbQuery {
+            CommentedObjectTable.insertIgnoreAndGetId {
+                it[CommentedObjectTable.author] = author.id
+                it[CommentedObjectTable.content] = content.content
+                it[CommentedObjectTable.anonymity] = content.anonymity
+            }?.value
+        } ?: return null
+        return dbQuery { associateTableUpdates(coid, content, author) }
     }
 
     protected abstract suspend fun associateTableUpdates(coid: UUID, content: T, author: User): UUID?

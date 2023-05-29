@@ -1,7 +1,7 @@
 package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.deleteIgnoreWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -14,7 +14,7 @@ interface ResourcesDBControl {
     suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID? = null): UUID
     suspend fun getPurpose(resourceId: UUID): StaticResourcePurpose?
     suspend fun getParent(resourceId: UUID): UUID?
-    suspend fun deleteResource(resourceId: UUID): Boolean
+    suspend fun tryDeleteResource(resourceId: UUID): Boolean
 }
 
 class ResourcesDBControlImpl : ResourcesDBControl {
@@ -43,7 +43,7 @@ class ResourcesDBControlImpl : ResourcesDBControl {
             .singleOrNull()
     }
 
-    override suspend fun deleteResource(resourceId: UUID): Boolean = dbQuery {
-        StaticResourceTable.deleteWhere { StaticResourceTable.id eq resourceId } > 0
+    override suspend fun tryDeleteResource(resourceId: UUID): Boolean = dbQuery {
+        StaticResourceTable.deleteIgnoreWhere { StaticResourceTable.id eq resourceId } > 0
     }
 }

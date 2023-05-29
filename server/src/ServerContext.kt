@@ -6,7 +6,9 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
+import org.solvo.model.ArticleUpstream
 import org.solvo.model.Course
+import org.solvo.model.User
 import org.solvo.model.foundation.Uuid
 import org.solvo.server.database.*
 import org.solvo.server.database.control.*
@@ -60,21 +62,21 @@ object ServerContext {
                     newCourse(Course("50008", "Probability and Statistics"))
                     newCourse(Course("50009", "Symbolic Reasoning"))
 
-//                    postArticle(
-//                        ArticleUpstream(
-//                            content = "My content",
-//                            anonymity = true,
-//                            name = "Paper 2022",
-//                            courseCode = "50001",
-//                            termYear = "2022",
-//                            questions = listOf()
-//                        ),
-//                        User(
-//                            alex,
-//                            "",
-//                            null
-//                        )
-//                    )
+                    postArticle(
+                        ArticleUpstream(
+                            content = "My content",
+                            anonymity = true,
+                            name = "Paper 2022",
+                            courseCode = "50001",
+                            termYear = "2022",
+                            questions = listOf()
+                        ),
+                        User(
+                            alex,
+                            "",
+                            null
+                        )
+                    )
                 }
                 config.setConfig("initialized")
             }

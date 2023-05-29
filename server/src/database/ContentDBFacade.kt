@@ -13,13 +13,7 @@ interface ContentDBFacade {
     suspend fun newCourse(course: Course): Int?
     suspend fun postArticle(article: ArticleUpstream, author: User): UUID?
     suspend fun postAnswer(answer: AnswerUpstream, author: User): UUID?
-    suspend fun postImage(
-        uid: UUID,
-        input: InputStream,
-        purpose: StaticResourcePurpose,
-        accounts: AccountDBControl? = null,
-    ): String
-
+    suspend fun postImage(uid: UUID, input: InputStream, purpose: StaticResourcePurpose): UUID
     suspend fun getImage(resourceId: UUID): File?
     suspend fun allCourses(): List<Course>
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
@@ -28,6 +22,7 @@ interface ContentDBFacade {
     suspend fun getQuestionId(articleId: UUID, index: String): UUID?
     suspend fun viewQuestion(questionId: UUID): QuestionDownstream?
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
+    suspend fun tryDeleteImage(resourceId: UUID): Boolean
 }
 
 class ContentDBFacadeImpl(
@@ -64,16 +59,12 @@ class ContentDBFacadeImpl(
         uid: UUID,
         input: InputStream,
         purpose: StaticResourcePurpose,
-        accounts: AccountDBControl?,
-    ): String {
+    ): UUID {
         val newImageId = resources.addResource(purpose)
         val path = ServerContext.paths.staticResourcePath(newImageId, purpose)
 
         ServerContext.files.write(input, path)
-        if (purpose == StaticResourcePurpose.USER_AVATAR) {
-            accounts!!.modifyAvatar(uid, newImageId)
-        }
-        return path
+        return newImageId
     }
 
     override suspend fun getImage(resourceId: UUID): File? {
@@ -111,5 +102,9 @@ class ContentDBFacadeImpl(
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {
         val questionId = questions.getId(articleId, index) ?: return null
         return questions.view(questionId)
+    }
+
+    override suspend fun tryDeleteImage(resourceId: UUID): Boolean {
+        return resources.tryDeleteResource(resourceId)
     }
 }

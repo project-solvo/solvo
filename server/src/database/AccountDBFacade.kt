@@ -63,11 +63,16 @@ class AccountDBFacadeImpl(
 
     override suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentDBFacade: ContentDBFacade): String {
         val oldAvatarId = accounts.getAvatar(uid)
+        val newAvatarId = contentDBFacade.postImage(uid, input, StaticResourcePurpose.USER_AVATAR)
+        accounts.modifyAvatar(uid, newAvatarId)
+
         if (oldAvatarId != null) {
-            val path = ServerContext.paths.staticResourcePath(oldAvatarId, StaticResourcePurpose.USER_AVATAR)
-            ServerContext.files.delete(path)
+            if (contentDBFacade.tryDeleteImage(oldAvatarId)) {
+                val path = ServerContext.paths.staticResourcePath(oldAvatarId, StaticResourcePurpose.USER_AVATAR)
+                ServerContext.files.delete(path)
+            }
         }
 
-        return contentDBFacade.postImage(uid, input, StaticResourcePurpose.USER_AVATAR, accounts)
+        return ServerContext.paths.staticResourcePath(newAvatarId, StaticResourcePurpose.USER_AVATAR)
     }
 }
