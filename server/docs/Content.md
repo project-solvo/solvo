@@ -58,7 +58,7 @@
 }
 ```
 
-### GET `/api/courses/{courseCode}/articles/{articleName}/{questionIndex}`
+### GET `/api/courses/{courseCode}/articles/{articleName}/questions/{questionIndex}`
 
 #### Response 404
 

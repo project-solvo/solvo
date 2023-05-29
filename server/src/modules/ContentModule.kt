@@ -39,7 +39,7 @@ fun Application.contentModule() {
                 val articleId = getArticleIdFromContext() ?: return@get
                 call.respond(contents.viewArticle(articleId)!!)
             }
-            get("/{courseCode}/articles/{articleName}/{questionIndex}") {
+            get("/{courseCode}/articles/{articleName}/questions/{questionIndex}") {
                 val articleId = getArticleIdFromContext() ?: return@get
                 val questionIndex = call.parameters["questionIndex"]!!
 
