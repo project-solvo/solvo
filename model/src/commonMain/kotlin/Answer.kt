@@ -11,8 +11,8 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 @Immutable
 @Serializable
 class Answer(
-    override var coid: Uuid? = null,
-    override var author: User? = null,
+    override val coid: Uuid? = null,
+    override val author: User? = null,
     override val content: String,
     override val anonymity: Boolean = false,
 

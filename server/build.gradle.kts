@@ -20,6 +20,7 @@ dependencies {
     implementation(`ktor-server-call-logging`)
     implementation(`ktor-server-auth-jvm`)
     implementation(`ktor-server-core-jvm`)
+    implementation(`ktor-server-websockets`)
     implementation(`ktor-server-content-negotiation`)
     implementation(`ktor-serialization-kotlinx-json`)
     implementation(`slf4j-api`)

@@ -11,8 +11,8 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 @Immutable
 @Serializable
 class Comment(
-    override var coid: Uuid? = null,
-    override var author: User? = null,
+    override val coid: Uuid? = null,
+    override val author: User? = null,
     override val content: String, // markdown
     override val anonymity: Boolean = false,
 
@@ -40,7 +40,7 @@ class CommentUpstream(
     override val anonymity: Boolean,
 
     val parent: Uuid,
-    val pinned: Boolean,
+    val pinned: Boolean = false,
 ): CommentableUpstream
 
 @Immutable
@@ -54,7 +54,7 @@ class CommentDownstream(
 
     val parent: Uuid,
     val pinned: Boolean,
-    val subComments: List<LightCommentDownstream>,
+    val subComments: List<LightCommentDownstream>, // up to 3
 ): CommentableDownstream
 
 @Immutable
@@ -68,7 +68,7 @@ class FullCommentDownstream(
 
     val parent: Uuid,
     val pinned: Boolean,
-    val subComments: List<FullCommentDownstream>,
+    val subComments: List<Uuid>,
 ): CommentableDownstream
 
 @Immutable
