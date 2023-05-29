@@ -8,7 +8,7 @@ interface ServerResourcesPath {
 }
 
 class ServerResourcesPathImpl : ServerResourcesPath {
-    private val host: String = "" // TODO
+    private val host: String = "http://localhost" // TODO
 
     override fun databasePath(): String {
         return "$host/db"
