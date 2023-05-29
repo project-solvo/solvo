@@ -8,6 +8,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.onSizeChanged
@@ -31,6 +33,7 @@ fun RichEditor(
     scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     onSizeChanged: suspend (IntSize) -> Unit = {},
+    backgroundColor: Color = Color.Unspecified,
 ) {
     LaunchedEffect(isInDarkTheme) {
         richEditorState.richEditor.setInDarkTheme(isInDarkTheme)
@@ -48,6 +51,11 @@ fun RichEditor(
             scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 propagateScrollState?.scrollBy(it[scrollOrientation])
             }
+        }
+    }
+    LaunchedEffect(backgroundColor) {
+        if (backgroundColor.isSpecified) {
+            richEditorState.richEditor.setBackgroundColor(backgroundColor)
         }
     }
 

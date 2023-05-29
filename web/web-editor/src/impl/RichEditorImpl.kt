@@ -5,6 +5,8 @@ package org.solvo.web.editor.impl
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.unit.*
 import io.ktor.util.collections.*
 import kotlinx.atomicfu.atomic
@@ -83,7 +85,25 @@ internal class RichEditor internal constructor(
     private val editorLoaded = CompletableDeferred<Unit>()
 
     private var editorChanged: CompletableDeferred<Unit>? = null
-    private var cmRefreshed: CompletableDeferred<Unit>? = null
+
+    init {
+        init()
+    }
+
+    @NoLiveLiterals
+    private fun init() {
+        with(getHtmlPreviewMarkdownBody().asDynamic().style) {
+            padding = "0px"
+            backgroundColor = null
+//            height = "100%"
+        }
+        with(getHtmlEditormdPreview().asDynamic().style) {
+            padding = "0px"
+        }
+        with(getHtmlEditormdDiv().asDynamic().style) {
+            margin = "0px"
+        }
+    }
 
     internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
         editorLoaded.join()
@@ -140,6 +160,12 @@ internal class RichEditor internal constructor(
         }
     }
 
+    suspend fun setShowScrollBar(show: Boolean) {
+        onEditorLoaded {
+            getHtmlEditormdPreview().asDynamic().style.overflow = if (show) null else "hidden"
+        }
+    }
+
     @NoLiveLiterals
     suspend fun setInDarkTheme(value: Boolean) {
         onEditorLoaded {
@@ -181,9 +207,18 @@ internal class RichEditor internal constructor(
 //        }
 //    }
 
+    suspend fun setBackgroundColor(color: Color) = onEditorLoaded {
+        with(getHtmlEditormdPreview().asDynamic().style) {
+            backgroundColor = color.toHtmlRgbaString()
+        }
+        with(getHtmlPreviewMarkdownBody().asDynamic().style) {
+            backgroundColor = color.toHtmlRgbaString()
+        }
+    }
+
     suspend fun resizeToWrapPreviewContent(onClip: (size: DpSize) -> Unit) {
         onEditorLoaded {
-            val rect = getHtmlPreviewContent().getBoundingClientRect()
+            val rect = getHtmlPreviewMarkdownBody().getBoundingClientRect()
             setEditorSizePx(
                 rect.width.toFloat(), rect.height.toFloat()
             )
@@ -241,16 +276,23 @@ internal class RichEditor internal constructor(
             val px =
                 with(density) { (size / 2).toPx() } // I don't know why, but `/ 2` makes it more close to normal Compose font size 
             val markdownTextArea =
-                getHtmlPreviewContent()
+                getHtmlPreviewMarkdownBody()
             markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
         }
     }
 
-    private fun getHtmlPreviewDiv() =
+    // class="editormd editormd-vertical editormd-theme-default"
+    private fun getHtmlEditormdDiv() =
+        document.querySelector("#${id}")
+            ?: error("Cannot find editor.md preview content")
+
+    // editormd preview container class="editormd-preview editormd-preview-theme-default"
+    private fun getHtmlEditormdPreview() =
         document.querySelector("#${id} > div.editormd-preview")
             ?: error("Cannot find editor.md preview div")
 
-    private fun getHtmlPreviewContent() =
+    // markdown-body
+    private fun getHtmlPreviewMarkdownBody() =
         document.querySelector("#${id} > div.editormd-preview > div")
             ?: error("Cannot find editor.md preview content")
 
@@ -276,6 +318,8 @@ internal class RichEditor internal constructor(
         @NoLiveLiterals
         fun create(
             id: String,
+            density: Density,
+            contentPadding: Dp = Dp.Unspecified,
         ): RichEditor {
             val positionDiv = document.createElement("div")
             val element = document.createElement("div")
@@ -341,6 +385,8 @@ internal class RichEditor internal constructor(
                 )
             )
 
+            editor.contentPadding =
+                with(density) { contentPadding.takeOrElse { 16.dp }.toPx() }.toString() + "px" // not lively updated
             val new = RichEditor(id, positionDiv, editor)
             RichEditorIdManager.addInstance(id, new)
             return new
@@ -359,12 +405,12 @@ internal class RichEditor internal constructor(
             //                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event as WheelEvent))
         }
         onEditorLoaded {
-            getHtmlPreviewDiv().addEventListener("mousewheel", callback)
+            getHtmlEditormdPreview().addEventListener("mousewheel", callback)
         }
         suspendCancellableCoroutine<Unit> { cont ->
             cont.invokeOnCancellation {
                 try {
-                    getHtmlPreviewDiv().removeEventListener("mousewheel", callback)
+                    getHtmlEditormdPreview().removeEventListener("mousewheel", callback)
                 } catch (_: Throwable) {
                 }
             }
@@ -380,6 +426,12 @@ internal class RichEditor internal constructor(
     }
 
     override fun onRemembered() {
+    }
+}
+
+private fun Color.toHtmlRgbaString(): String {
+    convert(ColorSpaces.Srgb).apply {
+        return "rgba(${this.red * 255},${this.green * 255},${this.blue * 255},${this.alpha})"
     }
 }
 

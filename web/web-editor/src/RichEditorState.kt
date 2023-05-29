@@ -3,6 +3,8 @@ package org.solvo.web.editor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.sp
 import org.solvo.web.editor.impl.RichEditor
@@ -11,8 +13,11 @@ import org.solvo.web.editor.impl.RichEditorIdManager
 val DEFAULT_RICH_EDITOR_FONT_SIZE = 18.sp
 
 @Composable
-fun rememberRichEditorState(): RichEditorState {
-    val editor: RichEditor = remember { RichEditor.create(RichEditorIdManager.nextId()) }
+fun rememberRichEditorState(
+    contentPadding: Dp = Dp.Unspecified,
+): RichEditorState {
+    val density = LocalDensity.current
+    val editor: RichEditor = remember { RichEditor.create(RichEditorIdManager.nextId(), density, contentPadding) }
     return remember(editor) { RichEditorState(editor) }
 }
 

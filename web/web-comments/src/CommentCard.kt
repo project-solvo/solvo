@@ -37,11 +37,18 @@ fun CommentCard(
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
     onClickComment: ((LightCommentDownstream?) -> Unit)? = null, // null if clicking "Show all"
-    content: @Composable ColumnScope.() -> Unit,
+    content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val subCommentsState by rememberUpdatedState(subComments)
     val shape = remember { RoundedCornerShape(16.dp) }
-    Card(modifier.clickable(indication = null, onClick = onClickCard), shape = shape) {
+    val backgroundColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+    Card(
+        modifier.clickable(indication = null, onClick = onClickCard),
+        shape = shape,
+        colors = CardDefaults.cardColors(
+            containerColor = backgroundColor
+        )
+    ) {
         AuthorLine(
             icon = {
                 AvatarBox(Modifier.size(48.dp)) {
@@ -63,7 +70,7 @@ fun CommentCard(
 
         // content
         Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp)) {
-            content()
+            content(backgroundColor)
         }
 
         val showComments by derivedStateOf { subCommentsState.take(3) }

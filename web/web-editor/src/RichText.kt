@@ -7,9 +7,11 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.dp
 import kotlinx.browser.document
 import kotlinx.coroutines.CancellationException
 import org.intellij.lang.annotations.Language
@@ -27,8 +29,10 @@ fun RichText(
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
+    backgroundColor: Color = Color.Unspecified,
+    showScrollbar: Boolean = true,
 ) {
-    val state = rememberRichEditorState()
+    val state = rememberRichEditorState(0.dp)
     val density by rememberUpdatedState(LocalDensity.current)
 
     RichEditor(
@@ -42,13 +46,17 @@ fun RichText(
             state.richEditor.resizeToWrapPreviewContent {
                 onActualContentSizeChange(it)
             }
-        }
+        },
+        backgroundColor = backgroundColor
     )
     LaunchedEffect(true) {
         hidePreviewCloseButton(state.richEditor)
     }
     LaunchedEffect(fontSize) {
         state.richEditor.setFontSize(fontSize, density)
+    }
+    LaunchedEffect(showScrollbar) {
+        state.richEditor.setShowScrollBar(showScrollbar)
     }
     LaunchedEffect(text) {
         try {
