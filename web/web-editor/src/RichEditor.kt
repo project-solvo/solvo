@@ -6,8 +6,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.layout.onGloballyPositioned
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.*
 import androidx.compose.ui.platform.LocalDensity
 import kotlinx.coroutines.launch
 import org.solvo.web.ui.LocalSolvoWindow
@@ -38,7 +37,18 @@ fun RichEditor(
         .onGloballyPositioned {
             richEditorState.richEditor.setPosition(it.positionInWindow(), density)
             scope.launch {
-                richEditorState.richEditor.setSize(it.size, density)
+                richEditorState.richEditor.setEditorBounds(it.boundsInRoot(), density)
+
+                println(
+                    "onGloballyPositioned: " +
+                            "boundsInParent=${it.boundsInParent()}, " +
+                            "boundsInRoot=${it.boundsInRoot()}"
+                )
+            }
+        }
+        .onSizeChanged {
+            scope.launch {
+                richEditorState.richEditor.setEditorSize(it, density)
             }
         }
     )

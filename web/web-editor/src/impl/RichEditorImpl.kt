@@ -4,6 +4,7 @@ package org.solvo.web.editor.impl
 
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
@@ -16,6 +17,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import org.solvo.web.editor.RichEditorDisplayMode
+import org.solvo.web.ui.WindowState
 import org.w3c.dom.Element
 import kotlin.time.Duration.Companion.seconds
 
@@ -66,8 +68,9 @@ private val editorChangedLock = Mutex()
 @Stable
 internal class RichEditor internal constructor(
     val id: String,
-    val element: Element,
-    val editor: dynamic,
+    val positionDiv: Element,
+    val clipDiv: Element,
+    val editor: dynamic, // editor.md object
 ) : RememberObserver {
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
 
@@ -76,6 +79,9 @@ internal class RichEditor internal constructor(
 
     private val _size = mutableStateOf(IntSize.Zero)
     val size: State<IntSize> = _size
+
+    private val _boundsInRoot = mutableStateOf(Rect.Zero)
+    val boundsInRoot: State<Rect> = _boundsInRoot
 
     private val editorLoaded = CompletableDeferred<Unit>()
 
@@ -92,9 +98,7 @@ internal class RichEditor internal constructor(
             editorChanged = def
             try {
                 action()
-                println("Waiting for complete")
                 withTimeout(2.seconds) { def.await() }
-                println("Complete wait")
             } catch (e: Throwable) {
                 editorChanged = null
                 if (e !is CancellationException) throw e
@@ -151,20 +155,38 @@ internal class RichEditor internal constructor(
 
 
     fun setPosition(offset: Offset, density: Density) {
+        if (_positionInRoot.value == offset) return
+
         _positionInRoot.value = offset
-        element.asDynamic().style.marginTop = (offset.y / density.density).toString() + "px"
-        element.asDynamic().style.marginLeft = (offset.x / density.density).toString() + "px"
+        positionDiv.asDynamic().style.marginTop = (offset.y / density.density).toString() + "px"
+        positionDiv.asDynamic().style.marginLeft = (offset.x / density.density).toString() + "px"
     }
 
-    suspend fun setSize(size: IntSize, density: Density) {
+    suspend fun setEditorSize(size: IntSize, density: Density) {
+        if (_size.value == size) return
+
         _size.value = size
         val widthPx = size.width / density.density
-        element.asDynamic().style.width = widthPx.toString() + "px"
         val heightPx = size.height / density.density
-        element.asDynamic().style.height = heightPx.toString() + "px"
+        positionDiv.asDynamic().style.width = widthPx.toString() + "px"
+        positionDiv.asDynamic().style.height = heightPx.toString() + "px"
+        clipDiv.asDynamic().style.width = widthPx.toString() + "px"
+        clipDiv.asDynamic().style.height = heightPx.toString() + "px"
         onEditorLoaded {
             editor.resize()
         }
+    }
+
+    fun setEditorBounds(bounds: Rect, density: Density) {
+        if (_boundsInRoot.value == bounds) return
+        _boundsInRoot.value = bounds
+
+        val topPx = bounds.top / density.density
+        val rightPx = bounds.right / density.density
+        val bottomPx = bounds.bottom / density.density
+        val leftPx = bounds.left / density.density
+
+        clipDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
     }
 
     suspend fun setFontSize(size: TextUnit, density: Density) {
@@ -188,7 +210,7 @@ internal class RichEditor internal constructor(
 
     private fun dispose() {
         try {
-            document.removeChild(element)
+            document.removeChild(positionDiv)
             RichEditorIdManager.removeInstance(this.id)
         } catch (e: Throwable) {
             e.printStackTrace()
@@ -199,16 +221,20 @@ internal class RichEditor internal constructor(
         @NoLiveLiterals
         fun create(
             id: String,
+            windowState: WindowState,
         ): RichEditor {
-            val div = document.createElement("div")
+            val clipDiv = document.createElement("div")
+            val positionDiv = document.createElement("div")
             val element = document.createElement("div")
             element.id = id
 
             element.asDynamic().style.`class` = "rich-text"
-            div.asDynamic().style.position = "absolute"
+            positionDiv.asDynamic().style.position = "absolute"
+            clipDiv.asDynamic().style.position = "absolute"
 
-            div.appendChild(element)
-            document.body?.appendChild(div) ?: error("Document body is null")
+            positionDiv.appendChild(element)
+            clipDiv.appendChild(positionDiv)
+            document.body?.appendChild(clipDiv) ?: error("Document body is null")
 
             val editor = editormd(
                 id, js(
@@ -262,8 +288,12 @@ internal class RichEditor internal constructor(
     """
                 )
             )
-
-            val new = RichEditor(id, div, editor)
+//            
+//            positionDiv.addEventListener("mousewheel", { event ->
+//                event as WheelEvent
+//                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event))
+//            })
+            val new = RichEditor(id, positionDiv, clipDiv, editor)
             RichEditorIdManager.addInstance(id, new)
             return new
         }

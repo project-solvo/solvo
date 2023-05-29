@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.ComposeWindow
 import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
+import org.jetbrains.skiko.SkikoView
 import org.solvo.web.document.Cookies
 import org.solvo.web.ui.theme.AppTheme
 import org.w3c.dom.Window
@@ -53,7 +54,7 @@ fun SolvoWindow(
 }
 
 internal fun ComposeWindow.createWindowState(): WindowState {
-    val state = WindowState()
+    val state = WindowState(this)
 
     window.onresize = {
 //        val canvas = canvas
@@ -76,7 +77,11 @@ internal fun ComposeWindow.createWindowState(): WindowState {
 val Window.innerSize get() = DpSize(window.innerWidth.dp, window.innerHeight.dp)
 
 @Stable
-class WindowState {
+class WindowState internal constructor(
+    private val composeWindow: ComposeWindow,
+) {
+    val skikoView: SkikoView? get() = composeWindow.layer.layer.skikoView
+
     val size: MutableStateFlow<DpSize> = MutableStateFlow(window.innerSize)
     val preferDarkMode: MutableStateFlow<Boolean?> =
         MutableStateFlow(Cookies.getCookie("is-in-dark-mode")?.toBooleanStrictOrNull())
