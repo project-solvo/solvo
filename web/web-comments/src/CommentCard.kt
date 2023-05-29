@@ -40,7 +40,7 @@ fun CommentCard(
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val subCommentsState by rememberUpdatedState(subComments)
-    val shape = RoundedCornerShape(16.dp)
+    val shape = remember { RoundedCornerShape(16.dp) }
     Card(modifier.clickable(indication = null, onClick = onClickCard), shape = shape) {
         AuthorLine(
             icon = {

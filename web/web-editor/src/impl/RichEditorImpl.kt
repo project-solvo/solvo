@@ -13,8 +13,8 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.solvo.web.editor.RichEditorDisplayMode
-import org.solvo.web.ui.WindowState
 import org.w3c.dom.Element
+import org.w3c.dom.events.Event
 import org.w3c.dom.events.WheelEvent
 import kotlin.time.Duration.Companion.seconds
 
@@ -61,7 +61,6 @@ internal object RichEditorIdManager {
 
 // Load only one editor at the same time
 private val editorChangedLock = Mutex()
-private val cmRefreshedLock = Mutex()
 
 @Stable
 internal class RichEditor internal constructor(
@@ -102,24 +101,6 @@ internal class RichEditor internal constructor(
                 editorChanged = null
                 if (e is CancellationException) {
                     console.error("Timeout expectEditorChange", e)
-                } else {
-                    throw e
-                }
-            }
-        }
-    }
-
-    internal suspend fun <R> expectCodeMirrorRefresh(action: suspend () -> R) {
-        return cmRefreshedLock.withLock {
-            val def = CompletableDeferred<Unit>()
-            cmRefreshed = def
-            try {
-                action()
-                withTimeout(5.seconds) { def.await() }
-            } catch (e: Throwable) {
-                cmRefreshed = null
-                if (e is CancellationException) {
-                    console.error("Timeout expectCodeMirrorRefresh", e)
                 } else {
                     throw e
                 }
@@ -184,21 +165,21 @@ internal class RichEditor internal constructor(
         positionDiv.asDynamic().style.marginTop = marginTop
         positionDiv.asDynamic().style.marginLeft = marginLeft
     }
-
-    init {
-        scope.launch(start = CoroutineStart.UNDISPATCHED) {
-            onEditorLoaded {
-                editor.cm.on("refresh") { cm ->
-                    scope.launch(start = CoroutineStart.UNDISPATCHED) {
-                        cmRefreshedLock.withLock {
-                            cmRefreshed?.complete(Unit)
-                        }
-                    }
-                }
-                Unit
-            }
-        }
-    }
+//
+//    init {
+//        scope.launch(start = CoroutineStart.UNDISPATCHED) {
+//            onEditorLoaded {
+//                editor.cm.on("refresh") { cm ->
+//                    scope.launch(start = CoroutineStart.UNDISPATCHED) {
+//                        cmRefreshedLock.withLock {
+//                            cmRefreshed?.complete(Unit)
+//                        }
+//                    }
+//                }
+//                Unit
+//            }
+//        }
+//    }
 
     suspend fun resizeToWrapPreviewContent(onClip: (size: DpSize) -> Unit) {
         onEditorLoaded {
@@ -227,7 +208,7 @@ internal class RichEditor internal constructor(
     }
 
     suspend fun setEditorSize(size: IntSize, density: Density) {
-//        if (_size.value == size) return
+        if (_size.value == size) return
 
         _size.value = size
         val widthPx = size.width / density.density
@@ -295,7 +276,6 @@ internal class RichEditor internal constructor(
         @NoLiveLiterals
         fun create(
             id: String,
-            windowState: WindowState,
         ): RichEditor {
             val positionDiv = document.createElement("div")
             val element = document.createElement("div")
@@ -305,7 +285,8 @@ internal class RichEditor internal constructor(
             positionDiv.asDynamic().style.position = "absolute"
 
             positionDiv.appendChild(element)
-            document.body?.appendChild(positionDiv) ?: error("Document body is null")
+            document.getElementById("rich-text-editors")?.appendChild(positionDiv)
+                ?: error("Cannot find rich-text-editors to insert rich editors")
 
             val editor = editormd(
                 id, js(
@@ -367,21 +348,25 @@ internal class RichEditor internal constructor(
     }
 
     suspend fun onScroll(density: Density, onScroll: (Offset) -> Unit) {
-        onEditorLoaded {
-            getHtmlPreviewDiv().addEventListener("mousewheel", { event ->
-                event as WheelEvent
-                onScroll(
-                    Offset(
-                        event.deltaX.toFloat() / density.density,
-                        event.deltaY.toFloat() / density.density,
-                    )
+        val callback: (Event) -> Unit = { event ->
+            event as WheelEvent
+            onScroll(
+                Offset(
+                    event.deltaX.toFloat() / density.density,
+                    event.deltaY.toFloat() / density.density,
                 )
-                //                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event as WheelEvent))
-            })
+            )
+            //                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event as WheelEvent))
+        }
+        onEditorLoaded {
+            getHtmlPreviewDiv().addEventListener("mousewheel", callback)
         }
         suspendCancellableCoroutine<Unit> { cont ->
             cont.invokeOnCancellation {
-
+                try {
+                    getHtmlPreviewDiv().removeEventListener("mousewheel", callback)
+                } catch (_: Throwable) {
+                }
             }
         }
     }

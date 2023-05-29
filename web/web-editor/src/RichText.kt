@@ -18,10 +18,6 @@ import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.isInDarkMode
 import org.w3c.dom.asList
 
-class RichTextHeight {
-
-}
-
 @Composable
 fun RichText(
     @Language("markdown") text: String,
@@ -30,7 +26,7 @@ fun RichText(
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
-    isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
+    isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
 ) {
     val state = rememberRichEditorState()
     val density by rememberUpdatedState(LocalDensity.current)

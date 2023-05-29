@@ -7,14 +7,12 @@ import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.sp
 import org.solvo.web.editor.impl.RichEditor
 import org.solvo.web.editor.impl.RichEditorIdManager
-import org.solvo.web.ui.LocalSolvoWindow
 
 val DEFAULT_RICH_EDITOR_FONT_SIZE = 18.sp
 
 @Composable
 fun rememberRichEditorState(): RichEditorState {
-    val window = LocalSolvoWindow.current
-    val editor: RichEditor = remember { RichEditor.create(RichEditorIdManager.nextId(), window) }
+    val editor: RichEditor = remember { RichEditor.create(RichEditorIdManager.nextId()) }
     return remember(editor) { RichEditorState(editor) }
 }
 

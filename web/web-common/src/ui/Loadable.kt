@@ -7,6 +7,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 
+private const val LOADABLE_CONTENT_ANIMATION = true
+
 @Composable
 fun LoadableContent(
     isLoading: Boolean,
@@ -15,23 +17,34 @@ fun LoadableContent(
     content: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
-        AnimatedVisibility(
-            isLoading,
-            enter = slideInVertically { 0 } + fadeIn(),
-            exit = slideOutVertically { -it } + fadeOut(),
-        ) {
-            Row(Modifier.fillMaxWidth().padding(start = 64.dp), horizontalArrangement = Arrangement.Center) {
-                loadingContent()
-            }
-        }
+        if (LOADABLE_CONTENT_ANIMATION) {
 
-        AnimatedVisibility(
-            !isLoading,
-            enter = slideInVertically { 0 } + fadeIn(),
-            exit = slideOutVertically { -it } + fadeOut(),
-        ) {
-            // Course title
-            content()
+            AnimatedVisibility(
+                isLoading,
+                enter = slideInVertically { 0 } + fadeIn(),
+                exit = slideOutVertically { -it } + fadeOut(),
+            ) {
+                Row(Modifier.fillMaxWidth().padding(start = 64.dp), horizontalArrangement = Arrangement.Center) {
+                    loadingContent()
+                }
+            }
+
+            AnimatedVisibility(
+                !isLoading,
+                enter = slideInVertically { 0 } + fadeIn(),
+                exit = slideOutVertically { -it } + fadeOut(),
+            ) {
+                // Course title
+                content()
+            }
+        } else {
+            if (isLoading) {
+                Row(Modifier.fillMaxWidth().padding(start = 64.dp), horizontalArrangement = Arrangement.Center) {
+                    loadingContent()
+                }
+            } else {
+                content()
+            }
         }
     }
 }

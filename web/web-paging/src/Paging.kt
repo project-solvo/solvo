@@ -2,8 +2,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.West
-import androidx.compose.material3.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
@@ -32,7 +36,7 @@ fun PagingContent(
                 }
 
                 val currentPage = state.currentPage.value + 1
-                val maxPage = state.determineMaxPage() + 1
+                val maxPage = remember { state.determineMaxPage() + 1 }
                 Text(
                     "$currentPage / $maxPage",
                     Modifier.padding(horizontal = 16.dp),

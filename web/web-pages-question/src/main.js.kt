@@ -157,18 +157,21 @@ private fun ArticlePageContent(
 private fun AnswersList() {
     val scrollState = rememberScrollState()
     Column(
-        Modifier.fillMaxSize().verticalScroll(scrollState),
+        Modifier.verticalScroll(scrollState).fillMaxSize(),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        repeat(6) {
+        repeat(10) {
             // TODO: 2023/5/25 view model 
             CommentCard(
-                listOf(
-                    LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
-                    LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
-                ),
+                remember {
+                    listOf(
+                        LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
+                        LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
+                    )
+                },
                 Modifier.fillMaxWidth(),
             ) {
+//                Text("""Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent(),)
                 var actualHeight by remember { mutableStateOf(0.dp) }
                 RichText(
                     """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent(),

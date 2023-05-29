@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
@@ -30,7 +29,7 @@ fun RichEditor(
     isToolbarVisible: Boolean = true,
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
-    isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
+    isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     onSizeChanged: suspend (IntSize) -> Unit = {},
 ) {
     LaunchedEffect(isInDarkTheme) {

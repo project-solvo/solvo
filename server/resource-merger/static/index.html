@@ -13,22 +13,12 @@
 <body>
 
 <div>
-    <canvas autofocus="autofocus" id="ComposeTarget"></canvas>
+    <canvas autofocus="autofocus" id="ComposeTarget" style="position: absolute"></canvas>
 </div>
 
-<script>
-    function init() {
-        let canvas = document.getElementById("ComposeTarget");
-        canvas.width = screen.width;
-        canvas.height = screen.height;
-    }
+<div id="rich-text-editors" style="height: 100%; width: 100%; overflow: hidden; overflow-clip-margin: content-box">
 
-    // window.onresize = () => {
-    //     init()
-    // }
-
-    init()
-</script>
+</div>
 
 </body>
 
@@ -39,6 +29,25 @@
 <script src="/zepto.min.js"></script>
 <script src="/jquery.min.js"></script>
 <script src="/editor.md/editormd.js"></script>
+
+<script>
+    let canvas = document.getElementById("ComposeTarget");
+
+    function setCanvas() {
+        // window.innerWidth = screen.width;
+        // window.innerHeight = screen.height;
+        canvas.width = screen.width * 2; // compose only renders to screen size, use large values to support zooming
+        canvas.height = screen.height * 2;
+        // console.log("Set height: " + screen.width)
+    }
+
+    window.onscroll = () => {
+        document.body.scrollIntoView()
+    }
+
+    setCanvas()
+</script>
+<!--Run before loading Compose-->
 
 <script src="/{{SCRIPT_PATH}}"></script>
 
