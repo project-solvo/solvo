@@ -40,6 +40,6 @@ includeProject(":web:web-comments")
 // WEB PAGES
 
 includeProject(":web:web-pages-auth")
-includeProject(":web:web-pages-article")
+includeProject(":web:web-pages-question")
 includeProject(":web:web-pages-home")
 includeProject(":web:web-pages-course")
