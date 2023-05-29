@@ -7,6 +7,7 @@ import org.solvo.model.ArticleUpstream
 import org.solvo.model.utils.DatabaseModel
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
+import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
@@ -69,8 +70,13 @@ class ArticleDBControlImpl(
         val questionIndexes: List<String> = ArticleTable
             .join(QuestionTable, JoinType.INNER, ArticleTable.coid, QuestionTable.article)
             .select(ArticleTable.coid eq coid)
+            .orderBy(QuestionTable.index, SortOrder.ASC)
             .map { it[QuestionTable.index] }
-            .sorted()
+
+        val comments: List<UUID> = ArticleTable
+            .join(CommentTable, JoinType.INNER, ArticleTable.coid, CommentTable.parent)
+            .select(ArticleTable.coid eq coid)
+            .map { it[CommentTable.coid].value }
 
         ArticleTable
             .join(CommentedObjectTable, JoinType.INNER, ArticleTable.coid, CommentedObjectTable.id)
@@ -91,7 +97,7 @@ class ArticleDBControlImpl(
                     course = courseDB.getCourse(it[ArticleTable.course].value)!!,
                     termYear = termDB.getTerm(it[ArticleTable.term].value)!!,
                     questionIndexes = questionIndexes,
-                    comments = listOf(), // TODO
+                    comments = comments,
                     stars = it[ArticleTable.stars],
                     views = it[ArticleTable.views],
                 )

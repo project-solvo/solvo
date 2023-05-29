@@ -2,7 +2,6 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.CommentDownstream
 import org.solvo.model.QuestionDownstream
 import org.solvo.model.QuestionUpstream
 import org.solvo.model.utils.DatabaseModel
@@ -45,10 +44,15 @@ class QuestionDBControlImpl(
     }
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
-        val answers: List<CommentDownstream> = QuestionTable
+        val answers: List<UUID> = QuestionTable
             .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
-            .select(QuestionTable.coid eq coid)
-            .mapNotNull { commentDB.view(it[CommentTable.coid].value) }
+            .select((QuestionTable.coid eq coid) and (CommentTable.asAnswer eq true))
+            .map { it[CommentTable.coid].value }
+
+        val comments: List<UUID> = QuestionTable
+            .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
+            .select((QuestionTable.coid eq coid) and (CommentTable.asAnswer eq false))
+            .map { it[CommentTable.coid].value }
 
         QuestionTable
             .join(CommentedObjectTable, JoinType.INNER, QuestionTable.coid, CommentedObjectTable.id)
@@ -68,7 +72,7 @@ class QuestionDBControlImpl(
                     code = it[QuestionTable.index],
                     article = it[QuestionTable.article].value,
                     answers = answers,
-                    comments = listOf(), // TODO
+                    comments = comments,
                 )
             }.singleOrNull()
     }

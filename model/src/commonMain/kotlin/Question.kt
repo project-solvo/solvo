@@ -29,6 +29,6 @@ class QuestionDownstream(
 
     val code: String,
     val article: Uuid,
-    val answers: List<CommentDownstream>,
-    val comments: List<CommentDownstream>,
+    val answers: List<Uuid>,
+    val comments: List<Uuid>,
 ) : CommentableDownstream

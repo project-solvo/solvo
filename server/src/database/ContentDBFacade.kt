@@ -24,6 +24,9 @@ interface ContentDBFacade {
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
     suspend fun tryDeleteImage(resourceId: UUID): Boolean
     suspend fun getCourseName(courseCode: String): String?
+    suspend fun postComment(answer: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
+    suspend fun viewComment(commentId: UUID): CommentDownstream?
+    suspend fun viewFullComment(commentId: UUID): FullCommentDownstream?
 }
 
 class ContentDBFacadeImpl(
@@ -53,7 +56,11 @@ class ContentDBFacadeImpl(
 
     override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID? {
         if (!questions.contains(questionId)) return null
-        return comments.post(answer, authorId, questionId)
+        return comments.post(answer, authorId, questionId, asAnswer = true)
+    }
+
+    override suspend fun postComment(answer: CommentUpstream, authorId: UUID, parentId: UUID): UUID? {
+        return comments.post(answer, authorId, parentId, asAnswer = false)
     }
 
     override suspend fun postImage(
@@ -103,6 +110,14 @@ class ContentDBFacadeImpl(
 
     override suspend fun viewQuestion(questionId: UUID): QuestionDownstream? {
         return questions.view(questionId)
+    }
+
+    override suspend fun viewComment(commentId: UUID): CommentDownstream? {
+        return comments.view(commentId)
+    }
+
+    override suspend fun viewFullComment(commentId: UUID): FullCommentDownstream? {
+        return comments.viewFull(commentId)
     }
 
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {

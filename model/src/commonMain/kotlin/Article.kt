@@ -35,7 +35,7 @@ class ArticleDownstream(
     val termYear: String,
 
     val questionIndexes: List<String>,
-    val comments: List<CommentDownstream>,
+    val comments: List<Uuid>,
     val stars: UInt,
     val views: UInt,
 ) : CommentableDownstream

@@ -12,6 +12,7 @@ import org.solvo.model.CommentUpstream
 import org.solvo.model.Course
 import org.solvo.model.api.UploadImageResponse
 import org.solvo.server.ServerContext
+import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
@@ -110,22 +111,52 @@ fun Application.contentModule() {
         }
 
         route("/comment") {
-            putAuthenticated("/{parentId}") {
-                // TODO
+            get("/get/{coid}") {
+                processGetComment(contents, viewFull = false)
             }
-            putAuthenticated("/{questionId}/asAnswer") {
-                val uid = getUserId() ?: return@putAuthenticated
-                val questionId = UUID.fromString(call.parameters.getOrFail("questionId"))
-                val answer = call.receive<CommentUpstream>()
-
-                val answerId = contents.postAnswer(answer, uid, questionId)
-                if (answerId == null) {
-                    call.respond(HttpStatusCode.BadRequest)
-                } else {
-                    call.respond(answerId)
-                }
+            get("/get/{coid}/full") {
+                processGetComment(contents, viewFull = true)
+            }
+            putAuthenticated("/post/{parentId}") {
+                processUploadComment(contents, asAnswer = false)
+            }
+            putAuthenticated("/post/{parentId}/asAnswer") {
+                processUploadComment(contents, asAnswer = true)
             }
         }
+    }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
+    contents: ContentDBFacade,
+    viewFull: Boolean,
+) {
+    val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+    val content = if (viewFull) contents.viewFullComment(coid) else contents.viewComment(coid)
+    if (content == null) {
+        call.respond(HttpStatusCode.NotFound)
+    } else {
+        call.respond(content)
+    }
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
+    contents: ContentDBFacade,
+    asAnswer: Boolean,
+) {
+    val uid = getUserId() ?: return
+    val parentId = UUID.fromString(call.parameters.getOrFail("parentId"))
+    val comment = call.receive<CommentUpstream>()
+
+    val commentId = if (asAnswer) {
+        contents.postAnswer(comment, uid, parentId)
+    } else {
+        contents.postComment(comment, uid, parentId)
+    }
+    if (commentId == null) {
+        call.respond(HttpStatusCode.BadRequest)
+    } else {
+        call.respond(commentId)
     }
 }
 
