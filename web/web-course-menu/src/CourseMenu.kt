@@ -4,7 +4,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -17,8 +16,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.Article
-import org.solvo.model.Question
+import org.solvo.model.ArticleDownstream
+import org.solvo.model.QuestionDownstream
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 
@@ -41,27 +40,8 @@ fun CourseMenuContent(state: CourseMenuState) {
     Box {
         // testing data
         val articles = remember {
-            mutableListOf<Article>().apply {
-                for (i in 2018..<2023) {
-                    val questions =
-                        listOf(
-                            Question(
-                                content = "1a",
-                                code = "1a"
-                            ), Question(
-                                content = "1b",
-                                code = "1a"
-                            ),
-                            Question(
-                                content = "2a",
-                                code = "1a"
-                            ), Question(
-                                content = "2b",
-                                code = "1a"
-                            )
-                        )
-                    this.add(Article(i.toString(), questions))
-                }
+            mutableListOf<ArticleDownstream>().apply {
+
             }
         }
         // show left column menu
@@ -73,9 +53,9 @@ fun CourseMenuContent(state: CourseMenuState) {
 @Composable
 fun CourseMenu(
     state: CourseMenuState,
-    articles: List<Article>,
-    onClickArticle: ((article: Article) -> Unit)? = null,
-    onClickQuestion: ((article: Article, question: Question) -> Unit)? = null,
+    articles: List<ArticleDownstream>,
+    onClickArticle: ((article: ArticleDownstream) -> Unit)? = null,
+    onClickQuestion: ((article: ArticleDownstream, question: QuestionDownstream) -> Unit)? = null,
 ) {
     AnimatedVisibility(
         state.menuOpen.value,
@@ -100,7 +80,7 @@ fun CourseMenu(
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = article.code,
+                        text = article.name,
                         modifier = Modifier.padding(8.dp),
                         style = MaterialTheme.typography.titleLarge,
                     )
@@ -110,31 +90,32 @@ fun CourseMenu(
                     ) {
                         // construct list of questions
                         Column(Modifier.wrapContentHeight()) {
-                            article.questions.forEach { question ->
-                                Row(
-                                    modifier = Modifier.padding(10.dp).padding(start = 20.dp)
-                                        .height(60.dp).width(160.dp).clickable {
-                                            state.onClickQuestion(article, question)
-                                            if (onClickQuestion != null) {
-                                                onClickQuestion(article, question)
-                                            }
-                                        }
-                                        .background(
-                                            color = if (
-                                                state.questionIndex.value == question
-                                                && article == state.clickedArticle.value
-                                            ) MaterialTheme.colorScheme.primary
-                                            else MaterialTheme.colorScheme.secondary,
-                                            shape = RoundedCornerShape(8.dp)
-                                        ),
-                                ) {
-                                    Text(
-                                        text = question.content,
-                                        modifier = Modifier.padding(8.dp),
-                                        style = MaterialTheme.typography.titleLarge,
-                                    )
-                                }
-                            }
+                            // TODO: 2023/5/29 fetch questions
+//                            article.questions.forEach { question ->
+//                                Row(
+//                                    modifier = Modifier.padding(10.dp).padding(start = 20.dp)
+//                                        .height(60.dp).width(160.dp).clickable {
+//                                            state.onClickQuestion(article, question)
+//                                            if (onClickQuestion != null) {
+//                                                onClickQuestion(article, question)
+//                                            }
+//                                        }
+//                                        .background(
+//                                            color = if (
+//                                                state.questionIndex.value == question
+//                                                && article == state.clickedArticle.value
+//                                            ) MaterialTheme.colorScheme.primary
+//                                            else MaterialTheme.colorScheme.secondary,
+//                                            shape = RoundedCornerShape(8.dp)
+//                                        ),
+//                                ) {
+//                                    Text(
+//                                        text = question.content,
+//                                        modifier = Modifier.padding(8.dp),
+//                                        style = MaterialTheme.typography.titleLarge,
+//                                    )
+//                                }
+//                            }
                         }
                     }
                 }

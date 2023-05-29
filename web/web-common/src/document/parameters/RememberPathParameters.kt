@@ -3,9 +3,9 @@ package org.solvo.web.document.parameters
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.SharedFlow
-import org.solvo.model.Article
+import org.solvo.model.ArticleDownstream
 import org.solvo.model.Course
-import org.solvo.model.Question
+import org.solvo.model.QuestionDownstream
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.requests.client
 
@@ -33,10 +33,10 @@ fun PathParameters.course(): SharedFlow<Course?> {
 
 @Stable
 @Composable
-fun PathParameters.article(): SharedFlow<Article?> {
+fun PathParameters.article(): SharedFlow<ArticleDownstream?> {
     val courseCode by param(WebPagePathPatterns.VAR_COURSE_CODE)
     val articleCode by param(WebPagePathPatterns.VAR_ARTICLE_CODE)
-    val state: MutableSharedFlow<Article?> = remember { MutableSharedFlow() }
+    val state: MutableSharedFlow<ArticleDownstream?> = remember { MutableSharedFlow() }
     LaunchedEffect(courseCode, articleCode) {
         state.emit(client.articles.getArticle(courseCode, articleCode))
     }
@@ -45,11 +45,11 @@ fun PathParameters.article(): SharedFlow<Article?> {
 
 @Stable
 @Composable
-fun PathParameters.question(): SharedFlow<Question?> {
+fun PathParameters.question(): SharedFlow<QuestionDownstream?> {
     val courseCode by param(WebPagePathPatterns.VAR_COURSE_CODE)
     val articleCode by param(WebPagePathPatterns.VAR_ARTICLE_CODE)
     val questionCode by param(WebPagePathPatterns.VAR_QUESTION_CODE)
-    val state: MutableSharedFlow<Question?> = remember { MutableSharedFlow() }
+    val state: MutableSharedFlow<QuestionDownstream?> = remember { MutableSharedFlow() }
     LaunchedEffect(courseCode, articleCode, questionCode) {
         state.emit(client.questions.getQuestion(courseCode, articleCode, questionCode))
     }

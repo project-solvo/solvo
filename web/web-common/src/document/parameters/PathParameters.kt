@@ -39,8 +39,25 @@ internal class PathParametersImpl(
             reload()
         }
 
+    private val _allParameters: MutableState<Map<String, String>> = mutableStateOf(mapOf())
+    override val allParameters: State<Map<String, String>> get() = _allParameters
+
+    private val observedParams = mutableMapOf<String, MutableState<String?>>() // can implement with derived states
+    private val observedParamsNotNull =
+        mutableMapOf<String, MutableState<String>>() // can implement with derived states
+
+
     override fun reload() {
-        val map = PathParameterParser.parse(pattern, window.location.href)
+        val map = PathParameterParser.parse(pattern, window.location.pathname)
+        console.log(
+            "Path parameters: ${
+                map.entries.joinToString(
+                    prefix = "{",
+                    postfix = "}"
+                )
+            }"
+        )
+
         _allParameters.value = map
 
         // Update observed values
@@ -50,23 +67,37 @@ internal class PathParametersImpl(
                 observedParam.value.value = newValue
             }
         }
+        for (observedParam in observedParamsNotNull) {
+            val newValue = map[observedParam.key]
+            if (newValue != null) {
+                observedParam.value.value = newValue
+            }
+        }
     }
 
-    private val _allParameters: MutableState<Map<String, String>> = mutableStateOf(mapOf())
-    override val allParameters: State<Map<String, String>> get() = _allParameters
     override fun paramNullable(name: String): State<String?> {
         return observedParams.getOrPut(name) {
             mutableStateOf(null)
         }
     }
 
-    private val observedParams = mutableMapOf<String, MutableState<String?>>() // can implement with derived states
-    private val observedParamsNotNull =
-        mutableMapOf<String, MutableState<String>>() // can implement with derived states
+    init {
+        reload()
+    }
 
     override fun param(name: String): State<String> {
         return observedParamsNotNull.getOrPut(name) {
-            mutableStateOf(get(name) ?: error("Cannot find path parameter '$name'"))
+            mutableStateOf(
+                get(name)
+                    ?: error(
+                        "Cannot find path parameter '$name'. pattern=$pattern. parsedPrams=${
+                            allParameters.value.entries.joinToString(
+                                prefix = "{",
+                                postfix = "}"
+                            )
+                        }"
+                    )
+            )
         }
     }
 

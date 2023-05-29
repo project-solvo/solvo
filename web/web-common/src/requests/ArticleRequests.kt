@@ -1,7 +1,7 @@
 package org.solvo.web.requests
 
 import io.ktor.client.request.*
-import org.solvo.model.Article
+import org.solvo.model.ArticleDownstream
 
 class ArticleRequests(
     override val client: Client
@@ -9,5 +9,5 @@ class ArticleRequests(
     suspend fun getArticle(
         courseCode: String,
         articleCode: String
-    ): Article? = http.get("${apiUrl}/courses/$courseCode/articles/$articleCode").bodyOrNull()
+    ): ArticleDownstream? = http.get("${apiUrl}/courses/$courseCode/articles/$articleCode").bodyOrNull()
 }

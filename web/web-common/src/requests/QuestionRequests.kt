@@ -1,7 +1,7 @@
 package org.solvo.web.requests
 
 import io.ktor.client.request.*
-import org.solvo.model.Question
+import org.solvo.model.QuestionDownstream
 
 class QuestionRequests(
     override val client: Client
@@ -10,5 +10,6 @@ class QuestionRequests(
         courseCode: String,
         articleCode: String,
         questionCode: String,
-    ): Question? = http.get("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode").bodyOrNull()
+    ): QuestionDownstream? =
+        http.get("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode").bodyOrNull()
 }

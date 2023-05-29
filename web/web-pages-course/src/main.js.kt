@@ -17,6 +17,6 @@ fun main() {
     GlobalScope.launch {
         val code = PathParameters(WebPagePaths.courses())[WebPagePathPatterns.VAR_COURSE_CODE] ?: return@launch
         val article = client.courses.getAllArticles(code)?.firstOrNull() ?: return@launch
-        History.navigate { article(code, article.code) }
+        History.navigate { article(code, article.name) } // TODO: 2023/5/29 navigate to article 
     }
 }

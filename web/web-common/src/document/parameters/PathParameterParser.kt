@@ -1,10 +1,10 @@
 package org.solvo.web.document.parameters
 
 internal object PathParameterParser {
-    fun parse(pattern: String, url: String): Map<String, String> {
+    fun parse(pattern: String, pathname: String): Map<String, String> {
         // `/courses/`
         val expectList = pattern.split("/").dropWhile { it.isBlank() }
-        val actualList = url.split("/").dropWhile { it.isBlank() }
+        val actualList = pathname.split("/").dropWhile { it.isBlank() }
 
         val result = mutableMapOf<String, String>()
         expectList.zip(actualList)
@@ -14,7 +14,7 @@ internal object PathParameterParser {
                     result[expect] = actual
                 } else {
                     if (expect != actual) {
-                        throw IllegalStateException("URL segment mismatch: expect='$expect', actual='$actual'. Full url='$url'. Pattern='$pattern'")
+                        throw IllegalStateException("URL segment mismatch: expect='$expect', actual='$actual'. Full url='$pathname'. Pattern='$pattern'")
                     }
                 }
             }

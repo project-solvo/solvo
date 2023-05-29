@@ -10,31 +10,6 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 
 @Immutable
 @Serializable
-class Article(
-    override var coid: Uuid? = null,
-    override var author: User? = null,
-    override val content: String,
-    override val anonymity: Boolean = false,
-
-    val code: String,
-    val name: String,
-    val course: Course,
-
-    val questions: List<Question>,
-    val comments: List<Comment> = listOf(),
-): Commentable {
-    // FIXME to pass compilation
-    constructor(termYear: String, questions: List<Question>): this(
-        content = "",
-        code = termYear,
-        name = "",
-        course = Course("", ""),
-        questions = questions,
-    )
-}
-
-@Immutable
-@Serializable
 class ArticleUpstream(
     override val content: String,
     override val anonymity: Boolean,
@@ -44,7 +19,7 @@ class ArticleUpstream(
     val termYear: String,
 
     val questions: List<QuestionUpstream>,
-): CommentableUpstream
+) : CommentableUpstream
 
 @Immutable
 @Serializable
@@ -63,4 +38,4 @@ class ArticleDownstream(
     val comments: List<CommentDownstream>,
     val stars: UInt,
     val views: UInt,
-): CommentableDownstream
+) : CommentableDownstream

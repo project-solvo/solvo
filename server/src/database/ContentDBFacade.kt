@@ -39,7 +39,7 @@ class ContentDBFacadeImpl(
 
     override suspend fun postArticle(article: ArticleUpstream, authorId: UUID): UUID? {
         for (question in article.questions) {
-            if (question.index.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return null
+            if (question.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return null
         }
 
         val articleId = articles.post(article, authorId) ?: return null

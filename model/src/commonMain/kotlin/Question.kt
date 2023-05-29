@@ -10,27 +10,11 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 
 @Immutable
 @Serializable
-class Question(
-    override var coid: Uuid? = null,
-    override var author: User? = null,
-    override val content: String,
-    override val anonymity: Boolean = false,
-
-    val code: String,
-    var article: Article? = null,
-    val answers: List<Answer> = listOf(),
-    val comments: List<Comment> = listOf(),
-) : Commentable {
-    // to pass compilation
-}
-
-@Immutable
-@Serializable
 class QuestionUpstream(
     override val content: String,
     override val anonymity: Boolean,
 
-    val index: String,
+    val code: String,
 ) : CommentableUpstream
 
 @Immutable
@@ -42,7 +26,7 @@ class QuestionDownstream(
     override val anonymity: Boolean,
     override val likes: UInt,
 
-    val index: String,
+    val code: String,
     val article: Uuid,
     val answers: List<AnswerDownstream>,
     val comments: List<CommentDownstream>,

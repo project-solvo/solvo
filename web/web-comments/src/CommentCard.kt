@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.solvo.model.LightComment
+import org.solvo.model.LightCommentDownstream
 import org.solvo.web.ui.foundation.Rounded
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
@@ -33,10 +33,10 @@ import org.solvo.web.ui.theme.UNICODE_FONT
 
 @Composable
 fun CommentCard(
-    subComments: List<LightComment>,
+    subComments: List<LightCommentDownstream>,
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
-    onClickComment: ((LightComment?) -> Unit)? = null, // null if clicking "Show all"
+    onClickComment: ((LightCommentDownstream?) -> Unit)? = null, // null if clicking "Show all"
     content: @Composable ColumnScope.() -> Unit,
 ) {
     val subCommentsState by rememberUpdatedState(subComments)
@@ -168,7 +168,7 @@ val DateTextStyle = TextStyle(
 
 @Composable
 private fun CommentLine(
-    subComment: LightComment,
+    subComment: LightCommentDownstream,
     modifier: Modifier = Modifier
 ) {
     CommentLine(
@@ -184,7 +184,7 @@ private fun CommentLine(
                 }
             }
         },
-        authorName = { Text(subComment.authorName) },
+        authorName = { Text(subComment.author?.username ?: "") }, // TODO: 2023/5/29 handle anonymous 
     ) {
         Text(subComment.content)
     }

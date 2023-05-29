@@ -36,12 +36,12 @@ class QuestionDBControlImpl(
         error("Directly posting a question not supported")
 
     override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? = dbQuery {
-            if (content.index.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return@dbQuery null
+            if (content.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return@dbQuery null
             val coid = super.post(content, authorId) ?: return@dbQuery null
             assert(QuestionTable.insert {
                 it[QuestionTable.coid] = coid
                 it[QuestionTable.article] = articleId
-                it[QuestionTable.index] = content.index
+                it[QuestionTable.index] = content.code
             }.resultedValues?.singleOrNull() != null)
             coid
         }
@@ -68,7 +68,7 @@ class QuestionDBControlImpl(
                     content = it[CommentedObjectTable.content],
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
-                    index = it[QuestionTable.index],
+                    code = it[QuestionTable.index],
                     article = it[QuestionTable.article].value,
                     answers = answers,
                     comments = listOf(), // TODO

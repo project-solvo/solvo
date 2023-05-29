@@ -27,7 +27,7 @@ fun Application.webPageModule() {
         routeWebPage(WebPagePathPatterns.auth, "/auth")
         routeWebPage(WebPagePathPatterns.course, "/course")
         routeWebPage(WebPagePathPatterns.article, "/article")
-        routeWebPage(WebPagePathPatterns.question, "/article")
+        routeWebPage(WebPagePathPatterns.question, "/question")
     }
 }
 

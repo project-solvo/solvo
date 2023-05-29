@@ -18,10 +18,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.Article
-import org.solvo.model.Course
-import org.solvo.model.LightComment
-import org.solvo.model.Question
+import org.solvo.model.*
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentCard
@@ -53,12 +50,21 @@ fun main() {
                 }
             }
 
-            CourseMenu(menuState, model.allArticles, onClickQuestion = { article: Article, question: Question ->
-                History.navigate { question(article.course.code, article.code, question.code) }
-            })
+            CourseMenu(
+                menuState,
+                model.allArticles,
+                onClickQuestion = { article: ArticleDownstream, question: QuestionDownstream ->
+                    History.navigate {
+                        question(
+                            article.course.code,
+                            article.name,
+                            question.code
+                        )
+                    } // TODO: 2023/5/29 navigate article
+                })
 
 
-            val pathParameters = rememberPathParameters(WebPagePathPatterns.article)
+            val pathParameters = rememberPathParameters(WebPagePathPatterns.question)
             val course by pathParameters.course().collectAsState(null)
             val article by pathParameters.article().collectAsState(null)
             val question by pathParameters.question().collectAsState(null)
@@ -77,8 +83,8 @@ fun main() {
 @Composable
 private fun ArticlePageContent(
     course: Course,
-    article: Article,
-    question: Question,
+    article: ArticleDownstream,
+    question: QuestionDownstream,
 ) {
     Row(Modifier.fillMaxSize()) {
         val window = LocalSolvoWindow.current
@@ -166,8 +172,8 @@ private fun AnswersList() {
             // TODO: 2023/5/25 view model 
             CommentCard(
                 listOf(
-                    LightComment(Uuid.random(), "查尔斯", "", "你是好人！"),
-                    LightComment(Uuid.random(), "Commenter2", "", "[Image] Content 2"),
+                    LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
+                    LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
                 ),
                 Modifier.weight(1.0f, fill = true)
             ) {
