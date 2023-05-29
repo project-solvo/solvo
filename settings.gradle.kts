@@ -36,6 +36,7 @@ includeProject(":web:web-common")
 includeProject(":web:web-editor")
 includeProject(":web:web-course-menu")
 includeProject(":web:web-comments")
+includeProject(":web:web-paging")
 
 // WEB PAGES
 
