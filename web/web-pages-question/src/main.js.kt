@@ -176,7 +176,6 @@ private fun AnswersList() {
                     propagateScrollState = scrollState,
                     onActualContentSizeChange = {
                         actualHeight = it.height
-                        println("actualSize: $actualHeight")
                     }
                 )
             }
