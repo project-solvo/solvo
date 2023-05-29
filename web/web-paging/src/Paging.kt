@@ -13,8 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import org.solvo.web.ControlBarScope.buttonContentPaddings
 
 @Composable
 fun <T> rememberPagingState(initialList: List<T>, pageSlice: Int): PagingState<T> {
@@ -37,52 +37,64 @@ fun <T> PagingContent(
 @Composable
 fun <T> PagingControlBar(
     state: PagingState<T>,
-    content: @Composable context(ControlBarScope) RowScope.() -> Unit = {},
+    content: @Composable context(ControlBarScope) BoxScope.() -> Unit = {},
+) {
+    ControlBar {
+        Box(Modifier.fillMaxWidth()) {
+            Row(
+                Modifier.fillMaxHeight().align(Alignment.Center),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                TextButton(
+                    onClick = {
+                        state.clickPrePage()
+                    },
+                    enabled = state.prevButton(),
+                    contentPadding = buttonContentPaddings
+                ) {
+                    Icon(Icons.Default.West, "Previous")
+                    Text("Previous", Modifier.padding(horizontal = 4.dp))
+                }
+
+                Text(
+                    "${state.currentPage.value + 1} / ${state.pageCount.value + 1}",
+                    Modifier.padding(horizontal = 16.dp),
+                    fontFamily = FontFamily.Monospace
+                )
+
+                TextButton(
+                    onClick = {
+                        state.clickNextPage()
+                    },
+                    enabled = state.nextButton(),
+                    contentPadding = buttonContentPaddings
+                ) {
+                    Text("Next", Modifier.padding(horizontal = 4.dp))
+                    Icon(Icons.Default.East, "Next")
+                }
+            }
+
+            content(ControlBarScope, this)
+        }
+    }
+}
+
+
+@Composable
+fun ControlBar(
+    modifier: Modifier = Modifier,
+    elevation: Dp = 1.dp,
+    content: @Composable context(ControlBarScope) RowScope.() -> Unit,
 ) {
     Surface(
-        Modifier,
-        tonalElevation = 1.dp
+        modifier,
+        tonalElevation = elevation
     ) {
         Row(
             Modifier.padding(horizontal = 12.dp, vertical = 8.dp).height(32.dp),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            Box(Modifier.fillMaxWidth()) {
-                Row(
-                    Modifier.fillMaxHeight().align(Alignment.Center),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        onClick = {
-                            state.clickPrePage()
-                        },
-                        enabled = state.prevButton(),
-                        contentPadding = buttonContentPaddings
-                    ) {
-                        Icon(Icons.Default.West, "Previous")
-                        Text("Previous", Modifier.padding(horizontal = 4.dp))
-                    }
-
-                    Text(
-                        "${state.currentPage.value + 1} / ${state.pageCount.value + 1}",
-                        Modifier.padding(horizontal = 16.dp),
-                        fontFamily = FontFamily.Monospace
-                    )
-
-                    TextButton(
-                        onClick = {
-                            state.clickNextPage()
-                        },
-                        enabled = state.nextButton(),
-                        contentPadding = buttonContentPaddings
-                    ) {
-                        Text("Next", Modifier.padding(horizontal = 4.dp))
-                        Icon(Icons.Default.East, "Next")
-                    }
-                }
-            }
-
             content(ControlBarScope, this)
         }
     }
