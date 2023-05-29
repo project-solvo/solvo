@@ -3,11 +3,13 @@ package org.solvo.web.editor
 import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInWindow
 import androidx.compose.ui.platform.LocalDensity
+import kotlinx.coroutines.launch
 import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.isInDarkMode
 
@@ -29,12 +31,15 @@ fun RichEditor(
     LaunchedEffect(isToolbarVisible) {
         richEditorState.richEditor.setToolbarVisible(isToolbarVisible)
     }
+    val scope = rememberCoroutineScope()
 
     val density = LocalDensity.current
     Box(modifier
         .onGloballyPositioned {
             richEditorState.richEditor.setPosition(it.positionInWindow(), density)
-            richEditorState.richEditor.setSize(it.size, density)
+            scope.launch {
+                richEditorState.richEditor.setSize(it.size, density)
+            }
         }
     )
 }

@@ -154,13 +154,15 @@ internal class RichEditor internal constructor(
         element.asDynamic().style.marginLeft = (offset.x / density.density).toString() + "px"
     }
 
-    fun setSize(size: IntSize, density: Density) {
+    suspend fun setSize(size: IntSize, density: Density) {
         _size.value = size
         val widthPx = size.width / density.density
         element.asDynamic().style.width = widthPx.toString() + "px"
         val heightPx = size.height / density.density
         element.asDynamic().style.height = heightPx.toString() + "px"
-        editor.resize()
+        onEditorLoaded {
+            editor.resize()
+        }
     }
 
     suspend fun setFontSize(size: TextUnit, density: Density) {
