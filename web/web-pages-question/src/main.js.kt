@@ -169,8 +169,9 @@ private fun ArticlePageContent(
 
 @Composable
 private fun AnswersList() {
+    val scrollState = rememberScrollState()
     Column(
-        Modifier.fillMaxSize().verticalScroll(rememberScrollState()),
+        Modifier.fillMaxSize().verticalScroll(scrollState),
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         repeat(1) {
@@ -194,7 +195,8 @@ Integer sed ullamcorper lacus. Curabitur scelerisque egestas tempor. Nulla ligul
 Suspendisse vitae sapien lacus. Quisque commodo urna eget erat sodales, sit amet efficitur augue condimentum. Aenean purus nunc, ultricies eget interdum id, varius vel lacus. Integer vitae lectus eu leo fermentum ultrices id id arcu. Nullam varius lectus ut mattis ornare. Nam condimentum tincidunt est, ut pellentesque ligula tempus ullamcorper. Etiam convallis, quam viverra euismod placerat, eros nisi imperdiet felis, in vehicula augue nunc venenatis odio. Mauris lacinia justo tortor, sed sodales ligula sollicitudin in. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nam aliquam interdum ligula, ac lacinia ante pellentesque sodales. Pellentesque et cursus erat, ut convallis lorem. Duis cursus enim ut quam tincidunt malesuada. Nunc sed orci eu mi rutrum condimentum. Mauris posuere efficitur risus at malesuada. Sed dignissim arcu enim, et laoreet libero aliquet eget.
 
 """.trimIndent(),
-                    modifier = Modifier.weight(1.0f).fillMaxWidth()
+                    modifier = Modifier.weight(1.0f).fillMaxWidth(),
+                    propagateScrollState = scrollState,
                 )
             }
         }

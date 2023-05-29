@@ -1,5 +1,7 @@
 package org.solvo.web.editor
 
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -20,6 +22,8 @@ fun RichText(
     @Language("markdown") text: String,
     modifier: Modifier = Modifier,
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
+    propagateScrollState: ScrollState? = null,
+    scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = rememberUpdatedState(LocalSolvoWindow.current.isInDarkMode()).value,
 ) {
     val state = rememberRichEditorState()
@@ -27,6 +31,8 @@ fun RichText(
         modifier, state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
         isToolbarVisible = false,
+        propagateScrollState = propagateScrollState,
+        scrollOrientation = scrollOrientation,
         isInDarkTheme = isInDarkTheme
     )
     LaunchedEffect(true) {

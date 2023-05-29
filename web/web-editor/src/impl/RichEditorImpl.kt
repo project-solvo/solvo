@@ -13,12 +13,14 @@ import kotlinx.atomicfu.atomic
 import kotlinx.browser.document
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.suspendCancellableCoroutine
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.ui.WindowState
 import org.w3c.dom.Element
+import org.w3c.dom.events.WheelEvent
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -194,11 +196,18 @@ internal class RichEditor internal constructor(
             val px =
                 with(density) { (size / 2).toPx() } // I don't know why, but `/ 2` makes it more close to normal Compose font size 
             val markdownTextArea =
-                document.querySelector("#${id} > div.editormd-preview > div")
-                    ?: error("Cannot find editor.md div")
+                getHtmlPreviewContent()
             markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
         }
     }
+
+    private fun getHtmlPreviewDiv() =
+        document.querySelector("#${id} > div.editormd-preview")
+            ?: error("Cannot find editor.md preview div")
+
+    private fun getHtmlPreviewContent() =
+        document.querySelector("#${id} > div.editormd-preview > div")
+            ?: error("Cannot find editor.md preview content")
 
     internal fun notifyLoaded() {
         editorLoaded.complete(Unit)
@@ -288,14 +297,30 @@ internal class RichEditor internal constructor(
     """
                 )
             )
-//            
-//            positionDiv.addEventListener("mousewheel", { event ->
-//                event as WheelEvent
-//                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event))
-//            })
+
             val new = RichEditor(id, positionDiv, clipDiv, editor)
             RichEditorIdManager.addInstance(id, new)
             return new
+        }
+    }
+
+    suspend fun onScroll(density: Density, onScroll: (Offset) -> Unit) {
+        onEditorLoaded {
+            getHtmlPreviewDiv().addEventListener("mousewheel", { event ->
+                event as WheelEvent
+                onScroll(
+                    Offset(
+                        event.deltaX.toFloat() / density.density,
+                        event.deltaY.toFloat() / density.density,
+                    )
+                )
+                //                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event as WheelEvent))
+            })
+        }
+        suspendCancellableCoroutine<Unit> { cont ->
+            cont.invokeOnCancellation {
+
+            }
         }
     }
 
