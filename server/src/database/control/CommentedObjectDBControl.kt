@@ -27,7 +27,7 @@ abstract class CommentedObjectDBControlImpl<T: CommentableUpstream> : CommentedO
     override suspend fun post(content: T, authorId: UUID): UUID? {
         val coid = dbQuery {
             CommentedObjectTable.insertIgnoreAndGetId {
-                it[CommentedObjectTable.author] = author
+                it[CommentedObjectTable.author] = authorId
                 it[CommentedObjectTable.content] = content.content
                 it[CommentedObjectTable.anonymity] = content.anonymity
             }?.value
