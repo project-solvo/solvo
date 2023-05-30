@@ -305,7 +305,7 @@ internal class RichEditor internal constructor(
     suspend fun setFontSize(size: TextUnit, density: Density) {
         onEditorLoaded {
             val px =
-                with(density) { (size / 2).toPx() } // I don't know why, but `/ 2` makes it more close to normal Compose font size 
+                with(density) { (size / density.density).toPx() }
             val markdownTextArea =
                 getHtmlPreviewMarkdownBody()
             markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
