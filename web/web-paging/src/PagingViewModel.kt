@@ -71,7 +71,9 @@ internal class PagingStateImpl<T>(
             contents
         } else {
             for (i in page * pageSlice until page * pageSlice + pageSlice) {
-                contents.add(items[i])
+                if (i < items.size) {
+                    contents.add(items[i])
+                }
             }
             contents
         }

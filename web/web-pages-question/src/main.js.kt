@@ -106,6 +106,7 @@ private fun ArticlePageContent(
         Box(Modifier.width(leftWidth)) {
             PaperView(
                 questionSelectedBar = {
+                    // ScrollableTab row TODO()
                     Row(
                         modifier = Modifier.horizontalScroll(rememberScrollState())
                     ) {
@@ -158,7 +159,7 @@ private fun ArticlePageContent(
         Column {
             val pagingState = rememberPagingState(
                 remember { generateSequence { createCommentDownstream() }.take(10).toList() },
-                2
+                3
             )
             PagingContent(
                 pagingState,
