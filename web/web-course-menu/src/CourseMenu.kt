@@ -17,7 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.ArticleDownstream
+import org.solvo.model.Course
 import org.solvo.model.QuestionDownstream
+import org.solvo.model.foundation.Uuid
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 
@@ -41,7 +43,23 @@ fun CourseMenuContent(state: CourseMenuState) {
         // testing data
         val articles = remember {
             mutableListOf<ArticleDownstream>().apply {
-
+                listOf(
+                    ArticleDownstream(
+                        Uuid.random(),
+                        null,
+                        "",
+                        true,
+                        0u,
+                        0u,
+                        "50001",
+                        Course("50001", "50001"),
+                        "2020",
+                        listOf("1a", "1b", "2a"),
+                        listOf(),
+                        0u,
+                        0u,
+                    )
+                )
             }
         }
         // show left column menu

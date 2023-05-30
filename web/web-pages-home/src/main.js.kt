@@ -48,7 +48,8 @@ fun HomePageContent(
         )
         FlowRow(
             modifier = Modifier.padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center
         ) {
             for (courseName in courses) {
                 CourseCard(courseName)
@@ -63,7 +64,7 @@ private fun CourseCard(item: Course) {
         onClick = {
             History.navigate { course(item.code) }
         },
-        modifier = Modifier.padding(25.dp).height(200.dp).width(350.dp).clickable {},
+        modifier = Modifier.padding(25.dp).clickable {},
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
