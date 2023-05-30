@@ -28,32 +28,20 @@ import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.theme.UNICODE_FONT
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import org.solvo.model.CommentDownstream
+import org.solvo.model.foundation.Uuid
+
 
 fun main() {
+    val commentDownstream1 = CommentDownstream(Uuid.random(), null, "Some java code", true, 123u,
+        123u, Uuid.random(), true, listOf())
+    val commentDownstream2 = CommentDownstream(Uuid.random(), null, "Some C code", true, 123u,
+        123u, Uuid.random(), true, listOf())
     onWasmReady {
         SolvoWindow {
-            repeat(2) {
-                CommentSummaryCard(Modifier.weight(1.0f, fill = true)) {
-                    RichText(
-                        """
-                                Some Java code
-                                ```java
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                class X {}
-                                ```
-                            """.trimIndent(),
-                        modifier = Modifier.weight(1.0f).fillMaxWidth()
-                    )
-                }
-            }
+                CommentColumn(Modifier, listOf(commentDownstream1, commentDownstream2, commentDownstream2, commentDownstream1))
         }
     }
 }
@@ -61,7 +49,7 @@ fun main() {
 @Composable
 fun CommentSummaryCard(
     modifier: Modifier = Modifier,
-    content: @Composable ColumnScope.() -> Unit,
+    commentDownstream: CommentDownstream,
     ) {
     val shape = RoundedCornerShape(16.dp)
     var seeMore by remember { mutableStateOf(false) }
@@ -83,7 +71,7 @@ fun CommentSummaryCard(
                 Modifier.padding(horizontal = 16.dp).padding(top = 16.dp))
 
             Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).weight(1f)) {
-                content()
+                RichText(commentDownstream.content.trimIndent(), modifier = Modifier.fillMaxWidth())
             }
 
             Column(Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
@@ -97,7 +85,7 @@ fun CommentSummaryCard(
             }
         }
     } else {
-
+        // TODO: to shrink by clicking "show less"
     }
 }
 
@@ -140,5 +128,21 @@ private fun AvatarBox(
             .border(color = MaterialTheme.colorScheme.outline, width = 1.dp, shape = CircleShape)
     ) {
         image()
+    }
+}
+
+
+@Composable
+fun CommentColumn(
+    modifier: Modifier = Modifier,
+    cards: List<CommentDownstream>,
+) {
+    Column(modifier = modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+        for(card in cards) {
+            Column(modifier = Modifier) {
+                CommentSummaryCard(Modifier.height(200.dp).fillMaxWidth(), card)
+            }
+            Column(modifier = Modifier.height(10.dp).fillMaxWidth()){}
+        }
     }
 }
