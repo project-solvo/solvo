@@ -47,6 +47,21 @@ fun main() {
 }
 
 @Composable
+fun CommentColumn(
+    modifier: Modifier = Modifier,
+    cards: List<CommentDownstream>,
+) {
+    Column(modifier = modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
+        for(card in cards) {
+            Column(modifier = Modifier) {
+                CommentSummaryCard(Modifier.height(200.dp).fillMaxWidth(), card)
+            }
+            Column(modifier = Modifier.height(10.dp).fillMaxWidth()){}
+        }
+    }
+}
+
+@Composable
 fun CommentSummaryCard(
     modifier: Modifier = Modifier,
     commentDownstream: CommentDownstream,
@@ -115,19 +130,3 @@ val AuthorNameTextStyle = TextStyle(
     textAlign = TextAlign.Center,
     lineHeight = 22.sp,
 )
-
-
-@Composable
-fun CommentColumn(
-    modifier: Modifier = Modifier,
-    cards: List<CommentDownstream>,
-) {
-    Column(modifier = modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
-        for(card in cards) {
-            Column(modifier = Modifier) {
-                CommentSummaryCard(Modifier.height(200.dp).fillMaxWidth(), card)
-            }
-            Column(modifier = Modifier.height(10.dp).fillMaxWidth()){}
-        }
-    }
-}
