@@ -77,5 +77,6 @@ jobs:
           heroku_api_key: ${{secrets.HEROKU_API_KEY}}
           heroku_app_name: solvo-platform
           heroku_email: him188@mamoe.net
-          appdir: "server/build/install/server"
-          procfile: "./bin/server"
+          usedocker: true
+#          appdir: "server/build/install/server"
+#          procfile: "./bin/server"
