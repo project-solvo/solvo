@@ -57,7 +57,7 @@ fun rememberImagePainter(
 }
 
 object NoOpPainter : Painter() {
-    override val intrinsicSize: Size get() = Size.Zero
+    override val intrinsicSize: Size get() = Size.Unspecified
     override fun DrawScope.onDraw() {
     }
 }
