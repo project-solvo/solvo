@@ -100,7 +100,7 @@ jobs:
             "updates": [
               {
                 "type": "web",
-                "docker_image": "registry.heroku.com/'$HEROKU_APP_NAME'/web"
+                "docker_image": "registry.heroku.com/$HEROKU_APP_NAME/web"
               }
             ]
           }' \
