@@ -5,6 +5,7 @@ package org.solvo.web.editor.impl
 import androidx.compose.runtime.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.colorspace.ColorSpaces
 import androidx.compose.ui.unit.*
@@ -12,10 +13,16 @@ import io.ktor.util.collections.*
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.document
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.w3c.dom.Element
+import org.w3c.dom.asList
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.WheelEvent
 import kotlin.time.Duration.Companion.seconds
@@ -85,6 +92,7 @@ internal class RichEditor internal constructor(
     private val editorLoaded = CompletableDeferred<Unit>()
 
     private var editorChanged: CompletableDeferred<Unit>? = null
+    private val onEditorChanged: Channel<Unit> = Channel(onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
     init {
         init()
@@ -108,6 +116,17 @@ internal class RichEditor internal constructor(
     internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
         editorLoaded.join()
         return action()
+    }
+
+    suspend fun hidePreviewCloseButton() {
+        onEditorLoaded {
+            document.getElementById(id)
+                ?.getElementsByClassName("editormd-preview-close-btn")
+                ?.asList()
+                ?.forEach {
+                    it.asDynamic().style.display = "none"
+                } ?: return@onEditorLoaded
+        }
     }
 
     internal suspend fun <R> expectEditorChange(action: suspend () -> R) {
@@ -216,6 +235,17 @@ internal class RichEditor internal constructor(
         }
     }
 
+    val onActualAreaChanged: Flow<Size> = onEditorChanged.receiveAsFlow().map {
+        awaitActualSize()
+    }
+
+    suspend fun awaitActualSize(): Size {
+        onEditorLoaded {
+            val rect = getHtmlPreviewMarkdownBody().getBoundingClientRect()
+            return Size(rect.width.toFloat(), rect.height.toFloat())
+        }
+    }
+
     suspend fun resizeToWrapPreviewContent(onClip: (size: DpSize) -> Unit) {
         onEditorLoaded {
             val rect = getHtmlPreviewMarkdownBody().getBoundingClientRect()
@@ -308,6 +338,7 @@ internal class RichEditor internal constructor(
 
     internal fun notifyChanged() {
         editorChanged?.complete(Unit)
+        onEditorChanged.trySend(Unit)
     }
 
     private fun dispose() {
@@ -316,7 +347,7 @@ internal class RichEditor internal constructor(
             document.removeChild(positionDiv)
             RichEditorIdManager.removeInstance(this.id)
         } catch (e: Throwable) {
-            e.printStackTrace()
+            console.error("Error in RichEditor.dispose", e.stackTraceToString())
         }
     }
 

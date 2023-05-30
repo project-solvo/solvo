@@ -1,7 +1,6 @@
 package org.solvo.web
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -12,13 +11,15 @@ import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.PostAdd
-import androidx.compose.material3.*
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -33,10 +34,10 @@ import org.solvo.web.document.parameters.article
 import org.solvo.web.document.parameters.course
 import org.solvo.web.document.parameters.question
 import org.solvo.web.document.parameters.rememberPathParameters
+import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.LocalSolvoWindow
-import org.solvo.web.ui.OverlayLoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.VerticalDraggableDivider
@@ -194,14 +195,15 @@ private fun ArticlePageContent(
 
 private var testCommentId = 0
 private fun createCommentDownstream(): CommentDownstream {
+    val id = testCommentId++
     return CommentDownstream(
         Uuid.random(),
         if (Random.nextBoolean()) {
             null
         } else {
-            User(Uuid.random(), "User ${testCommentId++}", null)
+            User(Uuid.random(), "User $id", null)
         },
-        DUMMY_TEXT,
+        createDummyText(id),
         Random.nextBoolean(),
         Random.nextUInt(),
         Random.nextUInt(),
@@ -229,52 +231,33 @@ private fun AnswersList(
                 item.author,
                 "May 05, 2023", // TODO: 2023/5/29 date
                 item.subComments,
-                Modifier.fillMaxWidth().weight(1f),
+                Modifier.wrapContentHeight().fillMaxWidth(),
             ) { backgroundColor ->
-                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
-                var editorReady by remember { mutableStateOf(false) }
-                OverlayLoadableContent(
-                    !editorReady || actualHeight == Dp.Unspecified,
-                    Modifier.height(actualHeight.coerceAtLeast(20.dp)).fillMaxWidth(),
-                    loadingContent = { LinearProgressIndicator() },
-                ) {
-                    //                    AnimatedVisibility(
-//                        !isLoading,
-//                        enter = expandVertically(
-//                            spring(
-//                                stiffness = Spring.StiffnessHigh,
-//                                visibilityThreshold = IntSize.VisibilityThreshold
-//                            ),
-//                            expandFrom = Alignment.Top,
-//                            initialHeight = { with(density) { 20.dp.roundToPx() } }
-//                        ),
-//                    ) {
-                    RichText(
-                        DUMMY_TEXT,
-                        modifier = Modifier.height(actualHeight).fillMaxWidth(),
-                        propagateScrollState = scrollState,
-                        onActualContentSizeChange = {
-                            actualHeight = it.height
-                        },
-                        backgroundColor = backgroundColor,
-                        showScrollbar = false,
-                        onTextUpdated = { editorReady = true }
-                    )
-//                    }
-                }
-//                    val showProgress = actualHeight == Dp.Unspecified
-//                    if (showProgress) {
-//                        Box(Modifier.fillMaxWidth()) {
-//                            CircularProgressIndicator(Modifier.align(Alignment.Center))
-//                        }
-//                    }
+                RichText(
+                    item.content,
+                    modifier = Modifier.wrapContentHeight().fillMaxWidth(),
+                    onTextUpdated = {
+//                        editorReady = true
+                    },
+                    propagateScrollState = scrollState,
+                    backgroundColor = backgroundColor,
+                    showScrollbar = false
+                )
+
+
+//                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
+//                var editorReady by remember { mutableStateOf(false) }
+//                OverlayLoadableContent(
+//                    !editorReady,
+//                    Modifier.height(actualHeight.takeOrElse { 20.dp }.coerceAtLeast(20.dp)).fillMaxWidth(),
+//                    loadingContent = { LinearProgressIndicator() },
+//                ) {
+//                    
+//                }
             }
         }
     }
 }
-
-val DUMMY_TEXT =
-    """Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc dignissim facilisis dui, vitae suscipit velit molestie in. Sed at finibus sem. Vestibulum nibh nunc, blandit sit amet semper eget, varius at enim. Suspendisse porta blandit est, semper tincidunt nunc porta et. Suspendisse consequat quam eu dui mattis mollis. Donec est orci, luctus sit amet iaculis ut, convallis ac libero. Quisque porttitor commodo lorem ac sagittis. Aliquam lobortis leo nisi, at rhoncus felis molestie viverra. Pellentesque accumsan tincidunt molestie. Vivamus non ligula rhoncus, ultricies libero ac, feugiat nisl. Cras quis convallis nunc. Mauris at est in ante consequat venenatis.""".trimIndent()
 
 @Composable
 private fun PaperTitle(

@@ -9,26 +9,26 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
-import kotlinx.browser.document
-import kotlinx.coroutines.CancellationException
 import org.intellij.lang.annotations.Language
-import org.solvo.web.editor.impl.RichEditor
 import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.isInDarkMode
-import org.w3c.dom.asList
 
+/**
+ * @param onEditorLoaded called when editor is loaded, and actual editor size is known.
+ * @param onIntrinsicSizeChanged called when intrinsic size (the size required to paint the full text) is changed.
+ * @param onLayout called when the layout is measured.
+ * @param propagateScrollState Propagate scroll events to scroll state, to support scrolling.
+ */
 @Composable
 @Suppress("NAME_SHADOWING")
 fun RichText(
     @Language("markdown") text: String,
     modifier: Modifier = Modifier,
-    onActualContentSizeChange: (DpSize) -> Unit = {},
-    onEditorLoaded: () -> Unit = {},
-    onTextUpdated: () -> Unit = {},
+    onEditorLoaded: (() -> Unit)? = null,
+    onTextUpdated: (() -> Unit)? = null,
+    onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
@@ -36,68 +36,30 @@ fun RichText(
     backgroundColor: Color = Color.Unspecified,
     showScrollbar: Boolean = true,
     contentColor: Color = LocalContentColor.current,
-    clipToContentSize: Boolean = true,
 ) {
     val state = rememberRichEditorState(0.dp)
-    val density by rememberUpdatedState(LocalDensity.current)
-
-    val onEditorLoaded by rememberUpdatedState(onEditorLoaded)
     val onTextUpdated by rememberUpdatedState(onTextUpdated)
-    val onActualContentSizeChange by rememberUpdatedState(onActualContentSizeChange)
 
     RichEditor(
-        modifier, richEditorState = state,
+        modifier,
         onEditorLoaded = onEditorLoaded,
+        state = state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
         isToolbarVisible = false,
         propagateScrollState = propagateScrollState,
         scrollOrientation = scrollOrientation,
         isInDarkTheme = isInDarkTheme,
-        onSizeChanged = {
-            if (clipToContentSize) {
-                state.richEditor.resizeToWrapPreviewContent {
-                    onActualContentSizeChange(it)
-                }
-            }
-        },
-        backgroundColor = backgroundColor
+        backgroundColor = backgroundColor,
+        fontSize = fontSize,
+        showScrollbar = showScrollbar,
+        contentColor = contentColor,
+        onLayout = onLayout,
     )
     LaunchedEffect(true) {
-        hidePreviewCloseButton(state.richEditor)
+        state.richEditor.hidePreviewCloseButton()
     }
-    LaunchedEffect(fontSize) {
-        state.richEditor.setFontSize(fontSize, density)
-    }
-    LaunchedEffect(contentColor) {
-        state.richEditor.setContentColor(contentColor)
-    }
-    LaunchedEffect(showScrollbar) {
-        state.richEditor.setShowScrollBar(showScrollbar)
-    }
-    LaunchedEffect(text, clipToContentSize) {
-        try {
-            if (clipToContentSize) {
-                state.setPreviewMarkdownAndClip(text) {
-                    onActualContentSizeChange(it)
-                }
-            } else {
-                state.setContentMarkdown(text)
-            }
-            onTextUpdated()
-//            state.richEditor.resizeToWrapContent(density)
-        } catch (e: CancellationException) {
-            println("Cancelled: ${state.richEditor.id}")
-        }
-    }
-}
-
-private suspend fun hidePreviewCloseButton(richEditor: RichEditor) {
-    richEditor.onEditorLoaded {
-        document.getElementById(richEditor.id)
-            ?.getElementsByClassName("editormd-preview-close-btn")
-            ?.asList()
-            ?.forEach {
-                it.asDynamic().style.display = "none"
-            } ?: return@onEditorLoaded
+    LaunchedEffect(text) {
+        state.setContentMarkdown(text)
+        onTextUpdated?.invoke()
     }
 }
