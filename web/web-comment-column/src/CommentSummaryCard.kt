@@ -40,7 +40,7 @@ fun main() {
         SolvoWindow {
             CommentColumn(
                 Modifier,
-                listOf(commentDownstream1, commentDownstream2, commentDownstream2, commentDownstream1)
+                listOf(commentDownstream1, commentDownstream2)
             )
         }
     }
