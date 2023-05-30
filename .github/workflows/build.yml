@@ -65,3 +65,17 @@ jobs:
 
       - name: Check
         run: ./gradlew check ${{ env.gradleArgs }}
+
+      - name: Build Staging
+        if: ${{ GITHUB_REF_NAME }} == "main" || ${{ GITHUB_REF_NAME }} == "deploy-heroku"
+        run: ./gradlew installDist ${{ env.gradleArgs }}
+
+      - uses: actions/checkout@v2
+      - uses: akhileshns/heroku-deploy@v3.12.14
+        if: ${{ GITHUB_REF_NAME }} == "main" || ${{ GITHUB_REF_NAME }} == "deploy-heroku"
+        with:
+          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
+          heroku_app_name: solvo-platform
+          heroku_email: him188@mamoe.net
+          appdir: "server/build/install/server"
+          procfile: "./bin/server"
