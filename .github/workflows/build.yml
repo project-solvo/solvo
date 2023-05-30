@@ -21,7 +21,7 @@ jobs:
       fail-fast: false
       matrix:
         os:
-          - macos-12
+          - ubuntu-latest
     env:
       enableLocalPublishingTest: 'false'
       gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx4096m" "-Dfile.encoding=UTF-8"
