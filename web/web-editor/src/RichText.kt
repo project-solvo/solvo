@@ -22,6 +22,7 @@ import org.solvo.web.ui.isInDarkMode
 import org.w3c.dom.asList
 
 @Composable
+@Suppress("NAME_SHADOWING")
 fun RichText(
     @Language("markdown") text: String,
     modifier: Modifier = Modifier,
@@ -35,9 +36,14 @@ fun RichText(
     backgroundColor: Color = Color.Unspecified,
     showScrollbar: Boolean = true,
     contentColor: Color = LocalContentColor.current,
+    clipToContentSize: Boolean = true,
 ) {
     val state = rememberRichEditorState(0.dp)
     val density by rememberUpdatedState(LocalDensity.current)
+
+    val onEditorLoaded by rememberUpdatedState(onEditorLoaded)
+    val onTextUpdated by rememberUpdatedState(onTextUpdated)
+    val onActualContentSizeChange by rememberUpdatedState(onActualContentSizeChange)
 
     RichEditor(
         modifier, richEditorState = state,
@@ -48,8 +54,10 @@ fun RichText(
         scrollOrientation = scrollOrientation,
         isInDarkTheme = isInDarkTheme,
         onSizeChanged = {
-            state.richEditor.resizeToWrapPreviewContent {
-                onActualContentSizeChange(it)
+            if (clipToContentSize) {
+                state.richEditor.resizeToWrapPreviewContent {
+                    onActualContentSizeChange(it)
+                }
             }
         },
         backgroundColor = backgroundColor
@@ -66,10 +74,14 @@ fun RichText(
     LaunchedEffect(showScrollbar) {
         state.richEditor.setShowScrollBar(showScrollbar)
     }
-    LaunchedEffect(text) {
+    LaunchedEffect(text, clipToContentSize) {
         try {
-            state.setPreviewMarkdownAndClip(text) {
-                onActualContentSizeChange(it)
+            if (clipToContentSize) {
+                state.setPreviewMarkdownAndClip(text) {
+                    onActualContentSizeChange(it)
+                }
+            } else {
+                state.setContentMarkdown(text)
             }
             onTextUpdated()
 //            state.richEditor.resizeToWrapContent(density)
