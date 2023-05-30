@@ -9,6 +9,10 @@ on:
     paths-ignore:
       - '**/*.md'
 
+env:
+  HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
+  HEROKU_APP_NAME: solvo-platform
+
 jobs:
   build:
     name: "Build (${{ matrix.os }})"
@@ -57,6 +61,10 @@ jobs:
       - if: ${{ env.isUnix == 'true' }}
         run: chmod -R +x *
 
+      - name: Login to Heroku Registry
+        if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
+        run: echo "$HEROKU_API_KEY" | docker login --username=_ --password-stdin registry.heroku.com
+
       - name: Clean and download dependencies
         run: ./gradlew clean ${{ env.gradleArgs }}
 
@@ -70,12 +78,22 @@ jobs:
         if: '${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"'
         run: ./gradlew installDist ${{ env.gradleArgs }}
 
-      - uses: akhileshns/heroku-deploy@v3.12.14
-        if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
-        with:
-          heroku_api_key: ${{secrets.HEROKU_API_KEY}}
-          heroku_app_name: solvo-platform
-          heroku_email: him188@mamoe.net
-          usedocker: true
-#          appdir: "server/build/install/server"
-#          procfile: "./bin/server"
+      - name: Build Docker image
+        run: docker build -t registry.heroku.com/$HEROKU_APP_NAME/web .
+
+      - name: Push Docker image to Heroku Registry
+        run: docker push registry.heroku.com/$HEROKU_APP_NAME/web
+
+      - name: Release Docker image on Heroku
+        run: |
+          curl -n -X PATCH https://api.heroku.com/apps/$HEROKU_APP_NAME/formation \
+          -d '{
+            "updates": [
+              {
+                "type": "web",
+                "docker_image": "registry.heroku.com/'$HEROKU_APP_NAME'/web"
+              }
+            ]
+          }' \
+          -H "Content-Type: application/json" \
+          -H "Accept: application/vnd.heroku+json; version=3.docker-releases"
