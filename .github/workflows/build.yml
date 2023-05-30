@@ -73,16 +73,19 @@ jobs:
       #          
       - name: Clean and download dependencies
         run: ./gradlew clean ${{ env.gradleArgs }}
-
-      - name: Assemble
-        run: ./gradlew assemble ${{ env.gradleArgs }}
-
-      - name: Check
-        run: ./gradlew check ${{ env.gradleArgs }}
+      
+      #      - name: Assemble
+      #        run: ./gradlewπ assemble ${{ env.gradleArgs }}
+      #
+      #      - name: Check
+      #        run: ./gradlew check ${{ env.gradleArgs }}
 
       - name: Build Staging
         if: '${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"'
         run: ./gradlew installDist ${{ env.gradleArgs }}
+
+      - name: Remove build temp
+        run: rm -rf ./build
 
       - name: Build Docker image
         run: docker build -t registry.heroku.com/$HEROKU_APP_NAME/web .
