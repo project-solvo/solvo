@@ -39,54 +39,62 @@ jobs:
           distribution: temurin
           java-version: 17
 
-      - name: Setup Gradle
-        uses: gradle/gradle-build-action@v2
-
-      - name: Cache Gradle
-        uses: pat-s/always-upload-cache@v3
-        with:
-          path: ~/.gradle
-          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
-
-      - name: Cache Maven
-        uses: pat-s/always-upload-cache@v3
-        with:
-          path: ~/.m2
-          key: ${{ runner.os }}-maven-${{ hashFiles('*.gradle.kts') }}
-          restore-keys: |
-            ${{ runner.os }}-maven-
+      - name: Install Heroku
+        if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
+        run: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+      
+      #      - name: Setup Gradle
+      #        uses: gradle/gradle-build-action@v2
+      
+      #      - name: Cache Gradle
+      #        uses: pat-s/always-upload-cache@v3
+      #        with:
+      #          path: ~/.gradle
+      #          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-gradle-
+      #
+      #      - name: Cache Maven
+      #        uses: pat-s/always-upload-cache@v3
+      #        with:
+      #          path: ~/.m2
+      #          key: ${{ runner.os }}-maven-${{ hashFiles('*.gradle.kts') }}
+      #          restore-keys: |
+      #            ${{ runner.os }}-maven-
 
       - if: ${{ env.isUnix == 'true' }}
         run: chmod -R +x *
 
       - name: Login to Heroku Registry
         if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
-        run: echo "$HEROKU_API_KEY" | docker login --username=him188@mamoe.net --password-stdin registry.heroku.com
-      #
-      #      - name: Login to Docker Hub
-      #        uses: docker/login-action@v1
-      #        with:
-      #          username: him188@mamoe.net
-      #          password: $HEROKU_API_KEY
-      #          
-      - name: Clean and download dependencies
-        run: ./gradlew clean ${{ env.gradleArgs }}
-      
-      #      - name: Assemble
-      #        run: ./gradlewπ assemble ${{ env.gradleArgs }}
-      #
-      #      - name: Check
-      #        run: ./gradlew check ${{ env.gradleArgs }}
+        #        run: echo "$HEROKU_API_KEY" | docker login --username=him188@mamoe.net --password-stdin registry.heroku.com
+        run: heroku container:login
+        
+        #      - name: Login to Docker Hub
+        #        uses: docker/login-action@v1
+        #        with:
+        #          username: him188@mamoe.net
+        #          password: $HEROKU_API_KEY
+        #          
+        #      - name: Clean and download dependencies
+        #        run: ./gradlew clean ${{ env.gradleArgs }}
+        
+        #      - name: Assemble
+        #        run: ./gradlewπ assemble ${{ env.gradleArgs }}
+        #
+        #      - name: Check
+        #        run: ./gradlew check ${{ env.gradleArgs }}
+        
+        #      - name: Build Staging
+        #        if: '${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"'
+        #        run: ./gradlew installDist ${{ env.gradleArgs }}
+        
+        #      - name: Remove build temp
+        #        run: rm -rf ./build
 
-      - name: Build Staging
-        if: '${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"'
-        run: ./gradlew installDist ${{ env.gradleArgs }}
+      - run: heroku container:push web
+      - run: heroku container:release web
 
-      - name: Remove build temp
-        run: rm -rf ./build
-#
 #      - name: Build Docker image
 #        run: docker build -t registry.heroku.com/$HEROKU_APP_NAME/web .
 #
