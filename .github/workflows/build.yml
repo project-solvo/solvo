@@ -67,7 +67,7 @@ jobs:
         run: ./gradlew check ${{ env.gradleArgs }}
 
       - name: Build Staging
-        if: ${{ GITHUB_REF_NAME }} == "main" || ${{ GITHUB_REF_NAME }} == "deploy-heroku"
+        if: '${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"'
         run: ./gradlew installDist ${{ env.gradleArgs }}
 
       - uses: actions/checkout@v2
