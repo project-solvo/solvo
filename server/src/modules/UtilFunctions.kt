@@ -29,7 +29,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
 }
 
 @KtorDsl
-fun Route.putAuthenticated(
+fun Route.postAuthenticated(
     path: String,
     body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
-): Route = authenticate("authBearer") { put(path, body) }
+): Route = authenticate("authBearer") { post(path, body) }

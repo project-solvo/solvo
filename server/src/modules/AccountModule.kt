@@ -18,8 +18,8 @@ fun Application.accountModule() {
     routeApi {
         authenticate("authBearer") {
             route("/account/{uid}") {
-                put("/newAvatar") {
-                    val uid = matchUserId(call.parameters.getOrFail("uid")) ?: return@put
+                post("/newAvatar") {
+                    val uid = matchUserId(call.parameters.getOrFail("uid")) ?: return@post
                     val input = call.receiveStream()
 
                     val path = accounts.uploadNewAvatar(uid, input, contents)

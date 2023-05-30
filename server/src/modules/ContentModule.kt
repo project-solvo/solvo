@@ -31,8 +31,8 @@ fun Application.contentModule() {
                     call.respondFile(file)
                 }
             }
-            putAuthenticated("/upload") {
-                val uid = getUserId() ?: return@putAuthenticated
+            postAuthenticated("/upload") {
+                val uid = getUserId() ?: return@postAuthenticated
 
                 val input = call.receiveStream()
                 val imageId = contents.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
@@ -46,11 +46,11 @@ fun Application.contentModule() {
             get {
                 call.respond(contents.allCourses())
             }
-            putAuthenticated("/new") {
-                val uid = getUserId() ?: return@putAuthenticated
+            postAuthenticated("/new") {
+                val uid = getUserId() ?: return@postAuthenticated
                 if (!accounts.isOp(uid)) {
                     call.respond(HttpStatusCode.Forbidden)
-                    return@putAuthenticated
+                    return@postAuthenticated
                 }
                 val course = call.receive<Course>()
 
@@ -80,8 +80,8 @@ fun Application.contentModule() {
                         call.respond(articles)
                     }
                 }
-                putAuthenticated("/upload") {
-                    val uid = getUserId() ?: return@putAuthenticated
+                postAuthenticated("/upload") {
+                    val uid = getUserId() ?: return@postAuthenticated
                     val courseCode = call.parameters.getOrFail("courseCode")
                     val article = call.receive<ArticleUpstream>()
 
@@ -117,10 +117,10 @@ fun Application.contentModule() {
             get("/get/{coid}/full") {
                 processGetComment(contents, viewFull = true)
             }
-            putAuthenticated("/post/{parentId}") {
+            postAuthenticated("/post/{parentId}") {
                 processUploadComment(contents, asAnswer = false)
             }
-            putAuthenticated("/post/{parentId}/asAnswer") {
+            postAuthenticated("/post/{parentId}/asAnswer") {
                 processUploadComment(contents, asAnswer = true)
             }
         }

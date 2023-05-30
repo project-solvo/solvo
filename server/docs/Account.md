@@ -10,7 +10,7 @@
 
 - `File`: Avatar file of user {uid}
 
-### PUT `/api/account/{uid}/newAvatar`
+### POST `/api/account/{uid}/newAvatar`
 
 #### Request
 

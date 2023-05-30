@@ -10,11 +10,47 @@
 
 - `File`: File of the requested image
 
+### POST `/api/images/upload`
+
+#### Request
+
+- `File`: File of image to be uploaded
+
+#### Response 401
+
+- User unauthorized
+
+#### Response 200
+
+```json5
+{
+    url: ".." // Url of image uploaded
+}
+```
+
 ### GET `/api/courses`
 
 #### Response 200
 
 - `List<Course>`: list of all courses
+- 
+### POST `/api/courses/new`
+
+#### Request
+
+- `Course`: Course to add
+
+#### Response 401
+
+- User unauthorized
+
+#### Response 400
+
+- Bad Course format
+
+#### Response 200
+
+- `Int`: ID of course
 
 ### GET `/api/courses/{courseCode}`
 
@@ -24,7 +60,59 @@
 
 #### Response 200
 
-- `List<String>`: list of all articles (possibly none) in that course
+- `Course`: information of the course
+
+### GET `/api/courses/{courseCode}/articles`
+
+#### Response 404
+
+- Course with given code does not exist
+
+#### Response 200
+
+- `List<ArticleDownstream>`: list of all articles (possibly none) in that course
+
+### POST `/api/courses/{courseCode}/articles/upload`
+
+#### Request
+
+`ArticleUpstream`:
+
+```json5
+{
+  content: "This is some description of the paper",
+  anonymity: true, // true or false
+
+  name: "Fancy Paper Name",
+  termYear: "2021-22",
+    
+  questions: [
+    {
+      content: "What is 1 + 1?",
+      anonymity: true, // usually same as article anonymity
+      index: "1a"
+    },
+    {
+      content: "What is 1 + 2?",
+      anonymity: true,
+      index: "1b"
+    }, 
+      // ...
+  ],
+}
+```
+
+#### Response 401
+
+- User unauthorized
+
+#### Response 400
+
+- Article upload failed due to invalid attributes of Article (like question index too long)
+
+#### Response 200
+
+- `UUID`: COID of uploaded article
 
 ### GET `/api/courses/{courseCode}/articles/{articleName}`
 
@@ -42,7 +130,9 @@
     auther: null,  // null if anonymous, otherwise the author
     content: "This is some description of the paper",
     anonymity: true,  // true or false
-    likes: 10, 
+    likes: 10,
+    dislikes: 0,
+
 
     name: "Fancy Paper Name",
     course: {
@@ -79,6 +169,7 @@
     content: "What is 1 + 1?",
     anonymity: false,  // true or false
     likes: 10,
+    dislikes: 0,
 
     index: "1a",
     article: 120,  // COID of its paper
@@ -100,3 +191,101 @@
     comments: [/* List of comments */],
 }
 ```
+
+### GET `/api/comments/get/{coid}`
+
+#### Response 404
+
+- Comment with given coid not found
+
+#### Response 200
+
+- `CommentDownstream`:
+- 
+```json5
+{
+    coid: 250,  // allocated comment COID
+    auther: {
+        id: 234, 
+        username: "Jerry",
+        avatarUrl: null
+    },   // null if anonymous, otherwise the author
+    content: "blah",
+    anonymity: false,  // true or false
+    likes: 10,
+    dislikes: 0,
+
+    parent: 123,  // parent coid
+    pinned: false, 
+    subComments: [
+        {
+            author: {
+                id: 234,
+                username: "Jerry",
+                avatarUrl: null
+            },
+            content: "Some addition..."
+        },
+        {
+            author: null,
+            content: "I disagree..."
+        },
+    ] // simplified content of up to 3 sub-comments
+}
+```
+
+### GET `/api/comments/get/{coid}/full`
+
+#### Response 404
+
+- Comment with given coid not found
+
+#### Response 200
+
+- `FullCommentDownstream`:
+-
+```json5
+{
+    coid: 250,  // allocated comment COID
+    auther: {
+        id: 234, 
+        username: "Jerry",
+        avatarUrl: null
+    },   // null if anonymous, otherwise the author
+    content: "blah",
+    anonymity: false,  // true or false
+    likes: 10,
+    dislikes: 0,
+
+    parent: 123,  // parent coid
+    pinned: false, 
+    subComments: [251, 254, 258, 259, 260, /*...*/]  // coid of all sub-comments
+}
+```
+
+### POST `/post/{parentId}`, `/post/{parentId}/asAnswer`
+
+- if `/asAnswer` is used, the comment is uploaded as an answer to a question
+
+#### Request
+
+`CommentUpstream`:
+
+```json5
+{
+  content: "I am making a comment",
+  anonymity: true, // true or false
+}
+```
+
+#### Response 401
+
+- User unauthorized
+
+#### Response 400
+
+- Bad comment format
+
+#### Response 200
+
+- `UUID`: COID of uploaded comment
