@@ -5,8 +5,8 @@ WORKDIR /app
 
 EXPOSE 80
 
-COPY server/build/install/server /app
-#RUN ./gradlew clean :server:installDist --no-daemon --info
-RUN chmod +x "/app/bin/server"
+COPY . /app
+RUN ./gradlew clean :server:installDist --no-daemon --info
+RUN chmod +x "/app/server/build/install/server"
 
-ENTRYPOINT cd "/app" && "./bin/server"
+ENTRYPOINT cd "/app/server/build/install/server" && "./bin/server"
