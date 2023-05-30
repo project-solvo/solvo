@@ -30,13 +30,14 @@ import kotlin.time.Duration.Companion.seconds
 
 @Suppress("SpellCheckingInspection")
 internal val editormd: dynamic = js("""editormd""")
+private const val RICH_TEXT_EDITORS = "rich-text-editors"
 
 @JsExport
 @JsName("onRichEditorInitialized")
 fun onRichEditorInitialized(jsEditor: dynamic) {
     val id = jsEditor.id as String
     console.log("Editor.md $id initialized")
-    val editor = RichEditorIdManager.getInstanceById(id)
+    val editor = RichEditorIdManager.getInstanceById(id) ?: return // null if already removed
     editor.notifyLoaded()
 }
 
@@ -45,7 +46,7 @@ fun onRichEditorInitialized(jsEditor: dynamic) {
 fun onRichEditorChanged(jsEditor: dynamic) {
     val id = jsEditor.id as String
     console.log("Editor.md $id changed")
-    val editor = RichEditorIdManager.getInstanceById(id)
+    val editor = RichEditorIdManager.getInstanceById(id) ?: return // null if already removed
     editor.notifyChanged()
 }
 
@@ -63,8 +64,8 @@ internal object RichEditorIdManager {
         instances[id] = richEditor
     }
 
-    fun getInstanceById(id: String): RichEditor {
-        return instances[id] ?: error("Could not find RichEditor instance with id '$id'")
+    fun getInstanceById(id: String): RichEditor? {
+        return instances[id]
     }
 }
 
@@ -344,7 +345,10 @@ internal class RichEditor internal constructor(
     private fun dispose() {
         try {
             scope.cancel()
-            document.removeChild(positionDiv)
+            try {
+                document.getElementById(RICH_TEXT_EDITORS)?.removeChild(positionDiv)
+            } catch (_: Throwable) {
+            }
             RichEditorIdManager.removeInstance(this.id)
         } catch (e: Throwable) {
             console.error("Error in RichEditor.dispose", e.stackTraceToString())
@@ -366,7 +370,7 @@ internal class RichEditor internal constructor(
             positionDiv.asDynamic().style.position = "absolute"
 
             positionDiv.appendChild(element)
-            document.getElementById("rich-text-editors")?.appendChild(positionDiv)
+            document.getElementById(RICH_TEXT_EDITORS)?.appendChild(positionDiv)
                 ?: error("Cannot find rich-text-editors to insert rich editors")
 
             val editor = editormd(

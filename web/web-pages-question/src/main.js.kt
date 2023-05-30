@@ -231,17 +231,19 @@ private fun AnswersList(
                 item.subComments,
                 Modifier.wrapContentHeight().fillMaxWidth(),
             ) { backgroundColor ->
-                RichText(
-                    item.content,
-                    modifier = Modifier.wrapContentHeight().fillMaxWidth(),
-                    onTextUpdated = {
+                key(item.coid) { // redraw editor when item id changed (do not reuse)
+                    RichText(
+                        item.content,
+                        modifier = Modifier.wrapContentHeight().fillMaxWidth(),
+                        onTextUpdated = {
 //                        editorReady = true
-                    },
-                    propagateScrollState = scrollState,
-                    backgroundColor = backgroundColor,
-                    showScrollbar = false
-                )
+                        },
+                        propagateScrollState = scrollState,
+                        backgroundColor = backgroundColor,
+                        showScrollbar = false
+                    )
 
+                }
 
 //                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
 //                var editorReady by remember { mutableStateOf(false) }

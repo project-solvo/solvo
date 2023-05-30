@@ -53,39 +53,39 @@ fun RichEditor(
 ) {
     val density = LocalDensity.current
 
-    LaunchedEffect(isInDarkTheme) {
+    LaunchedEffect(isInDarkTheme, state) {
         state.richEditor.setInDarkTheme(isInDarkTheme)
     }
-    LaunchedEffect(displayMode) {
+    LaunchedEffect(displayMode, state) {
         state.richEditor.setDisplayMode(displayMode)
     }
-    LaunchedEffect(isToolbarVisible) {
+    LaunchedEffect(isToolbarVisible, state) {
         state.richEditor.setToolbarVisible(isToolbarVisible)
     }
-    LaunchedEffect(fontSize) {
+    LaunchedEffect(fontSize, state) {
         state.richEditor.setFontSize(fontSize, density)
     }
-    LaunchedEffect(contentColor) {
+    LaunchedEffect(contentColor, state) {
         state.richEditor.setContentColor(contentColor)
     }
-    LaunchedEffect(showScrollbar) {
+    LaunchedEffect(showScrollbar, state) {
         state.richEditor.setShowScrollBar(showScrollbar)
     }
 
     val scope = rememberCoroutineScope()
-    LaunchedEffect(propagateScrollState) {
+    LaunchedEffect(propagateScrollState, state) {
         state.richEditor.onScroll(density) {
             scope.launch(start = CoroutineStart.UNDISPATCHED) {
                 propagateScrollState?.scrollBy(it[scrollOrientation])
             }
         }
     }
-    LaunchedEffect(backgroundColor) {
+    LaunchedEffect(backgroundColor, state) {
         if (backgroundColor.isSpecified) {
             state.richEditor.setBackgroundColor(backgroundColor)
         }
     }
-    LaunchedEffect(true, onEditorLoaded) {
+    LaunchedEffect(true, onEditorLoaded, state) {
         if (onEditorLoaded != null) {
             state.richEditor.onEditorLoaded {
                 onEditorLoaded.invoke()
@@ -94,7 +94,7 @@ fun RichEditor(
     }
     var actualSize: IntSize? by remember { mutableStateOf(null) }
 
-    LaunchedEffect(true) {
+    LaunchedEffect(state, density) {
         state.richEditor.onActualAreaChanged.collect {
             if (RichEditorLayoutDebug) {
                 println("listen actual area change: $it ")
