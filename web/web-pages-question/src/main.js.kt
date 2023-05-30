@@ -1,6 +1,8 @@
 package org.solvo.web
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -46,33 +48,37 @@ import kotlin.random.nextUInt
 fun main() {
     onWasmReady {
         SolvoWindow {
+            val pathParameters = rememberPathParameters(WebPagePathPatterns.question)
+            val course by pathParameters.course().collectAsState(null)
+            val article by pathParameters.article().collectAsState(null)
+            val question by pathParameters.question().collectAsState(null)
+
             val model = remember { ArticlePageViewModel() }
 
             val menuState = remember { CourseMenuState() }
-            SolvoTopAppBar {
-                IconButton(onClick = { menuState.switchMenuOpen() }) {
-                    Icon(Icons.Filled.Menu, null)
+            SolvoTopAppBar(
+                navigationIcon = {
+                    IconButton(onClick = { menuState.switchMenuOpen() }) {
+                        Icon(Icons.Filled.Menu, null)
+                    }
                 }
+            ) {
+                course?.let { article?.let { it1 -> PaperTitle(it, it1.name) } }
             }
 
             CourseMenu(
                 menuState,
                 model.allArticles,
-                onClickQuestion = { article: ArticleDownstream, question: QuestionDownstream ->
+                onClickQuestion = { articles: ArticleDownstream, questions: QuestionDownstream ->
                     History.navigate {
                         question(
-                            article.course.code,
-                            article.name,
-                            question.code
+                            articles.course.code,
+                            articles.name,
+                            questions.code
                         )
                     } // TODO: 2023/5/29 navigate article
                 })
 
-
-            val pathParameters = rememberPathParameters(WebPagePathPatterns.question)
-            val course by pathParameters.course().collectAsState(null)
-            val article by pathParameters.article().collectAsState(null)
-            val question by pathParameters.question().collectAsState(null)
 
             LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
                 ArticlePageContent(
@@ -98,7 +104,22 @@ private fun ArticlePageContent(
         var leftWidth by remember { mutableStateOf(windowSize.width * (1.0f - 0.618f)) }
         Box(Modifier.width(leftWidth)) {
             PaperView(
-                courseTitle = { PaperTitle(course, article.name, question.code) },
+                questionSelectedBar = {
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    ) {
+                        article.questionIndexes.forEach {
+                            AssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(it)
+                                },
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                shape = RoundedCornerShape(8.dp),
+                            )
+                        }
+                    }
+                },
                 onChangeLayout = {
                     // TODO change article page layout
                 },
@@ -259,17 +280,18 @@ val DUMMY_TEXT =
 private fun PaperTitle(
     course: Course,
     year: String,
-    questionNumber: String,
 ) {
-    Text(course.code, fontWeight = FontWeight.W800, fontSize = 22.sp)
-    Text(course.name, Modifier.padding(start = 4.dp), fontWeight = FontWeight.W800, fontSize = 22.sp)
-    Text(year, Modifier.padding(start = 16.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
-    Text(questionNumber, Modifier.padding(start = 6.dp), fontWeight = FontWeight.W600, fontSize = 16.sp)
+    Row {
+        Text(course.code, fontWeight = FontWeight.W800, fontSize = 22.sp)
+        Text(course.name, Modifier.padding(start = 4.dp), fontWeight = FontWeight.W800, fontSize = 22.sp)
+        Text(year, Modifier.padding(start = 16.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
+    }
+
 }
 
 @Composable
 private fun PaperView(
-    courseTitle: @Composable RowScope. () -> Unit,
+    questionSelectedBar: @Composable RowScope. () -> Unit,
     onChangeLayout: () -> Unit,
     modifier: Modifier = Modifier,
     isExpanded: Boolean = true,
@@ -277,8 +299,12 @@ private fun PaperView(
 ) {
     Column(modifier) {
         ControlBar(Modifier.fillMaxWidth()) {
-            courseTitle()
-            Spacer(Modifier.weight(1f))
+            Row(
+                Modifier.weight(1f)
+            ) {
+                questionSelectedBar()
+            }
+
             IconButton(onChangeLayout) {
                 if (isExpanded) {
                     Icon(Icons.Default.Compress, "Compress")

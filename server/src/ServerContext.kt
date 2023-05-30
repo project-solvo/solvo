@@ -62,13 +62,21 @@ object ServerContext {
                     newCourse(Course("50008", "Probability and Statistics"))
                     newCourse(Course("50009", "Symbolic Reasoning"))
 
+
+                    val questionList = mutableListOf<QuestionUpstream>()
+
+                    for (i in 1 until 3) {
+                        for (j in 'a' until 'f') {
+                            questionList.add(QuestionUpstream("Haha", true, "$i$j"))
+                        }
+                    }
                     postArticle(
                         article = ArticleUpstream(
                             content = "My content",
                             anonymity = true,
                             name = "Paper 2022",
                             termYear = "2022",
-                            questions = listOf(QuestionUpstream("Haha", true, "1a"))
+                            questions = questionList,
                         ),
                         authorId = alex,
                         courseCode = "50001"

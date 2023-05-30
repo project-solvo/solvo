@@ -7,7 +7,6 @@ import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.History
@@ -15,14 +14,15 @@ import org.solvo.web.ui.LocalSolvoWindow
 
 @Composable
 fun SolvoTopAppBar(
-    navigationIcon: @Composable () -> Unit = {}
+    navigationIcon: @Composable () -> Unit = {},
+    title: @Composable () -> Unit = {}
 ) {
     var notifyMenu1 by remember { mutableStateOf(false) }
     var personalMenu1 by remember { mutableStateOf(false) }
     var settingMenu1 by remember { mutableStateOf(false) }
-    TopAppBar(
+    CenterAlignedTopAppBar(
         title = {
-            Text(text = "Solvo", fontWeight = FontWeight.W800)
+            title()
         },
         Modifier.fillMaxWidth(),
         navigationIcon = {
