@@ -9,6 +9,7 @@ kotlin {
         val jsMain by getting {
             dependencies {
                 api(project(":web:web-editor"))
+                api(project(":web:web-comments"))
             }
         }
     }

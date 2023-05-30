@@ -116,21 +116,6 @@ val AuthorNameTextStyle = TextStyle(
     lineHeight = 22.sp,
 )
 
-@Composable
-private fun AvatarBox(
-    modifier: Modifier = Modifier,
-    image: @Composable BoxScope.() -> Unit,
-) {
-    Box(
-        modifier
-            .clip(CircleShape)
-            .background(color = Color.Gray)
-            .border(color = MaterialTheme.colorScheme.outline, width = 1.dp, shape = CircleShape)
-    ) {
-        image()
-    }
-}
-
 
 @Composable
 fun CommentColumn(

@@ -118,7 +118,7 @@ fun CommentCard(
 }
 
 @Composable
-private fun AvatarBox(
+fun AvatarBox(
     modifier: Modifier = Modifier,
     image: @Composable BoxScope.() -> Unit,
 ) {
