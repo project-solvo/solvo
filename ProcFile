@@ -1,1 +1,0 @@
-web: cd ./server/build/install/server && ./bin/server
