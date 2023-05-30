@@ -70,7 +70,6 @@ jobs:
         if: '${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"'
         run: ./gradlew installDist ${{ env.gradleArgs }}
 
-      - uses: actions/checkout@v2
       - uses: akhileshns/heroku-deploy@v3.12.14
         if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
         with:
