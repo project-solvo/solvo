@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
 import androidx.compose.ui.unit.dp
@@ -49,6 +50,12 @@ fun SolvoWindow(
                 }
             }
 
+            val density = LocalDensity.current
+            LaunchedEffect(density) {
+                console.log("Window size: ${windowState.size.value}")
+                console.log("Density: ${density.density}")
+                console.log("fontScale: ${density.fontScale}")
+            }
         }
     }
 }
