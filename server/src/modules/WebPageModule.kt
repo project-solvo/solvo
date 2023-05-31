@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
+import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
@@ -16,11 +17,18 @@ import org.solvo.server.ServerMain
 // See docs/WebPages.md
 fun Application.webPageModule() {
     routing {
-
         // STATIC RESOURCES
-        staticResources("/", "static", index = null)
-        routeStatic("/skiko.js", "/skiko.js")
-        routeStatic("/skiko.wasm", "/skiko.wasm")
+        staticResources("/", "static", index = null) {
+            cacheControl {
+                listOf(CacheControl.MaxAge(maxAgeSeconds = 64000))
+            }
+        }
+        routeStatic("/skiko.js", "/skiko.js") {
+            call.caching = CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 64000))
+        }
+        routeStatic("/skiko.wasm", "/skiko.wasm") {
+            call.caching = CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 64000))
+        }
 
         // WEB PAGES
         routeWebPage(WebPagePathPatterns.home, "/index")
@@ -32,12 +40,14 @@ fun Application.webPageModule() {
 }
 
 @KtorDsl
-private fun Routing.routeStatic(
+private inline fun Routing.routeStatic(
     path: String, respondPath: String,
-    mimeResolve: (String) -> ContentType = { ContentType.defaultForFileExtension(it) }
+    noinline mimeResolve: (String) -> ContentType = { ContentType.defaultForFileExtension(it) },
+    crossinline options: PipelineContext<Unit, ApplicationCall>.() -> Unit = {},
 ) {
     get(path) {
         val resourcePath = """/$RESOURCES_WEB_GENERATED/${respondPath.removeSuffix("/")}"""
+        options()
         call.respond(HttpStatusCode.OK, call.getStaticResource(resourcePath, mimeResolve))
     }
 }

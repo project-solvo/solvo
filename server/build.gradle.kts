@@ -22,6 +22,7 @@ dependencies {
     implementation(`ktor-server-core-jvm`)
     implementation(`ktor-server-websockets`)
     implementation(`ktor-server-content-negotiation`)
+    implementation(`ktor-server-caching-headers`)
     implementation(`ktor-serialization-kotlinx-json`)
     implementation(`slf4j-api`)
     implementation(`slf4j-simple`)
