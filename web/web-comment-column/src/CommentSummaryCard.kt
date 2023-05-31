@@ -88,7 +88,8 @@ fun CommentSummaryCard(
             authorName = {
                 Text("Alex") // actual: commentDownstream.author
             },
-            Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+            date = if (!seeMore) null else ("23 May 2023"), // TODO: date should be a field within commentDownStream
+            Modifier.padding(horizontal = 16.dp).padding(top = 16.dp),
         )
 
         Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).then(if (seeMore) Modifier else Modifier.weight(1f))) {
@@ -112,6 +113,7 @@ fun CommentSummaryCard(
 private fun Author(
     icon: @Composable BoxScope.() -> Unit,
     authorName: @Composable () -> Unit,
+    date: String?,
     modifier: Modifier = Modifier,
 ) {
     Row(modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
@@ -119,9 +121,16 @@ private fun Author(
             icon.invoke(this)
         }
         Spacer(Modifier.width(12.dp)) // 8.dp
-        Box {
-            ProvideTextStyle(AuthorNameTextStyle) {
-                authorName()
+        Column {
+            Box {
+                ProvideTextStyle(AuthorNameTextStyle) {
+                    authorName()
+                }
+            }
+            if (date != null) {
+                Box {
+                    Text(date)
+                }
             }
         }
     }
