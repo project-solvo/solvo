@@ -30,7 +30,7 @@ jobs:
       isWindows: ${{ startsWith(matrix.os, 'windows') }}
       isUbuntu: ${{ startsWith(matrix.os, 'ubuntu') }}
       isUnix: ${{ startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu') }}
-      deployStaging: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
+      deployStaging: $GITHUB_REF_NAME == "main" || $GITHUB_REF_NAME == "deploy-heroku"
     steps:
       - uses: actions/checkout@v3
         with:
