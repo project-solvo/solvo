@@ -31,6 +31,8 @@ import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
 import org.solvo.web.ui.theme.UNICODE_FONT
 
+@Stable
+val CommentCardShape = RoundedCornerShape(16.dp)
 
 @Composable
 fun CommentCard(
@@ -43,11 +45,10 @@ fun CommentCard(
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val subCommentsState by rememberUpdatedState(subComments)
-    val shape = remember { RoundedCornerShape(16.dp) }
-    val backgroundColor = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+    val backgroundColor = commentCardBackgroundColor()
     Card(
         modifier.clickable(indication = null, onClick = onClickCard),
-        shape = shape,
+        shape = CommentCardShape,
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
         )
@@ -81,7 +82,7 @@ fun CommentCard(
         if (showComments.isNotEmpty()) {
             Column(
                 Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
-                    .background(Color(0x212121), shape = shape)
+                    .background(Color(0x212121), shape = CommentCardShape)
                     .fillMaxWidth()
                     .wrapContentHeight(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -116,6 +117,9 @@ fun CommentCard(
         }
     }
 }
+
+@Composable
+private fun commentCardBackgroundColor() = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
 
 @Composable
 fun AvatarBox(

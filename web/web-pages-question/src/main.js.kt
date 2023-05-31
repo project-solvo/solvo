@@ -1,6 +1,5 @@
 package org.solvo.web
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -9,7 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -38,7 +36,6 @@ import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.VerticalDraggableDivider
-import org.solvo.web.ui.image.rememberImagePainter
 import kotlin.random.Random
 import kotlin.random.nextUInt
 
@@ -124,27 +121,21 @@ private fun ArticlePageContent(
                 },
                 Modifier.fillMaxSize()
             ) {
-                Image(
-                    rememberImagePainter(
-                        "https://him188.github.io/static/images/WACCLangSpec_00.png",
-                        error = Icons.Outlined.BrokenImage,
-                    ),
-                    "Article Content",
-                    Modifier.fillMaxSize(),
-                )
-//                val painter by rememberUpdatedState(
+//                Image(
 //                    rememberImagePainter(
 //                        "https://him188.github.io/static/images/WACCLangSpec_00.png",
 //                        error = Icons.Outlined.BrokenImage,
-//                    )
+//                    ),
+//                    "Article Content",
+//                    Modifier.fillMaxSize(),
 //                )
-//                OverlayLoadableContent(isLoading = painter == NoOpPainter, Modifier.fillMaxSize()) {
-//                    Image(
-//                        painter,
-//                        "Article Content",
-//                        Modifier.fillMaxSize(),
-//                    )
-//                }
+                Box(Modifier.padding(all = 12.dp)) {
+                    RichText(
+                        question.content, Modifier.fillMaxSize(),
+                        backgroundColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
             }
         }
 
