@@ -43,11 +43,15 @@ class CourseMenuState(
         _clickedArticle.value = article
     }
 
-    fun addArticles(article: ArticleDownstream) {
+    fun addArticle(article: ArticleDownstream) {
         _allArticles.value.add(article)
     }
 
     fun addArticles(articles: List<ArticleDownstream>) {
         _allArticles.value.addAll(articles)
+    }
+
+    fun setArticles(articles: List<ArticleDownstream>) {
+        _allArticles.value = mutableListOf<ArticleDownstream>().apply { addAll(articles) }
     }
 }
