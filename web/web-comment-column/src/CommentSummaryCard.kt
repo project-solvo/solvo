@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -26,6 +27,8 @@ import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.modifiers.clickable
+import org.solvo.web.ui.modifiers.CursorIcon
+import org.solvo.web.ui.modifiers.cursorHoverIcon
 
 
 fun main() {
@@ -92,7 +95,8 @@ fun CommentSummaryCard(
             RichText(commentDownstream.content.trimIndent(), modifier = Modifier.fillMaxWidth())
         }
 
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+            .cursorHoverIcon(CursorIcon.POINTER)) {
             Text(
                 text = (if (!seeMore) "See More" else "Show Less"),
                 modifier = (if (!seeMore) Modifier.clickable { seeMore = true } else Modifier.clickable { seeMore = false }),
