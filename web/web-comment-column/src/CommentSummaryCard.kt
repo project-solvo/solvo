@@ -1,5 +1,6 @@
 package org.solvo.web.comments.column
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -20,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.CommentDownstream
 import org.solvo.model.foundation.Uuid
@@ -76,7 +78,7 @@ fun CommentSummaryCard(
 ) {
     val shape = RoundedCornerShape(16.dp)
     val model by remember {mutableStateOf( CommentCardState(modifier, commentDownstream))}
-    Card(shape = shape, modifier = model.currentCardModifier.value) {
+    Card(shape = shape, modifier = model.currentCardModifier.value.animateContentSize()) {
         Author(
             icon = {
                 AvatarBox(Modifier.size(20.dp)) {
@@ -87,9 +89,7 @@ fun CommentSummaryCard(
                     )
                 }
             },
-            authorName = {
-                Text("Alex") // actual: commentDownstream.author
-            },
+            authorName = "Alex",// actual: commentDownstream.author
             date = model.date.value,
             Modifier.padding(horizontal = 16.dp).padding(top = 10.dp),
         )
@@ -103,10 +103,9 @@ fun CommentSummaryCard(
             Text(
                 text = model.text.value,
                 modifier = Modifier.clickable {
-                    model.switchSeeMore();
-                    model.switchCardModifier();
-                    model.changeText();
-                    model.changeDate()} ,
+                    model.switchSeeMore()
+                    model.switchCardModifier()
+                    model.changeText()} ,
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -118,26 +117,21 @@ fun CommentSummaryCard(
 @Composable
 private fun Author(
     icon: @Composable BoxScope.() -> Unit,
-    authorName: @Composable () -> Unit,
-    date: String?,
+    authorName: String,
+    date: String,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier.height(30.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(20.dp)) {
+    Row(modifier.height(25.dp)) {
+        Box(Modifier.size(30.dp)) {
             icon.invoke(this)
         }
-        Spacer(Modifier.width(12.dp)) // 8.dp
-        Column(Modifier.height(30.dp)) {
-            Column(modifier = if (date != null) Modifier.weight(1f) else Modifier) {
-                ProvideTextStyle(AuthorNameTextStyle) {
-                    authorName()
-                }
+        Box {
+            ProvideTextStyle(AuthorNameTextStyle) {
+                    Text(authorName, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 3.dp))
             }
-            if (date != null) {
-                Column(Modifier.weight(1f)) {
-                    Text(date)
-                }
-            }
+        }
+        Box(modifier = Modifier.offset(y = -2.dp)) {
+            Text("(last edited: " + date + ")", fontSize = 15.sp)
         }
     }
 }

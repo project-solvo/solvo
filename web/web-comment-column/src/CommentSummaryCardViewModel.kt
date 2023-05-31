@@ -13,7 +13,8 @@ class CommentCardState(modifier: Modifier, commentDownstream: CommentDownstream)
     var currentCardModifier = mutableStateOf(modifier)
     private val cardModifier = mutableStateOf(modifier)
     var text = mutableStateOf("See More")
-    var date: MutableState<String?> = mutableStateOf(null)
+    // TODO: should be a field of commentDownstream
+    var date: MutableState<String> = mutableStateOf("16:03, 23/May/2023")
 
     fun switchSeeMore() {
         seeMore.value = !seeMore.value
@@ -35,11 +36,7 @@ class CommentCardState(modifier: Modifier, commentDownstream: CommentDownstream)
             text.value = "Show Less"}
     }
 
-    fun changeDate() {
-        if (date.value == null) {
-            date.value = "23 May 2023" // TODO: date should be a field within commentDownStream
-        } else {
-            date.value = null
-        }
+    fun changeDate(newDate: String) {
+        date.value = newDate
     }
 }
