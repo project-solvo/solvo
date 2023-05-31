@@ -18,6 +18,5 @@ EXPOSE 80
 
 # Run server via Gradle
 COPY . /app
-RUN ./gradlew clean :server:build
 
 ENTRYPOINT "./gradlew :server:run"
