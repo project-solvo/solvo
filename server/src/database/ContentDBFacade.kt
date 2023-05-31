@@ -1,7 +1,7 @@
 package org.solvo.server.database
 
 import org.solvo.model.*
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.*
 import org.solvo.server.utils.StaticResourcePurpose
@@ -43,7 +43,7 @@ class ContentDBFacadeImpl(
 
     override suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
         for (question in article.questions) {
-            if (question.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return null
+            if (question.code.length > ModelConstraints.QUESTION_INDEX_MAX_LENGTH) return null
         }
 
         val articleId = articles.post(article, authorId, courseCode) ?: return null

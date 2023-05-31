@@ -3,7 +3,7 @@ package org.solvo.server.database.control
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.User
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -50,7 +50,7 @@ class AccountDBControlImpl : AccountDBControl {
     }.contentEquals(hash)
 
     override suspend fun addAccount(username: String, hash: ByteArray): UUID? = dbQuery {
-        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) return@dbQuery null
+        if (username.length > ModelConstraints.USERNAME_MAX_LENGTH) return@dbQuery null
         val userId = UserTable.insertIgnoreAndGetId {
             it[UserTable.username] = username
         }?.value
@@ -70,7 +70,7 @@ class AccountDBControlImpl : AccountDBControl {
     }
 
     override suspend fun modifyUsername(uid: UUID, username: String): Boolean = dbQuery {
-        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) return@dbQuery false
+        if (username.length > ModelConstraints.USERNAME_MAX_LENGTH) return@dbQuery false
         UserTable.update({ UserTable.id eq uid }) {
             it[UserTable.username] = username
         } > 0

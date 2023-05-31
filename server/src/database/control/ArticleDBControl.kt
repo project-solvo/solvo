@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.ArticleDownstream
 import org.solvo.model.ArticleUpstream
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
 import org.solvo.server.database.exposed.CommentTable
@@ -44,8 +44,8 @@ class ArticleDBControlImpl(
     }
 
     override suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
-        if (content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
-            || content.code.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
+        if (content.termYear.length > ModelConstraints.TERM_TIME_MAX_LENGTH
+            || content.code.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH
         ) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         val courseId = courseDB.getId(courseCode) ?: return null

@@ -4,7 +4,7 @@ import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.QuestionDownstream
 import org.solvo.model.QuestionUpstream
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
@@ -31,7 +31,7 @@ class QuestionDBControlImpl(
     }
 
     override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? {
-        if (content.code.length > DatabaseModel.QUESTION_INDEX_MAX_LENGTH) return null
+        if (content.code.length > ModelConstraints.QUESTION_INDEX_MAX_LENGTH) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         dbQuery {
             assert(QuestionTable.insert {

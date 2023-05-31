@@ -1,6 +1,6 @@
 package org.solvo.model.utils
 
-class DatabaseModel {
+class ModelConstraints {
     companion object {
         const val USERNAME_MAX_LENGTH = 16
         const val HASH_SIZE = 32

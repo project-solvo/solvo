@@ -1,12 +1,12 @@
 package org.solvo.server.database.exposed
 
 import org.jetbrains.exposed.sql.Table
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 
 object ArticleTable: Table("Articles") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
-    val code = varchar("code", DatabaseModel.ARTICLE_CODE_MAX_LENGTH)
-    val displayName = varchar("displayName", DatabaseModel.ARTICLE_NAME_MAX_LENGTH)
+    val code = varchar("code", ModelConstraints.ARTICLE_CODE_MAX_LENGTH)
+    val displayName = varchar("displayName", ModelConstraints.ARTICLE_NAME_MAX_LENGTH)
     val course = reference("courseId", CourseTable)
     val term = reference("termId", TermTable)
 

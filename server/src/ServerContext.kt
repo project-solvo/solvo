@@ -82,6 +82,18 @@ object ServerContext {
                         authorId = alex,
                         courseCode = "50001"
                     )
+                    postArticle(
+                        article = ArticleUpstream(
+                            content = "My content",
+                            anonymity = false,
+                            code = "Paper_2021",
+                            displayName = "Paper 2021",
+                            termYear = "2021",
+                            questions = questionList,
+                        ),
+                        authorId = alex,
+                        courseCode = "50001"
+                    )
                 }
                 config.setConfig("initialized")
             }

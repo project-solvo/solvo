@@ -1,13 +1,13 @@
 package org.solvo.model.api
 
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.model.utils.Digest
 
 object AccountChecker {
     private val regex = Regex("^[a-zA-Z0-9_-]+$")
 
     fun checkUserNameValidity(username: String): AuthStatus {
-        if (username.length > DatabaseModel.USERNAME_MAX_LENGTH) {
+        if (username.length > ModelConstraints.USERNAME_MAX_LENGTH) {
             return AuthStatus.USERNAME_TOO_LONG
         }
         val valid = regex.matches(username)

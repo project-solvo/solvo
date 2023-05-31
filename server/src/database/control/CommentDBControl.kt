@@ -6,7 +6,7 @@ import org.solvo.model.CommentDownstream
 import org.solvo.model.CommentUpstream
 import org.solvo.model.FullCommentDownstream
 import org.solvo.model.LightCommentDownstream
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
@@ -48,7 +48,7 @@ class CommentDBControlImpl(
                 // TODO: better strategy
                 Pair(CommentedObjectTable.likes, SortOrder.DESC), Pair(CommentedObjectTable.postTime, SortOrder.DESC)
             )
-            .take(DatabaseModel.LIGHT_SUB_COMMENTS_AMOUNT)
+            .take(ModelConstraints.LIGHT_SUB_COMMENTS_AMOUNT)
             .map { LightCommentDownstream(
                 author = if (it[subCommentTable[CommentedObjectTable.anonymity]]) {
                     null

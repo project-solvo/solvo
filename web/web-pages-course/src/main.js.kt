@@ -20,14 +20,12 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SuggestionChip
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.model.ArticleDownstream
 import org.solvo.model.Course
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.document.History
@@ -44,10 +42,16 @@ fun main() {
 
             val path = rememberPathParameters(WebPagePathPatterns.course)
             val course by path.course().collectAsState(null)
+            val model = remember { CoursePageViewModel() }
+            LaunchedEffect(course) {
+                model.refreshArticles(course?.code)
+            }
+            val articles by model.articles
 
             LoadableContent(isLoading = course == null, Modifier.fillMaxSize()) {
                 PageContent(
-                    course ?: return@LoadableContent
+                    course ?: return@LoadableContent,
+                    articles.orEmpty()
                 )
             }
         }
@@ -57,7 +61,7 @@ fun main() {
 @Composable
 fun PageContent(
     course: Course,
-//    courses: List<String>,
+    articles: List<ArticleDownstream>,
 ) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Text(
@@ -70,32 +74,32 @@ fun PageContent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center
         ) {
-            for (articleCode in listOf("2022-2023", "2021-2022", "2020-2021")) {
-                CourseCard(course.code, articleCode, course.name)
+            for (article in articles) {
+                CourseCard(course.code, article, course.name)
             }
         }
     }
 }
 
 @Composable
-private fun CourseCard(courseCode: String, articleCode: String, name: String) {
+private fun CourseCard(courseCode: String, article: ArticleDownstream, name: String) {
     ElevatedCard(
         onClick = {
             History.navigate {
-                question(courseCode, articleCode, "1a")
+                question(courseCode, article.code, "1a")
             }
         },
         modifier = Modifier.padding(25.dp).clickable {},
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
-            text = articleCode,
+            text = article.displayName,
             modifier = Modifier.padding(15.dp),
             style = MaterialTheme.typography.headlineSmall,
         )
 
         val questions = remember {
-            listOf("1a", "1b", "1c", "1d", "1e", "2a", "2b", "2c", "2d")
+            article.questionIndexes
         }
 
         FlowRow {

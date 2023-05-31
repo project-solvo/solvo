@@ -6,7 +6,7 @@ import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
 import org.solvo.model.Course
-import org.solvo.model.utils.DatabaseModel
+import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CourseTable
 
@@ -45,8 +45,8 @@ class CourseDBControlImpl : CourseDBControl {
     }
 
     override suspend fun insert(course: Course): Int? = dbQuery {
-        if (course.code.length > DatabaseModel.COURSE_CODE_MAX_LENGTH
-            || course.name.length > DatabaseModel.COURSE_NAME_MAX_LENGTH) {
+        if (course.code.length > ModelConstraints.COURSE_CODE_MAX_LENGTH
+            || course.name.length > ModelConstraints.COURSE_NAME_MAX_LENGTH) {
             return@dbQuery null
         }
 
