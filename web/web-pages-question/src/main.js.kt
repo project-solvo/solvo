@@ -1,30 +1,30 @@
 package org.solvo.web
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Compress
-import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
-import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentCard
+import org.solvo.web.comments.CommentCardSubComments
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.document.History
-import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.editor.rememberRichEditorLoadedState
 import org.solvo.web.ui.LoadableContent
@@ -32,8 +32,7 @@ import org.solvo.web.ui.OverlayLoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
 import org.solvo.web.ui.foundation.SolvoTopAppBar
-import kotlin.random.Random
-import kotlin.random.nextUInt
+import org.solvo.web.ui.foundation.ifThen
 
 
 fun main() {
@@ -118,10 +117,9 @@ private fun QuestionPageContent(
         }
     },
     right = {
-        var isExpanded by remember { mutableStateOf(false) }
-        val pagingState = rememberPagingState(
+        val pagingState = rememberExpandablePagingState(
+            Int.MAX_VALUE,
             remember { generateSequence { createCommentDownstream() }.take(10).toList() },
-            3
         )
         PagingContent(
             pagingState,
@@ -148,45 +146,36 @@ private fun QuestionPageContent(
                 }
             }
         ) { items ->
-            Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
-                AnswersList(items, Modifier.verticalScroll(rememberScrollState()).fillMaxSize(), onClickComment = {
-
-                })
+            val isExpanded by pagingState.isExpanded
+            Box(
+                Modifier
+                    .padding(top = 12.dp, bottom = if (isExpanded) 12.dp else 0.dp)
+                    .padding(end = 12.dp, start = 12.dp)
+                    .fillMaxSize()
+            ) {
+                AnswersList(
+                    items = items,
+                    isExpanded = isExpanded,
+                    modifier = Modifier.fillMaxSize()
+                        .ifThen(!isExpanded) { verticalScroll(rememberScrollState()) },
+                    onClickComment = {
+                        pagingState.switchExpanded()
+                    },
+                    onClickCard = { pagingState.switchExpanded() }
+                )
             }
         }
     }
 )
 
-private var testCommentId = 0
-private fun createCommentDownstream(): CommentDownstream {
-    val id = testCommentId++
-    return CommentDownstream(
-        Uuid.random(),
-        if (Random.nextBoolean()) {
-            null
-        } else {
-            User(Uuid.random(), "User $id", null)
-        },
-        createDummyText(id),
-        Random.nextBoolean(),
-        Random.nextUInt(),
-        Random.nextUInt(),
-        Uuid.random(),
-        false,
-        0,
-        0,
-        0,
-        listOf(
-            LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
-            LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
-        )
-    )
-}
 
+// when not expanded
 @Composable
 private fun AnswersList(
     items: List<CommentDownstream>,
+    isExpanded: Boolean,
     modifier: Modifier = Modifier,
+    onClickCard: () -> Unit = {},
     onClickComment: ((LightCommentDownstream?) -> Unit)? = null,
 ) {
     Column(
@@ -195,83 +184,60 @@ private fun AnswersList(
     ) {
         for (item in items) {
             CommentCard(
-                item.author,
-                "May 05, 2023", // TODO: 2023/5/29 date
-                item.subComments,
-                Modifier.wrapContentHeight().fillMaxWidth(),
-                onClickComment = onClickComment,
-            ) { backgroundColor ->
-                key(item.coid) { // redraw editor when item id changed (do not reuse)
-                    val loadedState = rememberRichEditorLoadedState()
-                    OverlayLoadableContent(
-                        !loadedState.isReady,
-                        loadingContent = { LinearProgressIndicator() }
-                    ) {
-                        RichText(
-                            item.content,
-                            modifier = Modifier.heightIn(min = 64.dp).fillMaxWidth(),
-                            backgroundColor = backgroundColor,
-                            showScrollbar = false,
-                            onEditorLoaded = loadedState.onEditorLoaded,
-                            onTextUpdated = loadedState.onTextChanged,
-                        )
-                    }
-                }
-
-                //                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
-                //                var editorReady by remember { mutableStateOf(false) }
-                //                OverlayLoadableContent(
-                //                    !editorReady,
-                //                    Modifier.height(actualHeight.takeOrElse { 20.dp }.coerceAtLeast(20.dp)).fillMaxWidth(),
-                //                    loadingContent = { LinearProgressIndicator() },
-                //                ) {
-                //                    
-                //                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun PaperTitle(
-    course: Course,
-    year: String,
-) {
-    Row {
-        Text(course.code, fontWeight = FontWeight.W800, fontSize = 22.sp)
-        Text(course.name, Modifier.padding(start = 4.dp), fontWeight = FontWeight.W800, fontSize = 22.sp)
-        Text(year, Modifier.padding(start = 16.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
-    }
-
-}
-
-@Composable
-private fun PaperView(
-    questionSelectedBar: @Composable RowScope. () -> Unit,
-    onChangeLayout: () -> Unit,
-    modifier: Modifier = Modifier,
-    isExpanded: Boolean = true,
-    content: @Composable () -> Unit,
-) {
-    Column(modifier) {
-        ControlBar(Modifier.fillMaxWidth()) {
-            Row(
-                Modifier.weight(1f)
-            ) {
-                questionSelectedBar()
-            }
-
-            IconButton(onChangeLayout) {
-                if (isExpanded) {
-                    Icon(Icons.Default.Compress, "Compress")
+                author = item.author,
+                date = "May 05, 2023", // TODO: 2023/5/29 date
+                modifier = (if (isExpanded) Modifier.fillMaxHeight() else Modifier.wrapContentHeight())
+                    .fillMaxWidth()
+                    .animateContentSize()
+                    .focusable(false),
+                subComments = if (isExpanded) {
+                    null
                 } else {
-                    Icon(Icons.Default.Expand, "Expand")
-                }
+                    { CommentCardSubComments(item.subComments, onClickComment = onClickComment) }
+                },
+                onClickCard = onClickCard
+            ) { backgroundColor ->
+                CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
             }
         }
+    }
+}
 
-        Column(Modifier.fillMaxSize()) {
-            content()
+@Composable
+private fun CommentCardContent(
+    item: CommentDownstream,
+    backgroundColor: Color,
+    modifier: Modifier = Modifier,
+) {
+    key(item.coid) { // redraw editor when item id changed (do not reuse)
+        val loadedState = rememberRichEditorLoadedState()
+        OverlayLoadableContent(
+            !loadedState.isReady,
+            loadingContent = { LinearProgressIndicator() }
+        ) {
+            RichText(
+                item.content,
+                modifier = modifier.heightIn(min = 64.dp).fillMaxWidth(),
+                backgroundColor = backgroundColor,
+                showScrollbar = false,
+                onEditorLoaded = loadedState.onEditorLoaded,
+                onTextUpdated = loadedState.onTextChanged,
+            )
         }
+    }
+}
+
+// when expanded
+@Composable
+private fun ExpandedAnswerCard(
+    item: CommentDownstream,
+    modifier: Modifier = Modifier,
+) {
+    CommentCard(
+        item.author,
+        "May 05, 2023", // TODO: 2023/5/29 date
+        modifier, // show comments in side view
+    ) { backgroundColor ->
+        CommentCardContent(item, backgroundColor)
     }
 }

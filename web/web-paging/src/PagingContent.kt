@@ -17,14 +17,14 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun <T> rememberPagingState(initialList: List<T>, pageSlice: Int): PagingState<T> {
-    return remember { PagingStateImpl(initialList, pageSlice) }
+fun <T> rememberPagingState(pageSlice: Int, initialList: List<T> = emptyList()): PagingState<T> {
+    return remember { PagingStateImpl.create(initialList, pageSlice) }
 }
 
 @Composable
-fun <T> PagingContent(
-    state: PagingState<T>,
-    controlBar: @Composable (state: PagingState<T>) -> Unit = { PagingControlBar(it) },
+fun <T, S : PagingState<T>> PagingContent(
+    state: S,
+    controlBar: @Composable (state: S) -> Unit = { PagingControlBar(it) },
     contents: @Composable (List<T>) -> Unit,
 ) {
     Column {
