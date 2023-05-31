@@ -50,7 +50,8 @@ fun main() {
         SolvoWindow {
             CommentColumn(
                 Modifier,
-                listOf(commentDownstream1, commentDownstream2)
+                listOf(commentDownstream1, commentDownstream2,
+                    commentDownstream1, commentDownstream2, commentDownstream2)
             )
         }
     }
@@ -78,7 +79,7 @@ fun CommentSummaryCard(
 ) {
     val shape = RoundedCornerShape(16.dp)
     val model by remember {mutableStateOf( CommentCardState(modifier, commentDownstream))}
-    Card(shape = shape, modifier = model.currentCardModifier.value.animateContentSize()) {
+    Card(shape = shape, modifier = model.currentCardModifier.value) {
         Author(
             icon = {
                 AvatarBox(Modifier.size(20.dp)) {
