@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.unit.dp
 
 private const val LOADABLE_CONTENT_ANIMATION = true
@@ -52,18 +53,20 @@ fun OverlayLoadableContent(
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     loadingContent: @Composable () -> Unit = { CircularProgressIndicator() },
-    content: @Composable (isLoading: Boolean) -> Unit,
+    enter: EnterTransition = fadeIn(),
+    exit: ExitTransition = fadeOut(),
+    content: @Composable () -> Unit,
 ) {
     Box(modifier = modifier) {
-        Box(Modifier.matchParentSize()) {
-            content(isLoading)
+        Box(Modifier.alpha(if (isLoading) 0.618f else 1.0f)) {
+            content()
         }
 
         AnimatedVisibility(
             isLoading,
             Modifier.matchParentSize(),
-            enter = fadeIn(),
-            exit = fadeOut(),
+            enter = enter,
+            exit = exit,
         ) {
             Row(Modifier.matchParentSize(), horizontalArrangement = Arrangement.Center) {
                 loadingContent()

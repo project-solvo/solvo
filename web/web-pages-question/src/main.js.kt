@@ -1,6 +1,5 @@
 package org.solvo.web
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -27,7 +26,9 @@ import org.solvo.web.comments.CourseMenu
 import org.solvo.web.document.History
 import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
+import org.solvo.web.editor.rememberRichEditorLoadedState
 import org.solvo.web.ui.LoadableContent
+import org.solvo.web.ui.OverlayLoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
 import org.solvo.web.ui.foundation.SolvoTopAppBar
@@ -197,16 +198,24 @@ private fun AnswersList(
                 item.author,
                 "May 05, 2023", // TODO: 2023/5/29 date
                 item.subComments,
-                Modifier.animateContentSize().wrapContentHeight().fillMaxWidth(),
+                Modifier.wrapContentHeight().fillMaxWidth(),
                 onClickComment = onClickComment,
             ) { backgroundColor ->
                 key(item.coid) { // redraw editor when item id changed (do not reuse)
-                    RichText(
-                        item.content,
-                        modifier = Modifier.wrapContentHeight().fillMaxWidth(),
-                        backgroundColor = backgroundColor,
-                        showScrollbar = false
-                    )
+                    val loadedState = rememberRichEditorLoadedState()
+                    OverlayLoadableContent(
+                        !loadedState.isReady,
+                        loadingContent = { LinearProgressIndicator() }
+                    ) {
+                        RichText(
+                            item.content,
+                            modifier = Modifier.heightIn(min = 64.dp).fillMaxWidth(),
+                            backgroundColor = backgroundColor,
+                            showScrollbar = false,
+                            onEditorLoaded = loadedState.onEditorLoaded,
+                            onTextUpdated = loadedState.onTextChanged,
+                        )
+                    }
                 }
 
                 //                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
