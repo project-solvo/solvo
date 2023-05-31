@@ -14,7 +14,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
@@ -73,11 +72,11 @@ fun CommentSummaryCard(
     commentDownstream: CommentDownstream,
 ) {
     val shape = RoundedCornerShape(16.dp)
-    var seeMore by remember { mutableStateOf(false) }
-    Card(shape = shape, modifier = (if (!seeMore) modifier else Modifier)) {
+    val model by remember {mutableStateOf( CommentCardState(modifier, commentDownstream))}
+    Card(shape = shape, modifier = model.currentCardModifier.value) {
         Author(
             icon = {
-                AvatarBox(Modifier.size(48.dp)) {
+                AvatarBox(Modifier.size(20.dp)) {
                     Image(
                         Icons.Default.Person4,
                         "Avatar",
@@ -88,19 +87,23 @@ fun CommentSummaryCard(
             authorName = {
                 Text("Alex") // actual: commentDownstream.author
             },
-            date = if (!seeMore) null else ("23 May 2023"), // TODO: date should be a field within commentDownStream
-            Modifier.padding(horizontal = 16.dp).padding(top = 16.dp),
+            date = model.date.value,
+            Modifier.padding(horizontal = 16.dp).padding(top = 10.dp),
         )
 
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).then(if (seeMore) Modifier else Modifier.weight(1f))) {
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).then(if (model.seeMore.value) Modifier else Modifier.weight(1f))) {
             RichText(commentDownstream.content.trimIndent(), modifier = Modifier.fillMaxWidth())
         }
 
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).padding(bottom = 6.dp)
             .cursorHoverIcon(CursorIcon.POINTER)) {
             Text(
-                text = (if (!seeMore) "See More" else "Show Less"),
-                modifier = (if (!seeMore) Modifier.clickable { seeMore = true } else Modifier.clickable { seeMore = false }),
+                text = model.text.value,
+                modifier = Modifier.clickable {
+                    model.switchSeeMore();
+                    model.switchCardModifier();
+                    model.changeText();
+                    model.changeDate()} ,
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -116,19 +119,19 @@ private fun Author(
     date: String?,
     modifier: Modifier = Modifier,
 ) {
-    Row(modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(48.dp)) {
+    Row(modifier.height(30.dp), verticalAlignment = Alignment.CenterVertically) {
+        Box(Modifier.size(20.dp)) {
             icon.invoke(this)
         }
         Spacer(Modifier.width(12.dp)) // 8.dp
-        Column {
-            Box {
+        Column(Modifier.height(30.dp)) {
+            Column(modifier = if (date != null) Modifier.weight(1f) else Modifier) {
                 ProvideTextStyle(AuthorNameTextStyle) {
                     authorName()
                 }
             }
             if (date != null) {
-                Box {
+                Column(Modifier.weight(1f)) {
                     Text(date)
                 }
             }
