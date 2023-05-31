@@ -2,6 +2,7 @@ package org.solvo.web
 
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -50,7 +51,7 @@ fun main() {
 
             val model = remember { ArticlePageViewModel() }
 
-            val menuState = remember { CourseMenuState() }
+            val menuState = remember { CourseMenuState(model.allArticles) }
             SolvoTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = { menuState.switchMenuOpen() }) {
@@ -63,7 +64,6 @@ fun main() {
 
             CourseMenu(
                 menuState,
-                model.allArticles,
                 onClickQuestion = { articles: ArticleDownstream, questions: QuestionDownstream ->
                     History.navigate {
                         question(
@@ -101,19 +101,22 @@ private fun ArticlePageContent(
             PaperView(
                 questionSelectedBar = {
                     // ScrollableTab row TODO()
-                    Row(
-                        modifier = Modifier.horizontalScroll(rememberScrollState())
+                    LazyRow(
+                        modifier = Modifier.horizontalScroll(rememberScrollState(), true).size(leftWidth)
                     ) {
                         article.questionIndexes.forEach {
-                            AssistChip(
-                                onClick = {},
-                                label = {
-                                    Text(it)
-                                },
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                shape = RoundedCornerShape(8.dp),
-                            )
+                            item {
+                                AssistChip(
+                                    onClick = {},
+                                    label = {
+                                        Text(it)
+                                    },
+                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                    shape = RoundedCornerShape(8.dp),
+                                )
+                            }
                         }
+
                     }
                 },
                 onChangeLayout = {

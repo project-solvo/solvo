@@ -9,7 +9,9 @@ import org.solvo.model.QuestionDownstream
 
 
 @Stable
-class CourseMenuState {
+class CourseMenuState(
+    val allArticles: List<ArticleDownstream> = listOf()
+) {
 
     private var _questionIndex: MutableState<QuestionDownstream?> = mutableStateOf(null)
     val questionIndex: State<QuestionDownstream?> get() = _questionIndex

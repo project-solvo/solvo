@@ -64,7 +64,7 @@ fun CourseMenuContent(state: CourseMenuState) {
             }
         }
         // show left column menu
-        CourseMenu(state, articles)
+        CourseMenu(state)
     }
 }
 
@@ -72,7 +72,6 @@ fun CourseMenuContent(state: CourseMenuState) {
 @Composable
 fun CourseMenu(
     state: CourseMenuState,
-    articles: List<ArticleDownstream>,
     onClickArticle: ((article: ArticleDownstream) -> Unit)? = null,
     onClickQuestion: ((article: ArticleDownstream, question: QuestionDownstream) -> Unit)? = null,
 ) {
@@ -87,7 +86,7 @@ fun CourseMenu(
                 .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
         ) {
             // construct list of past papers
-            articles.forEach { article ->
+            state.allArticles.forEach { article ->
                 ElevatedCard(
                     onClick = {
                         state.onClickArticle(article)
