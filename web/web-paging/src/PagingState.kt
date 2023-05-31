@@ -1,5 +1,6 @@
 package org.solvo.web
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
@@ -15,6 +16,8 @@ interface PagingState<T> {
     val allowNavigateNext: State<Boolean>
     val allowNavigatePrev: State<Boolean>
 
+    val pagingContext: PagingContentContext<T>
+
     fun findItemPage(item: T): Int?
     fun gotoPage(page: Int)
     fun clickPrePage()
@@ -22,6 +25,12 @@ interface PagingState<T> {
     fun addItem(item: T)
     fun setAllItems(items: List<T>)
     fun getPageItems(page: Int): List<T>
+}
+
+fun <T> PagingState<T>.gotoItem(item: T): Boolean {
+    return findItemPage(item)?.let {
+        gotoPage(it)
+    } != null
 }
 
 internal open class PagingStateImpl<T> protected constructor(
@@ -35,6 +44,8 @@ internal open class PagingStateImpl<T> protected constructor(
     // outputs
     override val pageCount: MutableState<Int> = mutableStateOf(0)
     override val currentPage: MutableState<Int> = mutableStateOf(0)
+
+    val currentIndices: MutableState<IntRange> = mutableStateOf(IntRange.EMPTY)
     override val currentContent: MutableState<List<T>> = mutableStateOf(emptyList())
 
     override val allowNavigateNext: State<Boolean> = derivedStateOf {
@@ -42,6 +53,12 @@ internal open class PagingStateImpl<T> protected constructor(
     }
     override val allowNavigatePrev: State<Boolean> = derivedStateOf {
         this.currentPage.value > 0
+    }
+
+    override val pagingContext = object : PagingContentContext<T> {
+        override val visibleIndices: IntRange get() = currentIndices.value
+        override val visibleItems: List<T> get() = currentContent.value
+        override val scrollState: ScrollState = ScrollState(0)
     }
 
     override fun findItemPage(item: T): Int? {
@@ -88,8 +105,12 @@ internal open class PagingStateImpl<T> protected constructor(
 
     protected open fun update() {
         this.pageCount.value = calculatePageCount(items.size)
-        this.currentPage.value = this.currentPage.value.coerceIn(0, (this.pageCount.value - 1).coerceAtLeast(0))
+        val page = this.currentPage.value.coerceIn(0, (this.pageCount.value - 1).coerceAtLeast(0))
+        this.currentPage.value = page
         this.currentContent.value = getPageItems(this.currentPage.value)
+
+        val pageSlice = pageSlice.value
+        this.currentIndices.value = (page * pageSlice)..<((page * pageSlice + pageSlice).coerceAtMost(items.size))
     }
 
     override fun addItem(item: T) {

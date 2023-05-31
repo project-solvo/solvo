@@ -14,11 +14,14 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
 import org.solvo.web.comments.CommentCard
@@ -81,121 +84,141 @@ private fun QuestionPageContent(
     course: Course,
     article: ArticleDownstream,
     question: QuestionDownstream,
-) = HorizontallyDivided(
-    left = {
-        PaperView(
-            questionSelectedBar = {
-                // ScrollableTab row TODO()
-                Row(
-                    modifier = Modifier.horizontalScroll(rememberScrollState(), true)
-                ) {
-                    article.questionIndexes.forEach {
-                        AssistChip(
-                            onClick = {},
-                            label = {
-                                Text(it)
-                            },
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                            shape = RoundedCornerShape(8.dp),
-                        )
-                    }
-
-                }
-            },
-            onChangeLayout = {
-                // TODO change article page layout
-            },
-            Modifier.fillMaxSize()
-        ) {
-            Box(Modifier.padding(all = 12.dp)) {
-                RichText(
-                    question.content, Modifier.fillMaxSize(),
-                    backgroundColor = MaterialTheme.colorScheme.background,
-                    contentColor = MaterialTheme.colorScheme.onBackground,
-                )
-            }
-        }
-    },
-    right = {
-        val pagingState = rememberExpandablePagingState(
-            Int.MAX_VALUE,
-            remember { generateSequence { createCommentDownstream() }.take(10).toList() },
-        )
-        PagingContent(
-            pagingState,
-            controlBar = {
-                PagingControlBar(it) {
-                    FilledTonalButton(
-                        onClick = {},
-                        Modifier.align(Alignment.CenterStart),
-                        shape = RoundedCornerShape(8.dp),
-                        contentPadding = buttonContentPaddings,
+) {
+    HorizontallyDivided(
+        left = {
+            PaperView(
+                questionSelectedBar = {
+                    // ScrollableTab row TODO()
+                    Row(
+                        modifier = Modifier.horizontalScroll(rememberScrollState(), true)
                     ) {
-                        Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
-
-                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                            Text(
-                                "Draft Answer",
-                                Modifier.padding(start = 4.dp),
-                                textAlign = TextAlign.Center,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.W500,
+                        article.questionIndexes.forEach {
+                            AssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(it)
+                                },
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                shape = RoundedCornerShape(8.dp),
                             )
+                        }
+
+                    }
+                },
+                onChangeLayout = {
+                    // TODO change article page layout
+                },
+                Modifier.fillMaxSize()
+            ) {
+                Box(Modifier.padding(all = 12.dp)) {
+                    RichText(
+                        question.content, Modifier.fillMaxSize(),
+                        backgroundColor = MaterialTheme.colorScheme.background,
+                        contentColor = MaterialTheme.colorScheme.onBackground,
+                    )
+                }
+            }
+        },
+        right = {
+            val allComments = remember { generateSequence { createCommentDownstream() }.take(10).toList() }
+            val pagingState = rememberExpandablePagingState(
+                Int.MAX_VALUE,
+                allComments,
+            )
+            PagingContent(
+                pagingState,
+                controlBar = {
+                    PagingControlBar(it) {
+                        FilledTonalButton(
+                            onClick = {},
+                            Modifier.align(Alignment.CenterStart),
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = buttonContentPaddings,
+                        ) {
+                            Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+
+                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    "Draft Answer",
+                                    Modifier.padding(start = 4.dp),
+                                    textAlign = TextAlign.Center,
+                                    fontSize = 16.sp,
+                                    fontWeight = FontWeight.W500,
+                                )
+                            }
                         }
                     }
                 }
-            }
-        ) { items ->
-            val isExpanded by pagingState.isExpanded
-            Box(
-                Modifier
-                    .padding(top = 12.dp, bottom = if (isExpanded) 12.dp else 0.dp)
-                    .padding(end = 12.dp, start = 12.dp)
-                    .fillMaxSize()
             ) {
-                AnswersList(
-                    items = items,
-                    isExpanded = isExpanded,
-                    modifier = Modifier.fillMaxSize()
-                        .ifThen(!isExpanded) { verticalScroll(rememberScrollState()) },
-                    onClickComment = {
-                        pagingState.switchExpanded()
-                    },
-                    onClickCard = { pagingState.switchExpanded() }
-                )
+                val isExpanded by pagingState.isExpanded
+                Box(
+                    Modifier
+                        .padding(top = 12.dp, bottom = if (isExpanded) 12.dp else 0.dp)
+                        .padding(end = 12.dp, start = 12.dp)
+                        .fillMaxSize()
+                        .focusProperties {
+                            this.canFocus = false
+                        }
+                        .focusable(false) // compose bug
+                ) {
+                    val scope = rememberCoroutineScope()
+                    AnswersList(
+                        allItems = allComments,
+                        visibleIndices = visibleIndices,
+                        isExpanded = isExpanded,
+                        modifier = Modifier.fillMaxSize()
+                            .ifThen(!isExpanded) { verticalScroll(scrollState) },
+                        onClickComment = { _, item ->
+                            scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
+                            pagingState.gotoItem(item)
+                        },
+                        onClickCard = { _, item ->
+                            scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
+                            pagingState.gotoItem(item)
+                        }
+                    )
+                }
             }
         }
-    }
-)
+    )
+}
 
 
 // when not expanded
 @Composable
 private fun AnswersList(
-    items: List<CommentDownstream>,
+    allItems: List<CommentDownstream>,
+    visibleIndices: IntRange,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
-    onClickCard: () -> Unit = {},
-    onClickComment: ((LightCommentDownstream?) -> Unit)? = null,
+    onClickCard: ((index: Int, item: CommentDownstream) -> Unit)? = null,
+    onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
 ) {
-    Column(
-        modifier,
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        for (item in items) {
+    Column(modifier) {
+        val allItemsIndexed = remember(allItems) { allItems.withIndex() }
+        for ((index, item) in allItemsIndexed) {
+            val sizeModifier = if (index in visibleIndices) {
+                Modifier
+                    .padding(bottom = 12.dp) // item spacing
+                    .fillMaxWidth()
+                    .then(
+                        if (isExpanded) Modifier.fillMaxHeight() else Modifier.wrapContentHeight()
+                    )
+            } else {
+                Modifier.requiredSize(0.dp) // `hide` item, but keep rich editor in memory (with size zero)
+            }
+
             CommentCard(
                 author = item.author,
                 date = "May 05, 2023", // TODO: 2023/5/29 date
-                modifier = (if (isExpanded) Modifier.fillMaxHeight() else Modifier.wrapContentHeight())
-                    .fillMaxWidth()
-                    .animateContentSize()
-                    .focusable(false),
+                modifier = Modifier.then(sizeModifier).animateContentSize(),
                 subComments = if (isExpanded) {
                     null
                 } else {
-                    { CommentCardSubComments(item.subComments, onClickComment = onClickComment) }
+                    { CommentCardSubComments(item.subComments, onClickComment = { onClickComment?.invoke(it, item) }) }
                 },
-                onClickCard = onClickCard
+                onClickCard = { onClickCard?.invoke(index, item) }
             ) { backgroundColor ->
                 CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
             }

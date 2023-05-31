@@ -1,5 +1,6 @@
 package org.solvo.web
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.East
@@ -9,6 +10,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,15 +24,23 @@ fun <T> rememberPagingState(pageSlice: Int, initialList: List<T> = emptyList()):
     return remember { PagingStateImpl.create(initialList, pageSlice) }
 }
 
+interface PagingContentContext<T> {
+    val visibleIndices: IntRange
+    val visibleItems: List<T>
+
+    @Stable
+    val scrollState: ScrollState
+}
+
 @Composable
 fun <T, S : PagingState<T>> PagingContent(
     state: S,
     controlBar: @Composable (state: S) -> Unit = { PagingControlBar(it) },
-    contents: @Composable (List<T>) -> Unit,
+    contents: @Composable PagingContentContext<T>.() -> Unit,
 ) {
     Column {
         controlBar(state)
-        contents(state.currentContent.value)
+        contents(state.pagingContext)
     }
 
 }
@@ -101,6 +112,7 @@ fun ControlBar(
 }
 
 
+@Immutable
 object ControlBarScope {
     val buttonContentPaddings = PaddingValues(
         start = 12.dp,

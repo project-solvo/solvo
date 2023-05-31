@@ -1,6 +1,8 @@
 package org.solvo.web
 
 import androidx.compose.runtime.*
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun <T> rememberExpandablePagingState(
@@ -14,9 +16,9 @@ interface ExpandablePagingState<T> : PagingState<T> {
 
     fun expand()
 
-    fun collapse()
+    suspend fun collapse()
 
-    fun switchExpanded() {
+    suspend fun switchExpanded() {
         if (isExpanded.value) collapse() else expand()
     }
 }
@@ -28,20 +30,24 @@ internal class ExpandablePagingStateImpl<T> private constructor(initialList: Lis
     override val isExpanded: MutableState<Boolean> = mutableStateOf(false)
     override val pageSlice: MutableState<Int> = mutableStateOf(pageSlice)
     private var savedSlice: Int = pageSlice
+    private var savedScrollValue: Int = 0
 
     override fun expand() {
         if (isExpanded.value) return
+        savedScrollValue = pagingContext.scrollState.value
         isExpanded.value = true
         savedSlice = pageSlice.value
         pageSlice.value = 1
         update()
     }
 
-    override fun collapse() {
+    override suspend fun collapse() {
         if (!isExpanded.value) return
         isExpanded.value = false
         pageSlice.value = savedSlice
         update()
+        delay(200.milliseconds)
+        pagingContext.scrollState.animateScrollTo(savedScrollValue)
     }
 
     companion object {
