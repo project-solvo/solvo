@@ -9,12 +9,12 @@ interface PagingState<T> {
     val pageCount: State<Int>
     val currentPage: State<Int>
     val currentContent: State<List<T>>
+    val allowNavigateNext: State<Boolean>
+    val allowNavigatePrev: State<Boolean>
     fun gotoPage(page: Int)
     fun clickPrePage()
     fun clickNextPage()
     fun addItem(item: T)
-    fun nextButton(): Boolean
-    fun prevButton(): Boolean
     fun getPageItems(page: Int): List<T>
 }
 
@@ -45,6 +45,12 @@ internal class PagingStateImpl<T>(
         get() = _currentPage
     override val currentContent: State<List<T>>
         get() = _currentContent
+    override val allowNavigateNext: State<Boolean> = derivedStateOf {
+        _currentPage.value < pageCount.value - 1
+    }
+    override val allowNavigatePrev: State<Boolean> = derivedStateOf {
+        _currentPage.value > 0
+    }
 
     override fun gotoPage(page: Int) {
         _currentPage.value = page.coerceAtMost(_pageCount.value - 1)
@@ -52,14 +58,14 @@ internal class PagingStateImpl<T>(
     }
 
     override fun clickPrePage() {
-        if (prevButton()) {
+        if (allowNavigatePrev.value) {
             _currentPage.value = _currentPage.value - 1
         }
         _currentContent.value = getPageItems(_currentPage.value)
     }
 
     override fun clickNextPage() {
-        if (nextButton()) {
+        if (allowNavigateNext.value) {
             _currentPage.value = _currentPage.value + 1
         }
         _currentContent.value = getPageItems(_currentPage.value)
@@ -78,14 +84,6 @@ internal class PagingStateImpl<T>(
             contents
         }
 
-    }
-
-    override fun prevButton(): Boolean {
-        return _currentPage.value > 0
-    }
-
-    override fun nextButton(): Boolean {
-        return _currentPage.value < pageCount.value - 1
     }
 
     override fun addItem(item: T) {

@@ -49,7 +49,7 @@ fun <T> PagingControlBar(
                     onClick = {
                         state.clickPrePage()
                     },
-                    enabled = state.prevButton(),
+                    enabled = state.allowNavigatePrev.value,
                     contentPadding = buttonContentPaddings
                 ) {
                     Icon(Icons.Default.West, "Previous")
@@ -66,7 +66,7 @@ fun <T> PagingControlBar(
                     onClick = {
                         state.clickNextPage()
                     },
-                    enabled = state.nextButton(),
+                    enabled = state.allowNavigateNext.value,
                     contentPadding = buttonContentPaddings
                 ) {
                     Text("Next", Modifier.padding(horizontal = 4.dp))

@@ -101,20 +101,18 @@ private fun ArticlePageContent(
             PaperView(
                 questionSelectedBar = {
                     // ScrollableTab row TODO()
-                    LazyRow(
+                    Row(
                         modifier = Modifier.horizontalScroll(rememberScrollState(), true).size(leftWidth)
                     ) {
                         article.questionIndexes.forEach {
-                            item {
-                                AssistChip(
-                                    onClick = {},
-                                    label = {
-                                        Text(it)
-                                    },
-                                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                    shape = RoundedCornerShape(8.dp),
-                                )
-                            }
+                            AssistChip(
+                                onClick = {},
+                                label = {
+                                    Text(it)
+                                },
+                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                shape = RoundedCornerShape(8.dp),
+                            )
                         }
 
                     }
