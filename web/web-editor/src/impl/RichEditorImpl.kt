@@ -21,10 +21,11 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.solvo.web.editor.RichEditorDisplayMode
+import org.solvo.web.editor.impl.RichEditorEventBridge.listenEvents
 import org.w3c.dom.Element
 import org.w3c.dom.asList
-import org.w3c.dom.events.Event
-import org.w3c.dom.events.WheelEvent
+import kotlin.contracts.InvocationKind
+import kotlin.contracts.contract
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -115,6 +116,7 @@ internal class RichEditor internal constructor(
     }
 
     internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
+        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
         editorLoaded.join()
         return action()
     }
@@ -324,7 +326,7 @@ internal class RichEditor internal constructor(
             ?: error("Cannot find editor.md preview content")
 
     // editormd preview container class="editormd-preview editormd-preview-theme-default"
-    private fun getHtmlEditormdPreview() =
+    fun getHtmlEditormdPreview() =
         document.querySelector("#${id} > div.editormd-preview")
             ?: error("Cannot find editor.md preview div")
 
@@ -434,25 +436,18 @@ internal class RichEditor internal constructor(
         }
     }
 
-    suspend fun onScroll(density: Density, onScroll: (Offset) -> Unit) {
-        val callback: (Event) -> Unit = { event ->
-            event as WheelEvent
-            onScroll(
-                Offset(
-                    event.deltaX.toFloat() / density.density,
-                    event.deltaY.toFloat() / density.density,
-                )
-            )
-            //                windowState.skikoView?.onPointerEvent(toSkikoScrollEvent(event as WheelEvent))
-        }
+    suspend fun bindEvents(density: Density) {
+        val list: List<Pair<String, HtmlEventCallback>>
         onEditorLoaded {
-            getHtmlEditormdPreview().addEventListener("mousewheel", callback)
+            list = listenEvents(density)
         }
         suspendCancellableCoroutine<Unit> { cont ->
             cont.invokeOnCancellation {
-                try {
-                    getHtmlEditormdPreview().removeEventListener("mousewheel", callback)
-                } catch (_: Throwable) {
+                list.forEach {
+                    try {
+                        getHtmlEditormdPreview().removeEventListener(it.first, it.second)
+                    } catch (_: Throwable) {
+                    }
                 }
             }
         }

@@ -86,6 +86,11 @@ val Window.innerSize get() = DpSize(window.innerWidth.dp, window.innerHeight.dp)
 class WindowState internal constructor(
     private val composeWindow: ComposeWindow,
 ) {
+    init {
+        current = this
+    }
+
+    val skiaLayer get() = composeWindow.layer.layer
     val skikoView: SkikoView? get() = composeWindow.layer.layer.skikoView
 
     val size: MutableStateFlow<DpSize> = MutableStateFlow(window.innerSize)
@@ -99,6 +104,9 @@ class WindowState internal constructor(
         Cookies.setCookie("is-in-dark-mode", dark.toString())
     }
 
+    companion object {
+        lateinit var current: WindowState
+    }
 }
 
 @Composable

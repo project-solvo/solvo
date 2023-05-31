@@ -5,6 +5,7 @@ import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Expand
@@ -147,7 +148,7 @@ private fun QuestionPageContent(
             }
         ) { items ->
             Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
-                AnswersList(items, Modifier.fillMaxSize(), onClickComment = {
+                AnswersList(items, Modifier.verticalScroll(rememberScrollState()).fillMaxSize(), onClickComment = {
 
                 })
             }
@@ -187,7 +188,6 @@ private fun AnswersList(
     modifier: Modifier = Modifier,
     onClickComment: ((LightCommentDownstream?) -> Unit)? = null,
 ) {
-    val scrollState = rememberScrollState()
     Column(
         modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -204,7 +204,6 @@ private fun AnswersList(
                     RichText(
                         item.content,
                         modifier = Modifier.wrapContentHeight().fillMaxWidth(),
-                        propagateScrollState = scrollState,
                         backgroundColor = backgroundColor,
                         showScrollbar = false
                     )

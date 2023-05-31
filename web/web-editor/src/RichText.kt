@@ -1,6 +1,5 @@
 package org.solvo.web.editor
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
@@ -31,7 +30,6 @@ fun RichText(
     onTextUpdated: (() -> Unit)? = null,
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
     fontSize: TextUnit = LocalTextStyle.current.fontSize,
-    propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     backgroundColor: Color = Color.Unspecified,
@@ -47,7 +45,6 @@ fun RichText(
         state = state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
         isToolbarVisible = false,
-        propagateScrollState = propagateScrollState,
         scrollOrientation = scrollOrientation,
         isInDarkTheme = isInDarkTheme,
         backgroundColor = backgroundColor,

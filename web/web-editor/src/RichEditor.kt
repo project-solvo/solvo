@@ -2,9 +2,7 @@
 
 package org.solvo.web.editor
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.gestures.Orientation
-import androidx.compose.foundation.gestures.scrollBy
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -22,7 +20,6 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
 import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.foundation.asIntSize
-import org.solvo.web.ui.foundation.get
 import org.solvo.web.ui.isInDarkMode
 
 internal const val RichEditorLayoutDebug = false // inline
@@ -44,7 +41,6 @@ fun RichEditor(
     displayMode: RichEditorDisplayMode = RichEditorDisplayMode.EDIT_PREVIEW,
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     isToolbarVisible: Boolean = true,
-    propagateScrollState: ScrollState? = null,
     scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     backgroundColor: Color = Color.Unspecified,
@@ -73,12 +69,8 @@ fun RichEditor(
     }
 
     val scope = rememberCoroutineScope()
-    LaunchedEffect(propagateScrollState, state) {
-        state.richEditor.onScroll(density) {
-            scope.launch(start = CoroutineStart.UNDISPATCHED) {
-                propagateScrollState?.scrollBy(it[scrollOrientation])
-            }
-        }
+    LaunchedEffect(state) {
+        state.richEditor.bindEvents(density)
     }
     LaunchedEffect(backgroundColor, state) {
         if (backgroundColor.isSpecified) {
