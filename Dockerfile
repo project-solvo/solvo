@@ -19,4 +19,5 @@ EXPOSE 80
 # Run server via Gradle
 COPY . /app
 
+WORKDIR /app
 ENTRYPOINT "./gradlew :server:run"
