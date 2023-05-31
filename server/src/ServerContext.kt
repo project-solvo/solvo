@@ -6,15 +6,12 @@ import org.jetbrains.exposed.sql.Database
 import org.jetbrains.exposed.sql.SchemaUtils
 import org.jetbrains.exposed.sql.transactions.experimental.newSuspendedTransaction
 import org.jetbrains.exposed.sql.transactions.transaction
-import org.solvo.model.ArticleUpstream
-import org.solvo.model.Course
-import org.solvo.model.QuestionUpstream
-import org.solvo.model.foundation.Uuid
 import org.solvo.server.database.*
 import org.solvo.server.database.control.*
 import org.solvo.server.database.exposed.*
 import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.*
+import org.solvo.server.utils.sampleData.incorporateSampleData
 
 object ServerContext {
     val localtime: ServerLocalTime = ServerLocalTimeImpl()
@@ -45,55 +42,38 @@ object ServerContext {
         fun init() {
             runBlocking {
                 if (config.containsConfig("initialized")) return@runBlocking
-                val alex: Uuid
-                accounts.apply {
-                    register("Alex", AuthDigest("alex123"))
-                    val token = login("Alex", AuthDigest("alex123")).token
-                    alex = tokens.matchToken(token)!!
-                }
-                contents.apply {
-                    // TODO: 2023/5/26 this is dummy data
-                    newCourse(Course("50001", "Algorithm Design and Analysis"))
-                    newCourse(Course("50002", "Software Engineering Design"))
-                    newCourse(Course("50003", "Models of Computation"))
-                    newCourse(Course("50004", "Operating Systems"))
-                    newCourse(Course("50005", "Networks and Communications"))
-                    newCourse(Course("50006", "Compilers"))
-                    newCourse(Course("50008", "Probability and Statistics"))
-                    newCourse(Course("50009", "Symbolic Reasoning"))
+                incorporateSampleData {
+                    val alex = user("Alex", AuthDigest("alex123"))
 
+                    val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
 
-                    val questionList = mutableListOf<QuestionUpstream>()
-
-                    for (i in 1 until 3) {
-                        for (j in 'a' until 'f') {
-                            questionList.add(QuestionUpstream("Haha", true, "$i$j"))
+                    course("50001", "Algorithm Design and Analysis") {
+                        article {
+                            content { "My content" }
+                            anonymity { true }
+                            code { "Paper_2022" }
+                            displayName { "Paper 2022" }
+                            termYear { "2022" }
+                            questions { questionsList }
+                            author { alex }
+                        }
+                        article {
+                            content { "My content" }
+                            anonymity { true }
+                            code { "Paper_2021" }
+                            displayName { "Paper 2021" }
+                            termYear { "2021" }
+                            questions { questionsList }
+                            author { alex }
                         }
                     }
-                    postArticle(
-                        article = ArticleUpstream(
-                            content = "My content",
-                            anonymity = true,
-                            code = "Paper_2022",
-                            displayName = "Paper 2022",
-                            termYear = "2022",
-                            questions = questionList,
-                        ),
-                        authorId = alex,
-                        courseCode = "50001"
-                    )
-                    postArticle(
-                        article = ArticleUpstream(
-                            content = "My content",
-                            anonymity = false,
-                            code = "Paper_2021",
-                            displayName = "Paper 2021",
-                            termYear = "2021",
-                            questions = questionList,
-                        ),
-                        authorId = alex,
-                        courseCode = "50001"
-                    )
+                    course("50002", "Software Engineering Design")
+                    course("50003", "Models of Computation")
+                    course("50004", "Operating Systems")
+                    course("50005", "Networks and Communications")
+                    course("50006", "Compilers")
+                    course("50008", "Probability and Statistics")
+                    course("50009", "Symbolic Reasoning")
                 }
                 config.setConfig("initialized")
             }
