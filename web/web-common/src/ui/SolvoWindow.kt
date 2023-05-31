@@ -3,7 +3,6 @@
 package org.solvo.web.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.size
@@ -33,7 +32,7 @@ fun SolvoWindow(
 
         setContent {
             val isInDarkMode by windowState.preferDarkMode.collectAsState()
-            AppTheme(useDarkTheme = isInDarkMode ?: isSystemInDarkTheme()) {
+            AppTheme(useDarkTheme = isInDarkMode ?: isBrowserInDarkTheme()) {
                 val currentSize by windowState.size.collectAsState()
                 CompositionLocalProvider(
                     LocalSolvoWindow provides windowState,
@@ -105,8 +104,32 @@ class WindowState internal constructor(
 @Composable
 fun WindowState.isInDarkMode(): Boolean {
     val preferDark by preferDarkMode.collectAsState()
-    return preferDark ?: isSystemInDarkTheme()
+    return preferDark ?: isBrowserInDarkTheme()
 }
+
+/**
+ * Workaround for `isSystemInDarkTheme()` which does not work.
+ */
+@Composable
+fun isBrowserInDarkTheme(): Boolean {
+    val isInDarkTheme by remember {
+        val state = mutableStateOf(window.isInDarkTheme)
+        window.matchMedia(MATCH_PREFERS_COLOR_SCHEME).apply {
+            addEventListener("change", {
+                state.value = window.isInDarkTheme
+            })
+        }
+        state
+    }
+    return isInDarkTheme
+}
+
+private const val MATCH_PREFERS_COLOR_SCHEME = "(prefers-color-scheme: dark)"
+
+val Window.isInDarkTheme: Boolean
+    get() {
+        return window.matchMedia(MATCH_PREFERS_COLOR_SCHEME).matches
+    }
 
 fun Window.currentDensity() = Density(devicePixelRatio.toFloat(), 1f)
 

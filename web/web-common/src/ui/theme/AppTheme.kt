@@ -1,19 +1,19 @@
 package org.solvo.web.ui.theme
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Typography
 import androidx.compose.runtime.*
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.platform.Font
 import org.jetbrains.compose.resources.resource
+import org.solvo.web.ui.isBrowserInDarkTheme
 
 
 var UNICODE_FONT by mutableStateOf<FontFamily?>(null)
 
 @Composable
 fun AppTheme(
-    useDarkTheme: Boolean = isSystemInDarkTheme(),
+    useDarkTheme: Boolean = isBrowserInDarkTheme(),
     content: @Composable () -> Unit
 ) {
     val colors = if (!useDarkTheme) {
