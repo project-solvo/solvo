@@ -14,7 +14,8 @@ class ArticleUpstream(
     override val content: String,
     override val anonymity: Boolean,
 
-    val name: String,
+    val code: String,
+    val displayName: String,
     val termYear: String,
 
     val questions: List<QuestionUpstream>,
@@ -30,7 +31,8 @@ class ArticleDownstream(
     override val likes: UInt,
     override val dislikes: UInt,
 
-    val name: String,
+    val code: String,
+    val displayName: String,
     val course: Course,
     val termYear: String,
 

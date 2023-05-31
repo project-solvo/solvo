@@ -14,7 +14,7 @@ import java.util.*
 
 interface ArticleDBControl : CommentedObjectDBControl<ArticleUpstream> {
     suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID?
-    suspend fun getId(courseCode: String, name: String): UUID?
+    suspend fun getId(courseCode: String, code: String): UUID?
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
     suspend fun viewAll(courseId: Int): List<ArticleDownstream>
@@ -28,13 +28,13 @@ class ArticleDBControlImpl(
 ) : ArticleDBControl, CommentedObjectDBControlImpl<ArticleUpstream>() {
     override val associatedTable: Table = ArticleTable
 
-    override suspend fun getId(courseCode: String, name: String): UUID? = dbQuery {
+    override suspend fun getId(courseCode: String, code: String): UUID? = dbQuery {
         val courseId = courseDB.getId(courseCode) ?: return@dbQuery null
 
         ArticleTable
             .select(
                 (ArticleTable.course eq courseId)
-                        and (ArticleTable.name eq name)
+                        and (ArticleTable.code eq code)
             ).map { it[ArticleTable.coid].value }
             .singleOrNull()
     }
@@ -45,7 +45,7 @@ class ArticleDBControlImpl(
 
     override suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
         if (content.termYear.length > DatabaseModel.TERM_TIME_MAX_LENGTH
-            || content.name.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
+            || content.code.length > DatabaseModel.ARTICLE_NAME_MAX_LENGTH
         ) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         val courseId = courseDB.getId(courseCode) ?: return null
@@ -54,7 +54,8 @@ class ArticleDBControlImpl(
         dbQuery {
             assert(ArticleTable.insert {
                 it[ArticleTable.coid] = coid
-                it[ArticleTable.name] = content.name
+                it[ArticleTable.code] = content.code
+                it[ArticleTable.displayName] = content.displayName
                 it[ArticleTable.course] = courseId
                 it[ArticleTable.term] = termId
             }.resultedValues?.singleOrNull() != null)
@@ -93,7 +94,8 @@ class ArticleDBControlImpl(
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
                     dislikes = it[CommentedObjectTable.dislikes],
-                    name = it[ArticleTable.name],
+                    code = it[ArticleTable.code],
+                    displayName = it[ArticleTable.displayName],
                     course = courseDB.getCourse(it[ArticleTable.course].value)!!,
                     termYear = termDB.getTerm(it[ArticleTable.term].value)!!,
                     questionIndexes = questionIndexes,

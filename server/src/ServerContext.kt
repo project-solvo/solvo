@@ -74,7 +74,8 @@ object ServerContext {
                         article = ArticleUpstream(
                             content = "My content",
                             anonymity = true,
-                            name = "Paper 2022",
+                            code = "Paper_2022",
+                            displayName = "Paper 2022",
                             termYear = "2022",
                             questions = questionList,
                         ),

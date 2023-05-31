@@ -1,4 +1,4 @@
-package org.solvo.web.comments
+package org.solvo.web.comments.column
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -14,19 +14,17 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.CommentDownstream
 import org.solvo.model.foundation.Uuid
+import org.solvo.web.comments.AuthorNameTextStyle
+import org.solvo.web.comments.AvatarBox
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.modifiers.clickable
-import org.solvo.web.ui.theme.UNICODE_FONT
 
 
 fun main() {
@@ -125,11 +123,3 @@ private fun Author(
         }
     }
 }
-
-val AuthorNameTextStyle = TextStyle(
-    fontWeight = FontWeight.Bold,
-    fontSize = 20.sp,
-    fontFamily = UNICODE_FONT,
-    textAlign = TextAlign.Center,
-    lineHeight = 22.sp,
-)

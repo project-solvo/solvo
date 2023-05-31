@@ -52,6 +52,7 @@ fun CourseMenuContent(state: CourseMenuState) {
                         0u,
                         0u,
                         "50001",
+                        "50001",
                         Course("50001", "50001"),
                         "2020",
                         listOf("1a", "1b", "2a"),
@@ -98,7 +99,7 @@ fun CourseMenu(
                     shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
-                        text = article.name,
+                        text = article.code,
                         modifier = Modifier.padding(8.dp),
                         style = MaterialTheme.typography.titleLarge,
                     )

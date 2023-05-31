@@ -61,7 +61,7 @@ fun main() {
                     }
                 }
             ) {
-                course?.let { article?.let { it1 -> PaperTitle(it, it1.name) } }
+                course?.let { article?.let { it1 -> PaperTitle(it, it1.code) } }
             }
 
             CourseMenu(
@@ -71,7 +71,7 @@ fun main() {
                     History.navigate {
                         question(
                             articles.course.code,
-                            articles.name,
+                            articles.code,
                             questions.code
                         )
                     } // TODO: 2023/5/29 navigate article

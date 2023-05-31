@@ -92,11 +92,11 @@ fun Application.contentModule() {
                         call.respond(articleId)
                     }
                 }
-                get("/{articleName}") {
+                get("/{articleCode}") {
                     val articleId = getArticleIdFromContext() ?: return@get
                     call.respond(contents.viewArticle(articleId)!!)
                 }
-                get("/{articleName}/questions/{questionCode}") {
+                get("/{articleCode}/questions/{questionCode}") {
                     val articleId = getArticleIdFromContext() ?: return@get
                     val questionCode = call.parameters.getOrFail("questionCode")
 
@@ -162,9 +162,9 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.getArticleIdFromContext(): UUID? {
     val courseCode = call.parameters.getOrFail("courseCode")
-    val articleName = call.parameters.getOrFail("articleName")
+    val articleCode = call.parameters.getOrFail("articleCode")
 
-    val articleId = ServerContext.Databases.contents.getArticleId(courseCode, articleName)
+    val articleId = ServerContext.Databases.contents.getArticleId(courseCode, articleCode)
     if (articleId == null) {
         call.respond(HttpStatusCode.NotFound)
     }

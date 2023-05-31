@@ -5,7 +5,8 @@ import org.solvo.model.utils.DatabaseModel
 
 object ArticleTable: Table("Articles") {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
-    val name = varchar("name", DatabaseModel.ARTICLE_NAME_MAX_LENGTH)
+    val code = varchar("code", DatabaseModel.ARTICLE_CODE_MAX_LENGTH)
+    val displayName = varchar("displayName", DatabaseModel.ARTICLE_NAME_MAX_LENGTH)
     val course = reference("courseId", CourseTable)
     val term = reference("termId", TermTable)
 
@@ -13,7 +14,7 @@ object ArticleTable: Table("Articles") {
     val views = uinteger("viewsCount").default(0u)
 
     init {
-        uniqueIndex(name, course)
+        uniqueIndex(code, course)
     }
 
     override val primaryKey = PrimaryKey(ArticleTable.coid)

@@ -17,7 +17,7 @@ interface ContentDBFacade {
     suspend fun getImage(resourceId: UUID): File?
     suspend fun allCourses(): List<Course>
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
-    suspend fun getArticleId(courseCode: String, name: String): UUID?
+    suspend fun getArticleId(courseCode: String, code: String): UUID?
     suspend fun viewArticle(articleId: UUID): ArticleDownstream?
     suspend fun getQuestionId(articleId: UUID, index: String): UUID?
     suspend fun viewQuestion(questionId: UUID): QuestionDownstream?
@@ -96,8 +96,8 @@ class ContentDBFacadeImpl(
         return articles.viewAll(courseId)
     }
 
-    override suspend fun getArticleId(courseCode: String, name: String): UUID? {
-        return articles.getId(courseCode, name)
+    override suspend fun getArticleId(courseCode: String, code: String): UUID? {
+        return articles.getId(courseCode, code)
     }
 
     override suspend fun viewArticle(articleId: UUID): ArticleDownstream? {
