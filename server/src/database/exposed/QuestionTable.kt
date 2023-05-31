@@ -1,16 +1,12 @@
 package org.solvo.server.database.exposed
 
-import org.jetbrains.exposed.sql.Table
 import org.solvo.model.utils.ModelConstraints
 
-object QuestionTable: Table("Questions") {
-    val coid = reference("COID", CommentedObjectTable).uniqueIndex()
+object QuestionTable: COIDTable("Questions") {
     val article = reference("articleId", ArticleTable.coid)
-    val index = varchar("index", ModelConstraints.QUESTION_INDEX_MAX_LENGTH)
+    val code = varchar("code", ModelConstraints.QUESTION_CODE_MAX_LENGTH)
 
     init {
-        uniqueIndex(article, index)
+        uniqueIndex(article, code)
     }
-
-    override val primaryKey = PrimaryKey(QuestionTable.coid)
 }

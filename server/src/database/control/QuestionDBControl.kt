@@ -1,7 +1,10 @@
 package org.solvo.server.database.control
 
-import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.JoinType
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.and
+import org.jetbrains.exposed.sql.insert
+import org.jetbrains.exposed.sql.select
 import org.solvo.model.QuestionDownstream
 import org.solvo.model.QuestionUpstream
 import org.solvo.model.utils.ModelConstraints
@@ -13,7 +16,7 @@ import java.util.*
 
 interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
     suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID?
-    suspend fun getId(articleId: UUID, index: String): UUID?
+    suspend fun getId(articleId: UUID, code: String): UUID?
     override suspend fun view(coid: UUID): QuestionDownstream?
 }
 
@@ -21,23 +24,23 @@ class QuestionDBControlImpl(
     private val commentDB: CommentDBControl,
     private val accountDB: AccountDBControl,
 ) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>() {
-    override val associatedTable: Table = QuestionTable
+    override val associatedTable = QuestionTable
 
-    override suspend fun getId(articleId: UUID, index: String): UUID? = dbQuery {
+    override suspend fun getId(articleId: UUID, code: String): UUID? = dbQuery {
         QuestionTable
-            .select((QuestionTable.article eq articleId) and (QuestionTable.index eq index))
+            .select((QuestionTable.article eq articleId) and (QuestionTable.code eq code))
             .map { it[QuestionTable.coid].value }
             .singleOrNull()
     }
 
     override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? {
-        if (content.code.length > ModelConstraints.QUESTION_INDEX_MAX_LENGTH) return null
+        if (content.code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         dbQuery {
             assert(QuestionTable.insert {
                 it[QuestionTable.coid] = coid
                 it[QuestionTable.article] = articleId
-                it[QuestionTable.index] = content.code
+                it[QuestionTable.code] = content.code
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
@@ -69,7 +72,7 @@ class QuestionDBControlImpl(
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
                     dislikes = it[CommentedObjectTable.dislikes],
-                    code = it[QuestionTable.index],
+                    code = it[QuestionTable.code],
                     article = it[QuestionTable.article].value,
                     answers = answers,
                     comments = comments,

@@ -1,17 +1,25 @@
 package org.solvo.server.utils.sampleData
 
-import org.solvo.model.Course
 import org.solvo.server.ServerContext
 import java.util.*
 
 class UserRegisterRequest(
     val username: String,
     val password: ByteArray,
-)
+) {
+    suspend fun submit(db: ServerContext.Databases, userIdMap: MutableMap<UserRegisterRequest, UUID>) {
+        db.accounts.apply {
+            register(username, password)
+            val token = login(username, password).token
+            userIdMap[this@UserRegisterRequest] = ServerContext.tokens.matchToken(token)!!
+        }
+    }
+}
 
 @SampleDataDslMarker
 class SampleDataBuilder {
     private val users: MutableList<UserRegisterRequest> = mutableListOf()
+
     @PublishedApi
     internal val courses: MutableList<CoursePostRequest> = mutableListOf()
 
@@ -29,30 +37,13 @@ class SampleDataBuilder {
         return CoursePostRequestBuilder(code, name).apply(builds).build().also { courses.add(it) }
     }
 
-    suspend fun build(db: ServerContext.Databases) {
+    suspend fun submit(db: ServerContext.Databases) {
         val userIdMap: MutableMap<UserRegisterRequest, UUID> = mutableMapOf()
-        users.map { userRequest ->
-            db.accounts.apply {
-                register(userRequest.username, userRequest.password)
-                val token = login(userRequest.username, userRequest.password).token
-                userIdMap[userRequest] = ServerContext.tokens.matchToken(token)!!
-            }
-        }
-        courses.map { course ->
-            db.contents.apply {
-                newCourse(Course(course.code, course.name))
-                course.articles.map { articleRequest ->
-                    postArticle(
-                        article = articleRequest.article,
-                        authorId = userIdMap[articleRequest.author]!!,
-                        courseCode = course.code,
-                    )
-                }
-            }
-        }
+        users.map { userRequest -> userRequest.submit(db, userIdMap) }
+        courses.map { courseRequest -> courseRequest.submit(db, userIdMap) }
     }
 }
 
 suspend inline fun ServerContext.Databases.incorporateSampleData(builds: SampleDataBuilder.() -> Unit) {
-    SampleDataBuilder().apply { builds() }.build(this)
+    SampleDataBuilder().apply { builds() }.submit(this)
 }

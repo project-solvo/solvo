@@ -19,12 +19,12 @@ interface ContentDBFacade {
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
     suspend fun getArticleId(courseCode: String, code: String): UUID?
     suspend fun viewArticle(articleId: UUID): ArticleDownstream?
-    suspend fun getQuestionId(articleId: UUID, index: String): UUID?
+    suspend fun getQuestionId(articleId: UUID, code: String): UUID?
     suspend fun viewQuestion(questionId: UUID): QuestionDownstream?
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
     suspend fun tryDeleteImage(resourceId: UUID): Boolean
     suspend fun getCourseName(courseCode: String): String?
-    suspend fun postComment(answer: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
+    suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
     suspend fun viewComment(commentId: UUID): CommentDownstream?
     suspend fun viewFullComment(commentId: UUID): FullCommentDownstream?
 }
@@ -43,7 +43,7 @@ class ContentDBFacadeImpl(
 
     override suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
         for (question in article.questions) {
-            if (question.code.length > ModelConstraints.QUESTION_INDEX_MAX_LENGTH) return null
+            if (question.code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
         }
 
         val articleId = articles.post(article, authorId, courseCode) ?: return null
@@ -59,8 +59,8 @@ class ContentDBFacadeImpl(
         return comments.post(answer, authorId, questionId, asAnswer = true)
     }
 
-    override suspend fun postComment(answer: CommentUpstream, authorId: UUID, parentId: UUID): UUID? {
-        return comments.post(answer, authorId, parentId, asAnswer = false)
+    override suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID? {
+        return comments.post(comment, authorId, parentId, asAnswer = false)
     }
 
     override suspend fun postImage(
@@ -104,8 +104,8 @@ class ContentDBFacadeImpl(
         return articles.view(articleId)
     }
 
-    override suspend fun getQuestionId(articleId: UUID, index: String): UUID? {
-        return questions.getId(articleId, index)
+    override suspend fun getQuestionId(articleId: UUID, code: String): UUID? {
+        return questions.getId(articleId, code)
     }
 
     override suspend fun viewQuestion(questionId: UUID): QuestionDownstream? {

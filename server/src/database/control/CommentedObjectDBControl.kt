@@ -1,11 +1,15 @@
 package org.solvo.server.database.control
 
-import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
+import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.insertIgnoreAndGetId
+import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.update
 import org.solvo.model.CommentableDownstream
 import org.solvo.model.CommentableUpstream
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
+import org.solvo.server.database.exposed.COIDTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
 
@@ -21,7 +25,7 @@ interface CommentedObjectDBControl<T : CommentableUpstream> {
 }
 
 abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : CommentedObjectDBControl<T> {
-    abstract val associatedTable: Table
+    abstract val associatedTable: COIDTable
 
     protected suspend fun insertAndGetCOID(content: T, authorId: UUID): UUID? = dbQuery {
         CommentedObjectTable.insertIgnoreAndGetId {
@@ -32,7 +36,7 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : Commented
     }
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
-        !associatedTable.select(CommentedObjectTable.id eq coid).empty()
+        !associatedTable.select(associatedTable.coid eq coid).empty()
     }
 
     override suspend fun modifyContent(coid: UUID, content: String): Boolean = dbQuery {
@@ -51,7 +55,7 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : Commented
     override suspend fun delete(coid: UUID): Boolean = dbQuery {
         val success = CommentedObjectTable.deleteWhere { CommentedObjectTable.id eq coid } > 0
         if (success) {
-            assert(associatedTable.deleteWhere { CommentedObjectTable.id eq coid } > 0)
+            assert(associatedTable.deleteWhere { associatedTable.coid eq coid } > 0)
         }
         success
     }

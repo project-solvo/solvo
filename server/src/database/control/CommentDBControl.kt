@@ -23,7 +23,7 @@ interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
 class CommentDBControlImpl(
     private val accountDB: AccountDBControl,
 ) : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>() {
-    override val associatedTable: Table = CommentTable
+    override val associatedTable = CommentTable
 
     override suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, asAnswer: Boolean): UUID? {
         val coid = insertAndGetCOID(content, authorId) ?: return null

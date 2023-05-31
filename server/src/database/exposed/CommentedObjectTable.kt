@@ -1,6 +1,7 @@
 package org.solvo.server.database.exposed
 
 import org.jetbrains.exposed.dao.id.UUIDTable
+import org.jetbrains.exposed.sql.Table
 import org.solvo.server.ServerContext
 
 object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
@@ -15,4 +16,11 @@ object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
     val postTime = long("postTime").default(ServerContext.localtime.now())
     val lastEditTime = long("lastEditTime").default(ServerContext.localtime.now())
     val lastCommentTime = long("lastCommentTime").default(ServerContext.localtime.now())
+}
+
+abstract class COIDTable(
+    name: String
+): Table(name) {
+    val coid = reference("COID", CommentedObjectTable).uniqueIndex()
+    override val primaryKey = PrimaryKey(this.coid)
 }

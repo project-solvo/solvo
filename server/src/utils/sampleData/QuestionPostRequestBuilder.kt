@@ -1,16 +1,34 @@
 package org.solvo.server.utils.sampleData
 
+import org.solvo.server.ServerContext
+import java.util.*
+
 class QuestionPostRequest(
     val code: String,
     val content: String,
     val anonymity: Boolean,
-)
+    val comments: List<CommentPostRequest> = listOf(),
+) {
+    suspend fun submit(
+        db: ServerContext.Databases,
+        userIdMap: Map<UserRegisterRequest, UUID>,
+        articleId: UUID,
+    ) {
+        db.contents.apply {
+            val questionId = getQuestionId(articleId, code)!!
+            comments.map { commentRequest -> commentRequest.submit(db, userIdMap, questionId) }
+        }
+    }
+}
 
 class QuestionPostRequestBuilder(
     private val code: String
 ) {
     private var content = ""
     private var anonymity = false
+
+    @PublishedApi
+    internal var comments: MutableList<CommentPostRequest> = mutableListOf()
 
     fun content(set: () -> String) {
         content = set()
@@ -32,7 +50,17 @@ class QuestionPostRequestBuilder(
         anonymity = true
     }
 
+    @SampleDataDslMarker
+    inline fun comment(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
+        comments.add(CommentPostRequestBuilder(author).apply(builds).build())
+    }
+
+    @SampleDataDslMarker
+    inline fun answer(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
+        comments.add(CommentPostRequestBuilder(author, isAnswer = true).apply(builds).build())
+    }
+
     fun build(): QuestionPostRequest {
-        return QuestionPostRequest(code, content, anonymity)
+        return QuestionPostRequest(code, content, anonymity, comments)
     }
 }

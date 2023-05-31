@@ -26,7 +26,7 @@ class ArticleDBControlImpl(
     private val termDB: TermDBControl,
     private val accountDB: AccountDBControl,
 ) : ArticleDBControl, CommentedObjectDBControlImpl<ArticleUpstream>() {
-    override val associatedTable: Table = ArticleTable
+    override val associatedTable = ArticleTable
 
     override suspend fun getId(courseCode: String, code: String): UUID? = dbQuery {
         val courseId = courseDB.getId(courseCode) ?: return@dbQuery null
@@ -71,8 +71,8 @@ class ArticleDBControlImpl(
         val questionIndexes: List<String> = ArticleTable
             .join(QuestionTable, JoinType.INNER, ArticleTable.coid, QuestionTable.article)
             .select(ArticleTable.coid eq coid)
-            .orderBy(QuestionTable.index, SortOrder.ASC)
-            .map { it[QuestionTable.index] }
+            .orderBy(QuestionTable.code, SortOrder.ASC)
+            .map { it[QuestionTable.code] }
 
         val comments: List<UUID> = ArticleTable
             .join(CommentTable, JoinType.INNER, ArticleTable.coid, CommentTable.parent)

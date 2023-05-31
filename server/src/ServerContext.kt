@@ -11,6 +11,7 @@ import org.solvo.server.database.control.*
 import org.solvo.server.database.exposed.*
 import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.*
+import org.solvo.server.utils.sampleData.SampleDataBuilder
 import org.solvo.server.utils.sampleData.incorporateSampleData
 
 object ServerContext {
@@ -43,44 +44,7 @@ object ServerContext {
             runBlocking {
                 if (config.containsConfig("initialized")) return@runBlocking
                 incorporateSampleData {
-                    val alex = user("Alex", AuthDigest("alex123"))
-
-                    val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
-
-                    course("50001", "Algorithm Design and Analysis") {
-                        article("Paper_2022", alex) {
-                            content("My content")
-                            anonymous()
-                            displayName("Paper 2022")
-                            termYear("2022")
-                            question("1a") {
-                                content("Haha!")
-                                anonymous()
-                            }
-                            question("1b") {
-                                content("Haha.")
-                                anonymous()
-                            }
-                            question("2a") {
-                                content("Haha..!")
-                                anonymous()
-                            }
-                        }
-                        article("Paper_2021", alex) {
-                            content("My content")
-                            anonymous()
-                            displayName("Paper 2021")
-                            termYear("2021")
-                            questions(questionsList)
-                        }
-                    }
-                    course("50002", "Software Engineering Design")
-                    course("50003", "Models of Computation")
-                    course("50004", "Operating Systems")
-                    course("50005", "Networks and Communications")
-                    course("50006", "Compilers")
-                    course("50008", "Probability and Statistics")
-                    course("50009", "Symbolic Reasoning")
+                    sampleData1()
                 }
                 config.setConfig("initialized")
             }
@@ -111,4 +75,70 @@ object ServerContext {
         suspend fun <T> dbQuery(block: suspend () -> T): T =
             newSuspendedTransaction(Dispatchers.IO) { block() }
     }
+}
+
+private fun SampleDataBuilder.sampleData1() {
+    val alex = user("Alex", AuthDigest("alex123"))
+    val bob = user("Bob", AuthDigest("bob456"))
+
+    val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
+
+    course("50001", "Algorithm Design and Analysis") {
+        article("Paper_2022", alex) {
+            content("My content")
+            anonymous()
+            displayName("Paper 2022")
+            termYear("2022")
+            question("1a") {
+                content("Haha!")
+                anonymous()
+                answer(alex) {
+                    content("I am answering my own question.")
+                    anonymous()
+                    pin()
+                }
+                answer(bob) {
+                    content("I am answering a question!")
+                    comment(alex) {
+                        content("Hello bob")
+                        comment(bob) {
+                            content("Hello alex")
+                        }
+                        comment(alex) {
+                            content("Blah blah")
+                        }
+                    }
+                }
+                comment(bob) {
+                    content("I am commenting a question.")
+                }
+            }
+            question("1b") {
+                content("Haha.")
+                anonymous()
+            }
+            question("2a") {
+                content("Haha..!")
+                anonymous()
+            }
+            comment(bob) {
+                content("I am commenting an article!")
+                anonymous()
+            }
+        }
+        article("Paper_2021", alex) {
+            content("My content")
+            anonymous()
+            displayName("Paper 2021")
+            termYear("2021")
+            questions(questionsList)
+        }
+    }
+    course("50002", "Software Engineering Design")
+    course("50003", "Models of Computation")
+    course("50004", "Operating Systems")
+    course("50005", "Networks and Communications")
+    course("50006", "Compilers")
+    course("50008", "Probability and Statistics")
+    course("50009", "Symbolic Reasoning")
 }

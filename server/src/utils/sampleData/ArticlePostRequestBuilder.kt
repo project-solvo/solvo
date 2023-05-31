@@ -2,11 +2,31 @@ package org.solvo.server.utils.sampleData
 
 import org.solvo.model.ArticleUpstream
 import org.solvo.model.QuestionUpstream
+import org.solvo.server.ServerContext
+import java.util.*
 
 class ArticlePostRequest(
     val article: ArticleUpstream,
     val author: UserRegisterRequest,
-)
+    val questions: List<QuestionPostRequest>,
+    val comments: List<CommentPostRequest> = listOf(),
+) {
+    suspend fun submit(
+        db: ServerContext.Databases,
+        userIdMap: Map<UserRegisterRequest, UUID>,
+        courseCode: String
+    ) {
+        db.contents.apply {
+            val articleId = postArticle(
+                article = article,
+                authorId = userIdMap[author]!!,
+                courseCode = courseCode,
+            )!!
+            questions.map { questionRequest -> questionRequest.submit(db, userIdMap, articleId) }
+            comments.map { commentRequest -> commentRequest.submit(db, userIdMap, articleId) }
+        }
+    }
+}
 
 @SampleDataDslMarker
 class ArticlePostRequestBuilder(
@@ -20,6 +40,9 @@ class ArticlePostRequestBuilder(
 
     @PublishedApi
     internal var questions: MutableList<QuestionPostRequest> = mutableListOf()
+
+    @PublishedApi
+    internal var comments: MutableList<CommentPostRequest> = mutableListOf()
 
     fun content(set: () -> String) {
         content = set()
@@ -70,6 +93,11 @@ class ArticlePostRequestBuilder(
         questions.add(QuestionPostRequestBuilder(code).apply(builds).build())
     }
 
+    @SampleDataDslMarker
+    inline fun comment(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
+        comments.add(CommentPostRequestBuilder(author, isAnswer = true).apply(builds).build())
+    }
+
     fun build(): ArticlePostRequest = ArticlePostRequest(
         article = ArticleUpstream(
             content = content,
@@ -80,5 +108,7 @@ class ArticlePostRequestBuilder(
             questions = questions.map { QuestionUpstream(it.content, it.anonymity, it.code) }
         ),
         author = author,
+        questions = questions,
+        comments = comments,
     )
 }
