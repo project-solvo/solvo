@@ -34,6 +34,7 @@ import org.solvo.web.ui.theme.UNICODE_FONT
 @Stable
 val CommentCardShape = RoundedCornerShape(16.dp)
 
+@Suppress("NAME_SHADOWING")
 @Composable
 fun CommentCard(
     author: User?,
@@ -46,6 +47,9 @@ fun CommentCard(
 ) {
     val subCommentsState by rememberUpdatedState(subComments)
     val backgroundColor = commentCardBackgroundColor()
+    val onClickComment by rememberUpdatedState(onClickComment)
+    val onClickCard by rememberUpdatedState(onClickCard)
+
     Card(
         modifier.clickable(indication = null, onClick = onClickCard),
         shape = CommentCardShape,
@@ -107,6 +111,7 @@ fun CommentCard(
                     message = {
                         Text(
                             remember(subComments.size) { "See all ${subComments.size} comments" },
+                            Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
                             textDecoration = TextDecoration.Underline,
                             color = MaterialTheme.colorScheme.primary,
                             textAlign = TextAlign.Center

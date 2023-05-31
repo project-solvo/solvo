@@ -4,14 +4,13 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.gestures.rememberDraggableState
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.surfaceColorAtElevation
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -70,5 +69,30 @@ fun VerticalDraggableDivider(
                 .cursorHoverIcon(CursorIcon.COL_RESIZE),
             color = backgroundColor
         )
+    }
+}
+
+@Composable
+fun HorizontallyDivided(
+    left: @Composable ColumnScope.() -> Unit,
+    right: @Composable ColumnScope.() -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints {
+        var leftWidth by remember(maxWidth) { mutableStateOf(maxWidth * (1.0f - 0.618f)) }
+        Row(modifier) {
+            Column(Modifier.width(leftWidth)) {
+                left()
+            }
+
+            VerticalDraggableDivider(
+                onDrag = { leftWidth += it },
+                Modifier.fillMaxHeight(),
+            )
+
+            Column(Modifier.fillMaxWidth()) {
+                right()
+            }
+        }
     }
 }

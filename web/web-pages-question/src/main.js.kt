@@ -1,8 +1,8 @@
 package org.solvo.web
 
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -20,23 +20,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
-import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentCard
 import org.solvo.web.comments.CourseMenu
-import org.solvo.web.comments.CourseMenuState
 import org.solvo.web.document.History
-import org.solvo.web.document.parameters.article
-import org.solvo.web.document.parameters.course
-import org.solvo.web.document.parameters.question
-import org.solvo.web.document.parameters.rememberPathParameters
 import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.LoadableContent
-import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.SolvoWindow
+import org.solvo.web.ui.foundation.HorizontallyDivided
 import org.solvo.web.ui.foundation.SolvoTopAppBar
-import org.solvo.web.ui.foundation.VerticalDraggableDivider
 import kotlin.random.Random
 import kotlin.random.nextUInt
 
@@ -44,17 +37,15 @@ import kotlin.random.nextUInt
 fun main() {
     onWasmReady {
         SolvoWindow {
-            val pathParameters = rememberPathParameters(WebPagePathPatterns.question)
-            val course by pathParameters.course().collectAsState(null)
-            val article by pathParameters.article().collectAsState(null)
-            val question by pathParameters.question().collectAsState(null)
+            val model = remember { QuestionPageViewModel() }
 
-            val model = remember { ArticlePageViewModel() }
+            val course by model.course.collectAsState(null)
+            val article by model.article.collectAsState(null)
+            val question by model.question.collectAsState(null)
 
-            val menuState = remember { CourseMenuState(model.allArticles) }
             SolvoTopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { menuState.switchMenuOpen() }) {
+                    IconButton(onClick = { model.menuState.switchMenuOpen() }) {
                         Icon(Icons.Filled.Menu, null)
                     }
                 }
@@ -63,125 +54,106 @@ fun main() {
             }
 
             CourseMenu(
-                menuState,
-                onClickQuestion = { articles: ArticleDownstream, questions: QuestionDownstream ->
+                model.menuState,
+                onClickQuestion = { a: ArticleDownstream, q: QuestionDownstream ->
                     History.navigate {
-                        question(
-                            articles.course.code,
-                            articles.code,
-                            questions.code
-                        )
-                    } // TODO: 2023/5/29 navigate article
-                })
-
+                        question(a.course.code, a.code, q.code)
+                    }
+                }
+            )
 
             LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
-                ArticlePageContent(
-                    course = course ?: return@LoadableContent,
-                    article = article ?: return@LoadableContent,
-                    question = question ?: return@LoadableContent
-                )
+                Row(Modifier.fillMaxSize()) {
+                    QuestionPageContent(
+                        course = course ?: return@LoadableContent,
+                        article = article ?: return@LoadableContent,
+                        question = question ?: return@LoadableContent
+                    )
+                }
             }
         }
     }
 }
 
 @Composable
-private fun ArticlePageContent(
+private fun QuestionPageContent(
     course: Course,
     article: ArticleDownstream,
     question: QuestionDownstream,
-) {
-    Row(Modifier.fillMaxSize()) {
-        val window = LocalSolvoWindow.current
-        val windowSize by window.size.collectAsState()
-
-        var leftWidth by remember { mutableStateOf(windowSize.width * (1.0f - 0.618f)) }
-        Box(Modifier.width(leftWidth)) {
-            PaperView(
-                questionSelectedBar = {
-                    // ScrollableTab row TODO()
-                    Row(
-                        modifier = Modifier.horizontalScroll(rememberScrollState(), true).size(leftWidth)
-                    ) {
-                        article.questionIndexes.forEach {
-                            AssistChip(
-                                onClick = {},
-                                label = {
-                                    Text(it)
-                                },
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
-                                shape = RoundedCornerShape(8.dp),
-                            )
-                        }
-
+) = HorizontallyDivided(
+    left = {
+        PaperView(
+            questionSelectedBar = {
+                // ScrollableTab row TODO()
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState(), true)
+                ) {
+                    article.questionIndexes.forEach {
+                        AssistChip(
+                            onClick = {},
+                            label = {
+                                Text(it)
+                            },
+                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                            shape = RoundedCornerShape(8.dp),
+                        )
                     }
-                },
-                onChangeLayout = {
-                    // TODO change article page layout
-                },
-                Modifier.fillMaxSize()
-            ) {
-//                Image(
-//                    rememberImagePainter(
-//                        "https://him188.github.io/static/images/WACCLangSpec_00.png",
-//                        error = Icons.Outlined.BrokenImage,
-//                    ),
-//                    "Article Content",
-//                    Modifier.fillMaxSize(),
-//                )
-                Box(Modifier.padding(all = 12.dp)) {
-                    RichText(
-                        question.content, Modifier.fillMaxSize(),
-                        backgroundColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    )
+
                 }
+            },
+            onChangeLayout = {
+                // TODO change article page layout
+            },
+            Modifier.fillMaxSize()
+        ) {
+            Box(Modifier.padding(all = 12.dp)) {
+                RichText(
+                    question.content, Modifier.fillMaxSize(),
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                )
             }
         }
-
-        VerticalDraggableDivider(
-            onDrag = { leftWidth += it },
-            Modifier.fillMaxHeight(),
+    },
+    right = {
+        var isExpanded by remember { mutableStateOf(false) }
+        val pagingState = rememberPagingState(
+            remember { generateSequence { createCommentDownstream() }.take(10).toList() },
+            3
         )
+        PagingContent(
+            pagingState,
+            controlBar = {
+                PagingControlBar(it) {
+                    FilledTonalButton(
+                        onClick = {},
+                        Modifier.align(Alignment.CenterStart),
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = buttonContentPaddings,
+                    ) {
+                        Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
 
-        Column {
-            val pagingState = rememberPagingState(
-                remember { generateSequence { createCommentDownstream() }.take(10).toList() },
-                3
-            )
-            PagingContent(
-                pagingState,
-                controlBar = {
-                    PagingControlBar(it) {
-                        FilledTonalButton(
-                            onClick = {},
-                            Modifier.align(Alignment.CenterStart),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = buttonContentPaddings,
-                        ) {
-                            Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
-
-                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                Text(
-                                    "Draft Answer",
-                                    Modifier.padding(start = 4.dp),
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.W500,
-                                )
-                            }
+                        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                            Text(
+                                "Draft Answer",
+                                Modifier.padding(start = 4.dp),
+                                textAlign = TextAlign.Center,
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.W500,
+                            )
                         }
                     }
                 }
-            ) { items ->
-                Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
-                    AnswersList(items, Modifier.fillMaxSize())
-                }
+            }
+        ) { items ->
+            Box(Modifier.padding(top = 12.dp).padding(end = 12.dp, start = 12.dp).fillMaxSize()) {
+                AnswersList(items, Modifier.fillMaxSize(), onClickComment = {
+
+                })
             }
         }
     }
-}
+)
 
 private var testCommentId = 0
 private fun createCommentDownstream(): CommentDownstream {
@@ -210,42 +182,40 @@ private fun createCommentDownstream(): CommentDownstream {
 private fun AnswersList(
     items: List<CommentDownstream>,
     modifier: Modifier = Modifier,
+    onClickComment: ((LightCommentDownstream?) -> Unit)? = null,
 ) {
     val scrollState = rememberScrollState()
     Column(
         modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
-        items.forEach { item ->
+        for (item in items) {
             CommentCard(
                 item.author,
                 "May 05, 2023", // TODO: 2023/5/29 date
                 item.subComments,
-                Modifier.wrapContentHeight().fillMaxWidth(),
+                Modifier.animateContentSize().wrapContentHeight().fillMaxWidth(),
+                onClickComment = onClickComment,
             ) { backgroundColor ->
                 key(item.coid) { // redraw editor when item id changed (do not reuse)
                     RichText(
                         item.content,
                         modifier = Modifier.wrapContentHeight().fillMaxWidth(),
-                        onTextUpdated = {
-//                        editorReady = true
-                        },
                         propagateScrollState = scrollState,
                         backgroundColor = backgroundColor,
                         showScrollbar = false
                     )
-
                 }
 
-//                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
-//                var editorReady by remember { mutableStateOf(false) }
-//                OverlayLoadableContent(
-//                    !editorReady,
-//                    Modifier.height(actualHeight.takeOrElse { 20.dp }.coerceAtLeast(20.dp)).fillMaxWidth(),
-//                    loadingContent = { LinearProgressIndicator() },
-//                ) {
-//                    
-//                }
+                //                var actualHeight by remember { mutableStateOf(Dp.Unspecified) }
+                //                var editorReady by remember { mutableStateOf(false) }
+                //                OverlayLoadableContent(
+                //                    !editorReady,
+                //                    Modifier.height(actualHeight.takeOrElse { 20.dp }.coerceAtLeast(20.dp)).fillMaxWidth(),
+                //                    loadingContent = { LinearProgressIndicator() },
+                //                ) {
+                //                    
+                //                }
             }
         }
     }

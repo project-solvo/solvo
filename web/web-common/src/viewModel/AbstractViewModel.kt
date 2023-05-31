@@ -4,6 +4,10 @@ import androidx.compose.runtime.RememberObserver
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.window
 import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.shareIn
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -47,6 +51,11 @@ abstract class AbstractViewModel : RememberObserver {
 
     protected open fun init() {
     }
+
+    fun <T> Flow<T>.shareInBackground(
+        started: SharingStarted = SharingStarted.Eagerly,
+        replay: Int = 1
+    ): SharedFlow<T> = shareIn(backgroundScope, started, replay)
 }
 
 fun <V : AbstractViewModel> V.launchInBackground(

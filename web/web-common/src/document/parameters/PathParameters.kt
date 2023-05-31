@@ -1,9 +1,14 @@
 package org.solvo.web.document.parameters
 
 import androidx.compose.runtime.*
+import kotlinx.atomicfu.atomic
 import kotlinx.browser.window
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import org.solvo.model.api.WebPagePathPatterns
 import org.w3c.dom.events.Event
+import kotlin.coroutines.CoroutineContext
+import kotlin.coroutines.EmptyCoroutineContext
 
 interface PathParameters : RememberObserver {
     var pattern: String
@@ -13,10 +18,12 @@ interface PathParameters : RememberObserver {
     val allParameters: State<Map<String, String>>
 
     @Stable
-    fun paramNullable(name: String): State<String?>
+    fun argumentNullable(name: String): StateFlow<String?>
 
     @Stable
-    fun param(name: String): State<String>
+    fun argument(name: String): StateFlow<String>
+
+    fun dispose()
 }
 
 /**
@@ -27,10 +34,12 @@ operator fun PathParameters.get(name: String): String? = allParameters.value[nam
 @JsName("createPathParameters")
 fun PathParameters(
     pattern: String,
-): PathParameters = PathParametersImpl(pattern)
+    coroutineContext: CoroutineContext = EmptyCoroutineContext,
+): PathParameters = PathParametersImpl(pattern, coroutineContext)
 
 internal class PathParametersImpl(
     pattern: String,
+    private val coroutineContext: CoroutineContext,
 ) : PathParameters {
     private lateinit var locationChangeListener: (Event) -> Unit
     override var pattern: String = pattern
@@ -42,9 +51,9 @@ internal class PathParametersImpl(
     private val _allParameters: MutableState<Map<String, String>> = mutableStateOf(mapOf())
     override val allParameters: State<Map<String, String>> get() = _allParameters
 
-    private val observedParams = mutableMapOf<String, MutableState<String?>>() // can implement with derived states
+    private val observedParams = mutableMapOf<String, MutableStateFlow<String?>>() // can implement with derived states
     private val observedParamsNotNull =
-        mutableMapOf<String, MutableState<String>>() // can implement with derived states
+        mutableMapOf<String, MutableStateFlow<String>>() // can implement with derived states
 
 
     override fun reload() {
@@ -75,9 +84,9 @@ internal class PathParametersImpl(
         }
     }
 
-    override fun paramNullable(name: String): State<String?> {
+    override fun argumentNullable(name: String): StateFlow<String?> {
         return observedParams.getOrPut(name) {
-            mutableStateOf(null)
+            MutableStateFlow(null)
         }
     }
 
@@ -85,9 +94,9 @@ internal class PathParametersImpl(
         reload()
     }
 
-    override fun param(name: String): State<String> {
+    override fun argument(name: String): StateFlow<String> {
         return observedParamsNotNull.getOrPut(name) {
-            mutableStateOf(
+            MutableStateFlow(
                 get(name)
                     ?: error(
                         "Cannot find path parameter '$name'. pattern=$pattern. parsedPrams=${
@@ -102,12 +111,18 @@ internal class PathParametersImpl(
     }
 
     override fun onAbandoned() {
-        if (::locationChangeListener.isInitialized) {
-            window.removeEventListener(LOCATION_CHANGE, locationChangeListener)
-        }
+        dispose()
     }
 
     override fun onForgotten() {
+        dispose()
+    }
+
+
+    private val disposed = atomic(false)
+    override fun dispose() {
+        if (!disposed.compareAndSet(expect = false, update = true)) return
+
         if (::locationChangeListener.isInitialized) {
             window.removeEventListener(LOCATION_CHANGE, locationChangeListener)
         }
@@ -115,7 +130,9 @@ internal class PathParametersImpl(
 
     override fun onRemembered() {
         locationChangeListener = {
-            reload()
+            if (!disposed.value) {
+                reload()
+            }
         }
         window.addEventListener(LOCATION_CHANGE, locationChangeListener)
     }
