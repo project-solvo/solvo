@@ -22,18 +22,21 @@ import org.solvo.model.CommentDownstream
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.AuthorNameTextStyle
 import org.solvo.web.comments.AvatarBox
+import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.modifiers.clickable
 
 
 fun main() {
+    val context = createDummyText(123);
+
     val commentDownstream1 = CommentDownstream(
-        Uuid.random(), null, "Some java code", true, 123u,
+        Uuid.random(), null, context, true, 123u,
         123u, Uuid.random(), true, listOf()
     )
     val commentDownstream2 = CommentDownstream(
-        Uuid.random(), null, "Some C code", true, 123u,
+        Uuid.random(), null, context, true, 123u,
         123u, Uuid.random(), true, listOf()
     )
     onWasmReady {
@@ -68,40 +71,36 @@ fun CommentSummaryCard(
 ) {
     val shape = RoundedCornerShape(16.dp)
     var seeMore by remember { mutableStateOf(false) }
-    if (!seeMore) {
-        Card(shape = shape, modifier = modifier) {
-            Author(
-                icon = {
-                    AvatarBox(Modifier.size(48.dp)) {
-                        Image(
-                            Icons.Default.Person4,
-                            "Avatar",
-                            Modifier.matchParentSize(),
-                        )
-                    }
-                },
-                authorName = {
-                    Text("Alex")
-                },
-                Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
-            )
+    Card(shape = shape, modifier = (if (!seeMore) modifier else Modifier)) {
+        Author(
+            icon = {
+                AvatarBox(Modifier.size(48.dp)) {
+                    Image(
+                        Icons.Default.Person4,
+                        "Avatar",
+                        Modifier.matchParentSize(),
+                    )
+                }
+            },
+            authorName = {
+                Text("Alex") // actual: commentDownstream.author
+            },
+            Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)
+        )
 
-            Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).weight(1f)) {
-                RichText(commentDownstream.content.trimIndent(), modifier = Modifier.fillMaxWidth())
-            }
-
-            Column(Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
-                Text(
-                    text = "See more",
-                    modifier = Modifier.clickable { seeMore = true },
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center,
-                )
-            }
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 12.dp).then(if (seeMore) Modifier else Modifier.weight(1f))) {
+            RichText(commentDownstream.content.trimIndent(), modifier = Modifier.fillMaxWidth())
         }
-    } else {
-        // TODO: to shrink by clicking "show less"
+
+        Column(Modifier.padding(horizontal = 16.dp).padding(top = 16.dp)) {
+            Text(
+                text = (if (!seeMore) "See More" else "Show Less"),
+                modifier = (if (!seeMore) Modifier.clickable { seeMore = true } else Modifier.clickable { seeMore = false }),
+                textDecoration = TextDecoration.Underline,
+                color = MaterialTheme.colorScheme.primary,
+                textAlign = TextAlign.Center,
+            )
+        }
     }
 }
 
