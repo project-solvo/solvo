@@ -18,9 +18,11 @@ import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
@@ -36,6 +38,7 @@ import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.ifThen
+import kotlin.time.Duration.Companion.seconds
 
 
 fun main() {
@@ -209,16 +212,37 @@ private fun AnswersList(
                 Modifier.requiredSize(0.dp) // `hide` item, but keep rich editor in memory (with size zero)
             }
 
+            val scope = rememberCoroutineScope()
+            var animationEnabled by remember { mutableStateOf(false) }
+
             CommentCard(
                 author = item.author,
                 date = "May 05, 2023", // TODO: 2023/5/29 date
-                modifier = Modifier.then(sizeModifier).animateContentSize(),
+                modifier = Modifier.then(sizeModifier).ifThen(animationEnabled) {
+                    animateContentSize { _: IntSize, _: IntSize ->
+                        animationEnabled = false
+                    }
+                },
                 subComments = if (isExpanded) {
                     null
                 } else {
-                    { CommentCardSubComments(item.subComments, onClickComment = { onClickComment?.invoke(it, item) }) }
+                    {
+                        CommentCardSubComments(item.subComments, onClickComment = {
+                            animationEnabled = true
+                            scope.launch {
+                                delay(0.05.seconds)
+                                onClickComment?.invoke(it, item)
+                            }
+                        })
+                    }
                 },
-                onClickCard = { onClickCard?.invoke(index, item) }
+                onClickCard = {
+                    animationEnabled = true
+                    scope.launch {
+                        delay(0.05.seconds)
+                        onClickCard?.invoke(index, item)
+                    }
+                }
             ) { backgroundColor ->
                 CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
             }

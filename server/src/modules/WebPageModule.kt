@@ -57,8 +57,12 @@ private inline fun Routing.routeStatic(
  */
 @KtorDsl
 private fun Routing.routeWebPage(path: String, webPagePath: String) {
-    routeStatic(path, "$webPagePath.html")
-    routeStatic("$webPagePath.js", "$webPagePath.js")
+    routeStatic(path, "$webPagePath.html") {
+        call.caching = CachingOptions(CacheControl.NoCache(null))
+    }
+    routeStatic("$webPagePath.js", "$webPagePath.js") {
+        call.caching = CachingOptions(CacheControl.NoCache(null))
+    }
 }
 
 private val staticResourceLock = Mutex()
