@@ -1,27 +1,12 @@
 package org.solvo.server.utils.sampleData
 
-import org.solvo.model.ArticleUpstream
 import org.solvo.model.Course
 import org.solvo.server.ServerContext
 import java.util.*
 
-@SampleDataDslMarker
 class UserRegisterRequest(
     val username: String,
     val password: ByteArray,
-)
-
-@SampleDataDslMarker
-class CoursePostRequest(
-    val code: String,
-    val name: String,
-    val articles: List<ArticlePostRequest>,
-)
-
-@SampleDataDslMarker
-class ArticlePostRequest(
-    val article: ArticleUpstream,
-    val author: UserRegisterRequest,
 )
 
 @SampleDataDslMarker
@@ -38,15 +23,9 @@ class SampleDataBuilder {
     fun course(
         code: String,
         name: String,
-        articleBuilds: MutableList<ArticlePostRequest>.() -> Unit = {},
+        builds: CoursePostRequestBuilder.() -> Unit = {},
     ): CoursePostRequest {
-        val articles = mutableListOf<ArticlePostRequest>().apply(articleBuilds)
-        return CoursePostRequest(code, name, articles).also { courses.add(it) }
-    }
-
-    @SampleDataDslMarker
-    fun MutableList<ArticlePostRequest>.article(builds: ArticlePostRequestBuilder.() -> Unit) {
-        add(ArticlePostRequestBuilder().apply(builds).build())
+        return CoursePostRequestBuilder(code, name).apply(builds).build().also { courses.add(it) }
     }
 
     suspend fun build(db: ServerContext.Databases) {

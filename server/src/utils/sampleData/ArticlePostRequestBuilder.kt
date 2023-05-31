@@ -3,15 +3,21 @@ package org.solvo.server.utils.sampleData
 import org.solvo.model.ArticleUpstream
 import org.solvo.model.QuestionUpstream
 
+class ArticlePostRequest(
+    val article: ArticleUpstream,
+    val author: UserRegisterRequest,
+)
+
 @SampleDataDslMarker
-class ArticlePostRequestBuilder {
+class ArticlePostRequestBuilder(
+    private val code: String,
+    private val author: UserRegisterRequest,
+) {
     private var content: String = ""
     private var anonymity: Boolean = false
-    private var code: String = ""
-    private var displayName: String = ""
+    private var displayName: String = code
     private var termYear: String = ""
     private var questions: List<String> = listOf()
-    private var author: UserRegisterRequest? = null
 
     fun content(set: () -> String) {
         content = set()
@@ -19,10 +25,6 @@ class ArticlePostRequestBuilder {
 
     fun anonymity(set: () -> Boolean) {
         anonymity = set()
-    }
-
-    fun code(set: () -> String) {
-        code = set()
     }
 
     fun displayName(set: () -> String) {
@@ -37,10 +39,6 @@ class ArticlePostRequestBuilder {
         questions = set()
     }
 
-    fun author(set: () -> UserRegisterRequest) {
-        author = set()
-    }
-
     fun build(): ArticlePostRequest = ArticlePostRequest(
         article = ArticleUpstream(
             content = content,
@@ -50,6 +48,6 @@ class ArticlePostRequestBuilder {
             termYear = termYear,
             questions = questions.map { QuestionUpstream("Haha", true, it) },
         ),
-        author = author!!,
+        author = author,
     )
 }

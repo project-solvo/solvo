@@ -48,23 +48,19 @@ object ServerContext {
                     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
 
                     course("50001", "Algorithm Design and Analysis") {
-                        article {
+                        article("Paper_2022", alex) {
                             content { "My content" }
                             anonymity { true }
-                            code { "Paper_2022" }
                             displayName { "Paper 2022" }
                             termYear { "2022" }
                             questions { questionsList }
-                            author { alex }
                         }
-                        article {
+                        article("Paper_2021", alex) {
                             content { "My content" }
                             anonymity { true }
-                            code { "Paper_2021" }
                             displayName { "Paper 2021" }
                             termYear { "2021" }
                             questions { questionsList }
-                            author { alex }
                         }
                     }
                     course("50002", "Software Engineering Design")
