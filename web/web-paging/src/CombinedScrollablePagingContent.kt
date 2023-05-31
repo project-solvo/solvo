@@ -47,7 +47,7 @@ internal class ExpandablePagingStateImpl<T> private constructor(initialList: Lis
         pageSlice.value = savedSlice
         update()
         delay(200.milliseconds)
-        pagingContext.scrollState.animateScrollTo(savedScrollValue)
+        pagingContext.scrollState.scrollTo(savedScrollValue)
     }
 
     companion object {
