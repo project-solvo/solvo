@@ -12,6 +12,7 @@ on:
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
   HEROKU_APP_NAME: solvo-platform
+  deployStaging: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
 
 jobs:
   build:
@@ -71,19 +72,32 @@ jobs:
       - name: Check
         run: ./gradlew check ${{ env.gradleArgs }}
 
-  staging:
-    #    needs: [ build ]
-    name: "Staging"
-    runs-on: ubuntu-latest
-    if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
-    steps:
-      - uses: actions/checkout@v3
-        with:
-          submodules: 'recursive'
+      - name: Install
+        run: ./gradlew installDist ${{ env.gradleArgs }}
+
+      - run: rm -rf build
+        if: $deployStaging == 'true'
+      
+      #        
+      #  staging:
+      #    #    needs: [ build ]
+      #    name: "Staging"
+      #    runs-on: ubuntu-latest
+      #    if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
+      #    steps:
+      #      - uses: actions/checkout@v3
+      #        with:
+      #          submodules: 'recursive'
 
       - name: Install Heroku
+        if: $deployStaging == 'true'
         run: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
 
       - run: heroku container:login
+        if: $deployStaging == 'true'
+
       - run: heroku container:push web --app $HEROKU_APP_NAME
+        if: $deployStaging == 'true'
+
       - run: heroku container:release web --app $HEROKU_APP_NAME
+        if: $deployStaging == 'true'
