@@ -69,9 +69,6 @@ jobs:
       - name: Clean and download dependencies
         run: ./gradlew clean ${{ env.gradleArgs }}
 
-      - name: Assemble
-        run: ./gradlew assemble ${{ env.gradleArgs }}
-
       - name: Check
         run: ./gradlew check ${{ env.gradleArgs }}
 
