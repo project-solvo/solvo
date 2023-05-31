@@ -4,7 +4,6 @@ import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
 import io.ktor.server.http.content.*
-import io.ktor.server.plugins.cachingheaders.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.util.*
@@ -24,10 +23,10 @@ fun Application.webPageModule() {
             }
         }
         routeStatic("/skiko.js", "/skiko.js") {
-            call.caching = CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 64000))
+            call.response.cacheControl(CacheControl.MaxAge(maxAgeSeconds = 64000))
         }
         routeStatic("/skiko.wasm", "/skiko.wasm") {
-            call.caching = CachingOptions(CacheControl.MaxAge(maxAgeSeconds = 64000))
+            call.response.cacheControl(CacheControl.MaxAge(maxAgeSeconds = 64000))
         }
 
         // WEB PAGES
@@ -58,10 +57,10 @@ private inline fun Routing.routeStatic(
 @KtorDsl
 private fun Routing.routeWebPage(path: String, webPagePath: String) {
     routeStatic(path, "$webPagePath.html") {
-        call.caching = CachingOptions(CacheControl.NoCache(null))
+        call.response.cacheControl(CacheControl.MaxAge(30, mustRevalidate = true, proxyRevalidate = true))
     }
     routeStatic("$webPagePath.js", "$webPagePath.js") {
-        call.caching = CachingOptions(CacheControl.NoCache(null))
+        call.response.cacheControl(CacheControl.MaxAge(30, mustRevalidate = true, proxyRevalidate = true))
     }
 }
 

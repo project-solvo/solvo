@@ -229,6 +229,7 @@ private fun AnswersList(
                     {
                         CommentCardSubComments(item.subComments, onClickComment = {
                             animationEnabled = true
+                            animationEnabled = true
                             scope.launch {
                                 delay(0.05.seconds)
                                 onClickComment?.invoke(it, item)
