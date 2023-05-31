@@ -49,18 +49,29 @@ object ServerContext {
 
                     course("50001", "Algorithm Design and Analysis") {
                         article("Paper_2022", alex) {
-                            content { "My content" }
-                            anonymity { true }
-                            displayName { "Paper 2022" }
-                            termYear { "2022" }
-                            questions { questionsList }
+                            content("My content")
+                            anonymous()
+                            displayName("Paper 2022")
+                            termYear("2022")
+                            question("1a") {
+                                content("Haha!")
+                                anonymous()
+                            }
+                            question("1b") {
+                                content("Haha.")
+                                anonymous()
+                            }
+                            question("2a") {
+                                content("Haha..!")
+                                anonymous()
+                            }
                         }
                         article("Paper_2021", alex) {
-                            content { "My content" }
-                            anonymity { true }
-                            displayName { "Paper 2021" }
-                            termYear { "2021" }
-                            questions { questionsList }
+                            content("My content")
+                            anonymous()
+                            displayName("Paper 2021")
+                            termYear("2021")
+                            questions(questionsList)
                         }
                     }
                     course("50002", "Software Engineering Design")

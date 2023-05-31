@@ -12,7 +12,8 @@ class UserRegisterRequest(
 @SampleDataDslMarker
 class SampleDataBuilder {
     private val users: MutableList<UserRegisterRequest> = mutableListOf()
-    private val courses: MutableList<CoursePostRequest> = mutableListOf()
+    @PublishedApi
+    internal val courses: MutableList<CoursePostRequest> = mutableListOf()
 
     @SampleDataDslMarker
     fun user(username: String, password: ByteArray): UserRegisterRequest {
@@ -20,7 +21,7 @@ class SampleDataBuilder {
     }
 
     @SampleDataDslMarker
-    fun course(
+    inline fun course(
         code: String,
         name: String,
         builds: CoursePostRequestBuilder.() -> Unit = {},

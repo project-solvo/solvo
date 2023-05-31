@@ -12,10 +12,11 @@ class CoursePostRequestBuilder(
     private var code: String,
     private var name: String
 ) {
-    private val articles: MutableList<ArticlePostRequest> = mutableListOf()
+    @PublishedApi
+    internal val articles: MutableList<ArticlePostRequest> = mutableListOf()
 
     @SampleDataDslMarker
-    fun article(
+    inline fun article(
         code: String,
         author: UserRegisterRequest,
         builds: ArticlePostRequestBuilder.() -> Unit
