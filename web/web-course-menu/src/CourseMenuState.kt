@@ -10,8 +10,11 @@ import org.solvo.model.QuestionDownstream
 
 @Stable
 class CourseMenuState(
-    val allArticles: List<ArticleDownstream> = listOf()
+    initAllArticles: List<ArticleDownstream> = listOf()
 ) {
+    private var _allArticles: MutableState<MutableList<ArticleDownstream>> =
+        mutableStateOf(mutableListOf<ArticleDownstream>().apply { addAll(initAllArticles) })
+    val allArticles: State<List<ArticleDownstream>> get() = _allArticles
 
     private var _questionIndex: MutableState<QuestionDownstream?> = mutableStateOf(null)
     val questionIndex: State<QuestionDownstream?> get() = _questionIndex
@@ -38,5 +41,13 @@ class CourseMenuState(
     fun onClickQuestion(article: ArticleDownstream, question: QuestionDownstream) {
         _questionIndex.value = question
         _clickedArticle.value = article
+    }
+
+    fun addArticles(article: ArticleDownstream) {
+        _allArticles.value.add(article)
+    }
+
+    fun addArticles(articles: List<ArticleDownstream>) {
+        _allArticles.value.addAll(articles)
     }
 }

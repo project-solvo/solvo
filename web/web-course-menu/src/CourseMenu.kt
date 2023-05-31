@@ -86,7 +86,7 @@ fun CourseMenu(
                 .background(MaterialTheme.colorScheme.secondaryContainer, shape = RoundedCornerShape(10.dp))
         ) {
             // construct list of past papers
-            state.allArticles.forEach { article ->
+            state.allArticles.value.forEach { article ->
                 ElevatedCard(
                     onClick = {
                         state.onClickArticle(article)
