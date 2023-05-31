@@ -55,7 +55,7 @@ fun SolvoTopAppBar(
                     }, null
                 )
             }
-            IconButton(onClick = { notifyMenu1 = true }) {
+            IconButton(onClick = { notifyMenu1 = !notifyMenu1 }) {
                 Icon(Icons.Filled.Notifications, null)
             }
             IconButton(onClick = {
@@ -63,7 +63,7 @@ fun SolvoTopAppBar(
             }) {
                 Icon(Icons.Filled.Person, null)
             }
-            IconButton(onClick = { settingMenu1 = true }) {
+            IconButton(onClick = { settingMenu1 = !settingMenu1 }) {
                 Icon(Icons.Filled.Settings, null)
             }
             DropdownMenu(
@@ -103,7 +103,7 @@ fun SolvoTopAppBar(
                 DropdownMenuItem(
                     text = { Text("Appearance") },
                     onClick = {
-                        personalMenu1 = false
+                        settingMenu1 = false
                     },
                 )
                 DropdownMenuItem(
