@@ -28,6 +28,9 @@ class CommentDownstream(
 
     val parent: Uuid,
     val pinned: Boolean,
+    val postTime: Long,
+    val lastEditTime: Long,
+    val lastCommentTime: Long,
     val subComments: List<LightCommentDownstream>, // up to 3
 ) : CommentableDownstream
 
@@ -43,9 +46,11 @@ class FullCommentDownstream(
 
     val parent: Uuid,
     val pinned: Boolean,
+    val postTime: Long,
+    val lastEditTime: Long,
+    val lastCommentTime: Long,
     val subComments: List<Uuid>,
-) : CommentableDownstream {
-}
+) : CommentableDownstream
 
 @Immutable
 @Serializable

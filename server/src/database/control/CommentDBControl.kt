@@ -75,6 +75,9 @@ class CommentDBControlImpl(
                     dislikes = it[CommentedObjectTable.dislikes],
                     parent = it[CommentTable.parent].value,
                     pinned = it[CommentTable.pinned],
+                    postTime = it[CommentedObjectTable.postTime],
+                    lastEditTime = it[CommentedObjectTable.lastEditTime],
+                    lastCommentTime = it[CommentedObjectTable.lastCommentTime],
                     subComments = subComments,
                 )
             }.singleOrNull()
@@ -103,6 +106,9 @@ class CommentDBControlImpl(
                     dislikes = it[CommentedObjectTable.dislikes],
                     parent = it[CommentTable.parent].value,
                     pinned = it[CommentTable.pinned],
+                    postTime = it[CommentedObjectTable.postTime],
+                    lastEditTime = it[CommentedObjectTable.lastEditTime],
+                    lastCommentTime = it[CommentedObjectTable.lastCommentTime],
                     subComments = subComments,
                 )
             }.singleOrNull()

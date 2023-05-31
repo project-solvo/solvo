@@ -11,7 +11,10 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
@@ -25,8 +28,8 @@ import org.solvo.web.comments.AvatarBox
 import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoWindow
-import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.CursorIcon
+import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
 
 
@@ -35,11 +38,11 @@ fun main() {
 
     val commentDownstream1 = CommentDownstream(
         Uuid.random(), null, context, true, 123u,
-        123u, Uuid.random(), true, listOf()
+        123u, Uuid.random(), true, 0, 0, 0, listOf()
     )
     val commentDownstream2 = CommentDownstream(
         Uuid.random(), null, context, true, 123u,
-        123u, Uuid.random(), true, listOf()
+        123u, Uuid.random(), true, 0, 0, 0, listOf()
     )
     onWasmReady {
         SolvoWindow {
