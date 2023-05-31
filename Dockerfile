@@ -11,13 +11,13 @@ EXPOSE 80
 #ENTRYPOINT cd "/app/server/build/install/server" && "./bin/server"
 
 # Copy server
-#COPY server/build/install/server /app
-#RUN chmod +x "/app/bin/server"
-#
-#ENTRYPOINT cd "/app" && "./bin/server"
+COPY server/build/install/server /app
+RUN chmod +x "/app/bin/server"
+
+ENTRYPOINT cd "/app" && export JAVA_OPTS="-Xmx256m" && "./bin/server"
 
 # Run server via Gradle
-COPY . /app
-
-WORKDIR /app
-ENTRYPOINT "./gradlew :server:run"
+#COPY . /app
+#
+#WORKDIR /app
+#ENTRYPOINT "./gradlew :server:run"
