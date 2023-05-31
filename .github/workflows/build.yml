@@ -12,6 +12,7 @@ on:
 env:
   HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
   HEROKU_APP_NAME: solvo-platform
+  deployStaging: $GITHUB_REF_NAME == "main" || $GITHUB_REF_NAME == "deploy-heroku"
 
 jobs:
   build:
@@ -30,7 +31,6 @@ jobs:
       isWindows: ${{ startsWith(matrix.os, 'windows') }}
       isUbuntu: ${{ startsWith(matrix.os, 'ubuntu') }}
       isUnix: ${{ startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu') }}
-      deployStaging: $GITHUB_REF_NAME == "main" || $GITHUB_REF_NAME == "deploy-heroku"
     steps:
       - uses: actions/checkout@v3
         with:
