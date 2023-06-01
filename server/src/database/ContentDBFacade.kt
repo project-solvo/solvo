@@ -26,7 +26,6 @@ interface ContentDBFacade {
     suspend fun getCourseName(courseCode: String): String?
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
     suspend fun viewComment(commentId: UUID): CommentDownstream?
-    suspend fun viewFullComment(commentId: UUID): FullCommentDownstream?
 }
 
 class ContentDBFacadeImpl(
@@ -114,10 +113,6 @@ class ContentDBFacadeImpl(
 
     override suspend fun viewComment(commentId: UUID): CommentDownstream? {
         return comments.view(commentId)
-    }
-
-    override suspend fun viewFullComment(commentId: UUID): FullCommentDownstream? {
-        return comments.viewFull(commentId)
     }
 
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {

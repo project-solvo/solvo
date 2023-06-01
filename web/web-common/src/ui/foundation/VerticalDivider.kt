@@ -1,5 +1,8 @@
 package org.solvo.web.ui.foundation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -31,7 +34,7 @@ fun IconOnDivider(
     imageVector: ImageVector,
     modifier: Modifier = Modifier,
     colorFilter: ColorFilter = ColorFilter.tint(color = MaterialTheme.colorScheme.onBackground),
-    divider: @Composable () -> Unit,
+    divider: @Composable BoxScope.() -> Unit,
 ) {
     Box(modifier.width(width), contentAlignment = Alignment.Center) {
         divider()
@@ -60,10 +63,12 @@ fun VerticalDraggableDivider(
         colorFilter = ColorFilter.tint(
             color = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.8f)
                 .compositeOver(backgroundColor)
-        )
+        ),
+        modifier = modifier,
     ) {
         Divider(
-            modifier
+            Modifier
+                .fillMaxHeight()
                 .width(width)
                 .draggable(dragState, Orientation.Horizontal)
                 .cursorHoverIcon(CursorIcon.COL_RESIZE),
@@ -76,22 +81,40 @@ fun VerticalDraggableDivider(
 fun HorizontallyDivided(
     left: @Composable ColumnScope.() -> Unit,
     right: @Composable ColumnScope.() -> Unit,
+    isLeftVisible: Boolean = true,
+    isRightVisible: Boolean = true,
+    initialLeftWeight: Float = 1.0f - 0.618f,
     modifier: Modifier = Modifier,
+    dividerModifier: Modifier = Modifier,
 ) {
     BoxWithConstraints {
-        var leftWidth by remember(maxWidth) { mutableStateOf(maxWidth * (1.0f - 0.618f)) }
+        var leftWidth by remember(initialLeftWeight) { mutableStateOf(maxWidth * initialLeftWeight) }
         Row(modifier) {
-            Column(Modifier.width(leftWidth)) {
-                left()
+            AnimatedVisibility(
+                isLeftVisible,
+                enter = slideInHorizontally { -it },
+                exit = slideOutHorizontally { -it },
+            ) {
+                Column(if (isRightVisible) Modifier.width(leftWidth) else Modifier.fillMaxWidth()) {
+                    left.invoke(this)
+                }
             }
 
-            VerticalDraggableDivider(
-                onDrag = { leftWidth += it },
-                Modifier.fillMaxHeight(),
-            )
+            if (isLeftVisible && isRightVisible) {
+                VerticalDraggableDivider(
+                    onDrag = { leftWidth += it },
+                    dividerModifier,
+                )
+            }
 
-            Column(Modifier.fillMaxWidth()) {
-                right()
+            AnimatedVisibility(
+                isRightVisible,
+                enter = slideInHorizontally { it },
+                exit = slideOutHorizontally { it },
+            ) {
+                Column(Modifier.fillMaxWidth()) {
+                    right.invoke(this)
+                }
             }
         }
     }

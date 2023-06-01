@@ -1,6 +1,5 @@
 package org.solvo.web
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -15,30 +14,22 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
-import org.solvo.web.comments.CommentCard
-import org.solvo.web.comments.CommentCardSubComments
-import org.solvo.web.comments.CourseMenu
+import org.solvo.web.comments.*
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichText
-import org.solvo.web.editor.rememberRichEditorLoadedState
 import org.solvo.web.ui.LoadableContent
-import org.solvo.web.ui.OverlayLoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.ifThen
-import kotlin.time.Duration.Companion.seconds
 
 
 fun main() {
@@ -131,10 +122,10 @@ private fun QuestionPageContent(
             }
         },
         right = {
-            val allComments = remember { generateSequence { createCommentDownstream() }.take(10).toList() }
+            val allAnswers = remember { generateSequence { createCommentDownstream() }.take(10).toList() }
             val pagingState = rememberExpandablePagingState(
                 Int.MAX_VALUE,
-                allComments,
+                allAnswers,
             )
             PagingContent(
                 pagingState,
@@ -173,20 +164,33 @@ private fun QuestionPageContent(
                         .focusable(false) // compose bug
                 ) {
                     val scope = rememberCoroutineScope()
-                    AnswersList(
-                        allItems = allComments,
-                        visibleIndices = visibleIndices,
-                        isExpanded = isExpanded,
-                        modifier = Modifier.fillMaxSize()
-                            .ifThen(!isExpanded) { verticalScroll(scrollState) },
-                        onClickComment = { _, item ->
-                            scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
-                            pagingState.gotoItem(item)
+
+                    HorizontallyDivided(
+                        left = {
+                            val onClick: (Any?, item: CommentDownstream) -> Unit = { _, item ->
+                                scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
+                                pagingState.gotoItem(item)
+                            }
+
+                            AnswersList(
+                                allItems = allAnswers,
+                                visibleIndices = visibleIndices,
+                                isExpanded = isExpanded,
+                                modifier = Modifier.fillMaxSize()
+                                    .ifThen(!isExpanded) { verticalScroll(scrollState) },
+                                onClickComment = onClick,
+                                onClickCard = onClick,
+                            )
                         },
-                        onClickCard = { _, item ->
-                            scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
-                            pagingState.gotoItem(item)
-                        }
+                        right = {
+                            visibleItems.firstOrNull()?.let {
+                                // TODO: 2023/6/1  view model   it.allSubCommentIds
+                                CommentColumn(allAnswers)
+                            }
+                        },
+                        initialLeftWeight = 0.618f,
+                        isRightVisible = isExpanded,
+                        dividerModifier = Modifier.padding(horizontal = 8.dp),
                     )
                 }
             }
@@ -219,80 +223,26 @@ private fun AnswersList(
                 Modifier.requiredSize(0.dp) // `hide` item, but keep rich editor in memory (with size zero)
             }
 
-            val scope = rememberCoroutineScope()
-            var animationEnabled by remember { mutableStateOf(false) }
 
-            CommentCard(
+            LargeCommentCard(
                 author = item.author,
                 date = "May 05, 2023", // TODO: 2023/5/29 date
-                modifier = Modifier.then(sizeModifier).ifThen(animationEnabled) {
-                    animateContentSize { _: IntSize, _: IntSize ->
-                        animationEnabled = false
-                    }
-                },
+                modifier = Modifier.then(sizeModifier),
                 subComments = if (isExpanded) {
                     null
                 } else {
                     {
-                        CommentCardSubComments(item.subComments, onClickComment = {
-                            animationEnabled = true
-                            animationEnabled = true
-                            scope.launch {
-                                delay(0.05.seconds)
-                                onClickComment?.invoke(it, item)
-                            }
+                        CommentCardSubComments(item.previewSubComments, onClickComment = {
+                            onClickComment?.invoke(it, item)
                         })
                     }
                 },
                 onClickCard = {
-                    animationEnabled = true
-                    scope.launch {
-                        delay(0.05.seconds)
-                        onClickCard?.invoke(index, item)
-                    }
+                    onClickCard?.invoke(index, item)
                 }
             ) { backgroundColor ->
                 CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
             }
         }
-    }
-}
-
-@Composable
-private fun CommentCardContent(
-    item: CommentDownstream,
-    backgroundColor: Color,
-    modifier: Modifier = Modifier,
-) {
-    key(item.coid) { // redraw editor when item id changed (do not reuse)
-        val loadedState = rememberRichEditorLoadedState()
-        OverlayLoadableContent(
-            !loadedState.isReady,
-            loadingContent = { LinearProgressIndicator() }
-        ) {
-            RichText(
-                item.content,
-                modifier = modifier.heightIn(min = 64.dp).fillMaxWidth(),
-                backgroundColor = backgroundColor,
-                showScrollbar = false,
-                onEditorLoaded = loadedState.onEditorLoaded,
-                onTextUpdated = loadedState.onTextChanged,
-            )
-        }
-    }
-}
-
-// when expanded
-@Composable
-private fun ExpandedAnswerCard(
-    item: CommentDownstream,
-    modifier: Modifier = Modifier,
-) {
-    CommentCard(
-        item.author,
-        "May 05, 2023", // TODO: 2023/5/29 date
-        modifier, // show comments in side view
-    ) { backgroundColor ->
-        CommentCardContent(item, backgroundColor)
     }
 }

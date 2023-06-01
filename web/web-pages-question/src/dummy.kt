@@ -31,6 +31,7 @@ fun createCommentDownstream(): CommentDownstream {
         listOf(
             LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
             LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
-        )
+        ),
+        listOf(),
     )
 }

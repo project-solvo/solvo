@@ -31,25 +31,8 @@ class CommentDownstream(
     val postTime: Long,
     val lastEditTime: Long,
     val lastCommentTime: Long,
-    val subComments: List<LightCommentDownstream>, // up to 3
-) : CommentableDownstream
-
-@Immutable
-@Serializable
-class FullCommentDownstream(
-    override val coid: Uuid,
-    override val author: User?,
-    override val content: String,
-    override val anonymity: Boolean,
-    override val likes: UInt,
-    override val dislikes: UInt,
-
-    val parent: Uuid,
-    val pinned: Boolean,
-    val postTime: Long,
-    val lastEditTime: Long,
-    val lastCommentTime: Long,
-    val subComments: List<Uuid>,
+    val previewSubComments: List<LightCommentDownstream>, // up to 3
+    val allSubCommentIds: List<Uuid>,
 ) : CommentableDownstream
 
 @Immutable

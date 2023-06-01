@@ -112,10 +112,7 @@ fun Application.contentModule() {
 
         route("/comment") {
             get("/get/{coid}") {
-                processGetComment(contents, viewFull = false)
-            }
-            get("/get/{coid}/full") {
-                processGetComment(contents, viewFull = true)
+                processGetComment(contents)
             }
             postAuthenticated("/post/{parentId}") {
                 processUploadComment(contents, asAnswer = false)
@@ -129,10 +126,9 @@ fun Application.contentModule() {
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
     contents: ContentDBFacade,
-    viewFull: Boolean,
 ) {
     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
-    val content = if (viewFull) contents.viewFullComment(coid) else contents.viewComment(coid)
+    val content = contents.viewComment(coid)
     if (content == null) {
         call.respond(HttpStatusCode.NotFound)
     } else {

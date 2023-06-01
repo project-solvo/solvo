@@ -1,6 +1,5 @@
-package org.solvo.web.comments.column
+package org.solvo.web.comments
 
-import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -13,10 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
@@ -25,8 +21,6 @@ import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.CommentDownstream
 import org.solvo.model.foundation.Uuid
-import org.solvo.web.comments.AuthorNameTextStyle
-import org.solvo.web.comments.AvatarBox
 import org.solvo.web.dummy.createDummyText
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.SolvoWindow
@@ -40,18 +34,20 @@ fun main() {
 
     val commentDownstream1 = CommentDownstream(
         Uuid.random(), null, context, true, 123u,
-        123u, Uuid.random(), true, 0, 0, 0, listOf()
+        123u, Uuid.random(), true, 0, 0, 0, listOf(), listOf()
     )
     val commentDownstream2 = CommentDownstream(
         Uuid.random(), null, context, true, 123u,
-        123u, Uuid.random(), true, 0, 0, 0, listOf()
+        123u, Uuid.random(), true, 0, 0, 0, listOf(), listOf()
     )
     onWasmReady {
         SolvoWindow {
             CommentColumn(
-                Modifier,
-                listOf(commentDownstream1, commentDownstream2,
-                    commentDownstream1, commentDownstream2, commentDownstream2)
+                listOf(
+                    commentDownstream1, commentDownstream2,
+                    commentDownstream1, commentDownstream2, commentDownstream2
+                ),
+                Modifier
             )
         }
     }
@@ -59,15 +55,19 @@ fun main() {
 
 @Composable
 fun CommentColumn(
+    items: List<CommentDownstream>,
     modifier: Modifier = Modifier,
-    cards: List<CommentDownstream>,
 ) {
-    Column(modifier = modifier.padding(16.dp).verticalScroll(rememberScrollState())) {
-        for (card in cards) {
+    Column(
+        modifier = modifier.verticalScroll(rememberScrollState()),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        for (item in items) {
             Column(modifier = Modifier) {
-                CommentSummaryCard(Modifier.height(200.dp).fillMaxWidth(), card)
+                CommentSummaryCard(Modifier.height(200.dp).fillMaxWidth()) { backgroundColor ->
+                    CommentCardContent(item, backgroundColor, Modifier.weight(1f))
+                }
             }
-            Column(modifier = Modifier.height(10.dp).fillMaxWidth()) {}
         }
     }
 }
@@ -78,9 +78,9 @@ fun CommentSummaryCard(
     commentDownstream: CommentDownstream,
 ) {
     val shape = RoundedCornerShape(16.dp)
-    val model by remember {mutableStateOf( CommentCardState(modifier, commentDownstream))}
-    Card(shape = shape, modifier = model.currentCardModifier.value) {
-        Author(
+    val state = remember { CommentCardState(modifier) }
+    Card(shape = shape, modifier = state.currentCardModifier.value) {
+        AuthorLineThin(
             icon = {
                 AvatarBox(Modifier.size(20.dp)) {
                     Image(
@@ -91,22 +91,27 @@ fun CommentSummaryCard(
                 }
             },
             authorName = "Alex",// actual: commentDownstream.author
-            date = model.date.value,
-            Modifier.padding(horizontal = 16.dp).padding(top = 10.dp),
+            date = state.date.value,
         )
 
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).then(if (model.seeMore.value) Modifier else Modifier.weight(1f))) {
+        Column(
+            Modifier.padding(horizontal = 16.dp).padding(top = 6.dp)
+                .then(if (state.seeMore.value) Modifier else Modifier.weight(1f))
+        ) {
             RichText(commentDownstream.content.trimIndent(), modifier = Modifier.fillMaxWidth())
         }
 
-        Column(Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).padding(bottom = 6.dp)
-            .cursorHoverIcon(CursorIcon.POINTER)) {
+        Column(
+            Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).padding(bottom = 6.dp)
+                .cursorHoverIcon(CursorIcon.POINTER)
+        ) {
             Text(
-                text = model.text.value,
+                text = state.text.value,
                 modifier = Modifier.clickable {
-                    model.switchSeeMore()
-                    model.switchCardModifier()
-                    model.changeText()} ,
+                    state.switchSeeMore()
+                    state.switchCardModifier()
+                    state.changeText()
+                },
                 textDecoration = TextDecoration.Underline,
                 color = MaterialTheme.colorScheme.primary,
                 textAlign = TextAlign.Center,
@@ -116,7 +121,7 @@ fun CommentSummaryCard(
 }
 
 @Composable
-private fun Author(
+fun AuthorLineThin(
     icon: @Composable BoxScope.() -> Unit,
     authorName: String,
     date: String,
@@ -128,7 +133,7 @@ private fun Author(
         }
         Box {
             ProvideTextStyle(AuthorNameTextStyle) {
-                    Text(authorName, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 3.dp))
+                Text(authorName, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 3.dp))
             }
         }
         Box(modifier = Modifier.offset(y = -2.dp)) {
