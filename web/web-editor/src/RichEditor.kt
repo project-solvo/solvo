@@ -11,7 +11,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.Layout
 import androidx.compose.ui.layout.boundsInRoot
-import androidx.compose.ui.layout.positionInWindow
+import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntSize
 import androidx.compose.ui.unit.TextUnit
@@ -111,7 +111,7 @@ fun RichEditor(
                 println("Place: width=$width, height=$height")
             }
             coordinates?.let { coordinates ->
-                state.richEditor.setPosition(coordinates.positionInWindow(), density)
+                state.richEditor.setPosition(coordinates.positionInRoot(), density)
                 state.richEditor.setEditorBounds(coordinates.boundsInRoot(), density)
             }
             scope.launch(start = CoroutineStart.UNDISPATCHED) {

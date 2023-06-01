@@ -297,9 +297,9 @@ internal class RichEditor internal constructor(
         _boundsInRoot.value = bounds
 
         val topPx = (bounds.top - positionInRoot.value.y) / density.density
-        val rightPx = bounds.right / density.density
-        val bottomPx = bounds.bottom / density.density
         val leftPx = (bounds.left - positionInRoot.value.x) / density.density
+        val rightPx = bounds.right / density.density + leftPx
+        val bottomPx = bounds.bottom / density.density + topPx
 
         positionDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
     }
