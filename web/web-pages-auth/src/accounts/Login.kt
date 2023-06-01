@@ -4,12 +4,11 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Button
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,6 +22,7 @@ import org.solvo.web.viewModel.launchInBackground
 
 @Composable
 fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
+    val errorFontSize = 14.sp
     Column(
         modifier = Modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
@@ -57,7 +57,7 @@ fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
             usernameError?.let {
                 Text(
                     text = it,
-                    fontSize = 10.sp,
+                    fontSize = errorFontSize,
                     color = Color.Red,
                 )
             }
@@ -79,7 +79,7 @@ fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
             passwordError?.let {
                 Text(
                     text = it,
-                    fontSize = 10.sp,
+                    fontSize = errorFontSize,
                     color = Color.Red,
                 )
             }
@@ -103,7 +103,7 @@ fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
             verifyPasswordError?.let {
                 Text(
                     text = it,
-                    fontSize = 10.sp,
+                    fontSize = errorFontSize,
                     color = Color.Red,
                 )
             }
@@ -129,24 +129,29 @@ fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
             Text(if (isRegister) "Sign up" else "Login")
         }
 
-        val signUpMessage = buildAnnotatedString {
-            append("Does not have an account? Please ")
-            pushStyle(SpanStyle(color = Color.Blue))
-            append("sign up")
-            pop()
+        val highlightColor = MaterialTheme.colorScheme.secondary
+        val signUpMessage = remember(highlightColor) {
+            buildAnnotatedString {
+                append("Does not have an account? Please ")
+                pushStyle(SpanStyle(color = highlightColor))
+                append("sign up")
+                pop()
+            }
         }
 
-        val loginMessage = buildAnnotatedString {
-            append("Already have an account? Please ")
-            pushStyle(SpanStyle(color = Color.Blue))
-            append("login")
-            pop()
+        val loginMessage = remember(highlightColor) {
+            buildAnnotatedString {
+                append("Already have an account? Please ")
+                pushStyle(SpanStyle(color = highlightColor))
+                append("login")
+                pop()
+            }
         }
 
         ClickableText(
             text = if (!isRegister) signUpMessage else loginMessage,
             onClick = { viewModel.onClickSwitch() },
+            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.onBackground),
         )
-
     }
 }
