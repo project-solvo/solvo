@@ -22,7 +22,9 @@ class FileManagerImpl(): FileManager {
 
     override suspend fun write(inputStream: InputStream, path: String) {
         withContext(Dispatchers.IO) {
-            Files.copy(inputStream, Paths.get(path))
+            val pathObj = Paths.get(path)
+            Files.createDirectories(pathObj.parent)
+            Files.copy(inputStream, pathObj)
         }
     }
 
@@ -31,5 +33,4 @@ class FileManagerImpl(): FileManager {
             Files.delete(Paths.get(path))
         }
     }
-
 }

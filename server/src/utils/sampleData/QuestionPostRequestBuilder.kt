@@ -1,33 +1,32 @@
 package org.solvo.server.utils.sampleData
 
+import org.intellij.lang.annotations.Language
 import org.solvo.model.QuestionUpstream
 import org.solvo.server.ServerContext
 import java.util.*
 
 class QuestionPostRequest(
     val code: String,
-    val content: String,
+    val content: () -> String,
     val anonymity: Boolean,
     val comments: List<CommentPostRequest> = listOf(),
     val sharedContent: SharedContentPostRequest? = null,
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
-        userIdMap: Map<UserRegisterRequest, UUID>,
-        sharedContentIdMap: Map<SharedContentPostRequest, UUID>,
         articleId: UUID,
         author: UserRegisterRequest,
     ) {
-        val sharedContentId = sharedContent?.let { sharedContentIdMap[it] }
+        val sharedContentId = sharedContent?.id
 
         db.contents.apply {
             val questionId = postQuestion(
-                question = QuestionUpstream(content, anonymity, sharedContentId),
-                authorId = userIdMap[author]!!,
+                question = QuestionUpstream(content(), anonymity, sharedContentId),
+                authorId = author.uid,
                 articleId = articleId,
                 code = code,
             )!!
-            comments.map { commentRequest -> commentRequest.submit(db, userIdMap, questionId) }
+            comments.map { commentRequest -> commentRequest.submit(db, questionId) }
         }
     }
 }
@@ -36,7 +35,7 @@ class QuestionPostRequest(
 class QuestionPostRequestBuilder(
     private val code: String
 ) {
-    private var content = ""
+    private var content: () -> String = { "" }
     private var anonymity = false
     private var sharedContent: SharedContentPostRequest? = null
 
@@ -44,11 +43,11 @@ class QuestionPostRequestBuilder(
     internal var comments: MutableList<CommentPostRequest> = mutableListOf()
 
     fun content(set: () -> String) {
-        content = set()
+        content = set
     }
 
-    fun content(content: String) {
-        this.content = content
+    fun content(@Language("md") content: String) {
+        this.content = { content }
     }
 
     fun anonymity(set: () -> Boolean) {

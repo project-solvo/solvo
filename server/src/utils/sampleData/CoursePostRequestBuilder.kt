@@ -2,7 +2,6 @@ package org.solvo.server.utils.sampleData
 
 import org.solvo.model.Course
 import org.solvo.server.ServerContext
-import java.util.*
 
 
 class CoursePostRequest(
@@ -12,12 +11,10 @@ class CoursePostRequest(
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
-        userIdMap: Map<UserRegisterRequest, UUID>,
-        sharedContentIdMap: Map<SharedContentPostRequest, UUID>,
     ) {
         db.contents.apply {
             newCourse(Course(code, name))
-            articles.map { articleRequest -> articleRequest.submit(db, userIdMap, sharedContentIdMap, code) }
+            articles.map { articleRequest -> articleRequest.submit(db, code) }
         }
     }
 }

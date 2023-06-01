@@ -1,37 +1,43 @@
 package org.solvo.server.utils.sampleData
 
+import org.intellij.lang.annotations.Language
 import org.solvo.model.ArticleUpstream
 import org.solvo.server.ServerContext
-import java.util.*
 
 class ArticlePostRequest(
-    val article: ArticleUpstream,
+    val content: () -> String,
+    val anonymity: Boolean,
+    val code: String,
+    val displayName: String,
+    val termYear: String,
     val author: UserRegisterRequest,
     val questions: List<QuestionPostRequest>,
     val comments: List<CommentPostRequest> = listOf(),
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
-        userIdMap: Map<UserRegisterRequest, UUID>,
-        sharedContentIdMap: Map<SharedContentPostRequest, UUID>,
         courseCode: String
     ) {
         db.contents.apply {
             val articleId = postArticle(
-                article = article,
-                authorId = userIdMap[author]!!,
+                article = ArticleUpstream(
+                    content = content(),
+                    anonymity = anonymity,
+                    code = code,
+                    displayName = displayName,
+                    termYear = termYear,
+                ),
+                authorId = author.uid,
                 courseCode = courseCode,
             )!!
             questions.map { questionRequest ->
                 questionRequest.submit(
                     db,
-                    userIdMap,
-                    sharedContentIdMap,
                     articleId,
                     author
                 )
             }
-            comments.map { commentRequest -> commentRequest.submit(db, userIdMap, articleId) }
+            comments.map { commentRequest -> commentRequest.submit(db, articleId) }
         }
     }
 }
@@ -41,7 +47,7 @@ class ArticlePostRequestBuilder(
     private val code: String,
     private val author: UserRegisterRequest,
 ) {
-    private var content: String = ""
+    private var content: () -> String = { "" }
     private var anonymity: Boolean = false
     private var displayName: String = code
     private var termYear: String = ""
@@ -53,11 +59,11 @@ class ArticlePostRequestBuilder(
     internal var comments: MutableList<CommentPostRequest> = mutableListOf()
 
     fun content(set: () -> String) {
-        content = set()
+        content = set
     }
 
-    fun content(content: String) {
-        this.content = content
+    fun content(@Language("md") content: String) {
+        this.content = { content }
     }
 
     fun anonymity(set: () -> Boolean) {
@@ -89,11 +95,11 @@ class ArticlePostRequestBuilder(
     }
 
     fun questions(set: () -> List<String>) {
-        questions = set().map { QuestionPostRequest(it, "Haha", true) }.toMutableList()
+        questions = set().map { QuestionPostRequest(it, { "Haha" }, true) }.toMutableList()
     }
 
     fun questions(questions: List<String>) {
-        this.questions = questions.map { QuestionPostRequest(it, "Haha", true) }.toMutableList()
+        this.questions = questions.map { QuestionPostRequest(it, { "Haha" }, true) }.toMutableList()
     }
 
     @SampleDataDslMarker
@@ -107,13 +113,11 @@ class ArticlePostRequestBuilder(
     }
 
     fun build(): ArticlePostRequest = ArticlePostRequest(
-        article = ArticleUpstream(
-            content = content,
-            anonymity = anonymity,
-            code = code,
-            displayName = displayName,
-            termYear = termYear,
-        ),
+        content = content,
+        anonymity = anonymity,
+        code = code,
+        displayName = displayName,
+        termYear = termYear,
         author = author,
         questions = questions,
         comments = comments,

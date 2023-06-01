@@ -1,41 +1,13 @@
 package org.solvo.server.utils.sampleData
 
-import org.solvo.model.SharedContent
 import org.solvo.server.ServerContext
-import java.util.*
-
-class UserRegisterRequest(
-    val username: String,
-    val password: ByteArray,
-) {
-    suspend fun submit(db: ServerContext.Databases, userIdMap: MutableMap<UserRegisterRequest, UUID>) {
-        db.accounts.apply {
-            register(username, password)
-            val token = login(username, password).token
-            userIdMap[this@UserRegisterRequest] = ServerContext.tokens.matchToken(token)!!
-        }
-    }
-}
-
-class SharedContentPostRequest(
-    val content: String
-) {
-    suspend fun submit(
-        db: ServerContext.Databases,
-        userIdMap: Map<UserRegisterRequest, UUID>,
-        sharedContentIdMap: MutableMap<SharedContentPostRequest, UUID>,
-    ) {
-        db.contents.apply {
-            val id = postSharedContent(SharedContent(content))!!
-            sharedContentIdMap[this@SharedContentPostRequest] = id
-        }
-    }
-}
+import org.solvo.server.utils.StaticResourcePurpose
 
 @SampleDataDslMarker
 class SampleDataBuilder {
     private val users: MutableList<UserRegisterRequest> = mutableListOf()
     private val sharedContents: MutableList<SharedContentPostRequest> = mutableListOf()
+    private val images: MutableList<ImagePostRequest> = mutableListOf()
 
     @PublishedApi
     internal val courses: MutableList<CoursePostRequest> = mutableListOf()
@@ -51,6 +23,11 @@ class SampleDataBuilder {
     }
 
     @SampleDataDslMarker
+    fun image(path: String, user: UserRegisterRequest): ImagePostRequest {
+        return ImagePostRequest(path, user, StaticResourcePurpose.TEXT_IMAGE).also { images.add(it) }
+    }
+
+    @SampleDataDslMarker
     inline fun course(
         code: String,
         name: String,
@@ -60,13 +37,10 @@ class SampleDataBuilder {
     }
 
     suspend fun submit(db: ServerContext.Databases) {
-        val userIdMap: MutableMap<UserRegisterRequest, UUID> = mutableMapOf()
-        users.forEach { userRequest -> userRequest.submit(db, userIdMap) }
-
-        val sharedContentIdMap: MutableMap<SharedContentPostRequest, UUID> = mutableMapOf()
-        sharedContents.forEach { it.submit(db, userIdMap, sharedContentIdMap) }
-
-        courses.forEach { courseRequest -> courseRequest.submit(db, userIdMap, sharedContentIdMap) }
+        users.forEach { it.submit(db) }
+        images.forEach { it.submit(db) }
+        sharedContents.forEach { it.submit(db) }
+        courses.forEach { it.submit(db) }
     }
 }
 

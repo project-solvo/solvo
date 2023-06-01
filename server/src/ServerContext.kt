@@ -56,7 +56,8 @@ object ServerContext {
     object DatabaseFactory {
         fun init() {
             val driverClassName = "org.h2.Driver"
-            val jdbcURL = "jdbc:h2:./db;MODE=MYSQL"
+            val dbPath = paths.databasePath()
+            val jdbcURL = "jdbc:h2:$dbPath/db;MODE=MYSQL"
             Database.connect(jdbcURL, driverClassName)
             transaction {
                 SchemaUtils.create(
@@ -84,6 +85,7 @@ private fun SampleDataBuilder.sampleData1() {
     val bob = user("Bob", AuthDigest("bob456"))
 
     val sharedContent1 = sharedContent("Question 1! What is 1 + 1?")
+    val image1 = image("./test-resources/image1.jpg", alex)
 
     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
 
@@ -124,7 +126,15 @@ private fun SampleDataBuilder.sampleData1() {
                 anonymous()
             }
             question("2a") {
-                content("Haha..!")
+                content { """
+                    Haha.
+                    This is some image:
+                    ![some image](${image1.url})          
+                """.trimIndent() }
+                anonymous()
+            }
+            question("2b") {
+                content ( "Haha..!" )
                 anonymous()
             }
             comment(bob) {

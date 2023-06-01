@@ -8,13 +8,13 @@ interface ServerResourcesPath {
 }
 
 class ServerResourcesPathImpl : ServerResourcesPath {
-    private val host: String = "http://localhost" // TODO
+    private val host: String = System.getProperty("user.dir")
 
     override fun databasePath(): String {
         return "$host/db"
     }
 
     override fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String {
-        return "$host/resource/$purpose/$resourceId"
+        return "$host/resources/$purpose/$resourceId"
     }
 }

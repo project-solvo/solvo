@@ -1,12 +1,13 @@
 package org.solvo.server.utils.sampleData
 
+import org.intellij.lang.annotations.Language
 import org.solvo.model.CommentUpstream
 import org.solvo.server.ServerContext
 import java.util.*
 
 class CommentPostRequest(
     val author: UserRegisterRequest,
-    val content: String,
+    val content: () -> String,
     val anonymity: Boolean,
     val pinned: Boolean,
     val comments: List<CommentPostRequest> = listOf(),
@@ -14,25 +15,24 @@ class CommentPostRequest(
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
-        userIdMap: Map<UserRegisterRequest, UUID>,
         parentId: UUID
     ) {
         db.contents.apply {
             val commentId = if (isAnswer) {
                 postAnswer(
-                    answer = CommentUpstream(content, anonymity),
-                    authorId = userIdMap[author]!!,
+                    answer = CommentUpstream(content(), anonymity),
+                    authorId = author.uid,
                     questionId = parentId
                 )!! // TODO: fix bug (possibly problem with contains())
             } else {
                 postComment(
-                    comment = CommentUpstream(content, anonymity),
-                    authorId = userIdMap[author]!!,
+                    comment = CommentUpstream(content(), anonymity),
+                    authorId = author.uid,
                     parentId = parentId
                 )!!
             }
             // TODO: pin the comment
-            comments.map { commentRequest -> commentRequest.submit(db, userIdMap, commentId) }
+            comments.map { commentRequest -> commentRequest.submit(db, commentId) }
         }
     }
 }
@@ -42,7 +42,7 @@ class CommentPostRequestBuilder(
     private val author: UserRegisterRequest,
     private val isAnswer: Boolean = false,
 ) {
-    private var content: String = ""
+    private var content: () -> String = { "" }
     private var anonymity: Boolean = false
     private var pinned: Boolean = false
 
@@ -50,11 +50,11 @@ class CommentPostRequestBuilder(
     internal var comments: MutableList<CommentPostRequest> = mutableListOf()
 
     fun content(set: () -> String) {
-        content = set()
+        content = set
     }
 
-    fun content(content: String) {
-        this.content = content
+    fun content(@Language("md") content: String) {
+        this.content = { content }
     }
 
     fun anonymity(set: () -> Boolean) {
