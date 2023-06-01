@@ -19,5 +19,11 @@ object History {
     inline fun navigate(page: WebPagePaths.() -> String) {
         return navigate(WebPagePaths.run(page))
     }
+
+    inline fun navigateNotNull(page: WebPagePaths.() -> String?) {
+        WebPagePaths.run(page)?.let {
+            return navigate(it)
+        }
+    }
 }
 

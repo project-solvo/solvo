@@ -56,7 +56,9 @@ fun SolvoTopAppBar(
             IconButton(onClick = { notifyMenu1 = !notifyMenu1 }) {
                 Icon(Icons.Filled.Notifications, null)
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = {
+                History.navigate { auth() }
+            }) {
                 Icon(Icons.Filled.Person, null)
             }
             IconButton(onClick = {}) {

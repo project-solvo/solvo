@@ -11,10 +11,17 @@ object WebPagePaths {
     fun home() = patterns.home
     fun auth() = patterns.auth
     fun courses() = patterns.courses
-    fun course(code: String) = patterns.course.replace(VAR_COURSE_CODE, code)
-    fun article(courseCode: String, articleCode: String) = course(courseCode)
+    fun course(code: String) = patterns.course
+        .replace(VAR_COURSE_CODE, code)
+
+    fun article(courseCode: String, articleCode: String) = patterns.article
+        .replace(VAR_COURSE_CODE, courseCode)
         .replace(VAR_ARTICLE_CODE, articleCode)
 
-    fun question(courseCode: String, articleCode: String, questionCode: String) = article(courseCode, articleCode)
+    fun question(courseCode: String, articleCode: String, questionCode: String) = patterns.question
+        .replace(VAR_COURSE_CODE, courseCode)
+        .replace(VAR_ARTICLE_CODE, articleCode)
         .replace(VAR_QUESTION_CODE, questionCode)
+
+
 }

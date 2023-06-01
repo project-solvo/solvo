@@ -1,7 +1,6 @@
 package org.solvo.web
 
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.Course
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
@@ -9,9 +8,9 @@ import org.solvo.web.viewModel.launchInBackground
 
 
 class HomePageViewModel : AbstractViewModel() {
-    val courses: MutableState<List<Course>?> = mutableStateOf(null)
+    val courses: MutableStateFlow<List<Course>?> = MutableStateFlow(null)
 
-    suspend fun refreshCourses() {
+    private suspend fun refreshCourses() {
         val courses = client.courses.getAllCourses()
         this.courses.value = courses
     }

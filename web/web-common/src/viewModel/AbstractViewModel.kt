@@ -49,6 +49,9 @@ abstract class AbstractViewModel : RememberObserver {
         this.init()
     }
 
+    /**
+     * Called when the view model is remembered.
+     */
     protected open fun init() {
     }
 

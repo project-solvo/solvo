@@ -9,6 +9,7 @@ import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -27,10 +28,12 @@ fun main() {
             SolvoTopAppBar()
 
             val model = remember { HomePageViewModel() }
-            val courses by model.courses
+            val courses by model.courses.collectAsState()
 
             LoadableContent(isLoading = courses == null, Modifier.fillMaxSize()) {
-                HomePageContent(courses.orEmpty())
+                HomePageContent(
+                    courses ?: return@LoadableContent
+                )
             }
         }
     }
