@@ -2,6 +2,7 @@ package org.solvo.server.database
 
 import io.ktor.http.*
 import org.solvo.server.ServerContext
+import org.solvo.server.database.control.AccountDBControl
 import org.solvo.server.database.control.ResourcesDBControl
 import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
@@ -14,9 +15,11 @@ interface ResourceDBFacade {
     suspend fun getImage(resourceId: UUID): File?
     suspend fun tryDeleteImage(resourceId: UUID): Boolean
     suspend fun getContentType(file: File): ContentType
+    suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentType: ContentType): String
 }
 
 class ResourceDBFacadeImpl(
+    private val accounts: AccountDBControl,
     private val resources: ResourcesDBControl,
 ) : ResourceDBFacade {
     override suspend fun postImage(
@@ -37,6 +40,33 @@ class ResourceDBFacadeImpl(
 
         val path = ServerContext.paths.resolveResourcePath(resourceId, purpose, ServerPathType.LOCAL)
         return File(path)
+    }
+
+    override suspend fun uploadNewAvatar(
+        uid: UUID,
+        input: InputStream,
+        contentType: ContentType,
+    ): String {
+        val oldAvatarId = accounts.getAvatar(uid)
+        val newAvatarId = postImage(uid, input, StaticResourcePurpose.USER_AVATAR, contentType)
+        accounts.modifyAvatar(uid, newAvatarId)
+
+        if (oldAvatarId != null) {
+            if (tryDeleteImage(oldAvatarId)) {
+                val path = ServerContext.paths.resolveResourcePath(
+                    oldAvatarId,
+                    StaticResourcePurpose.USER_AVATAR,
+                    ServerPathType.LOCAL
+                )
+                ServerContext.files.delete(path)
+            }
+        }
+
+        return ServerContext.paths.resolveResourcePath(
+            newAvatarId,
+            StaticResourcePurpose.USER_AVATAR,
+            ServerPathType.REMOTE
+        )
     }
 
     override suspend fun tryDeleteImage(resourceId: UUID): Boolean {

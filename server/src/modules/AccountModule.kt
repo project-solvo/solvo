@@ -32,7 +32,7 @@ fun Application.accountModule() {
                     val contentType = call.request.contentType()
                     val input = call.receiveStream()
 
-                    val path = accounts.uploadNewAvatar(uid, input, contentType, resources)
+                    val path = resources.uploadNewAvatar(uid, input, contentType)
                     call.respond(ImageUrlExchange(path))
                 }
                 get("/avatar") {
