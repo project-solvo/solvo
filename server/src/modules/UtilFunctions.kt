@@ -28,8 +28,8 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
     return UUID.fromString(uidStr)
 }
 
-suspend fun PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
-    content: Any?
+suspend inline fun <reified T: Any>  PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
+    content: T?
 ) {
     if (content == null) {
         call.respond(HttpStatusCode.BadRequest)
@@ -38,8 +38,8 @@ suspend fun PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
     }
 }
 
-suspend fun PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
-    content: Any?
+suspend inline fun <reified T: Any> PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
+    content: T?
 ) {
     if (content == null) {
         call.respond(HttpStatusCode.NotFound)

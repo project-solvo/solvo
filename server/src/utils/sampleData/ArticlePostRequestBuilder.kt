@@ -13,6 +13,7 @@ class ArticlePostRequest(
     suspend fun submit(
         db: ServerContext.Databases,
         userIdMap: Map<UserRegisterRequest, UUID>,
+        sharedContentIdMap: Map<SharedContentPostRequest, UUID>,
         courseCode: String
     ) {
         db.contents.apply {
@@ -21,7 +22,15 @@ class ArticlePostRequest(
                 authorId = userIdMap[author]!!,
                 courseCode = courseCode,
             )!!
-            questions.map { questionRequest -> questionRequest.submit(db, userIdMap, articleId, author) }
+            questions.map { questionRequest ->
+                questionRequest.submit(
+                    db,
+                    userIdMap,
+                    sharedContentIdMap,
+                    articleId,
+                    author
+                )
+            }
             comments.map { commentRequest -> commentRequest.submit(db, userIdMap, articleId) }
         }
     }

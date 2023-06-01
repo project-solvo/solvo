@@ -37,6 +37,7 @@ class CommentPostRequest(
     }
 }
 
+@SampleDataDslMarker
 class CommentPostRequestBuilder(
     private val author: UserRegisterRequest,
     private val isAnswer: Boolean = false,

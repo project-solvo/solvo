@@ -10,10 +10,14 @@ class CoursePostRequest(
     val name: String,
     val articles: List<ArticlePostRequest>,
 ) {
-    suspend fun submit(db: ServerContext.Databases, userIdMap: Map<UserRegisterRequest, UUID>) {
+    suspend fun submit(
+        db: ServerContext.Databases,
+        userIdMap: Map<UserRegisterRequest, UUID>,
+        sharedContentIdMap: Map<SharedContentPostRequest, UUID>,
+    ) {
         db.contents.apply {
             newCourse(Course(code, name))
-            articles.map { articleRequest -> articleRequest.submit(db, userIdMap, code) }
+            articles.map { articleRequest -> articleRequest.submit(db, userIdMap, sharedContentIdMap, code) }
         }
     }
 }

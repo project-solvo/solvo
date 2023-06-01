@@ -83,6 +83,8 @@ private fun SampleDataBuilder.sampleData1() {
     val alex = user("Alex", AuthDigest("alex123"))
     val bob = user("Bob", AuthDigest("bob456"))
 
+    val sharedContent1 = sharedContent("Question 1! What is 1 + 1?")
+
     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
 
     course("50001", "Algorithm Design and Analysis") {
@@ -94,6 +96,7 @@ private fun SampleDataBuilder.sampleData1() {
             question("1a") {
                 content("Haha!")
                 anonymous()
+                sharedContent(sharedContent1)
                 answer(alex) {
                     content("I am answering my own question.")
                     anonymous()
@@ -117,6 +120,7 @@ private fun SampleDataBuilder.sampleData1() {
             }
             question("1b") {
                 content("Haha.")
+                sharedContent(sharedContent1)
                 anonymous()
             }
             question("2a") {

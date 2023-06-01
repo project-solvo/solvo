@@ -58,7 +58,11 @@ fun Application.contentModule() {
             get("/{courseCode}") {
                 val courseCode = call.parameters.getOrFail("courseCode")
                 val courseName = contents.getCourseName(courseCode)
-                respondContentOrNotFound(courseName)
+                if (courseName == null) {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
+                }
+                call.respond(Course(courseCode, courseName))
             }
             route("/{courseCode}/articles") {
                 get {

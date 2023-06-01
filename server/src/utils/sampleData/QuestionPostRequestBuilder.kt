@@ -9,16 +9,20 @@ class QuestionPostRequest(
     val content: String,
     val anonymity: Boolean,
     val comments: List<CommentPostRequest> = listOf(),
+    val sharedContent: SharedContentPostRequest? = null,
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
         userIdMap: Map<UserRegisterRequest, UUID>,
+        sharedContentIdMap: Map<SharedContentPostRequest, UUID>,
         articleId: UUID,
         author: UserRegisterRequest,
     ) {
+        val sharedContentId = sharedContent?.let { sharedContentIdMap[it] }
+
         db.contents.apply {
             val questionId = postQuestion(
-                question = QuestionUpstream(content, anonymity, null /*TODO*/),
+                question = QuestionUpstream(content, anonymity, sharedContentId),
                 authorId = userIdMap[author]!!,
                 articleId = articleId,
                 code = code,
@@ -28,11 +32,13 @@ class QuestionPostRequest(
     }
 }
 
+@SampleDataDslMarker
 class QuestionPostRequestBuilder(
     private val code: String
 ) {
     private var content = ""
     private var anonymity = false
+    private var sharedContent: SharedContentPostRequest? = null
 
     @PublishedApi
     internal var comments: MutableList<CommentPostRequest> = mutableListOf()
@@ -57,6 +63,14 @@ class QuestionPostRequestBuilder(
         anonymity = true
     }
 
+    fun sharedContent(set: () -> SharedContentPostRequest) {
+        sharedContent = set()
+    }
+
+    fun sharedContent(sharedContent: SharedContentPostRequest) {
+        this.sharedContent = sharedContent
+    }
+
     @SampleDataDslMarker
     inline fun comment(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
         comments.add(CommentPostRequestBuilder(author).apply(builds).build())
@@ -68,6 +82,6 @@ class QuestionPostRequestBuilder(
     }
 
     fun build(): QuestionPostRequest {
-        return QuestionPostRequest(code, content, anonymity, comments)
+        return QuestionPostRequest(code, content, anonymity, comments, sharedContent)
     }
 }

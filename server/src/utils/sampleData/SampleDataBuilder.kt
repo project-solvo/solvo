@@ -1,5 +1,6 @@
 package org.solvo.server.utils.sampleData
 
+import org.solvo.model.SharedContent
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -16,9 +17,25 @@ class UserRegisterRequest(
     }
 }
 
+class SharedContentPostRequest(
+    val content: String
+) {
+    suspend fun submit(
+        db: ServerContext.Databases,
+        userIdMap: Map<UserRegisterRequest, UUID>,
+        sharedContentIdMap: MutableMap<SharedContentPostRequest, UUID>,
+    ) {
+        db.contents.apply {
+            val id = postSharedContent(SharedContent(content))!!
+            sharedContentIdMap[this@SharedContentPostRequest] = id
+        }
+    }
+}
+
 @SampleDataDslMarker
 class SampleDataBuilder {
     private val users: MutableList<UserRegisterRequest> = mutableListOf()
+    private val sharedContents: MutableList<SharedContentPostRequest> = mutableListOf()
 
     @PublishedApi
     internal val courses: MutableList<CoursePostRequest> = mutableListOf()
@@ -26,6 +43,11 @@ class SampleDataBuilder {
     @SampleDataDslMarker
     fun user(username: String, password: ByteArray): UserRegisterRequest {
         return UserRegisterRequest(username, password).also { users.add(it) }
+    }
+
+    @SampleDataDslMarker
+    fun sharedContent(content: String): SharedContentPostRequest {
+        return SharedContentPostRequest(content).also { sharedContents.add(it) }
     }
 
     @SampleDataDslMarker
@@ -39,8 +61,12 @@ class SampleDataBuilder {
 
     suspend fun submit(db: ServerContext.Databases) {
         val userIdMap: MutableMap<UserRegisterRequest, UUID> = mutableMapOf()
-        users.map { userRequest -> userRequest.submit(db, userIdMap) }
-        courses.map { courseRequest -> courseRequest.submit(db, userIdMap) }
+        users.forEach { userRequest -> userRequest.submit(db, userIdMap) }
+
+        val sharedContentIdMap: MutableMap<SharedContentPostRequest, UUID> = mutableMapOf()
+        sharedContents.forEach { it.submit(db, userIdMap, sharedContentIdMap) }
+
+        courses.forEach { courseRequest -> courseRequest.submit(db, userIdMap, sharedContentIdMap) }
     }
 }
 
