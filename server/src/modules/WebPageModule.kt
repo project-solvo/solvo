@@ -18,6 +18,8 @@ fun Application.webPageModule() {
     routing {
         // STATIC RESOURCES
         staticResources("/", "static", index = null) {
+            preCompressed(CompressedFileType.GZIP, CompressedFileType.BROTLI)
+            enableAutoHeadResponse()
             cacheControl {
                 listOf(CacheControl.MaxAge(maxAgeSeconds = 64000))
             }
