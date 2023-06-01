@@ -22,7 +22,7 @@ class ServerResourcesPathImpl : ServerResourcesPath {
     }
 
     override fun resourcesPath(): String {
-        return "$remote/resources"
+        return "$local/resources"
     }
 
     override fun resolveResourcePath(
