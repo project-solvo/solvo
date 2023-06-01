@@ -105,7 +105,12 @@ fun AuthorLine(
                 }
             }
         }
-        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+
+        Row(
+            Modifier.fillMaxWidth().height(24.dp),
+            verticalAlignment = Alignment.Top,
+            horizontalArrangement = Arrangement.End
+        ) {
             actions()
         }
     }

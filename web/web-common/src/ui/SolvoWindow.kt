@@ -25,6 +25,7 @@ import org.w3c.dom.Window
 
 @Suppress("FunctionName", "INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 fun SolvoWindow(
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit = { }
 ) {
     ComposeWindow().apply {
@@ -37,7 +38,7 @@ fun SolvoWindow(
                 CompositionLocalProvider(
                     LocalSolvoWindow provides windowState,
                 ) {
-                    Column(Modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
+                    Column(modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
                         CompositionLocalProvider(
                             LocalContentColor provides MaterialTheme.colorScheme.contentColorFor(
                                 MaterialTheme.colorScheme.background

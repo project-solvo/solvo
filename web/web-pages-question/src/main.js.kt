@@ -23,6 +23,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
 import org.solvo.web.comments.*
+import org.solvo.web.comments.like.ThumbActions
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.LoadableContent
@@ -184,7 +185,7 @@ private fun QuestionPageContent(
                                 modifier = Modifier.fillMaxSize()
                                     .ifThen(!isExpanded) { verticalScroll(scrollState) },
                                 onClickComment = onClick,
-                                onClickCard = onClick,
+                                onSwitchExpand = onClick,
                             )
                         },
                         right = {
@@ -211,7 +212,7 @@ private fun AnswersList(
     visibleIndices: IntRange,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
-    onClickCard: ((index: Int, item: CommentDownstream) -> Unit)? = null,
+    onSwitchExpand: ((index: Int, item: CommentDownstream) -> Unit)? = null,
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
 ) {
     Column(modifier) {
@@ -242,10 +243,23 @@ private fun AnswersList(
                         })
                     }
                 },
-                onClickExpand = {
-                    onClickCard?.invoke(index, item)
+                onClickCard = {
+                    if (!isExpanded) {
+                        onSwitchExpand?.invoke(index, item)
+                    }
                 },
-                isExpand = isExpanded
+                onClickExpand = {
+                    onSwitchExpand?.invoke(index, item)
+                },
+                isExpand = isExpanded,
+                actions = {
+                    ThumbActions(
+                        10,
+                        null,
+                        {},
+                        {}
+                    )
+                }
             ) { backgroundColor ->
                 CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
             }
