@@ -1,5 +1,6 @@
 package org.solvo.server
 
+import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
@@ -39,8 +40,8 @@ object ServerContext {
         private val config: ConfigFacade = ConfigFacadeImpl()
 
         val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _resources)
-        val contents: ContentDBFacade =
-            ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents, _resources)
+        val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents)
+        val resources: ResourceDBFacade = ResourceDBFacadeImpl(_resources)
 
         fun init() {
             runBlocking {
@@ -85,7 +86,7 @@ private fun SampleDataBuilder.sampleData1() {
     val bob = user("Bob", AuthDigest("bob456"))
 
     val sharedContent1 = sharedContent("Question 1! What is 1 + 1?")
-    val image1 = image("./test-resources/image1.jpg", alex)
+    val image1 = image("./test-resources/image1.jpg", alex, ContentType.Image.JPEG)
 
     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
 

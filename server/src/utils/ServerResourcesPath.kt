@@ -7,10 +7,11 @@ interface ServerResourcesPath {
     fun resolveResourcePath(
         resourceId: UUID,
         purpose: StaticResourcePurpose,
-        pathType: ServerPathType = ServerPathType.REMOTE
+        pathType: ServerPathType = ServerPathType.REMOTE,
     ): String
 
     fun resourcesPath(): String
+    fun resolveResourceIdFromPath(path: String): UUID?
 }
 
 class ServerResourcesPathImpl : ServerResourcesPath {
@@ -28,13 +29,21 @@ class ServerResourcesPathImpl : ServerResourcesPath {
     override fun resolveResourcePath(
         resourceId: UUID,
         purpose: StaticResourcePurpose,
-        pathType: ServerPathType,
+        pathType: ServerPathType
     ): String {
         val base = when (pathType) {
             ServerPathType.LOCAL -> local
             ServerPathType.REMOTE -> remote
         }
         return "$base/resources/$purpose/$resourceId"
+    }
+
+    override fun resolveResourceIdFromPath(path: String): UUID? {
+        return try {
+            UUID.fromString(path.takeLastWhile { it != '/' })
+        } catch (e: IllegalArgumentException) {
+            null
+        }
     }
 }
 

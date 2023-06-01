@@ -1,12 +1,7 @@
 package org.solvo.server.database
 
 import org.solvo.model.*
-import org.solvo.server.ServerContext
 import org.solvo.server.database.control.*
-import org.solvo.server.utils.ServerPathType
-import org.solvo.server.utils.StaticResourcePurpose
-import java.io.File
-import java.io.InputStream
 import java.util.*
 
 interface ContentDBFacade {
@@ -15,8 +10,6 @@ interface ContentDBFacade {
     suspend fun postSharedContent(content: SharedContent): UUID?
     suspend fun postQuestion(question: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
     suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
-    suspend fun postImage(uid: UUID, input: InputStream, purpose: StaticResourcePurpose): UUID
-    suspend fun getImage(resourceId: UUID): File?
     suspend fun allCourses(): List<Course>
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
     suspend fun getArticleId(courseCode: String, code: String): UUID?
@@ -24,7 +17,6 @@ interface ContentDBFacade {
     suspend fun getQuestionId(articleId: UUID, code: String): UUID?
     suspend fun viewQuestion(questionId: UUID): QuestionDownstream?
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
-    suspend fun tryDeleteImage(resourceId: UUID): Boolean
     suspend fun getCourseName(courseCode: String): String?
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
     suspend fun viewComment(commentId: UUID): CommentDownstream?
@@ -36,7 +28,6 @@ class ContentDBFacadeImpl(
     private val questions: QuestionDBControl,
     private val comments: CommentDBControl,
     private val sharedContents: SharedContentDBControl,
-    private val resources: ResourcesDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
         if (courses.getId(course.code) != null) return null
@@ -68,25 +59,6 @@ class ContentDBFacadeImpl(
 
     override suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID? {
         return comments.post(comment, authorId, parentId, asAnswer = false)
-    }
-
-    override suspend fun postImage(
-        uid: UUID,
-        input: InputStream,
-        purpose: StaticResourcePurpose,
-    ): UUID {
-        val newImageId = resources.addResource(purpose)
-        val path = ServerContext.paths.resolveResourcePath(newImageId, purpose, ServerPathType.LOCAL)
-
-        ServerContext.files.write(input, path)
-        return newImageId
-    }
-
-    override suspend fun getImage(resourceId: UUID): File? {
-        val purpose = resources.getPurpose(resourceId) ?: return null
-
-        val path = ServerContext.paths.resolveResourcePath(resourceId, purpose, ServerPathType.LOCAL)
-        return File(path)
     }
 
     override suspend fun allCourses(): List<Course> {
@@ -126,9 +98,5 @@ class ContentDBFacadeImpl(
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {
         val questionId = questions.getId(articleId, index) ?: return null
         return questions.view(questionId)
-    }
-
-    override suspend fun tryDeleteImage(resourceId: UUID): Boolean {
-        return resources.tryDeleteResource(resourceId)
     }
 }

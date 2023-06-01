@@ -14,6 +14,8 @@ class ModelConstraints {
         const val QUESTION_CODE_MAX_LENGTH = 8
 
         const val LIGHT_SUB_COMMENTS_AMOUNT = 3
+
+        const val CONTENT_TYPE_MAXIMUM_LENGTH = 256
     }
 }
 

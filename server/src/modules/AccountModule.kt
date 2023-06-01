@@ -1,5 +1,6 @@
 package org.solvo.server.modules
 
+import io.ktor.client.content.*
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
@@ -13,26 +14,34 @@ import java.util.*
 
 fun Application.accountModule() {
     val accounts = ServerContext.Databases.accounts
-    val contents = ServerContext.Databases.contents
+    val resources = ServerContext.Databases.resources
 
     routeApi {
         authenticate("authBearer") {
+            authenticate("authBearer") {
+                get("account/me") {
+                    val uid = getUserId() ?: return@get
+                    val userInfo = accounts.getUserInfo(uid)!!
+                    call.respond(userInfo)
+                }
+            }
+
             route("/account/{uid}") {
                 post("/newAvatar") {
                     val uid = matchUserId(call.parameters.getOrFail("uid")) ?: return@post
+                    val contentType = call.request.contentType()
                     val input = call.receiveStream()
 
-                    val path = accounts.uploadNewAvatar(uid, input, contents)
+                    val path = accounts.uploadNewAvatar(uid, input, contentType, resources)
                     call.respond(ImageUrlExchange(path))
                 }
                 get("/avatar") {
                     val uid = UUID.fromString(call.parameters.getOrFail("uid"))
-                    val avatar = accounts.getUserAvatar(uid)
-                    if (avatar == null) {
+                    val (avatar, contentType) = accounts.getUserAvatar(uid) ?: kotlin.run {
                         call.respond(HttpStatusCode.NotFound)
-                    } else {
-                        call.respondFile(avatar)
+                        return@get
                     }
+                    call.respond(LocalFileContent(avatar, contentType))
                 }
             }
         }

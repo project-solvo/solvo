@@ -1,5 +1,6 @@
 package org.solvo.server.database.control
 
+import io.ktor.http.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.deleteIgnoreWhere
 import org.jetbrains.exposed.sql.insertAndGetId
@@ -11,8 +12,9 @@ import java.util.*
 
 interface ResourcesDBControl {
     suspend fun contains(resourceId: UUID): Boolean
-    suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID? = null): UUID
+    suspend fun addResource(purpose: StaticResourcePurpose, contentType: ContentType, parentCOID: UUID? = null): UUID
     suspend fun getPurpose(resourceId: UUID): StaticResourcePurpose?
+    suspend fun getContentType(resourceId: UUID): ContentType
     suspend fun getParent(resourceId: UUID): UUID?
     suspend fun tryDeleteResource(resourceId: UUID): Boolean
 }
@@ -22,9 +24,14 @@ class ResourcesDBControlImpl : ResourcesDBControl {
         !StaticResourceTable.select(StaticResourceTable.id eq resourceId).empty()
     }
 
-    override suspend fun addResource(purpose: StaticResourcePurpose, parentCOID: UUID?): UUID = dbQuery {
+    override suspend fun addResource(
+        purpose: StaticResourcePurpose,
+        contentType: ContentType,
+        parentCOID: UUID?
+    ): UUID = dbQuery {
         StaticResourceTable.insertAndGetId {
             it[StaticResourceTable.purpose] = purpose
+            it[StaticResourceTable.contentType] = contentType.toString()
             it[coid] = parentCOID
         }.value
     }
@@ -34,6 +41,14 @@ class ResourcesDBControlImpl : ResourcesDBControl {
             .select(StaticResourceTable.id eq resourceId)
             .map { it[StaticResourceTable.purpose] }
             .singleOrNull()
+    }
+
+    override suspend fun getContentType(resourceId: UUID): ContentType = dbQuery {
+        StaticResourceTable
+            .select(StaticResourceTable.id eq resourceId)
+            .map { ContentType.parse(it[StaticResourceTable.contentType]) }
+            .singleOrNull()
+            ?: ContentType.Any
     }
 
     override suspend fun getParent(resourceId: UUID): UUID? = dbQuery {

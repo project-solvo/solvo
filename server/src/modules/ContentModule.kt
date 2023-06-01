@@ -20,9 +20,11 @@ import java.util.*
 fun Application.contentModule() {
     val contents = ServerContext.Databases.contents
     val accounts = ServerContext.Databases.accounts
+    val resources = ServerContext.Databases.resources
 
     routing {
         staticFiles("/resources", File(ServerContext.paths.resourcesPath()), index = null) {
+            // contentType { resources.getContentType(it) }
             preCompressed(CompressedFileType.GZIP, CompressedFileType.BROTLI)
             cacheControl {
                 listOf(CacheControl.MaxAge(64000, visibility = CacheControl.Visibility.Public))
@@ -35,8 +37,9 @@ fun Application.contentModule() {
             postAuthenticated("/upload") {
                 val uid = getUserId() ?: return@postAuthenticated
 
+                val contentType = call.request.contentType()
                 val input = call.receiveStream()
-                val imageId = contents.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
+                val imageId = resources.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE, contentType)
                 val path = ServerContext.paths.resolveResourcePath(
                     imageId,
                     StaticResourcePurpose.TEXT_IMAGE,

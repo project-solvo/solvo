@@ -1,5 +1,6 @@
 package org.solvo.server.utils.sampleData
 
+import io.ktor.http.*
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.StaticResourcePurpose
 
@@ -23,8 +24,8 @@ class SampleDataBuilder {
     }
 
     @SampleDataDslMarker
-    fun image(path: String, user: UserRegisterRequest): ImagePostRequest {
-        return ImagePostRequest(path, user, StaticResourcePurpose.TEXT_IMAGE).also { images.add(it) }
+    fun image(path: String, user: UserRegisterRequest, contentType: ContentType = ContentType.Any): ImagePostRequest {
+        return ImagePostRequest(path, contentType, user, StaticResourcePurpose.TEXT_IMAGE).also { images.add(it) }
     }
 
     @SampleDataDslMarker

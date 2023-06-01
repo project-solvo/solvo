@@ -1,5 +1,6 @@
 package org.solvo.server.database
 
+import io.ktor.http.*
 import org.solvo.model.User
 import org.solvo.model.api.AccountChecker
 import org.solvo.model.api.AuthResponse
@@ -18,8 +19,14 @@ interface AccountDBFacade {
     suspend fun register(username: String, hash: ByteArray): AuthResponse
     suspend fun getUsernameValidity(username: String): Boolean
     suspend fun login(username: String, hash: ByteArray): AuthResponse
-    suspend fun getUserAvatar(uid: UUID): File?
-    suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentDBFacade: ContentDBFacade): String
+    suspend fun getUserAvatar(uid: UUID): Pair<File, ContentType>?
+    suspend fun uploadNewAvatar(
+        uid: UUID,
+        input: InputStream,
+        contentType: ContentType,
+        resourceDBFacade: ResourceDBFacade
+    ): String
+
     suspend fun getUserInfo(uid: UUID): User?
     suspend fun isOp(uid: UUID): Boolean
 }
@@ -54,27 +61,33 @@ class AccountDBFacadeImpl(
         return accounts.getId(username) == null
     }
 
-    override suspend fun getUserAvatar(uid: UUID): File? {
+    override suspend fun getUserAvatar(uid: UUID): Pair<File, ContentType>? {
         val resourceId = accounts.getAvatar(uid) ?: return null
+        val contentType = resources.getContentType(resourceId)
         val path = ServerContext.paths.resolveResourcePath(
             resourceId,
             StaticResourcePurpose.USER_AVATAR,
             ServerPathType.LOCAL
         )
-        return File(path)
+        return Pair(File(path), contentType)
     }
 
     override suspend fun getUserInfo(uid: UUID): User? {
         return accounts.getUserInfo(uid)
     }
 
-    override suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentDBFacade: ContentDBFacade): String {
+    override suspend fun uploadNewAvatar(
+        uid: UUID,
+        input: InputStream,
+        contentType: ContentType,
+        resourceDBFacade: ResourceDBFacade
+    ): String {
         val oldAvatarId = accounts.getAvatar(uid)
-        val newAvatarId = contentDBFacade.postImage(uid, input, StaticResourcePurpose.USER_AVATAR)
+        val newAvatarId = resourceDBFacade.postImage(uid, input, StaticResourcePurpose.USER_AVATAR, contentType)
         accounts.modifyAvatar(uid, newAvatarId)
 
         if (oldAvatarId != null) {
-            if (contentDBFacade.tryDeleteImage(oldAvatarId)) {
+            if (resourceDBFacade.tryDeleteImage(oldAvatarId)) {
                 val path = ServerContext.paths.resolveResourcePath(
                     oldAvatarId,
                     StaticResourcePurpose.USER_AVATAR,
