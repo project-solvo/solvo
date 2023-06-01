@@ -17,9 +17,10 @@ class Client {
     val origin = window.location.origin
     val http = HttpClient(Js) {
         install(HttpTimeout) {
-            requestTimeoutMillis = 5000
-            connectTimeoutMillis = 5000
-            socketTimeoutMillis = 5000
+            val timeout = 30_000
+            requestTimeoutMillis = timeout
+            connectTimeoutMillis = timeout
+            socketTimeoutMillis = timeout
         }
         install(ContentNegotiation) {
             json(Json {
