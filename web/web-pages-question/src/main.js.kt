@@ -92,24 +92,26 @@ private fun QuestionPageContent(
                 questionSelectedBar = {
                     // ScrollableTab row TODO()
                     Row(
-                        modifier = Modifier.horizontalScroll(rememberScrollState(), true)
+                        modifier = Modifier.horizontalScroll(rememberScrollState(), true),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp)
                     ) {
-                        article.questionIndexes.forEach {
-                            AssistChip(
-                                onClick = {},
-                                label = {
-                                    Text(it)
+                        article.questionIndexes.forEach { questionCode ->
+                            InputChip(
+                                selected = question.code == questionCode,
+                                onClick = {
+                                    if (question.code != questionCode) {
+                                        History.navigate { question(course.code, article.code, questionCode) }
+                                    } // else: don't navigate if clicking same question
                                 },
-                                modifier = Modifier.padding(horizontal = 8.dp, vertical = 3.dp),
+                                label = { Text(questionCode) },
                                 shape = RoundedCornerShape(8.dp),
                             )
                         }
 
                     }
                 },
-                onChangeLayout = {
-                    // TODO change article page layout
-                },
+                onZoomIn = {},
+                onZoomOut = {},
                 Modifier.fillMaxSize()
             ) {
                 Box(Modifier.padding(all = 12.dp)) {

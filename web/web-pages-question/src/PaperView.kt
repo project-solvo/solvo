@@ -1,9 +1,8 @@
 package org.solvo.web
 
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Compress
-import androidx.compose.material.icons.filled.Expand
 import androidx.compose.material.icons.filled.ZoomIn
 import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Icon
@@ -20,26 +19,26 @@ import org.solvo.model.Course
 @Composable
 fun PaperView(
     questionSelectedBar: @Composable RowScope. () -> Unit,
-    onChangeLayout: () -> Unit,
+    onZoomIn: () -> Unit,
+    onZoomOut: () -> Unit,
     modifier: Modifier = Modifier,
-    isExpanded: Boolean = true,
     content: @Composable () -> Unit,
 ) {
     Column(modifier) {
         ControlBar(Modifier.fillMaxWidth()) {
             Row(
                 Modifier.weight(1f)
+                    .focusable(false) // compose bug
             ) {
                 questionSelectedBar()
             }
 
-
-            IconButton(onChangeLayout) {
-                Icon(Icons.Filled.ZoomIn, "Compress")
+            IconButton(onZoomIn) {
+                Icon(Icons.Filled.ZoomIn, "Zoom In")
             }
 
-            IconButton(onChangeLayout) {
-                Icon(Icons.Filled.ZoomOut, "Compress")
+            IconButton(onZoomOut) {
+                Icon(Icons.Filled.ZoomOut, "Zoom OUt")
             }
         }
 
