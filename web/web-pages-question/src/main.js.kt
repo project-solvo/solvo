@@ -25,6 +25,7 @@ import org.solvo.model.*
 import org.solvo.web.comments.*
 import org.solvo.web.comments.like.ThumbActions
 import org.solvo.web.document.History
+import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichText
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
@@ -134,7 +135,7 @@ private fun QuestionPageContent(
                         showPagingController = expandablePagingState.isExpanded.value
                     ) {
                         FilledTonalButton(
-                            onClick = wrapClearFocus { },
+                            onClick = wrapClearFocus { pagingState.switchEditorEnable() },
                             Modifier.align(Alignment.CenterStart),
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = buttonContentPaddings,
@@ -166,7 +167,9 @@ private fun QuestionPageContent(
                         .focusable(false) // compose bug
                 ) {
                     val scope = rememberCoroutineScope()
-
+                    if (pagingState.editorEnable.value) {
+                        RichEditor(Modifier.fillMaxWidth().fillMaxHeight())
+                    }
                     HorizontallyDivided(
                         left = {
                             val onClick: (Any?, item: CommentDownstream) -> Unit = { _, item ->
