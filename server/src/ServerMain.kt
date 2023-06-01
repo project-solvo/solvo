@@ -22,7 +22,7 @@ import org.solvo.server.modules.webPageModule
 object ServerMain {
     @JvmStatic
     fun main(args: Array<String>) {
-        val port = 80
+        val port = System.getenv("PORT")?.toIntOrNull() ?: 80
         println("Loopback: http://localhost:$port/")
 
         val server = embeddedServer(Netty, port = port, module = Application::solvoModules)

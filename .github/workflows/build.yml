@@ -17,7 +17,7 @@ env:
 jobs:
   build:
     name: "Build (${{ matrix.os }})"
-    runs-on: ${{ matrix.os }}
+    runs-on: self-hosted  #${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
@@ -88,12 +88,16 @@ jobs:
       #      - uses: actions/checkout@v3
       #        with:
       #          submodules: 'recursive'
+      
+      #      - run: heroku container:login
+      #        if: ${{ env.deployStaging }} == 'true'
+      #
+      #      - run: heroku container:push web --app $HEROKU_APP_NAME
+      #        if: ${{ env.deployStaging }} == 'true'
+      #
+      #      - run: heroku container:release web --app $HEROKU_APP_NAME
+      #        if: ${{ env.deployStaging }} == 'true'
 
-      - run: heroku container:login
-        if: ${{ env.deployStaging }} == 'true'
-
-      - run: heroku container:push web --app $HEROKU_APP_NAME
-        if: ${{ env.deployStaging }} == 'true'
-
-      - run: heroku container:release web --app $HEROKU_APP_NAME
-        if: ${{ env.deployStaging }} == 'true'
+      - run: docker rm $(docker stop $(docker ps -a -q --filter ancestor=solvo-platform --format="{{.ID}}")) || true
+      - run: docker build -t solvo-platform .
+      - run: docker run --env PORT=80 --publish 0.0.0.0:80:80/tcp --detach solvo-platform
