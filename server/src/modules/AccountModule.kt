@@ -17,32 +17,29 @@ fun Application.accountModule() {
     val resources = ServerContext.Databases.resources
 
     routeApi {
-        authenticate("authBearer") {
+        route("/account") {
             authenticate("authBearer") {
-                get("account/me") {
+                get("/me") {
                     val uid = getUserId() ?: return@get
                     val userInfo = accounts.getUserInfo(uid)!!
                     call.respond(userInfo)
                 }
-            }
-
-            route("/account/{uid}") {
                 post("/newAvatar") {
-                    val uid = matchUserId(call.parameters.getOrFail("uid")) ?: return@post
+                    val uid = getUserId() ?: return@post
                     val contentType = call.request.contentType()
                     val input = call.receiveStream()
 
                     val path = resources.uploadNewAvatar(uid, input, contentType)
                     call.respond(ImageUrlExchange(path))
                 }
-                get("/avatar") {
-                    val uid = UUID.fromString(call.parameters.getOrFail("uid"))
-                    val (avatar, contentType) = accounts.getUserAvatar(uid) ?: kotlin.run {
-                        call.respond(HttpStatusCode.NotFound)
-                        return@get
-                    }
-                    call.respond(LocalFileContent(avatar, contentType))
+            }
+            get("/{uid}/avatar") {
+                val uid = UUID.fromString(call.parameters.getOrFail("uid"))
+                val (avatar, contentType) = accounts.getUserAvatar(uid) ?: kotlin.run {
+                    call.respond(HttpStatusCode.NotFound)
+                    return@get
                 }
+                call.respond(LocalFileContent(avatar, contentType))
             }
         }
     }
