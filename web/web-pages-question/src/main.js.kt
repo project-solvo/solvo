@@ -49,7 +49,6 @@ fun main() {
             val course by model.course.collectAsState(null)
             val article by model.article.collectAsState(null)
             val question by model.question.collectAsState(null)
-
             SolvoTopAppBar(
                 navigationIcon = {
                     IconButton(onClick = { model.menuState.switchMenuOpen() }) {
@@ -59,25 +58,33 @@ fun main() {
             ) {
                 course?.let { article?.let { it1 -> PaperTitle(it, it1.code) } }
             }
-
-            CourseMenu(
-                model.menuState,
-                onClickQuestion = { a: ArticleDownstream, q: QuestionDownstream ->
-                    History.navigate {
-                        question(a.course.code, a.code, q.code)
+            Box {
+                Box {
+                    LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
+                        Row(Modifier.fillMaxSize()) {
+                            QuestionPageContent(
+                                course = course ?: return@LoadableContent,
+                                article = article ?: return@LoadableContent,
+                                question = question ?: return@LoadableContent
+                            )
+                        }
                     }
                 }
-            )
 
-            LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
-                Row(Modifier.fillMaxSize()) {
-                    QuestionPageContent(
-                        course = course ?: return@LoadableContent,
-                        article = article ?: return@LoadableContent,
-                        question = question ?: return@LoadableContent
+                Box {
+                    CourseMenu(
+                        model.menuState,
+                        onClickQuestion = { a: ArticleDownstream, q: QuestionDownstream ->
+                            History.navigate {
+                                question(a.course.code, a.code, q.code)
+                            }
+                        }
                     )
                 }
+
             }
+
+
         }
     }
 }
