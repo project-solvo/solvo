@@ -8,9 +8,10 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import org.solvo.model.*
-import org.solvo.model.api.UploadImageResponse
+import org.solvo.model.api.ImageUrlExchange
 import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
+import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
@@ -34,9 +35,13 @@ fun Application.contentModule() {
 
                 val input = call.receiveStream()
                 val imageId = contents.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE)
-                val path = ServerContext.paths.staticResourcePath(imageId, StaticResourcePurpose.TEXT_IMAGE)
+                val path = ServerContext.paths.resolveResourcePath(
+                    imageId,
+                    StaticResourcePurpose.TEXT_IMAGE,
+                    ServerPathType.REMOTE
+                )
 
-                call.respond(UploadImageResponse(path))
+                call.respond(ImageUrlExchange(path))
             }
         }
 

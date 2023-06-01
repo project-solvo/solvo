@@ -3,6 +3,7 @@ package org.solvo.server.database
 import org.solvo.model.*
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.*
+import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
 import java.io.InputStream
@@ -75,7 +76,7 @@ class ContentDBFacadeImpl(
         purpose: StaticResourcePurpose,
     ): UUID {
         val newImageId = resources.addResource(purpose)
-        val path = ServerContext.paths.staticResourcePath(newImageId, purpose)
+        val path = ServerContext.paths.resolveResourcePath(newImageId, purpose, ServerPathType.LOCAL)
 
         ServerContext.files.write(input, path)
         return newImageId
@@ -84,7 +85,7 @@ class ContentDBFacadeImpl(
     override suspend fun getImage(resourceId: UUID): File? {
         val purpose = resources.getPurpose(resourceId) ?: return null
 
-        val path = ServerContext.paths.staticResourcePath(resourceId, purpose)
+        val path = ServerContext.paths.resolveResourcePath(resourceId, purpose, ServerPathType.LOCAL)
         return File(path)
     }
 

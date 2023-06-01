@@ -1,27 +1,38 @@
 package org.solvo.server.utils
 
-import java.nio.file.Path
 import java.util.*
 
 interface ServerResourcesPath {
-    fun databasePath(): Path
-    fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String
+    fun databasePath(): String
+    fun resolveResourcePath(
+        resourceId: UUID,
+        purpose: StaticResourcePurpose,
+        pathType: ServerPathType = ServerPathType.REMOTE
+    ): String
 }
 
 class ServerResourcesPathImpl : ServerResourcesPath {
     private val remote: String = "http://localhost"
     private val local: String = System.getProperty("user.dir")
 
-    override fun databasePath(): Path {
-        return Path.of("$local/db")
+    override fun databasePath(): String {
+        return "$local/db"
     }
 
-    override fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String {
-        return "$local/resources/$purpose/$resourceId"
+    override fun resolveResourcePath(
+        resourceId: UUID,
+        purpose: StaticResourcePurpose,
+        pathType: ServerPathType,
+    ): String {
+        val base = when (pathType) {
+            ServerPathType.LOCAL -> local
+            ServerPathType.REMOTE -> remote
+        }
+        return "$base/resources/$purpose/$resourceId"
     }
 }
 
-class ServerPaths(
-    localPath: Path,
-    remotePath: Path,
-)
+enum class ServerPathType {
+    LOCAL,
+    REMOTE
+}

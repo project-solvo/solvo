@@ -1,6 +1,7 @@
 package org.solvo.server.utils.sampleData
 
 import org.solvo.server.ServerContext
+import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
 
@@ -19,7 +20,7 @@ class ImagePostRequest(
             val uid = user.uid
             val input = File(path).inputStream()
             val imageId = postImage(uid, input, purpose)
-            url = ServerContext.paths.staticResourcePath(imageId, purpose)
+            url = ServerContext.paths.resolveResourcePath(imageId, purpose, ServerPathType.REMOTE)
         }
     }
 }

@@ -7,7 +7,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import org.solvo.model.api.UploadImageResponse
+import org.solvo.model.api.ImageUrlExchange
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -23,7 +23,7 @@ fun Application.accountModule() {
                     val input = call.receiveStream()
 
                     val path = accounts.uploadNewAvatar(uid, input, contents)
-                    call.respond(UploadImageResponse(path))
+                    call.respond(ImageUrlExchange(path))
                 }
                 get("/avatar") {
                     val uid = UUID.fromString(call.parameters.getOrFail("uid"))

@@ -29,6 +29,6 @@ enum class AuthStatus{
 }
 
 @Serializable
-class UploadImageResponse(
+class ImageUrlExchange(
     val url: String,
 )

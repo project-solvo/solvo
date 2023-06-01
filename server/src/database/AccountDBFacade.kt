@@ -8,6 +8,7 @@ import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.AccountDBControl
 import org.solvo.server.database.control.ResourcesDBControl
+import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
 import java.io.InputStream
@@ -55,7 +56,11 @@ class AccountDBFacadeImpl(
 
     override suspend fun getUserAvatar(uid: UUID): File? {
         val resourceId = accounts.getAvatar(uid) ?: return null
-        val path = ServerContext.paths.staticResourcePath(resourceId, StaticResourcePurpose.USER_AVATAR)
+        val path = ServerContext.paths.resolveResourcePath(
+            resourceId,
+            StaticResourcePurpose.USER_AVATAR,
+            ServerPathType.LOCAL
+        )
         return File(path)
     }
 
@@ -70,12 +75,20 @@ class AccountDBFacadeImpl(
 
         if (oldAvatarId != null) {
             if (contentDBFacade.tryDeleteImage(oldAvatarId)) {
-                val path = ServerContext.paths.staticResourcePath(oldAvatarId, StaticResourcePurpose.USER_AVATAR)
+                val path = ServerContext.paths.resolveResourcePath(
+                    oldAvatarId,
+                    StaticResourcePurpose.USER_AVATAR,
+                    ServerPathType.LOCAL
+                )
                 ServerContext.files.delete(path)
             }
         }
 
-        return ServerContext.paths.staticResourcePath(newAvatarId, StaticResourcePurpose.USER_AVATAR)
+        return ServerContext.paths.resolveResourcePath(
+            newAvatarId,
+            StaticResourcePurpose.USER_AVATAR,
+            ServerPathType.REMOTE
+        )
     }
 
     override suspend fun isOp(uid: UUID): Boolean {
