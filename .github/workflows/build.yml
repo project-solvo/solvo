@@ -17,12 +17,63 @@ env:
 jobs:
   build:
     name: "Build (${{ matrix.os }})"
-    runs-on: self-hosted  #${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
       matrix:
         os:
-          - ubuntu-latest
+          - macos-12
+    env:
+      enableLocalPublishingTest: 'false'
+      gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx4096m" "-Dfile.encoding=UTF-8"
+      isMac: ${{ startsWith(matrix.os, 'macos') }}
+      isWindows: ${{ startsWith(matrix.os, 'windows') }}
+      isUbuntu: ${{ startsWith(matrix.os, 'ubuntu') }}
+      isUnix: ${{ startsWith(matrix.os, 'macos') || startsWith(matrix.os, 'ubuntu') }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          submodules: 'recursive'
+
+      - uses: actions/setup-java@v2
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Setup Gradle
+        uses: gradle/gradle-build-action@v2
+
+      - name: Cache Gradle
+        uses: pat-s/always-upload-cache@v3
+        with:
+          path: ~/.gradle
+          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+
+      - name: Cache Maven
+        uses: pat-s/always-upload-cache@v3
+        with:
+          path: ~/.m2
+          key: ${{ runner.os }}-maven-${{ hashFiles('*.gradle.kts') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - if: ${{ env.isUnix == 'true' }}
+        run: chmod -R +x *
+
+      - name: Clean and download dependencies
+        run: ./gradlew clean ${{ env.gradleArgs }}
+
+      - name: Assemble
+        run: ./gradlew assemble ${{ env.gradleArgs }}
+
+      - name: Check
+        run: ./gradlew check ${{ env.gradleArgs }}
+
+  deploy:
+    name: "Stating"
+    runs-on: self-hosted
     env:
       enableLocalPublishingTest: 'false'
       gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx1024m" "-Dfile.encoding=UTF-8" --no-daemon "-Porg.gradle.parallel=false" "-Pkotlin.compiler.execution.strategy=in-process"
@@ -38,30 +89,10 @@ jobs:
       - uses: actions/setup-java@v2
         with:
           distribution: temurin
-          java-version: 17
-      
-      #      - name: Install Heroku
-      #        if: ${{ env.deployStaging }} == 'true'
-      #        run: curl https://cli-assets.heroku.com/install-ubuntu.sh | sh
+          java-version: 11
 
       - name: Setup Gradle
         uses: gradle/gradle-build-action@v2
-      
-      #      - name: Cache Gradle
-      #        uses: pat-s/always-upload-cache@v3
-      #        with:
-      #          path: ~/.gradle
-      #          key: ${{ runner.os }}-gradle-${{ hashFiles('*.gradle.kts') }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-gradle-
-      
-      #      - name: Cache Maven
-      #        uses: pat-s/always-upload-cache@v3
-      #        with:
-      #          path: ~/.m2
-      #          key: ${{ runner.os }}-maven-${{ hashFiles('*.gradle.kts') }}
-      #          restore-keys: |
-      #            ${{ runner.os }}-maven-
 
       - if: ${{ env.isUnix == 'true' }}
         run: chmod -R +x *
@@ -77,26 +108,6 @@ jobs:
 
       - run: rm -rf build
         if: ${{ env.deployStaging }} == 'true'
-      
-      #        
-      #  staging:
-      #    #    needs: [ build ]
-      #    name: "Staging"
-      #    runs-on: ubuntu-latest
-      #    if: ${{ env.GITHUB_REF_NAME }} == "main" || ${{ env.GITHUB_REF_NAME }} == "deploy-heroku"
-      #    steps:
-      #      - uses: actions/checkout@v3
-      #        with:
-      #          submodules: 'recursive'
-      
-      #      - run: heroku container:login
-      #        if: ${{ env.deployStaging }} == 'true'
-      #
-      #      - run: heroku container:push web --app $HEROKU_APP_NAME
-      #        if: ${{ env.deployStaging }} == 'true'
-      #
-      #      - run: heroku container:release web --app $HEROKU_APP_NAME
-      #        if: ${{ env.deployStaging }} == 'true'
 
       - run: docker rm $(docker stop $(docker ps -a -q --filter ancestor=solvo-platform --format="{{.ID}}")) || true
       - run: docker build -t solvo-platform .
