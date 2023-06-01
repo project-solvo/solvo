@@ -1,4 +1,4 @@
-FROM openjdk:17-jdk
+FROM openjdk:11-jdk
 MAINTAINER project-solvo
 
 EXPOSE 80
