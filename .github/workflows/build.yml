@@ -106,6 +106,7 @@ jobs:
       - run: rm -rf build
         if: ${{ env.deployStaging }} == 'true'
 
-      - run: docker rm $(docker stop $(docker ps -a -q --filter ancestor=solvo-platform --format="{{.ID}}")) || true
+      - run: docker image prune --force
       - run: docker build -t solvo-platform .
+      - run: docker rm $(docker stop $(docker ps -a -q --filter ancestor=solvo-platform --format="{{.ID}}")) || true
       - run: docker run --env PORT=80 --publish 0.0.0.0:80:80/tcp --detach solvo-platform
