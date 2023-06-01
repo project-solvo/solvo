@@ -3,6 +3,7 @@ package org.solvo.web.ui.foundation
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -10,7 +11,9 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.History
@@ -123,17 +126,23 @@ private fun RowScope.UserIcons(
     AnimatedVisibility(loggedIn == true) {
         // logged in, show avatar + name
         val currentUser by userViewModel.user.collectAsState()
-        IconButton({}) {
-            Image(
-                rememberImagePainter(
-                    currentUser?.avatarUrl?.takeIf { it.isNotEmpty() },
-                    default = Icons.Filled.Person,
-                    error = Icons.Filled.Person,
-                ),
-                "User Avatar",
-                Modifier.size(28.dp),
-                colorFilter = if (currentUser?.avatarUrl == null) ColorFilter.tint(LocalContentColor.current) else null,
-            )
+        IconButton({
+            // TODO: user page
+        }) {
+            Box(
+                Modifier.clip(CircleShape).size(32.dp)
+            ) {
+                Image(
+                    rememberImagePainter(
+                        currentUser?.avatarUrl?.takeIf { it.isNotEmpty() },
+                        default = Icons.Filled.Person,
+                        error = Icons.Filled.Person,
+                    ),
+                    "User Avatar",
+                    colorFilter = if (currentUser?.avatarUrl == null) ColorFilter.tint(LocalContentColor.current) else null,
+                    contentScale = ContentScale.FillBounds,
+                )
+            }
         }
 //            currentUser?.username?.let {
 //                Text(
