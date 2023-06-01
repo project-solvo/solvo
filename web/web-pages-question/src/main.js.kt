@@ -129,8 +129,11 @@ private fun QuestionPageContent(
             )
             PagingContent(
                 pagingState,
-                controlBar = {
-                    PagingControlBar(it) {
+                controlBar = controlBar@{ expandablePagingState ->
+                    PagingControlBar(
+                        expandablePagingState,
+                        showPagingController = expandablePagingState.isExpanded.value
+                    ) {
                         FilledTonalButton(
                             onClick = {},
                             Modifier.align(Alignment.CenterStart),
