@@ -12,6 +12,7 @@ EXPOSE 80
 
 # Copy server
 COPY server/build/install/server /app
+COPY server/test-sandbox/test-resources /app/test-resources
 RUN chmod +x "/app/bin/server"
 
 ENTRYPOINT cd "/app" && export JAVA_OPTS="-Xmx256m" && "./bin/server"
