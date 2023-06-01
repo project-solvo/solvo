@@ -30,11 +30,11 @@ fun CommentCardContent(
             RichText(
                 item.content,
                 modifier = modifier.fillMaxWidth(),
-                backgroundColor = backgroundColor,
-                showScrollbar = false,
                 onEditorLoaded = loadedState.onEditorLoaded,
                 onTextUpdated = loadedState.onTextChanged,
                 onLayout = onLayout,
+                backgroundColor = backgroundColor,
+                showScrollbar = false,
             )
         }
     }

@@ -2,7 +2,6 @@
 
 package org.solvo.web.editor
 
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -37,11 +36,10 @@ fun RichEditor(
     onEditorLoaded: (() -> Unit)? = null,
     onIntrinsicSizeChanged: ((intrinsicSize: IntSize?) -> Unit)? = null,
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
-    state: RichEditorState = rememberRichEditorState(),
+    state: RichEditorState = rememberRichEditorState(isEditable = true),
     displayMode: RichEditorDisplayMode = RichEditorDisplayMode.EDIT_PREVIEW,
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
     isToolbarVisible: Boolean = true,
-    scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     backgroundColor: Color = Color.Unspecified,
     showScrollbar: Boolean = true,

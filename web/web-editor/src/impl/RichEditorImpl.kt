@@ -123,12 +123,19 @@ internal class RichEditor internal constructor(
 
     suspend fun hidePreviewCloseButton() {
         onEditorLoaded {
-            document.getElementById(id)
-                ?.getElementsByClassName("editormd-preview-close-btn")
-                ?.asList()
-                ?.forEach {
-                    it.asDynamic().style.display = "none"
-                } ?: return@onEditorLoaded
+            repeat(10) {
+                val res = document.getElementById(id)
+                    ?.getElementsByClassName("editormd-preview-close-btn")
+                    ?.asList()
+                    ?.forEach {
+                        it.asDynamic().style.display = "none"
+                    }
+                if (res != null) {
+                    return
+                } else {
+                    delay(0.2.seconds) // delay a bit to fix
+                }
+            }
         }
     }
 
@@ -362,6 +369,7 @@ internal class RichEditor internal constructor(
         fun create(
             id: String,
             density: Density,
+            isEditable: Boolean,
             contentPadding: Dp = Dp.Unspecified,
         ): RichEditor {
             val positionDiv = document.createElement("div")
@@ -374,6 +382,11 @@ internal class RichEditor internal constructor(
             positionDiv.appendChild(element)
             document.getElementById(RICH_TEXT_EDITORS)?.appendChild(positionDiv)
                 ?: error("Cannot find rich-text-editors to insert rich editors")
+
+            @Suppress("UNUSED_VARIABLE") // used in js 
+            val conf = mapOf(
+                "delay" to if (isEditable) 300 else 0,
+            )
 
             val editor = editormd(
                 id, js(
@@ -391,6 +404,7 @@ internal class RichEditor internal constructor(
                         saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
                         searchReplace : true,
                         autoLoadModules: true,
+                        delay: conf.delay,
                         watch : true,                // 关闭实时预览
 //                        htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
                         toolbar  : true,             //关闭工具栏

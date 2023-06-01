@@ -14,10 +14,17 @@ val DEFAULT_RICH_EDITOR_FONT_SIZE = 18.sp
 
 @Composable
 fun rememberRichEditorState(
+    isEditable: Boolean,
     contentPadding: Dp = Dp.Unspecified,
 ): RichEditorState {
     val density = LocalDensity.current
-    val editor: RichEditor = remember { RichEditor.create(RichEditorIdManager.nextId(), density, contentPadding) }
+    val editor: RichEditor = remember {
+        RichEditor.create(
+            RichEditorIdManager.nextId(), density,
+            isEditable,
+            contentPadding
+        )
+    }
     return remember(editor) { RichEditorState(editor) }
 }
 

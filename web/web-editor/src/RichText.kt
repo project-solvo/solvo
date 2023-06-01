@@ -1,6 +1,5 @@
 package org.solvo.web.editor
 
-import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.Composable
@@ -30,28 +29,26 @@ fun RichText(
     onTextUpdated: (() -> Unit)? = null,
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
     fontSize: TextUnit = LocalTextStyle.current.fontSize,
-    scrollOrientation: Orientation = Orientation.Vertical,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     backgroundColor: Color = Color.Unspecified,
     showScrollbar: Boolean = true,
     contentColor: Color = LocalContentColor.current,
 ) {
-    val state = rememberRichEditorState(0.dp)
+    val state = rememberRichEditorState(false, 0.dp)
     val onTextUpdated by rememberUpdatedState(onTextUpdated)
 
     RichEditor(
         modifier,
         onEditorLoaded = onEditorLoaded,
+        onLayout = onLayout,
         state = state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
+        fontSize = fontSize,
         isToolbarVisible = false,
-        scrollOrientation = scrollOrientation,
         isInDarkTheme = isInDarkTheme,
         backgroundColor = backgroundColor,
-        fontSize = fontSize,
         showScrollbar = showScrollbar,
         contentColor = contentColor,
-        onLayout = onLayout,
     )
     LaunchedEffect(state) {
         state.richEditor.hidePreviewCloseButton()
