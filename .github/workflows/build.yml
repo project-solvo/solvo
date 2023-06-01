@@ -97,9 +97,6 @@ jobs:
       - if: ${{ env.isUnix == 'true' }}
         run: chmod -R +x *
 
-      - name: Clean and download dependencies
-        run: ./gradlew clean ${{ env.gradleArgs }}
-
       - name: Check
         run: ./gradlew check ${{ env.gradleArgs }}
 
