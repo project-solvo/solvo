@@ -18,8 +18,6 @@ fun SolvoTopAppBar(
     title: @Composable () -> Unit = {}
 ) {
     var notifyMenu1 by remember { mutableStateOf(false) }
-    var personalMenu1 by remember { mutableStateOf(false) }
-    var settingMenu1 by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
         title = {
             title()
@@ -58,12 +56,13 @@ fun SolvoTopAppBar(
             IconButton(onClick = { notifyMenu1 = !notifyMenu1 }) {
                 Icon(Icons.Filled.Notifications, null)
             }
-            IconButton(onClick = {
-                personalMenu1 = true
-            }) {
+            IconButton(onClick = {}) {
                 Icon(Icons.Filled.Person, null)
             }
-            IconButton(onClick = { settingMenu1 = !settingMenu1 }) {
+            IconButton(onClick = {}) {
+                Icon(Icons.Filled.Logout, null)
+            }
+            IconButton(onClick = {}) {
                 Icon(Icons.Filled.Settings, null)
             }
             DropdownMenu(
@@ -76,41 +75,41 @@ fun SolvoTopAppBar(
                     onClick = {},
                 )
             }
-            DropdownMenu(
-                expanded = personalMenu1,
-                onDismissRequest = { personalMenu1 = false },
-                offset = DpOffset(x = 10.dp, y = 0.dp)
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Personal page") },
-                    onClick = {
-                        personalMenu1 = false
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text("Log out") },
-                    onClick = {
-                        History.navigate { auth() }
-                        personalMenu1 = false
-                    },
-                )
-            }
-            DropdownMenu(
-                expanded = settingMenu1,
-                onDismissRequest = { settingMenu1 = false },
-                offset = DpOffset(x = 10.dp, y = 0.dp)
-            ) {
-                DropdownMenuItem(
-                    text = { Text("Appearance") },
-                    onClick = {
-                        settingMenu1 = false
-                    },
-                )
-                DropdownMenuItem(
-                    text = { Text("Help") },
-                    onClick = {},
-                )
-            }
+//            DropdownMenu(
+//                expanded = personalMenu1,
+//                onDismissRequest = { personalMenu1 = false },
+//                offset = DpOffset(x = 10.dp, y = 0.dp)
+//            ) {
+//                DropdownMenuItem(
+//                    text = { Text("Personal page") },
+//                    onClick = {
+//                        personalMenu1 = false
+//                    },
+//                )
+//                DropdownMenuItem(
+//                    text = { Text("Log out") },
+//                    onClick = {
+//                        History.navigate { auth() }
+//                        personalMenu1 = false
+//                    },
+//                )
+//            }
+//            DropdownMenu(
+//                expanded = settingMenu1,
+//                onDismissRequest = { settingMenu1 = false },
+//                offset = DpOffset(x = 10.dp, y = 0.dp)
+//            ) {
+//                DropdownMenuItem(
+//                    text = { Text("Appearance") },
+//                    onClick = {
+//                        settingMenu1 = false
+//                    },
+//                )
+//                DropdownMenuItem(
+//                    text = { Text("Help") },
+//                    onClick = {},
+//                )
+//            }
         },
     )
 }
