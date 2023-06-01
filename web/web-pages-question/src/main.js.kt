@@ -70,17 +70,17 @@ fun main() {
                         }
                     }
                 }
-                TODO("Enable when rick text layer is fixed.")
-//                Box {
-//                    CourseMenu(
-//                        model.menuState,
-//                        onClickQuestion = { a: ArticleDownstream, q: QuestionDownstream ->
-//                            History.navigate {
-//                                question(a.course.code, a.code, q.code)
-//                            }
-//                        }
-//                    )
-//                }
+                // TODO("Enable when rick text layer is fixed.")
+                Box {
+                    CourseMenu(
+                        model.menuState,
+                        onClickQuestion = { a: ArticleDownstream, q: QuestionDownstream ->
+                            History.navigate {
+                                question(a.course.code, a.code, q.code)
+                            }
+                        }
+                    )
+                }
 
             }
 
