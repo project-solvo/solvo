@@ -1,7 +1,14 @@
-POST http://localhost:80/accounts/register
+POST http://localhost:80/api/accounts/register
 Content-Type: application/json
 
 {
     "": ""
 }
 
+
+### Upload Avatar
+POST http://localhost:80/api/account/newAvatar
+Authorization: Bearer K0nwoAhkd9m54G2958n6tMLHLNXuGAv4
+Content-Type: image/png
+
+< /Users/him188/Projects/solvo/server/test-sandbox/resources/images/img.png
