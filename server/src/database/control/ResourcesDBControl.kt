@@ -2,7 +2,7 @@ package org.solvo.server.database.control
 
 import io.ktor.http.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteIgnoreWhere
+import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.select
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -59,6 +59,10 @@ class ResourcesDBControlImpl : ResourcesDBControl {
     }
 
     override suspend fun tryDeleteResource(resourceId: UUID): Boolean = dbQuery {
-        StaticResourceTable.deleteIgnoreWhere { StaticResourceTable.id eq resourceId } > 0
+        try {
+            StaticResourceTable.deleteWhere { StaticResourceTable.id eq resourceId } > 0
+        } catch (_: Exception) {
+            false
+        }
     }
 }
