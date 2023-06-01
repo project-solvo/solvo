@@ -8,6 +8,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.outlined.FolderOff
 import androidx.compose.material.icons.outlined.PostAdd
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -26,7 +27,9 @@ import org.solvo.web.comments.*
 import org.solvo.web.comments.like.ThumbActions
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
+import org.solvo.web.editor.RichEditorState
 import org.solvo.web.editor.RichText
+import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
@@ -140,16 +143,30 @@ private fun QuestionPageContent(
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = buttonContentPaddings,
                         ) {
-                            Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+                            if (!pagingState.editorEnable.value) {
+                                Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
 
-                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                Text(
-                                    "Draft Answer",
-                                    Modifier.padding(start = 4.dp),
-                                    textAlign = TextAlign.Center,
-                                    fontSize = 16.sp,
-                                    fontWeight = FontWeight.W500,
-                                )
+                                Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        "Draft Answer",
+                                        Modifier.padding(start = 4.dp),
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.W500,
+                                    )
+                                }
+                            } else {
+                                Icon(Icons.Outlined.FolderOff, "Editor fold", Modifier.fillMaxHeight())
+
+                                Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                    Text(
+                                        "Fold up editor",
+                                        Modifier.padding(start = 4.dp),
+                                        textAlign = TextAlign.Center,
+                                        fontSize = 16.sp,
+                                        fontWeight = FontWeight.W500,
+                                    )
+                                }
                             }
                         }
                     }
