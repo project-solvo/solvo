@@ -4,6 +4,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Compress
 import androidx.compose.material.icons.filled.Expand
+import androidx.compose.material.icons.filled.ZoomIn
+import androidx.compose.material.icons.filled.ZoomOut
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
@@ -31,12 +33,13 @@ fun PaperView(
                 questionSelectedBar()
             }
 
+
             IconButton(onChangeLayout) {
-                if (isExpanded) {
-                    Icon(Icons.Default.Compress, "Compress")
-                } else {
-                    Icon(Icons.Default.Expand, "Expand")
-                }
+                Icon(Icons.Filled.ZoomIn, "Compress")
+            }
+
+            IconButton(onChangeLayout) {
+                Icon(Icons.Filled.ZoomOut, "Compress")
             }
         }
 

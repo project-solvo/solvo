@@ -94,7 +94,7 @@ private fun SampleDataBuilder.sampleData1() {
             displayName("Paper 2022")
             termYear("2022")
             question("1a") {
-                content("Haha!")
+                content("![](https://him188.github.io/static/images/Algorithm-2022-1a.png)")
                 anonymous()
                 sharedContent(sharedContent1)
                 answer(alex) {
