@@ -9,6 +9,8 @@ interface ServerResourcesPath {
         purpose: StaticResourcePurpose,
         pathType: ServerPathType = ServerPathType.REMOTE
     ): String
+
+    fun resourcesPath(): String
 }
 
 class ServerResourcesPathImpl : ServerResourcesPath {
@@ -17,6 +19,10 @@ class ServerResourcesPathImpl : ServerResourcesPath {
 
     override fun databasePath(): String {
         return "$local/db"
+    }
+
+    override fun resourcesPath(): String {
+        return "$remote/resources"
     }
 
     override fun resolveResourcePath(

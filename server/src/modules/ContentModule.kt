@@ -2,6 +2,7 @@ package org.solvo.server.modules
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -13,23 +14,19 @@ import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
+import java.io.File
 import java.util.*
 
 fun Application.contentModule() {
     val contents = ServerContext.Databases.contents
     val accounts = ServerContext.Databases.accounts
 
+    routing {
+        staticFiles("/resources", File(ServerContext.paths.resourcesPath()))
+    }
+
     routeApi {
         route("/images") {
-            get("/{resourceId}") {
-                val resourceId = UUID.fromString(call.parameters.getOrFail("resourceId"))
-                val file = contents.getImage(resourceId)
-                if (file == null) {
-                    call.respond(HttpStatusCode.NotFound)
-                } else {
-                    call.respondFile(file)
-                }
-            }
             postAuthenticated("/upload") {
                 val uid = getUserId() ?: return@postAuthenticated
 
