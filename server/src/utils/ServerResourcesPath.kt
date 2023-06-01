@@ -5,7 +5,7 @@ import java.util.*
 
 interface ServerResourcesPath {
     fun databasePath(): Path
-    fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): Path
+    fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String
 }
 
 class ServerResourcesPathImpl : ServerResourcesPath {
@@ -16,12 +16,12 @@ class ServerResourcesPathImpl : ServerResourcesPath {
         return Path.of("$local/db")
     }
 
-    override fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): Path {
-        return Path.of("$local/resources/$purpose/$resourceId")
+    override fun staticResourcePath(resourceId: UUID, purpose: StaticResourcePurpose): String {
+        return "$local/resources/$purpose/$resourceId"
     }
 }
 
-class ResourcePaths(
+class ServerPaths(
     localPath: Path,
     remotePath: Path,
 )
