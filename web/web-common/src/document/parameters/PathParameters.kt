@@ -14,6 +14,8 @@ interface PathParameters : RememberObserver {
     var pattern: String
     fun reload()
 
+    fun registerEventListeners()
+
     @Stable
     val allParameters: State<Map<String, String>>
 
@@ -35,13 +37,15 @@ operator fun PathParameters.get(name: String): String? = allParameters.value[nam
 fun PathParameters(
     pattern: String,
     coroutineContext: CoroutineContext = EmptyCoroutineContext,
-): PathParameters = PathParametersImpl(pattern, coroutineContext)
+): PathParameters = PathParametersImpl(pattern, coroutineContext).apply {
+    registerEventListeners()
+}
 
-internal class PathParametersImpl(
+internal class PathParametersImpl internal constructor(
     pattern: String,
     private val coroutineContext: CoroutineContext,
 ) : PathParameters {
-    private lateinit var locationChangeListener: (Event) -> Unit
+    private var locationChangeListener: ((Event) -> Unit)? = null
     override var pattern: String = pattern
         set(value) {
             field = value
@@ -55,8 +59,11 @@ internal class PathParametersImpl(
     private val observedParamsNotNull =
         mutableMapOf<String, MutableStateFlow<String>>() // can implement with derived states
 
+    private var currentPathValue: String? = null
 
     override fun reload() {
+        if (currentPathValue == window.location.pathname) return // same
+
         val map = PathParameterParser.parse(pattern, window.location.pathname)
         console.log(
             "Path parameters: ${
@@ -82,6 +89,20 @@ internal class PathParametersImpl(
                 observedParam.value.value = newValue
             }
         }
+    }
+
+    override fun registerEventListeners() {
+        if (disposed.value) return
+        if (locationChangeListener != null) return
+
+        locationChangeListener = {
+            if (!disposed.value) {
+                reload()
+            }
+        }
+        window.addEventListener(WindowEvents.EVENT_LOCATION_CHANGE, locationChangeListener)
+        window.addEventListener(WindowEvents.EVENT_POP_STATE, locationChangeListener)
+        window.addEventListener(WindowEvents.EVENT_PUSH_STATE, locationChangeListener)
     }
 
     override fun argumentNullable(name: String): StateFlow<String?> {
@@ -123,24 +144,15 @@ internal class PathParametersImpl(
     override fun dispose() {
         if (!disposed.compareAndSet(expect = false, update = true)) return
 
-        if (::locationChangeListener.isInitialized) {
-            window.removeEventListener(LOCATION_CHANGE, locationChangeListener)
+        locationChangeListener?.let { locationChangeListener ->
+            window.removeEventListener(WindowEvents.EVENT_LOCATION_CHANGE, locationChangeListener)
+            window.removeEventListener(WindowEvents.EVENT_POP_STATE, locationChangeListener)
+            window.removeEventListener(WindowEvents.EVENT_PUSH_STATE, locationChangeListener)
         }
     }
 
     override fun onRemembered() {
-        locationChangeListener = {
-            if (!disposed.value) {
-                reload()
-            }
-        }
-        window.addEventListener(LOCATION_CHANGE, locationChangeListener)
-    }
-
-
-    private companion object {
-        @Suppress("SpellCheckingInspection")
-        const val LOCATION_CHANGE = "locationchange"
+        registerEventListeners()
     }
 }
 

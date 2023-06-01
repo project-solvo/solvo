@@ -97,7 +97,7 @@ private fun QuestionPageContent(
                                 selected = question.code == questionCode,
                                 onClick = wrapClearFocus {
                                     if (question.code != questionCode) {
-                                        History.navigate { question(course.code, article.code, questionCode) }
+                                        History.pushState { question(course.code, article.code, questionCode) }
                                     } // else: don't navigate if clicking same question
                                 },
                                 label = { Text(questionCode) },
