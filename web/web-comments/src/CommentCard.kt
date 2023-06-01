@@ -31,7 +31,7 @@ fun LargeCommentCard(
     subComments: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
-    val state: CommentCardState = remember { CommentCardState(modifier) }
+    val state: CommentCardState = remember { CommentCardState() }
     CommentCard(
         authorLine = {
             AuthorLine(
@@ -65,6 +65,7 @@ fun LargeCommentCard(
 
 @Immutable
 class CommentCardPaddings(
+    val top: Dp,
     val headLinePadding: PaddingValues,
     val contentPadding: PaddingValues,
     val bottom: Dp,
@@ -72,15 +73,17 @@ class CommentCardPaddings(
     companion object {
         @Stable
         val Large = CommentCardPaddings(
-            headLinePadding = PaddingValues(start = 16.dp, end = 16.dp, top = 16.dp),
+            top = 16.dp,
+            headLinePadding = PaddingValues(start = 16.dp, end = 16.dp),
             contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp),
             bottom = 16.dp,
         )
 
         @Stable
         val Small = CommentCardPaddings(
-            headLinePadding = PaddingValues(start = 16.dp, end = 16.dp, top = 12.dp),
-            contentPadding = PaddingValues(start = 16.dp, end = 16.dp, top = 6.dp),
+            top = 12.dp,
+            headLinePadding = PaddingValues(start = 12.dp, end = 12.dp),
+            contentPadding = PaddingValues(start = 12.dp, end = 12.dp, top = 6.dp),
             bottom = 12.dp,
         )
     }
@@ -88,11 +91,12 @@ class CommentCardPaddings(
 
 @Composable
 fun CommentSummaryCard(
+    state: CommentCardState,
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
-    content: @Composable() (ColumnScope.(backgroundColor: Color) -> Unit),
+    showMoreSwitch: (@Composable (state: CommentCardState) -> Unit)? = null,
+    content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
-    val state: CommentCardState = remember { CommentCardState(modifier) }
     CommentCard(
         authorLine = {
             AuthorLineThin(
@@ -113,7 +117,7 @@ fun CommentSummaryCard(
         state = state,
         modifier = modifier,
         onClickCard = onClickCard,
-        showMoreSwitch = { ShowMoreSwitch(it) },
+        showMoreSwitch = showMoreSwitch,
         content = content,
     )
 }
@@ -140,7 +144,7 @@ internal fun CommentCard(
             containerColor = backgroundColor
         )
     ) {
-        Row(Modifier.padding(paddings.headLinePadding)) {
+        Row(Modifier.padding(top = paddings.top).padding(paddings.headLinePadding)) {
             authorLine()
         }
 
@@ -169,8 +173,8 @@ internal fun CommentCard(
             }
         }
 
-        if (subComments == null && showMoreSwitch == null) {
-            Spacer(Modifier.height(16.dp).fillMaxWidth())
+        if (subComments == null) {
+            Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
         }
     }
 }
@@ -179,11 +183,7 @@ internal fun CommentCard(
 fun ShowMoreSwitch(state: CommentCardState) {
     Text(
         text = state.text.value,
-        modifier = Modifier.clickable {
-            state.switchSeeMore()
-            state.switchCardModifier()
-            state.changeText()
-        },
+        modifier = Modifier.clickable { state.switchSeeMore() },
         textDecoration = TextDecoration.Underline,
         color = MaterialTheme.colorScheme.primary,
         textAlign = TextAlign.Center,

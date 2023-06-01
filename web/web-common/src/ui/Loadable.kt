@@ -57,18 +57,17 @@ fun OverlayLoadableContent(
     exit: ExitTransition = fadeOut(),
     content: @Composable () -> Unit,
 ) {
-    Box(modifier = modifier) {
+    Box(modifier = modifier.wrapContentSize()) {
         Box(Modifier.alpha(if (isLoading) 0.618f else 1.0f)) {
             content()
         }
 
         AnimatedVisibility(
             isLoading,
-            Modifier.matchParentSize(),
             enter = enter,
             exit = exit,
         ) {
-            Row(Modifier.matchParentSize(), horizontalArrangement = Arrangement.Center) {
+            Row(Modifier.wrapContentHeight().fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 loadingContent()
             }
         }
