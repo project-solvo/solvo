@@ -103,7 +103,7 @@ class ArticlePostRequestBuilder(
 
     @SampleDataDslMarker
     inline fun comment(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
-        comments.add(CommentPostRequestBuilder(author, isAnswer = true).apply(builds).build())
+        comments.add(CommentPostRequestBuilder(author).apply(builds).build())
     }
 
     fun build(): ArticlePostRequest = ArticlePostRequest(

@@ -19,10 +19,10 @@ class CommentPostRequest(
     ) {
         db.contents.apply {
             val commentId = if (isAnswer) {
-                postComment(
-                    comment = CommentUpstream(content, anonymity),
+                postAnswer(
+                    answer = CommentUpstream(content, anonymity),
                     authorId = userIdMap[author]!!,
-                    parentId = parentId
+                    questionId = parentId
                 )!! // TODO: fix bug (possibly problem with contains())
             } else {
                 postComment(
