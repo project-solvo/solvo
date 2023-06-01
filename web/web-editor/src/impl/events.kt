@@ -27,11 +27,13 @@ object RichEditorEventBridge {
         with(skia) {
             val htmlEditormdPreview = getHtmlEditormdPreview()
             with(RichEditorEventBridgeContext(this@listenEvents, density)) {
-                htmlEditormdPreview.addEventListener("mousedown", { event ->
-                    event as MouseEvent
-                    isPointerPressed = true
-                    skikoView?.onPointerEvent(toSkikoEventAdjusted(event, SkikoPointerEventKind.DOWN))
-                })
+                // mousedown can cause compose bug
+
+//                htmlEditormdPreview.addEventListener("mousedown", { event ->
+//                    event as MouseEvent
+//                    isPointerPressed = true
+//                    skikoView?.onPointerEvent(toSkikoEventAdjusted(event, SkikoPointerEventKind.DOWN))
+//                })
                 htmlEditormdPreview.addEventListener("mouseup", { event ->
                     event as MouseEvent
                     isPointerPressed = false

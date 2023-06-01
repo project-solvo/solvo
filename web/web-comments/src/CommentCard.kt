@@ -17,6 +17,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.solvo.model.User
+import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
@@ -58,7 +59,7 @@ fun LargeCommentCard(
                 },
             ) {
                 actions?.invoke()
-                IconButton(onClick = onClickExpand) {
+                IconButton(onClick = wrapClearFocus(onClickExpand)) {
                     if (isExpand) {
                         Icon(Icons.Filled.CloseFullscreen, null)
                     } else {

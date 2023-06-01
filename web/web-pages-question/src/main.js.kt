@@ -31,6 +31,7 @@ import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.foundation.ifThen
+import org.solvo.web.ui.foundation.wrapClearFocus
 
 
 fun main() {
@@ -43,7 +44,7 @@ fun main() {
             val question by model.question.collectAsState(null)
             SolvoTopAppBar(
                 navigationIcon = {
-                    IconButton(onClick = { model.menuState.switchMenuOpen() }) {
+                    IconButton(onClick = wrapClearFocus { model.menuState.switchMenuOpen() }) {
                         Icon(Icons.Filled.Menu, null)
                     }
                 }
@@ -51,29 +52,24 @@ fun main() {
                 course?.let { article?.let { it1 -> PaperTitle(it, it1.code) } }
             }
             Box {
-                Box {
-                    LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
-                        Row(Modifier.fillMaxSize()) {
-                            QuestionPageContent(
-                                course = course ?: return@LoadableContent,
-                                article = article ?: return@LoadableContent,
-                                question = question ?: return@LoadableContent
-                            )
-                        }
+                LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
+                    Row(Modifier.fillMaxSize()) {
+                        QuestionPageContent(
+                            course = course ?: return@LoadableContent,
+                            article = article ?: return@LoadableContent,
+                            question = question ?: return@LoadableContent
+                        )
                     }
                 }
                 // TODO("Enable when rick text layer is fixed.")
-                Box {
-                    CourseMenu(
-                        model.menuState,
-                        onClickQuestion = { a: ArticleDownstream, q: QuestionDownstream ->
-                            History.navigate {
-                                question(a.course.code, a.code, q.code)
-                            }
+                CourseMenu(
+                    model.menuState,
+                    onClickQuestion = wrapClearFocus { a: ArticleDownstream, q: QuestionDownstream ->
+                        History.navigate {
+                            question(a.course.code, a.code, q.code)
                         }
-                    )
-                }
-
+                    }
+                )
             }
 
 
@@ -99,7 +95,7 @@ private fun QuestionPageContent(
                         article.questionIndexes.forEach { questionCode ->
                             InputChip(
                                 selected = question.code == questionCode,
-                                onClick = {
+                                onClick = wrapClearFocus {
                                     if (question.code != questionCode) {
                                         History.navigate { question(course.code, article.code, questionCode) }
                                     } // else: don't navigate if clicking same question
@@ -138,7 +134,7 @@ private fun QuestionPageContent(
                         showPagingController = expandablePagingState.isExpanded.value
                     ) {
                         FilledTonalButton(
-                            onClick = {},
+                            onClick = wrapClearFocus { },
                             Modifier.align(Alignment.CenterStart),
                             shape = RoundedCornerShape(8.dp),
                             contentPadding = buttonContentPaddings,

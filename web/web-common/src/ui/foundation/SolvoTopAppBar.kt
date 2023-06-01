@@ -26,7 +26,7 @@ fun SolvoTopAppBar(
         navigationIcon = {
             Row {
                 navigationIcon()
-                IconButton(onClick = {
+                IconButton(onClick = wrapClearFocus {
                     History.navigate { home() }
                 }) {
                     Icon(Icons.Filled.Home, null)
@@ -35,7 +35,7 @@ fun SolvoTopAppBar(
         },
         actions = {
             val windowState = LocalSolvoWindow.current
-            IconButton(onClick = {
+            IconButton(onClick = wrapClearFocus {
                 windowState.setDarkMode(
                     when (windowState.preferDarkMode.value) {
                         null -> false
@@ -53,18 +53,18 @@ fun SolvoTopAppBar(
                     }, null
                 )
             }
-            IconButton(onClick = { notifyMenu1 = !notifyMenu1 }) {
+            IconButton(onClick = wrapClearFocus { notifyMenu1 = !notifyMenu1 }) {
                 Icon(Icons.Filled.Notifications, null)
             }
-            IconButton(onClick = {
+            IconButton(onClick = wrapClearFocus {
                 History.navigate { auth() }
             }) {
                 Icon(Icons.Filled.Person, null)
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = wrapClearFocus {}) {
                 Icon(Icons.Filled.Logout, null)
             }
-            IconButton(onClick = {}) {
+            IconButton(onClick = wrapClearFocus {}) {
                 Icon(Icons.Filled.Settings, null)
             }
             DropdownMenu(
@@ -74,7 +74,7 @@ fun SolvoTopAppBar(
             ) {
                 DropdownMenuItem(
                     text = {},
-                    onClick = {},
+                    onClick = wrapClearFocus {},
                 )
             }
 //            DropdownMenu(
