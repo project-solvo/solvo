@@ -7,6 +7,7 @@ import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
 import org.solvo.model.QuestionDownstream
 import org.solvo.model.QuestionUpstream
+import org.solvo.model.SharedContent
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable
@@ -15,7 +16,7 @@ import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
 interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
-    suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID?
+    suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
     suspend fun getId(articleId: UUID, code: String): UUID?
     override suspend fun view(coid: UUID): QuestionDownstream?
 }
@@ -23,6 +24,7 @@ interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
 class QuestionDBControlImpl(
     private val commentDB: CommentDBControl,
     private val accountDB: AccountDBControl,
+    private val sharedContentDB: SharedContentDBControl,
 ) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>() {
     override val associatedTable = QuestionTable
 
@@ -33,14 +35,15 @@ class QuestionDBControlImpl(
             .singleOrNull()
     }
 
-    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID): UUID? {
-        if (content.code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
+    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID? {
+        if (code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         dbQuery {
             assert(QuestionTable.insert {
                 it[QuestionTable.coid] = coid
+                it[QuestionTable.sharedContent] = content.sharedContent
                 it[QuestionTable.article] = articleId
-                it[QuestionTable.code] = content.code
+                it[QuestionTable.code] = code
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
@@ -61,6 +64,10 @@ class QuestionDBControlImpl(
             .join(CommentedObjectTable, JoinType.INNER, QuestionTable.coid, CommentedObjectTable.id)
             .select(QuestionTable.coid eq coid)
             .map {
+                val sharedContent = it[QuestionTable.sharedContent]?.value?.let { contentId ->
+                    sharedContentDB.view(contentId)
+                } ?: SharedContent.nullContent
+
                 QuestionDownstream(
                     coid = it[QuestionTable.coid].value,
                     author = if (it[CommentedObjectTable.anonymity]) {
@@ -72,6 +79,7 @@ class QuestionDBControlImpl(
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
                     dislikes = it[CommentedObjectTable.dislikes],
+                    sharedContent = sharedContent,
                     code = it[QuestionTable.code],
                     article = it[QuestionTable.article].value,
                     answers = answers,

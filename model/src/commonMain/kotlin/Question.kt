@@ -14,7 +14,7 @@ class QuestionUpstream(
     override val content: String,
     override val anonymity: Boolean,
 
-    val code: String,
+    val sharedContent: Uuid?,
 ) : CommentableUpstream
 
 @Immutable
@@ -27,6 +27,7 @@ class QuestionDownstream(
     override val likes: UInt,
     override val dislikes: UInt,
 
+    val sharedContent: SharedContent,
     val code: String,
     val article: Uuid,
     val answers: List<Uuid>,

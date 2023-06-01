@@ -1,5 +1,6 @@
 package org.solvo.server.utils.sampleData
 
+import org.solvo.model.QuestionUpstream
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -13,9 +14,15 @@ class QuestionPostRequest(
         db: ServerContext.Databases,
         userIdMap: Map<UserRegisterRequest, UUID>,
         articleId: UUID,
+        author: UserRegisterRequest,
     ) {
         db.contents.apply {
-            val questionId = getQuestionId(articleId, code)!!
+            val questionId = postQuestion(
+                question = QuestionUpstream(content, anonymity, null /*TODO*/),
+                authorId = userIdMap[author]!!,
+                articleId = articleId,
+                code = code,
+            )!!
             comments.map { commentRequest -> commentRequest.submit(db, userIdMap, questionId) }
         }
     }

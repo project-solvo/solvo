@@ -7,9 +7,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import org.solvo.model.ArticleUpstream
-import org.solvo.model.CommentUpstream
-import org.solvo.model.Course
+import org.solvo.model.*
 import org.solvo.model.api.UploadImageResponse
 import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
@@ -55,30 +53,18 @@ fun Application.contentModule() {
                 val course = call.receive<Course>()
 
                 val courseId = contents.newCourse(course)
-                if (courseId == null) {
-                    call.respond(HttpStatusCode.BadRequest)
-                } else {
-                    call.respond(courseId)
-                }
+                respondContentOrBadRequest(courseId)
             }
             get("/{courseCode}") {
                 val courseCode = call.parameters.getOrFail("courseCode")
                 val courseName = contents.getCourseName(courseCode)
-                if (courseName == null) {
-                    call.respond(HttpStatusCode.NotFound)
-                } else {
-                    call.respond(Course(courseCode, courseName))
-                }
+                respondContentOrNotFound(courseName)
             }
             route("/{courseCode}/articles") {
                 get {
                     val courseCode = call.parameters.getOrFail("courseCode")
                     val articles = contents.allArticlesOfCourse(courseCode)
-                    if (articles == null) {
-                        call.respond(HttpStatusCode.NotFound)
-                    } else {
-                        call.respond(articles)
-                    }
+                    respondContentOrNotFound(articles)
                 }
                 postAuthenticated("/upload") {
                     val uid = getUserId() ?: return@postAuthenticated
@@ -86,11 +72,7 @@ fun Application.contentModule() {
                     val article = call.receive<ArticleUpstream>()
 
                     val articleId = contents.postArticle(article, uid, courseCode)
-                    if (articleId == null) {
-                        call.respond(HttpStatusCode.BadRequest)
-                    } else {
-                        call.respond(articleId)
-                    }
+                    respondContentOrBadRequest(articleId)
                 }
                 get("/{articleCode}") {
                     val articleId = getArticleIdFromContext() ?: return@get
@@ -101,12 +83,27 @@ fun Application.contentModule() {
                     val questionCode = call.parameters.getOrFail("questionCode")
 
                     val question = contents.viewQuestion(articleId, questionCode)
-                    if (question == null) {
-                        call.respond(HttpStatusCode.NotFound)
-                    } else {
-                        call.respond(question)
-                    }
+                    respondContentOrNotFound(question)
                 }
+                postAuthenticated("/{articleCode}/questions/{questionCode}/upload") {
+                    val uid = getUserId() ?: return@postAuthenticated
+                    val articleId = getArticleIdFromContext() ?: return@postAuthenticated
+                    val questionCode = call.parameters.getOrFail("questionCode")
+                    val question = call.receive<QuestionUpstream>()
+
+                    val questionId = contents.postQuestion(question, uid, articleId, questionCode)
+                    respondContentOrBadRequest(questionId)
+                }
+            }
+        }
+
+        route("/shared-content") {
+            postAuthenticated("/upload") {
+                val uid = getUserId() ?: return@postAuthenticated
+                val content = call.receive<SharedContent>()
+
+                val id = contents.postSharedContent(content)
+                respondContentOrBadRequest(id)
             }
         }
 
@@ -129,11 +126,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
 ) {
     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
     val content = contents.viewComment(coid)
-    if (content == null) {
-        call.respond(HttpStatusCode.NotFound)
-    } else {
-        call.respond(content)
-    }
+    respondContentOrNotFound(content)
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
@@ -149,11 +142,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     } else {
         contents.postComment(comment, uid, parentId)
     }
-    if (commentId == null) {
-        call.respond(HttpStatusCode.BadRequest)
-    } else {
-        call.respond(commentId)
-    }
+    respondContentOrBadRequest(commentId)
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.getArticleIdFromContext(): UUID? {

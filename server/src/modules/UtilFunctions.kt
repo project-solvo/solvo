@@ -28,6 +28,26 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
     return UUID.fromString(uidStr)
 }
 
+suspend fun PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
+    content: Any?
+) {
+    if (content == null) {
+        call.respond(HttpStatusCode.BadRequest)
+    } else {
+        call.respond(content)
+    }
+}
+
+suspend fun PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
+    content: Any?
+) {
+    if (content == null) {
+        call.respond(HttpStatusCode.NotFound)
+    } else {
+        call.respond(content)
+    }
+}
+
 @KtorDsl
 fun Route.postAuthenticated(
     path: String,

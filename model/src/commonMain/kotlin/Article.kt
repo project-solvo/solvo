@@ -17,8 +17,6 @@ class ArticleUpstream(
     val code: String,
     val displayName: String,
     val termYear: String,
-
-    val questions: List<QuestionUpstream>,
 ) : CommentableUpstream
 
 @Immutable

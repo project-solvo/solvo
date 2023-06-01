@@ -1,7 +1,6 @@
 package org.solvo.server.database
 
 import org.solvo.model.*
-import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.*
 import org.solvo.server.utils.StaticResourcePurpose
@@ -12,6 +11,8 @@ import java.util.*
 interface ContentDBFacade {
     suspend fun newCourse(course: Course): Int?
     suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID?
+    suspend fun postSharedContent(content: SharedContent): UUID?
+    suspend fun postQuestion(question: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
     suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
     suspend fun postImage(uid: UUID, input: InputStream, purpose: StaticResourcePurpose): UUID
     suspend fun getImage(resourceId: UUID): File?
@@ -33,6 +34,7 @@ class ContentDBFacadeImpl(
     private val articles: ArticleDBControl,
     private val questions: QuestionDBControl,
     private val comments: CommentDBControl,
+    private val sharedContents: SharedContentDBControl,
     private val resources: ResourcesDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
@@ -41,16 +43,21 @@ class ContentDBFacadeImpl(
     }
 
     override suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
-        for (question in article.questions) {
-            if (question.code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
-        }
+        return articles.post(article, authorId, courseCode)
+    }
 
-        val articleId = articles.post(article, authorId, courseCode) ?: return null
-        assert(article.questions.map { question ->
-            questions.post(question, authorId, articleId) != null
-        }.all { it })
+    override suspend fun postSharedContent(content: SharedContent): UUID? {
+        return sharedContents.post(content)
+    }
 
-        return articleId
+    override suspend fun postQuestion(
+        question: QuestionUpstream,
+        authorId: UUID,
+        articleId: UUID,
+        code: String
+    ): UUID? {
+        if (!articles.contains(articleId)) return null
+        return questions.post(question, authorId, articleId, code)
     }
 
     override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID? {

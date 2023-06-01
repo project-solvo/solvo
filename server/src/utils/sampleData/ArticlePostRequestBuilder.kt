@@ -1,7 +1,6 @@
 package org.solvo.server.utils.sampleData
 
 import org.solvo.model.ArticleUpstream
-import org.solvo.model.QuestionUpstream
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -22,7 +21,7 @@ class ArticlePostRequest(
                 authorId = userIdMap[author]!!,
                 courseCode = courseCode,
             )!!
-            questions.map { questionRequest -> questionRequest.submit(db, userIdMap, articleId) }
+            questions.map { questionRequest -> questionRequest.submit(db, userIdMap, articleId, author) }
             comments.map { commentRequest -> commentRequest.submit(db, userIdMap, articleId) }
         }
     }
@@ -105,7 +104,6 @@ class ArticlePostRequestBuilder(
             code = code,
             displayName = displayName,
             termYear = termYear,
-            questions = questions.map { QuestionUpstream(it.content, it.anonymity, it.code) }
         ),
         author = author,
         questions = questions,
