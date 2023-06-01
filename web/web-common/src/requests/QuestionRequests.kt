@@ -5,7 +5,7 @@ import org.solvo.model.QuestionDownstream
 
 class QuestionRequests(
     override val client: Client
-) : Requests {
+) : Requests() {
     suspend fun getQuestion(
         courseCode: String,
         articleCode: String,

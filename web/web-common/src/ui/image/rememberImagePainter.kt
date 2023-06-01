@@ -16,7 +16,7 @@ import org.solvo.web.requests.client
 
 @Composable
 fun rememberImagePainter(
-    url: String,
+    url: String?,
     default: Painter? = null,
     error: Painter? = null,
     onError: (suspend (Throwable) -> Unit)? = null,
@@ -26,11 +26,15 @@ fun rememberImagePainter(
 
     LaunchedEffect(url) {
         try {
-            val data = client.http.get(url).readBytes()
-            val bitmap =
-                Image.makeFromEncoded(data).toComposeImageBitmap()
+            painter = if (url == null) {
+                default
+            } else {
+                val data = client.http.get(url).readBytes()
+                val bitmap =
+                    Image.makeFromEncoded(data).toComposeImageBitmap()
 
-            painter = BitmapPainter(bitmap, filterQuality = filterQuality)
+                BitmapPainter(bitmap, filterQuality = filterQuality)
+            }
         } catch (e: Throwable) {
             console.error("Failed loading image", e)
             if (error != null) {
@@ -45,7 +49,7 @@ fun rememberImagePainter(
 
 @Composable
 fun rememberImagePainter(
-    url: String,
+    url: String?,
     default: ImageVector? = null,
     error: ImageVector? = null,
     onError: (suspend (Throwable) -> Unit)? = null,

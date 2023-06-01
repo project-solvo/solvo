@@ -1,19 +1,26 @@
 package org.solvo.web.ui.foundation
 
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.History
+import org.solvo.web.session.UserViewModel
 import org.solvo.web.ui.LocalSolvoWindow
+import org.solvo.web.ui.image.rememberImagePainter
 
 @Composable
 fun SolvoTopAppBar(
+    userViewModel: UserViewModel = remember { UserViewModel() },
     navigationIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit = {}
 ) {
@@ -56,17 +63,9 @@ fun SolvoTopAppBar(
             IconButton(onClick = wrapClearFocus { notifyMenu1 = !notifyMenu1 }) {
                 Icon(Icons.Filled.Notifications, null)
             }
-            IconButton(onClick = wrapClearFocus {
-                History.navigate { auth() }
-            }) {
-                Icon(Icons.Filled.Person, null)
-            }
-            IconButton(onClick = wrapClearFocus {}) {
-                Icon(Icons.Filled.Logout, null)
-            }
-            IconButton(onClick = wrapClearFocus {}) {
-                Icon(Icons.Filled.Settings, null)
-            }
+
+            UserIcons(userViewModel)
+
             DropdownMenu(
                 expanded = notifyMenu1,
                 onDismissRequest = { notifyMenu1 = false },
@@ -114,4 +113,76 @@ fun SolvoTopAppBar(
 //            }
         },
     )
+}
+
+@Composable
+private fun RowScope.UserIcons(
+    userViewModel: UserViewModel,
+) {
+    val loggedIn by userViewModel.isLoggedIn.collectAsState()
+    AnimatedVisibility(loggedIn == true) {
+        // logged in, show avatar + name
+        val currentUser by userViewModel.user.collectAsState()
+        IconButton({}) {
+            Image(
+                rememberImagePainter(
+                    currentUser?.avatarUrl?.takeIf { it.isNotEmpty() },
+                    default = Icons.Filled.Person,
+                    error = Icons.Filled.Person,
+                ),
+                "User Avatar",
+                Modifier.size(28.dp),
+                colorFilter = if (currentUser?.avatarUrl == null) ColorFilter.tint(LocalContentColor.current) else null,
+            )
+        }
+//            currentUser?.username?.let {
+//                Text(
+//                    it,
+//                    modifier = Modifier.padding(start = 12.dp),
+//                    fontWeight = W600, fontSize = 18.sp
+//                )
+//            }
+    }
+    AnimatedVisibility(loggedIn == true) {
+        IconButton(onClick = wrapClearFocus {}) {
+            Icon(Icons.Filled.Logout, null)
+        }
+    }
+    AnimatedVisibility(loggedIn == true) {
+        IconButton(onClick = wrapClearFocus {}) {
+            Icon(Icons.Filled.Settings, null)
+        }
+    }
+    AnimatedVisibility(loggedIn == null) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            IconButton(onClick = wrapClearFocus {
+                History.navigate { auth() }
+            }) {
+                Icon(Icons.Filled.Person, null)
+            }
+            LinearProgressIndicator(Modifier.padding(end = 16.dp).width(32.dp).height(2.dp))
+        }
+    }
+
+    AnimatedVisibility(loggedIn == false) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
+            FilledTonalButton(
+                onClick = wrapClearFocus {
+                    if (loggedIn == false) {
+                        History.navigate { auth() }
+                    }
+                },
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text("Login")
+            }
+            TextButton(onClick = wrapClearFocus {
+                if (loggedIn == false) {
+                    History.navigate { auth() }
+                }
+            }) {
+                Text("Register")
+            }
+        }
+    }
 }

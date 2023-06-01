@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.LightCommentDownstream
 import org.solvo.web.ui.foundation.Rounded
+import org.solvo.web.ui.image.AvatarBox
 import org.solvo.web.ui.theme.UNICODE_FONT
 
 

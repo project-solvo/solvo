@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.reflect.*
 import kotlinx.browser.window
 import kotlinx.serialization.json.Json
+import org.solvo.web.session.LocalSessionToken
 
 val client = Client()
 
@@ -31,6 +32,7 @@ class Client {
             })
         }
     }
+    val token: String? get() = LocalSessionToken.value
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }
     val courses: CourseRequests by lazy { CourseRequests(this) }

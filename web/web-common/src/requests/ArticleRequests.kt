@@ -5,7 +5,7 @@ import org.solvo.model.ArticleDownstream
 
 class ArticleRequests(
     override val client: Client
-) : Requests {
+) : Requests() {
     suspend fun getArticle(
         courseCode: String,
         articleCode: String

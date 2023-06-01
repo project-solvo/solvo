@@ -21,7 +21,7 @@ import androidx.compose.ui.unit.sp
 import org.solvo.web.viewModel.launchInBackground
 
 @Composable
-fun LoginSignUpContent(viewModel: AuthenticationViewModel) {
+fun AuthenticationContent(viewModel: AuthenticationViewModel) {
     val errorFontSize = 14.sp
     Column(
         modifier = Modifier.fillMaxSize(),

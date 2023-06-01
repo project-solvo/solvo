@@ -28,6 +28,7 @@ abstract class AbstractViewModel : RememberObserver {
 
 
     final override fun onAbandoned() {
+        console.log("${this::class.simpleName} onAbandoned")
         if (!closed.compareAndSet(expect = false, update = true)) {
             return
         }
@@ -37,6 +38,7 @@ abstract class AbstractViewModel : RememberObserver {
     }
 
     final override fun onForgotten() {
+        console.log("${this::class.simpleName} onForgotten")
         if (!closed.compareAndSet(expect = false, update = true)) {
             return
         }
