@@ -17,7 +17,7 @@ class Client {
     val origin = window.location.origin
     val http = HttpClient(Js) {
         install(HttpTimeout) {
-            val timeout = 30_000
+            val timeout = 30_000L
             requestTimeoutMillis = timeout
             connectTimeoutMillis = timeout
             socketTimeoutMillis = timeout
