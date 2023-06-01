@@ -84,7 +84,8 @@ fun AuthorLine(
     icon: @Composable BoxScope.() -> Unit,
     authorName: @Composable () -> Unit,
     date: @Composable () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    actions: @Composable () -> Unit = {},
 ) {
     Row(modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
         Box(Modifier.size(48.dp)) {
@@ -103,6 +104,9 @@ fun AuthorLine(
                     date()
                 }
             }
+        }
+        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+            actions()
         }
     }
 }

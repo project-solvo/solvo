@@ -5,7 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person4
+import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -27,7 +27,8 @@ fun LargeCommentCard(
     author: User?,
     date: String,
     modifier: Modifier = Modifier,
-    onClickCard: () -> Unit = {},
+    onClickExpand: () -> Unit = {},
+    isExpand: Boolean = false,
     subComments: @Composable (() -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
@@ -51,12 +52,26 @@ fun LargeCommentCard(
                 date = {
                     Text(date)
                 },
-            )
+            ) {
+                IconButton(onClick = {}) {
+                    Icon(Icons.Filled.ThumbUp, null)
+                }
+                IconButton(onClick = {}) {
+                    Icon(Icons.Filled.ThumbDown, null)
+                }
+                IconButton(onClick = onClickExpand) {
+                    if (isExpand) {
+                        Icon(Icons.Filled.CloseFullscreen, null)
+                    } else {
+                        Icon(Icons.Filled.OpenInFull, null)
+                    }
+                }
+            }
         },
         paddings = CommentCardPaddings.Large,
         state = state,
         modifier = modifier,
-        onClickCard = onClickCard,
+        onClickCard = onClickExpand,
         showMoreSwitch = null,
         subComments = subComments,
         content = content,

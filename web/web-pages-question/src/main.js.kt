@@ -237,9 +237,10 @@ private fun AnswersList(
                         })
                     }
                 },
-                onClickCard = {
+                onClickExpand = {
                     onClickCard?.invoke(index, item)
-                }
+                },
+                isExpand = isExpanded
             ) { backgroundColor ->
                 CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
             }
