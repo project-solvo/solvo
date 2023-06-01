@@ -22,7 +22,12 @@ fun Application.contentModule() {
     val accounts = ServerContext.Databases.accounts
 
     routing {
-        staticFiles("/resources", File(ServerContext.paths.resourcesPath()))
+        staticFiles("/resources", File(ServerContext.paths.resourcesPath()), index = null) {
+            preCompressed(CompressedFileType.GZIP, CompressedFileType.BROTLI)
+            cacheControl {
+                listOf(CacheControl.MaxAge(64000, visibility = CacheControl.Visibility.Public))
+            }
+        }
     }
 
     routeApi {
