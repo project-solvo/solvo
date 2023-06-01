@@ -41,7 +41,7 @@ object ServerContext {
 
         val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _resources)
         val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents)
-        val resources: ResourceDBFacade = ResourceDBFacadeImpl(_resources)
+        val resources: ResourceDBFacade = ResourceDBFacadeImpl(_accounts, _resources)
 
         fun init() {
             runBlocking {
