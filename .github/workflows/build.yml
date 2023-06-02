@@ -106,7 +106,8 @@ jobs:
       - run: rm -rf build
         if: ${{ env.deployStaging }} == 'true'
 
+      - run: docker ps -a -q --filter ancestor=solvo-platform --format="{{.ID}}" >> oldContainers.txt
       - run: docker image prune --force
       - run: docker build -t solvo-platform .
-      - run: docker rm $(docker stop $(docker ps -a -q --filter ancestor=solvo-platform --format="{{.ID}}")) || true
+      - run: docker rm $(docker stop $(cat oldContainers.txt)) || true
       - run: docker run --env PORT=80 --publish 0.0.0.0:80:80/tcp --detach solvo-platform
