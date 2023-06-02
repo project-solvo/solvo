@@ -1,11 +1,13 @@
 package org.solvo.web.session
 
+import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.User
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
 import org.solvo.web.viewModel.launchInBackground
 
+@Stable
 class UserViewModel : AbstractViewModel() {
     /**
      * `null` does not necessarily indicate not logged in
