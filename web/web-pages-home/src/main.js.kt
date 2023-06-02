@@ -45,7 +45,7 @@ fun HomePageContent(
 ) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState())) {
         Text(
-            text = "Courses",
+            text = "My Courses",
             modifier = Modifier.padding(vertical = 12.dp, horizontal = 32.dp),
             style = MaterialTheme.typography.headlineLarge,
         )
