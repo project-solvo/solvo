@@ -17,7 +17,7 @@ import org.solvo.server.utils.sampleData.incorporateSampleData
 
 object ServerContext {
     val localtime: ServerLocalTime = ServerLocalTimeImpl()
-    val tokens: TokenGenerator = TokenGeneratorImpl()
+    val tokens: TokenGenerator = TokenGeneratorDBImpl(Databases.accounts)
     val paths: ServerResourcesPath = ServerResourcesPathImpl()
     val files: FileManager = FileManagerImpl()
 
@@ -28,6 +28,7 @@ object ServerContext {
 
     object Databases {
         private val _accounts: AccountDBControl = AccountDBControlImpl()
+        private val _tokens: AuthTokenDBControl = AuthTokenDBControlImpl()
         private val _resources: ResourcesDBControl = ResourcesDBControlImpl()
 
         private val _courses: CourseDBControl = CourseDBControlImpl()
@@ -39,7 +40,7 @@ object ServerContext {
 
         private val config: ConfigFacade = ConfigFacadeImpl()
 
-        val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _resources)
+        val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _tokens, _resources)
         val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents)
         val resources: ResourceDBFacade = ResourceDBFacadeImpl(_accounts, _resources)
 
@@ -64,6 +65,7 @@ object ServerContext {
                 SchemaUtils.create(
                     ConfigTable,
                     AuthTable,
+                    AuthTokenTable,
                     UserTable,
                     StaticResourceTable,
                     CourseTable,
