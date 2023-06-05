@@ -49,17 +49,17 @@ class CommentDBControlImpl(
             .take(ModelConstraints.LIGHT_SUB_COMMENTS_AMOUNT)
             .map {
                 LightCommentDownstream(
-                    author = if (it[subCommentTable[CommentedObjectTable.anonymity]]) {
+                    author = if (it[CommentedObjectTable.anonymity]) {
                         null
                     } else {
-                        accountDB.getUserInfo(it[subCommentTable[CommentedObjectTable.author]].value)!!
+                        accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
                     },
-                    content = it[subCommentTable[CommentedObjectTable.content]],
+                    content = it[CommentedObjectTable.content],
                 )
             }
 
         val subCommentIds: List<UUID> = CommentTable
-            .join(CommentTable, JoinType.INNER, CommentTable.coid, CommentTable.parent)
+            .join(subCommentTable, JoinType.INNER, CommentTable.coid, CommentTable.parent)
             .select(CommentTable.coid eq coid)
             .map { it[CommentTable.coid].value }
 

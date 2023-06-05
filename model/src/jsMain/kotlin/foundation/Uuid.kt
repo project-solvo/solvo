@@ -13,6 +13,8 @@ import org.solvo.model.utils.getRandomString
 actual class Uuid(
     val value: String
 ) {
+    override fun toString(): String = value
+
     companion object {
         fun fromString(string: String): Uuid = Uuid(string)
         fun random(): Uuid = Uuid(getRandomString(16))

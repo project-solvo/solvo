@@ -27,9 +27,7 @@ import org.solvo.web.comments.*
 import org.solvo.web.comments.like.ThumbActions
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
-import org.solvo.web.editor.RichEditorState
 import org.solvo.web.editor.RichText
-import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
@@ -58,10 +56,12 @@ fun main() {
             Box {
                 LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
                     Row(Modifier.fillMaxSize()) {
+                        val allAnswers by model.allAnswers.collectAsState(listOf())
                         QuestionPageContent(
                             course = course ?: return@LoadableContent,
                             article = article ?: return@LoadableContent,
-                            question = question ?: return@LoadableContent
+                            question = question ?: return@LoadableContent,
+                            allAnswers = allAnswers,
                         )
                     }
                 }
@@ -86,6 +86,7 @@ private fun QuestionPageContent(
     course: Course,
     article: ArticleDownstream,
     question: QuestionDownstream,
+    allAnswers: List<CommentDownstream>,
 ) {
     HorizontallyDivided(
         left = {
@@ -125,7 +126,6 @@ private fun QuestionPageContent(
             }
         },
         right = {
-            val allAnswers = remember { generateSequence { createCommentDownstream() }.take(10).toList() }
             val pagingState = rememberExpandablePagingState(
                 Int.MAX_VALUE,
                 allAnswers,

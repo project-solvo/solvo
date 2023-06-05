@@ -1,11 +1,8 @@
 package org.solvo.web
 
 import androidx.compose.runtime.Stable
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.mapNotNull
-import kotlinx.coroutines.flow.onEach
-import org.solvo.model.ArticleDownstream
+import kotlinx.coroutines.flow.map
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.comments.CourseMenuState
 import org.solvo.web.document.parameters.PathParameters
@@ -23,11 +20,16 @@ class QuestionPageViewModel : AbstractViewModel() {
     val article = pathParameters.article().shareInBackground()
     val question = pathParameters.question().shareInBackground()
 
-    val allArticles: SharedFlow<List<ArticleDownstream>> = course.filterNotNull().mapNotNull {
-        client.courses.getAllArticles(it.code)
-    }.onEach {
-        menuState.setArticles(it)
+    val allAnswers = question.filterNotNull().map { question ->
+        question.answers.mapNotNull { client.comments.getComment(it) }
     }.shareInBackground()
+
+
+//    val allArticles: SharedFlow<List<ArticleDownstream>> = course.filterNotNull().mapNotNull {
+//        client.courses.getAllArticles(it.code)
+//    }.onEach {
+//        menuState.setArticles(it)
+//    }.shareInBackground()
 
     val menuState = CourseMenuState()
 }

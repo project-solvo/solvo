@@ -38,6 +38,7 @@ class Client {
     val courses: CourseRequests by lazy { CourseRequests(this) }
     val articles: ArticleRequests by lazy { ArticleRequests(this) }
     val questions: QuestionRequests by lazy { QuestionRequests(this) }
+    val comments: CommentRequests by lazy { CommentRequests(this) }
 }
 
 suspend inline fun <reified T> HttpResponse.bodyOrNull(): T? {
