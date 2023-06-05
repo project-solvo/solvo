@@ -25,7 +25,7 @@ object RichEditorEventBridge {
         val skia = WindowState.current.skiaLayer
 
         with(skia) {
-            val htmlEditormdPreview = getHtmlEditormdPreview()
+            val htmlEditormdPreview = getHtmlEditormdDiv()
             with(RichEditorEventBridgeContext(this@listenEvents, density)) {
                 // mousedown can cause compose bug
 

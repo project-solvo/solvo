@@ -50,13 +50,13 @@ fun RichEditor(
     LaunchedEffect(isInDarkTheme, state) {
         state.richEditor.setInDarkTheme(isInDarkTheme)
     }
-    LaunchedEffect(displayMode, state) {
-        state.richEditor.setDisplayMode(displayMode)
+    LaunchedEffect(displayMode, state, density) {
+        state.richEditor.setDisplayMode(displayMode, density)
     }
     LaunchedEffect(isToolbarVisible, state) {
         state.richEditor.setToolbarVisible(isToolbarVisible)
     }
-    LaunchedEffect(fontSize, state) {
+    LaunchedEffect(fontSize, state, density) {
         state.richEditor.setFontSize(fontSize, density)
     }
     LaunchedEffect(contentColor, state) {

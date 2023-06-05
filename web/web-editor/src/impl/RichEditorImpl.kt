@@ -78,9 +78,11 @@ internal class RichEditor internal constructor(
     val id: String,
     val positionDiv: Element,
     val editor: dynamic, // editor.md object
+    val isTextMode: Boolean,
 ) : RememberObserver {
     private val scope = CoroutineScope(SupervisorJob())
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
+    val displayMode: MutableState<RichEditorDisplayMode> = mutableStateOf(RichEditorDisplayMode.EDIT_PREVIEW)
 
     private val _positionInRoot = mutableStateOf(Offset.Zero)
     val positionInRoot: State<Offset> = _positionInRoot
@@ -103,12 +105,16 @@ internal class RichEditor internal constructor(
     @NoLiveLiterals
     private fun init() {
         with(getHtmlPreviewMarkdownBody().asDynamic().style) {
-            padding = "0px"
+            if (isTextMode) {
+                padding = "0px"
+            }
             backgroundColor = null
 //            height = "100%"
         }
         with(getHtmlEditormdPreview().asDynamic().style) {
-            padding = "0px"
+            if (isTextMode) {
+                padding = "0px"
+            }
         }
         with(getHtmlEditormdDiv().asDynamic().style) {
             margin = "0px"
@@ -167,8 +173,9 @@ internal class RichEditor internal constructor(
         }
     }
 
-    suspend fun setDisplayMode(value: RichEditorDisplayMode) {
+    suspend fun setDisplayMode(value: RichEditorDisplayMode, density: Density) {
         onEditorLoaded {
+            displayMode.value = value
             when (value) {
                 RichEditorDisplayMode.PREVIEW_ONLY -> {
                     editor.previewing()
@@ -186,6 +193,7 @@ internal class RichEditor internal constructor(
                     editor.hide()
                 }
             }
+            setEditorSize(size.value, density)
         }
     }
 
@@ -282,20 +290,35 @@ internal class RichEditor internal constructor(
         }
     }
 
-    suspend fun setEditorSize(size: IntSize, density: Density) {
-        if (_size.value == size) return
+    suspend fun setEditorSize(size: IntSize, density: Density, force: Boolean = false) {
+        if (!force && _size.value == size) return
 
         _size.value = size
         val widthPx = size.width / density.density
         val heightPx = size.height / density.density
         setEditorSizePx(widthPx, heightPx)
+        onEditorLoaded {
+            updateDisplaySpacing(widthPx, heightPx)
+        }
     }
 
     private suspend fun RichEditor.setEditorSizePx(widthPx: Float, heightPx: Float) {
         positionDiv.asDynamic().style.width = widthPx.toString() + "px"
         positionDiv.asDynamic().style.height = heightPx.toString() + "px"
+
         onEditorLoaded {
             editor.resize()
+        }
+    }
+
+    private fun updateDisplaySpacing(widthPx: Float, heightPx: Float) {
+        if (!isTextMode) { // fix spacing bug
+            getHtmlPreviewMarkdownBody().let { element ->
+                element.asDynamic().style.width = (widthPx / 2).toString() + "px"
+                element.asDynamic().style.height = (heightPx / 2).toString() + "px"
+
+                element.asDynamic().style.marginLeft = (widthPx / 2).toString() + "px"
+            }
         }
     }
 
@@ -318,12 +341,14 @@ internal class RichEditor internal constructor(
             val markdownTextArea =
                 getHtmlPreviewMarkdownBody()
             markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
+            getHtmlCodeMirrorBody().asDynamic().style.fontSize = px.toString() + "px"
         }
     }
 
     suspend fun setContentColor(color: Color) {
         onEditorLoaded {
             getHtmlPreviewMarkdownBody().asDynamic().style.color = color.toHtmlRgbaString()
+            getHtmlCodeMirrorBody().asDynamic().style.color = color.toHtmlRgbaString()
         }
     }
 
@@ -341,6 +366,10 @@ internal class RichEditor internal constructor(
     private fun getHtmlPreviewMarkdownBody() =
         document.querySelector("#${id} > div.editormd-preview > div")
             ?: error("Cannot find editor.md preview content")
+
+    // CodeMirror
+    private fun getHtmlCodeMirrorBody() =
+        document.querySelector("#${id} > div.CodeMirror")
 
     internal fun notifyLoaded() {
         editorLoaded.complete(Unit)
@@ -444,7 +473,7 @@ internal class RichEditor internal constructor(
 
             editor.contentPadding =
                 with(density) { contentPadding.takeOrElse { 16.dp }.toPx() }.toString() + "px" // not lively updated
-            val new = RichEditor(id, positionDiv, editor)
+            val new = RichEditor(id, positionDiv, editor, !isEditable)
             RichEditorIdManager.addInstance(id, new)
             return new
         }
