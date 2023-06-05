@@ -1,12 +1,13 @@
 package org.solvo.server.utils
 
 import org.solvo.model.utils.getRandomString
+import org.solvo.server.database.AccountDBFacade
 import java.util.*
 
 interface TokenGenerator {
-    fun generateToken(userId: UUID): String
-    fun matchToken(token: String): UUID?
-    fun destroyToken(token: String): Boolean
+    suspend fun generateToken(userId: UUID): String
+    suspend fun matchToken(token: String): UUID?
+    suspend fun destroyAllToken(userId: UUID): Boolean
 
     companion object {
         const val TOKEN_SIZE = 32
@@ -24,15 +25,36 @@ class TokenGeneratorImpl: TokenGenerator {
         return token
     }
 
-    override fun generateToken(userId: UUID): String {
+    override suspend fun generateToken(userId: UUID): String {
         return randomTokenString().also { tokensMap[it] = userId }
     }
 
-    override fun matchToken(token: String): UUID? {
+    override suspend fun matchToken(token: String): UUID? {
         return tokensMap[token]
     }
 
-    override fun destroyToken(token: String): Boolean {
-        return tokensMap.remove(token) != null
+    override suspend fun destroyAllToken(userId: UUID): Boolean {
+        tokensMap.forEach { (token, id) -> if (id == userId) tokensMap.remove(token, id) }
+        return true
+    }
+}
+
+class TokenGeneratorDBImpl(
+    private val accounts: AccountDBFacade,
+) : TokenGenerator {
+    override suspend fun generateToken(userId: UUID): String {
+        var token: String
+        do {
+            token = getRandomString(TokenGenerator.TOKEN_SIZE)
+        } while (!accounts.addToken(userId, token))
+        return token
+    }
+
+    override suspend fun matchToken(token: String): UUID? {
+        return accounts.matchToken(token)
+    }
+
+    override suspend fun destroyAllToken(userId: UUID): Boolean {
+        return accounts.removeAllTokens(userId)
     }
 }

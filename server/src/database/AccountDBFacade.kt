@@ -8,6 +8,7 @@ import org.solvo.model.api.AuthStatus
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.AccountDBControl
+import org.solvo.server.database.control.AuthTokenDBControl
 import org.solvo.server.database.control.ResourcesDBControl
 import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
@@ -21,10 +22,14 @@ interface AccountDBFacade {
     suspend fun getUserAvatar(uid: UUID): Pair<File, ContentType>?
     suspend fun getUserInfo(uid: UUID): User?
     suspend fun isOp(uid: UUID): Boolean
+    suspend fun addToken(uid: UUID, token: String): Boolean
+    suspend fun matchToken(token: String): UUID?
+    suspend fun removeAllTokens(uid: UUID): Boolean
 }
 
 class AccountDBFacadeImpl(
     private val accounts: AccountDBControl,
+    private val tokens: AuthTokenDBControl,
     private val resources: ResourcesDBControl,
 ) : AccountDBFacade {
     override suspend fun register(username: String, hash: ByteArray): AuthResponse {
@@ -70,5 +75,17 @@ class AccountDBFacadeImpl(
 
     override suspend fun isOp(uid: UUID): Boolean {
         return accounts.getPermission(uid)?.let { it >= UserPermission.OPERATOR } == true
+    }
+
+    override suspend fun addToken(uid: UUID, token: String): Boolean {
+        return tokens.addToken(uid, token)
+    }
+
+    override suspend fun matchToken(token: String): UUID? {
+        return tokens.matchToken(token)
+    }
+
+    override suspend fun removeAllTokens(uid: UUID): Boolean {
+        return tokens.removeAllTokens(uid)
     }
 }

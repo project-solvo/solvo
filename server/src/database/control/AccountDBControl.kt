@@ -63,7 +63,6 @@ class AccountDBControlImpl : AccountDBControl {
         }
         userId
     }
-
     override suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean = dbQuery {
         UserTable.update({ UserTable.id eq uid }) {
             it[UserTable.avatar] = resourceId
