@@ -73,7 +73,7 @@ jobs:
   deploy:
     name: "Staging"
     runs-on: self-hosted
-    if: github.ref == "main"
+    if: github.ref == 'refs/heads/main'
     env:
       enableLocalPublishingTest: 'false'
       gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx2048m" "-Dfile.encoding=UTF-8" --no-daemon "-Porg.gradle.parallel=false"
