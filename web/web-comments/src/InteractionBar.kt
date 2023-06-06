@@ -53,7 +53,7 @@ fun InteractionBar(
                     { Icon(Icons.Filled.ThumbUp, "Excellent") },
                 ) {
                     Row {
-                        Text("${state.listCounter.value[0]}")
+                        Text("${state.listCounter[0]}")
                     }
                 }
 
@@ -62,7 +62,7 @@ fun InteractionBar(
                     1,
                     { Icon(Icons.Filled.Celebration, "Celebration") }) {
                     Row {
-                        Text("${state.listCounter.value[1]}")
+                        Text("${state.listCounter[1]}")
                     }
                 }
             }
