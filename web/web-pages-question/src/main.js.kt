@@ -1,5 +1,7 @@
 package org.solvo.web
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -19,6 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
@@ -27,7 +30,10 @@ import org.solvo.model.*
 import org.solvo.web.comments.*
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
+import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.RichText
+import org.solvo.web.editor.rememberRichEditorState
+import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.HorizontallyDivided
@@ -59,6 +65,7 @@ fun main() {
                         val allAnswersFlow by model.allAnswers.collectAsState(emptyFlow())
                         val allAnswers by allAnswersFlow.collectAsState(listOf())
                         QuestionPageContent(
+                            model.backgroundScope,
                             course = course ?: return@LoadableContent,
                             article = article ?: return@LoadableContent,
                             question = question ?: return@LoadableContent,
@@ -83,6 +90,7 @@ fun main() {
 
 @Composable
 private fun QuestionPageContent(
+    backgroundScope: CoroutineScope,
     course: Course,
     article: ArticleDownstream,
     question: QuestionDownstream,
@@ -205,11 +213,15 @@ private fun QuestionPageContent(
                             )
                         },
                         right = {
-                            visibleItems.firstOrNull()?.let {
-                                val model = remember { CommentColumnViewModel(it) }
-                                val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
-                                val allSubComments by allSubCommentsFlow.collectAsState(null)
-                                CommentColumn(allSubComments ?: emptyList())
+                            Column(Modifier.verticalScroll(rememberScrollState())) {
+                                DraftCommentSection(backgroundScope, pagingState)
+
+                                visibleItems.firstOrNull()?.let {
+                                    val model = remember { CommentColumnViewModel(it) }
+                                    val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
+                                    val allSubComments by allSubCommentsFlow.collectAsState(null)
+                                    CommentColumn(allSubComments ?: emptyList())
+                                }
                             }
                         },
                         initialLeftWeight = 0.618f,
@@ -220,6 +232,46 @@ private fun QuestionPageContent(
             }
         }
     )
+}
+
+@Composable
+private fun DraftCommentSection(
+    backgroundScope: CoroutineScope,
+    pagingState: ExpandablePagingState<CommentDownstream>
+) {
+    DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
+        var showEditor by remember { mutableStateOf(false) }
+        val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
+
+        val editorState = rememberRichEditorState(isEditable = true)
+        RichEditor(
+            Modifier.fillMaxWidth().height(editorHeight),
+            displayMode = RichEditorDisplayMode.EDIT_ONLY,
+            isToolbarVisible = false,
+            state = editorState,
+        )
+
+        Button({
+            if (showEditor) {
+                pagingState.currentContent.value.firstOrNull()?.let { comment ->
+                    backgroundScope.launch {
+                        client.comments.postComment(
+                            comment.coid, CommentUpstream(
+                                content = editorState.contentMarkdown,
+                            )
+                        )
+                    }
+                }
+            }
+
+            showEditor = !showEditor
+        }, Modifier.align(Alignment.End).animateContentSize()
+            .ifThen(!showEditor) { fillMaxWidth() }
+            .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
+        ) {
+            Text("Add Comment")
+        }
+    }
 }
 
 

@@ -40,6 +40,9 @@ fun LargeCommentCard(
 ) {
     val state: CommentCardState = remember { CommentCardState() }
     CommentCard(
+        paddings = CommentCardPaddings.Large,
+        state = state,
+        modifier = modifier,
         authorLine = {
             AuthorLine(
                 icon = {
@@ -69,9 +72,6 @@ fun LargeCommentCard(
                 }
             }
         },
-        paddings = CommentCardPaddings.Large,
-        state = state,
-        modifier = modifier,
         onClickCard = onClickCard,
         showMoreSwitch = null,
         subComments = subComments,
@@ -114,6 +114,9 @@ fun CommentSummaryCard(
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     CommentCard(
+        paddings = CommentCardPaddings.Small,
+        state = state,
+        modifier = modifier,
         authorLine = {
             AuthorLineThin(
                 icon = {
@@ -129,11 +132,28 @@ fun CommentSummaryCard(
                 date = state.date.value,
             )
         },
+        onClickCard = onClickCard,
+        showMoreSwitch = showMoreSwitch,
+        content = content,
+    )
+}
+
+@Composable
+fun DraftCommentCard(
+    modifier: Modifier = Modifier,
+    state: CommentCardState = remember { CommentCardState() },
+    onClickCard: () -> Unit = {},
+    showMoreSwitch: (@Composable (state: CommentCardState) -> Unit)? = null,
+    content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
+) {
+    CommentCard(
         paddings = CommentCardPaddings.Small,
         state = state,
         modifier = modifier,
+        authorLine = null,
         onClickCard = onClickCard,
         showMoreSwitch = showMoreSwitch,
+        subComments = null,
         content = content,
     )
 }
@@ -141,10 +161,10 @@ fun CommentSummaryCard(
 @Suppress("NAME_SHADOWING")
 @Composable
 internal fun CommentCard(
-    authorLine: @Composable () -> Unit,
     paddings: CommentCardPaddings,
     state: CommentCardState,
     modifier: Modifier = Modifier,
+    authorLine: (@Composable () -> Unit)? = null,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: CommentCardState) -> Unit)? = null,
     subComments: (@Composable () -> Unit)? = null,
@@ -161,7 +181,7 @@ internal fun CommentCard(
         )
     ) {
         Row(Modifier.padding(top = paddings.top).padding(paddings.headLinePadding)) {
-            authorLine()
+            authorLine?.invoke()
         }
 
         // content
