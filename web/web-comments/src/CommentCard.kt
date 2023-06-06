@@ -161,6 +161,7 @@ internal fun CommentCard(
 ) {
     val backgroundColor = commentCardBackgroundColor()
     val onClickCard by rememberUpdatedState(onClickCard)
+    val interactionBarViewModel = InteractionBarViewModel()
 
     Card(
         modifier.clickable(indication = null, onClick = onClickCard),
@@ -201,6 +202,8 @@ internal fun CommentCard(
         if (subComments == null) {
             Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
         }
+
+        InteractionBar(interactionBarViewModel)
     }
 }
 
