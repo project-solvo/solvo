@@ -325,6 +325,7 @@ private fun AnswersList(
     Column(modifier) {
         val allItemsIndexed = remember(allItems) { allItems.withIndex() }
         for ((index, item) in allItemsIndexed) {
+            val viewModel = remember { FullCommentCardViewModel(item) }
             val sizeModifier = if (index in visibleIndices) {
                 Modifier
                     .padding(bottom = 12.dp) // item spacing
@@ -337,9 +338,10 @@ private fun AnswersList(
             }
 
 
+            val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
             LargeCommentCard(
                 author = item.author,
-                date = "May 05, 2023", // TODO: 2023/5/29 date
+                date = postTimeFormatted ?: "",
                 modifier = Modifier.then(sizeModifier),
                 subComments = if (isExpanded) {
                     null

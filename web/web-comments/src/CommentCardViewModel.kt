@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.mapNotNull
 import org.solvo.model.CommentDownstream
 import org.solvo.model.ICommentDownstream
 import org.solvo.model.LightCommentDownstream
+import org.solvo.web.utils.DateFormatter
 import org.solvo.web.viewModel.AbstractViewModel
 
 sealed class CommentCardViewModel<T : ICommentDownstream>(
@@ -35,6 +36,7 @@ fun rememberFullCommentCardViewModel(value: CommentDownstream? = null): FullComm
 class FullCommentCardViewModel(initial: CommentDownstream? = null) : CommentCardViewModel<CommentDownstream>(initial) {
     val lastCommentTime = comment.mapNotNull { it?.lastCommentTime }
     val postTime = comment.mapNotNull { it?.postTime }.shareInBackground()
+    val postTimeFormatted = postTime.mapNotNull { DateFormatter.format(it) }.shareInBackground()
 }
 
 @Composable
