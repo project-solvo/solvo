@@ -35,6 +35,7 @@ fun LargeCommentCard(
     isExpand: Boolean = false,
     subComments: @Composable (() -> Unit)? = null,
     actions: (@Composable () -> Unit)? = null,
+    contentModifier: Modifier = Modifier,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val state: ShowMoreButtonState = remember { ShowMoreButtonState() }
@@ -67,6 +68,7 @@ fun LargeCommentCard(
         onClickCard = onClickCard,
         showMoreSwitch = null,
         subComments = subComments,
+        contentModifier = contentModifier,
         content = content,
     )
 }
@@ -157,6 +159,7 @@ internal fun CommentCard(
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
     subComments: (@Composable () -> Unit)? = null,
+    contentModifier: Modifier = Modifier,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val backgroundColor = commentCardBackgroundColor()
@@ -175,7 +178,7 @@ internal fun CommentCard(
         }
 
         // content
-        Column(Modifier.padding(paddings.contentPadding)) {
+        Column(contentModifier.padding(paddings.contentPadding)) {
             content(backgroundColor)
         }
 

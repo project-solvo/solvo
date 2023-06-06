@@ -34,7 +34,7 @@ fun CommentCardContent(
                 onTextUpdated = loadedState.onTextChanged,
                 onLayout = onLayout,
                 backgroundColor = backgroundColor,
-                showScrollbar = false,
+                showScrollbar = true,
             )
         }
     }

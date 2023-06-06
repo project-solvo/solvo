@@ -311,6 +311,8 @@ private fun DraftCommentSection(
     }
 }
 
+@Stable
+private val ANSWER_CONTENT_MAX_HEIGHT = 260.dp
 
 // when not expanded
 @Composable
@@ -374,7 +376,11 @@ private fun AnswersList(
 //                    )
                 }
             ) { backgroundColor ->
-                CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card
+                CommentCardContent(
+                    item,
+                    backgroundColor,
+                    Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) }
+                ) // in column card
             }
         }
     }
