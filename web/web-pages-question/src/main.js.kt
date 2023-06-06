@@ -308,9 +308,13 @@ private fun AnswersList(
                     null
                 } else {
                     {
-                        CommentCardSubComments(item.previewSubComments, onClickComment = {
-                            onClickComment?.invoke(it, item)
-                        })
+                        CommentCardSubComments(
+                            item.previewSubComments,
+                            item.allSubCommentIds.size,
+                            onClickComment = {
+                                onClickComment?.invoke(it, item)
+                            }
+                        )
                     }
                 },
                 onClickCard = {

@@ -48,11 +48,12 @@ fun CommentColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         for (item in items) {
-            val state: CommentCardState = remember { CommentCardState() }
+            val state: ShowMoreButtonState = remember { ShowMoreButtonState() }
 
             var hasOverflow by remember { mutableStateOf(false) }
 
             CommentSummaryCard(
+                rememberFullCommentCardViewModel(item),
                 state,
                 Modifier.wrapContentHeight().fillMaxWidth(),
                 showMoreSwitch = if (hasOverflow || state.showingMore.value) {

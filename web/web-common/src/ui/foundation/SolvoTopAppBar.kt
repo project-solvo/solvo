@@ -1,9 +1,7 @@
 package org.solvo.web.ui.foundation
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -11,15 +9,12 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.History
 import org.solvo.web.session.UserViewModel
 import org.solvo.web.ui.LocalSolvoWindow
-import org.solvo.web.ui.image.rememberImagePainter
+import org.solvo.web.ui.image.RoundedUserAvatar
 
 @Composable
 fun SolvoTopAppBar(
@@ -129,28 +124,8 @@ private fun RowScope.UserIcons(
         IconButton({
             // TODO: user page
         }) {
-            Box(
-                Modifier.clip(CircleShape).size(32.dp)
-            ) {
-                Image(
-                    rememberImagePainter(
-                        currentUser?.avatarUrl?.takeIf { it.isNotEmpty() },
-                        default = Icons.Filled.Person,
-                        error = Icons.Filled.Person,
-                    ),
-                    "User Avatar",
-                    colorFilter = if (currentUser?.avatarUrl == null) ColorFilter.tint(LocalContentColor.current) else null,
-                    contentScale = ContentScale.FillBounds,
-                )
-            }
+            RoundedUserAvatar(currentUser?.avatarUrl, 32.dp)
         }
-//            currentUser?.username?.let {
-//                Text(
-//                    it,
-//                    modifier = Modifier.padding(start = 12.dp),
-//                    fontWeight = W600, fontSize = 18.sp
-//                )
-//            }
     }
     AnimatedVisibility(loggedIn == true) {
         IconButton(onClick = wrapClearFocus {}) {

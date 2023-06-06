@@ -1,9 +1,6 @@
 package org.solvo.web.comments
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.ProvideTextStyle
 import androidx.compose.material3.Text
@@ -16,8 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.LightCommentDownstream
-import org.solvo.web.ui.foundation.Rounded
-import org.solvo.web.ui.image.AvatarBox
+import org.solvo.web.ui.image.RoundedUserAvatar
 import org.solvo.web.ui.theme.UNICODE_FONT
 
 
@@ -29,15 +25,7 @@ fun CommentLine(
     CommentLine(
         modifier,
         icon = {
-            Rounded {
-                AvatarBox(Modifier.size(24.dp)) {
-                    Image(
-                        Icons.Default.Person2,
-                        "Avatar",
-                        Modifier.matchParentSize(),
-                    )
-                }
-            }
+            RoundedUserAvatar(subComment.author?.avatarUrl, 24.dp)
         },
         authorName = { Text(subComment.author?.username ?: "") }, // TODO: 2023/5/29 handle anonymous 
     ) {

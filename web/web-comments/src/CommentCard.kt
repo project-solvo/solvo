@@ -1,13 +1,11 @@
 package org.solvo.web.comments
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CloseFullscreen
 import androidx.compose.material.icons.filled.OpenInFull
-import androidx.compose.material.icons.filled.Person4
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -18,10 +16,11 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import org.solvo.model.User
 import org.solvo.web.ui.foundation.wrapClearFocus
-import org.solvo.web.ui.image.AvatarBox
+import org.solvo.web.ui.image.RoundedUserAvatar
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
+import org.solvo.web.utils.DateFormatter
 
 @Stable
 val CommentCardShape = RoundedCornerShape(16.dp)
@@ -38,7 +37,7 @@ fun LargeCommentCard(
     actions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
-    val state: CommentCardState = remember { CommentCardState() }
+    val state: ShowMoreButtonState = remember { ShowMoreButtonState() }
     CommentCard(
         paddings = CommentCardPaddings.Large,
         state = state,
@@ -46,14 +45,7 @@ fun LargeCommentCard(
         authorLine = {
             AuthorLine(
                 icon = {
-                    AvatarBox(Modifier.size(48.dp)) {
-                        Image(
-                            // TODO: 2023/5/29 avatar 
-                            Icons.Default.Person4,
-                            "Avatar",
-                            Modifier.matchParentSize(),
-                        )
-                    }
+                    RoundedUserAvatar(author?.avatarUrl, 48.dp)
                 },
                 authorName = {
                     Text(author?.username ?: "Anonymous")
@@ -107,10 +99,11 @@ class CommentCardPaddings(
 
 @Composable
 fun CommentSummaryCard(
-    state: CommentCardState,
+    viewModel: FullCommentCardViewModel,
+    state: ShowMoreButtonState = remember { ShowMoreButtonState() },
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
-    showMoreSwitch: (@Composable (state: CommentCardState) -> Unit)? = null,
+    showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     CommentCard(
@@ -118,18 +111,14 @@ fun CommentSummaryCard(
         state = state,
         modifier = modifier,
         authorLine = {
+            val postTime by viewModel.postTime.collectAsState(null)
+            val author by viewModel.author.collectAsState(null)
             AuthorLineThin(
                 icon = {
-                    AvatarBox(Modifier.size(20.dp)) {
-                        Image(
-                            Icons.Default.Person4,
-                            "Avatar",
-                            Modifier.matchParentSize(),
-                        )
-                    }
+                    RoundedUserAvatar(author?.avatarUrl, 20.dp)
                 },
-                authorName = "Alex",// actual: commentDownstream.author
-                date = state.date.value,
+                authorName = author?.username ?: "",
+                date = postTime?.let { DateFormatter.format(it) } ?: "",
             )
         },
         onClickCard = onClickCard,
@@ -141,9 +130,9 @@ fun CommentSummaryCard(
 @Composable
 fun DraftCommentCard(
     modifier: Modifier = Modifier,
-    state: CommentCardState = remember { CommentCardState() },
+    state: ShowMoreButtonState = remember { ShowMoreButtonState() },
     onClickCard: () -> Unit = {},
-    showMoreSwitch: (@Composable (state: CommentCardState) -> Unit)? = null,
+    showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     CommentCard(
@@ -162,11 +151,11 @@ fun DraftCommentCard(
 @Composable
 internal fun CommentCard(
     paddings: CommentCardPaddings,
-    state: CommentCardState,
+    state: ShowMoreButtonState,
     modifier: Modifier = Modifier,
     authorLine: (@Composable () -> Unit)? = null,
     onClickCard: () -> Unit = {},
-    showMoreSwitch: (@Composable (state: CommentCardState) -> Unit)? = null,
+    showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
     subComments: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
@@ -216,7 +205,7 @@ internal fun CommentCard(
 }
 
 @Composable
-fun ShowMoreSwitch(state: CommentCardState) {
+fun ShowMoreSwitch(state: ShowMoreButtonState) {
     Text(
         text = state.text.value,
         modifier = Modifier.clickable { state.switchSeeMore() },

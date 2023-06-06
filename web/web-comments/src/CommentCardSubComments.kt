@@ -23,6 +23,7 @@ import org.solvo.web.ui.modifiers.cursorHoverIcon
 @Composable
 fun CommentCardSubComments(
     subComments: List<LightCommentDownstream>,
+    totalCommentCount: Int,
     modifier: Modifier = Modifier,
     onClickComment: ((LightCommentDownstream?) -> Unit)? = null,
 ) {
@@ -52,7 +53,7 @@ fun CommentCardSubComments(
                 },
                 message = {
                     Text(
-                        remember(subComments.size) { "See all ${subComments.size} comments" },
+                        remember(totalCommentCount) { "See all $totalCommentCount comments" },
                         Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,

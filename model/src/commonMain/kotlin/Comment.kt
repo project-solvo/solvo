@@ -33,11 +33,16 @@ class CommentDownstream(
     val lastCommentTime: Long,
     val previewSubComments: List<LightCommentDownstream>, // up to 3
     val allSubCommentIds: List<Uuid>,
-) : CommentableDownstream
+) : CommentableDownstream, ICommentDownstream
 
 @Immutable
 @Serializable
 class LightCommentDownstream(
-    val author: User?,
-    val content: String,
-)
+    override val author: User?,
+    override val content: String,
+) : ICommentDownstream
+
+sealed interface ICommentDownstream {
+    val author: User?
+    val content: String
+}
