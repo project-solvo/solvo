@@ -4,10 +4,7 @@ import androidx.compose.runtime.RememberObserver
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.window
 import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.*
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -15,36 +12,34 @@ abstract class AbstractViewModel : RememberObserver {
     private val closed = atomic(false)
     private val isClosed get() = closed.value
 
-    private val _backgroundScope = lazy {
+    private val _backgroundScope = kotlin.run {
         CoroutineScope(CoroutineExceptionHandler { _, throwable ->
             window.alert(throwable.toString())
         })
     }
     val backgroundScope: CoroutineScope
         get() {
-            if (isClosed) throw IllegalStateException("ViewModel is already closed")
-            return _backgroundScope.value
+            return _backgroundScope
         }
 
 
     final override fun onAbandoned() {
         console.log("${this::class.simpleName} onAbandoned")
+        dispose()
+    }
+
+    private fun dispose() {
         if (!closed.compareAndSet(expect = false, update = true)) {
             return
         }
-        if (_backgroundScope.isInitialized()) {
-            backgroundScope.cancel()
-        }
+//        if (_backgroundScope.isInitialized()) {
+        backgroundScope.cancel()
+//        }
     }
 
     final override fun onForgotten() {
         console.log("${this::class.simpleName} onForgotten")
-        if (!closed.compareAndSet(expect = false, update = true)) {
-            return
-        }
-        if (_backgroundScope.isInitialized()) {
-            backgroundScope.cancel()
-        }
+        dispose()
     }
 
     final override fun onRemembered() {
@@ -61,6 +56,13 @@ abstract class AbstractViewModel : RememberObserver {
         started: SharingStarted = SharingStarted.Eagerly,
         replay: Int = 1
     ): SharedFlow<T> = shareIn(backgroundScope, started, replay)
+
+
+    fun <T> Flow<T>.runningList(): Flow<List<T>> {
+        return runningFold(emptyList()) { acc, value ->
+            acc + value
+        }
+    }
 }
 
 fun <V : AbstractViewModel> V.launchInBackground(

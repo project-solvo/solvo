@@ -38,7 +38,7 @@ class CommentDBControlImpl(
 
     override suspend fun view(coid: UUID): CommentDownstream? = dbQuery {
         val subCommentTable = CommentTable.alias("SubComments")
-        val previewSubComments: List<LightCommentDownstream> = CommentTable
+        val query = CommentTable
             .join(subCommentTable, JoinType.INNER, CommentTable.coid, subCommentTable[CommentTable.parent])
             .join(CommentedObjectTable, JoinType.INNER, subCommentTable[CommentTable.coid], CommentedObjectTable.id)
             .select(CommentTable.coid eq coid)
@@ -46,6 +46,7 @@ class CommentDBControlImpl(
                 // TODO: better strategy
                 Pair(CommentedObjectTable.likes, SortOrder.DESC), Pair(CommentedObjectTable.postTime, SortOrder.DESC)
             )
+        val previewSubComments: List<LightCommentDownstream> = query
             .take(ModelConstraints.LIGHT_SUB_COMMENTS_AMOUNT)
             .map {
                 LightCommentDownstream(
@@ -58,10 +59,7 @@ class CommentDBControlImpl(
                 )
             }
 
-        val subCommentIds: List<UUID> = CommentTable
-            .join(subCommentTable, JoinType.INNER, CommentTable.coid, CommentTable.parent)
-            .select(CommentTable.coid eq coid)
-            .map { it[CommentTable.coid].value }
+        val subCommentIds: List<UUID> = query.map { it[subCommentTable[CommentTable.coid]].value }
 
         CommentTable
             .join(CommentedObjectTable, JoinType.INNER, CommentTable.coid, CommentedObjectTable.id)

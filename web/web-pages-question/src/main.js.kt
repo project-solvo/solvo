@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
@@ -55,7 +56,8 @@ fun main() {
             Box {
                 LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
                     Row(Modifier.fillMaxSize()) {
-                        val allAnswers by model.allAnswers.collectAsState(listOf())
+                        val allAnswersFlow by model.allAnswers.collectAsState(emptyFlow())
+                        val allAnswers by allAnswersFlow.collectAsState(listOf())
                         QuestionPageContent(
                             course = course ?: return@LoadableContent,
                             article = article ?: return@LoadableContent,
@@ -64,7 +66,6 @@ fun main() {
                         )
                     }
                 }
-                // TODO("Enable when rick text layer is fixed.")
                 CourseMenu(
                     model.menuState,
                     onClickQuestion = wrapClearFocus { a: ArticleDownstream, q: QuestionDownstream ->
@@ -205,8 +206,10 @@ private fun QuestionPageContent(
                         },
                         right = {
                             visibleItems.firstOrNull()?.let {
-                                // TODO: 2023/6/1  view model   it.allSubCommentIds
-                                CommentColumn(allAnswers)
+                                val model = remember { CommentColumnViewModel(it) }
+                                val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
+                                val allSubComments by allSubCommentsFlow.collectAsState(null)
+                                CommentColumn(allSubComments ?: emptyList())
                             }
                         },
                         initialLeftWeight = 0.618f,
