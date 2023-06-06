@@ -24,7 +24,6 @@ import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
 import org.solvo.web.comments.*
-import org.solvo.web.comments.like.ThumbActions
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichText
@@ -269,12 +268,12 @@ private fun AnswersList(
                 },
                 isExpand = isExpanded,
                 actions = {
-                    ThumbActions(
-                        10,
-                        null,
-                        {},
-                        {}
-                    )
+//                    ThumbActions(
+//                        item.likes,
+//                        null,
+//                        {},
+//                        {}
+//                    )
                 }
             ) { backgroundColor ->
                 CommentCardContent(item, backgroundColor, Modifier.weight(1f)) // in column card

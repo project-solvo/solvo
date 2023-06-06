@@ -19,7 +19,7 @@ import org.solvo.web.ui.foundation.NO_FOCUS_MODIFIER
 @Suppress("NAME_SHADOWING")
 @Composable
 fun ThumbActions(
-    likeCount: Int,
+    likeCount: UInt,
     reaction: Boolean?, // true: like, false: dislike, null: no reaction
     onClickLike: () -> Unit,
     onClickDislike: () -> Unit,
