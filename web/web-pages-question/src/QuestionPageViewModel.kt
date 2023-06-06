@@ -1,8 +1,10 @@
 package org.solvo.web
 
 import androidx.compose.runtime.Stable
+import kotlinx.coroutines.flow.asFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.comments.CourseMenuState
 import org.solvo.web.document.parameters.PathParameters
@@ -21,7 +23,7 @@ class QuestionPageViewModel : AbstractViewModel() {
     val question = pathParameters.question().shareInBackground()
 
     val allAnswers = question.filterNotNull().map { question ->
-        question.answers.mapNotNull { client.comments.getComment(it) }
+        question.answers.asFlow().mapNotNull { client.comments.getComment(it) }.runningList()
     }.shareInBackground()
 
 

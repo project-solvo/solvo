@@ -50,31 +50,29 @@ fun CommentColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         for (item in items) {
-            Column(modifier = Modifier) {
-                val state: CommentCardState = remember { CommentCardState() }
+            val state: CommentCardState = remember { CommentCardState() }
 
-                var hasOverflow by remember { mutableStateOf(false) }
+            var hasOverflow by remember { mutableStateOf(false) }
 
-                CommentSummaryCard(
-                    state,
-                    Modifier.wrapContentHeight().fillMaxWidth(),
-                    showMoreSwitch = if (hasOverflow || state.showingMore.value) {
-                        {
-                            ShowMoreSwitch(it)
-                        }
-                    } else null
-                ) { backgroundColor ->
-                    CommentCardContent(
-                        item,
-                        backgroundColor,
-                        when {
-                            state.showingMore.value -> Modifier.wrapContentHeight()
-                            hasOverflow -> Modifier.heightIn(max = 200.dp)
-                            else -> Modifier.heightIn(max = 200.dp)
-                        },
-                        onLayout = { hasOverflow = hasVisualOverflow }
-                    )
-                }
+            CommentSummaryCard(
+                state,
+                Modifier.wrapContentHeight().fillMaxWidth(),
+                showMoreSwitch = if (hasOverflow || state.showingMore.value) {
+                    {
+                        ShowMoreSwitch(it)
+                    }
+                } else null
+            ) { backgroundColor ->
+                CommentCardContent(
+                    item,
+                    backgroundColor,
+                    when {
+                        state.showingMore.value -> Modifier.wrapContentHeight()
+                        hasOverflow -> Modifier.heightIn(max = 200.dp)
+                        else -> Modifier.heightIn(max = 200.dp)
+                    },
+                    onLayout = { hasOverflow = hasVisualOverflow }
+                )
             }
         }
     }

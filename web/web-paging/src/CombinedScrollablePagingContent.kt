@@ -7,8 +7,17 @@ import kotlin.time.Duration.Companion.milliseconds
 @Composable
 fun <T> rememberExpandablePagingState(
     pageSlice: Int,
-    initialList: List<T> = emptyList(),
-): ExpandablePagingState<T> = remember { ExpandablePagingStateImpl.create(initialList, pageSlice) }
+    items: List<T> = emptyList(),
+): ExpandablePagingState<T> {
+    val state = remember { ExpandablePagingStateImpl.create(items, pageSlice) }
+    SideEffect {
+        state.pageSlice.value = pageSlice
+    }
+    key(items) {
+        SideEffect { state.setAllItems(items) }
+    }
+    return state
+}
 
 @Stable
 interface ExpandablePagingState<T> : PagingState<T> {
