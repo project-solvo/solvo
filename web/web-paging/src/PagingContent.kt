@@ -2,23 +2,24 @@ package org.solvo.web
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.West
-import androidx.compose.material3.Icon
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import org.solvo.web.editor.RichEditor
+import androidx.compose.ui.unit.sp
 
 @Composable
 fun <T> rememberPagingState(pageSlice: Int, initialList: List<T> = emptyList()): PagingState<T> {
@@ -88,7 +89,10 @@ fun <T> PagingControlBar(
                     }
                 }
             }
-            content(ControlBarScope, this)
+
+            ProvideTextStyle(textStyle) {
+                content(ControlBarScope, this)
+            }
         }
     }
 }
@@ -122,5 +126,15 @@ object ControlBarScope {
         top = 3.dp,
         end = 12.dp,
         bottom = 3.dp
+    )
+
+    val buttonSpacing = 12.dp
+
+    val buttonShape = RoundedCornerShape(8.dp)
+
+    val textStyle = TextStyle(
+        textAlign = TextAlign.Center,
+        fontSize = 16.sp,
+        fontWeight = FontWeight.W500,
     )
 }

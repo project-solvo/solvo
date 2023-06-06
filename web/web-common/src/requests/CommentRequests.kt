@@ -17,10 +17,28 @@ class CommentRequests(
     suspend fun postComment(
         parentCoid: Uuid,
         upstream: CommentUpstream,
-    ): CommentDownstream? = client.http.post(api("comment/post/$parentCoid")) {
-        accountAuthorization()
-        contentType(ContentType.Application.Json)
-        setBody(upstream)
-    }.bodyOrNull()
+    ): CommentDownstream? = postCommentImpl(parentCoid, upstream, isAnswer = false)
+
+    suspend fun postAnswer(
+        parentCoid: Uuid,
+        upstream: CommentUpstream,
+    ): CommentDownstream? = postCommentImpl(parentCoid, upstream, isAnswer = true)
+
+    private suspend fun postCommentImpl(
+        parentCoid: Uuid,
+        upstream: CommentUpstream,
+        isAnswer: Boolean,
+    ): CommentDownstream? {
+        val url = if (isAnswer) {
+            api("comment/post/$parentCoid/asAnswer")
+        } else {
+            api("comment/post/$parentCoid")
+        }
+        return client.http.post(url) {
+            accountAuthorization()
+            contentType(ContentType.Application.Json)
+            setBody(upstream)
+        }.bodyOrNull()
+    }
 
 }

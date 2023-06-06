@@ -8,3 +8,13 @@ inline fun Modifier.ifThen(condition: Boolean, action: Modifier.() -> Modifier):
     return if (condition) action()
     else this
 }
+
+@Composable
+inline fun Modifier.ifThenElse(
+    condition: Boolean,
+    then: Modifier.() -> Modifier,
+    `else`: Modifier.() -> Modifier
+): Modifier {
+    return if (condition) then()
+    else `else`()
+}

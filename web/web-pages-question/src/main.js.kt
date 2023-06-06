@@ -1,5 +1,6 @@
 package org.solvo.web
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.focusable
@@ -17,10 +18,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.emptyFlow
@@ -36,10 +35,7 @@ import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
-import org.solvo.web.ui.foundation.HorizontallyDivided
-import org.solvo.web.ui.foundation.SolvoTopAppBar
-import org.solvo.web.ui.foundation.ifThen
-import org.solvo.web.ui.foundation.wrapClearFocus
+import org.solvo.web.ui.foundation.*
 
 
 fun main() {
@@ -138,6 +134,9 @@ private fun QuestionPageContent(
                 Int.MAX_VALUE,
                 allAnswers,
             )
+            val draftAnswerEditor = rememberRichEditorState(true)
+            val isDraftAnswerEditorOpen by pagingState.editorEnable
+
             PagingContent(
                 pagingState,
                 controlBar = controlBar@{ expandablePagingState ->
@@ -145,35 +144,30 @@ private fun QuestionPageContent(
                         expandablePagingState,
                         showPagingController = expandablePagingState.isExpanded.value
                     ) {
-                        FilledTonalButton(
-                            onClick = wrapClearFocus { pagingState.switchEditorEnable() },
+                        Row(
                             Modifier.align(Alignment.CenterStart),
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = buttonContentPaddings,
+                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
                         ) {
-                            if (!pagingState.editorEnable.value) {
-                                Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+                            DraftAnswerButton(
+                                pagingState = pagingState,
+                                contentPaddings = buttonContentPaddings,
+                                shape = buttonShape,
+                            )
 
-                                Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                    Text(
-                                        "Draft Answer",
-                                        Modifier.padding(start = 4.dp),
-                                        textAlign = TextAlign.Center,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.W500,
-                                    )
-                                }
-                            } else {
-                                Icon(Icons.Outlined.FolderOff, "Editor fold", Modifier.fillMaxHeight())
-
-                                Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                    Text(
-                                        "Fold up editor",
-                                        Modifier.padding(start = 4.dp),
-                                        textAlign = TextAlign.Center,
-                                        fontSize = 16.sp,
-                                        fontWeight = FontWeight.W500,
-                                    )
+                            AnimatedVisibility(isDraftAnswerEditorOpen) {
+                                Button(
+                                    onClick = {
+                                        backgroundScope.launch {
+                                            client.comments.postAnswer(
+                                                question.coid,
+                                                CommentUpstream(draftAnswerEditor.contentMarkdown)
+                                            )
+                                        }
+                                    },
+                                    shape = buttonShape,
+                                    contentPadding = buttonContentPaddings,
+                                ) {
+                                    Text("Post Answer")
                                 }
                             }
                         }
@@ -192,9 +186,16 @@ private fun QuestionPageContent(
                         .focusable(false) // compose bug
                 ) {
                     val scope = rememberCoroutineScope()
-                    if (pagingState.editorEnable.value) {
-                        RichEditor(Modifier.fillMaxWidth().fillMaxHeight())
-                    }
+
+                    RichEditor(
+                        Modifier.fillMaxWidth().ifThenElse(
+                            isDraftAnswerEditorOpen,
+                            then = { fillMaxHeight() },
+                            `else` = { height(0.dp) }
+                        ),
+                        state = draftAnswerEditor
+                    )
+
                     HorizontallyDivided(
                         left = {
                             val onClick: (Any?, item: CommentDownstream) -> Unit = { _, item ->
@@ -226,12 +227,48 @@ private fun QuestionPageContent(
                         },
                         initialLeftWeight = 0.618f,
                         isRightVisible = isExpanded,
+                        modifier = Modifier.ifThen(isDraftAnswerEditorOpen) { width(0.dp) },
                         dividerModifier = Modifier.padding(horizontal = 8.dp),
                     )
                 }
             }
         }
     )
+}
+
+@Composable
+private fun DraftAnswerButton(
+    pagingState: ExpandablePagingState<CommentDownstream>,
+    contentPaddings: PaddingValues,
+    shape: Shape,
+    modifier: Modifier = Modifier,
+) {
+    FilledTonalButton(
+        onClick = wrapClearFocus { pagingState.switchEditorEnable() },
+        modifier,
+        shape = shape,
+        contentPadding = contentPaddings,
+    ) {
+        if (!pagingState.editorEnable.value) {
+            Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                Text(
+                    "Draft Answer",
+                    Modifier.padding(start = 4.dp),
+                )
+            }
+        } else {
+            Icon(Icons.Outlined.FolderOff, "Editor fold", Modifier.fillMaxHeight())
+
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                Text(
+                    "Fold up editor",
+                    Modifier.padding(start = 4.dp),
+                )
+            }
+        }
+    }
 }
 
 @Composable
