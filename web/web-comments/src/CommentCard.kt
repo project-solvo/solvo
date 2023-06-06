@@ -161,7 +161,7 @@ internal fun CommentCard(
 ) {
     val backgroundColor = commentCardBackgroundColor()
     val onClickCard by rememberUpdatedState(onClickCard)
-    val interactionBarViewModel = InteractionBarViewModel()
+    val interactionBarViewModel = remember { InteractionBarViewModel(listOf(1, 5)) }
 
     Card(
         modifier.clickable(indication = null, onClick = onClickCard),
