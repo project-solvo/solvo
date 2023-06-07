@@ -68,7 +68,7 @@ internal fun CommentCard(
 
         if (subComments != null) {
             Column(
-                Modifier.padding(horizontal = 16.dp, vertical = 16.dp)
+                Modifier.padding(horizontal = 16.dp).padding(top = 6.dp)
                     .background(Color(0x212121), shape = CommentCardShape)
                     .fillMaxWidth()
                     .wrapContentHeight()
@@ -77,11 +77,15 @@ internal fun CommentCard(
             }
         }
 
-        if (subComments == null) {
-            Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
+        if (reactions != null) {
+            Column(Modifier.padding(horizontal = 4.dp).padding(vertical = 2.dp)) {
+                reactions.invoke()
+            }
         }
 
-        reactions?.invoke()
+        if (subComments == null && reactions == null) {
+            Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
+        }
     }
 }
 

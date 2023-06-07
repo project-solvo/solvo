@@ -1,11 +1,12 @@
 package org.solvo.web.comments.reactions
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.Row
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.EmojiEmotions
+import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -29,26 +30,28 @@ fun ReactionBar(
 
     // Image
     Column(modifier) {
-        FlowRow(verticalAlignment = Alignment.CenterVertically) {
+        Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(
                 onClick = wrapClearFocus { state.switchReactionList() },
             ) {
-                Icon(Icons.Filled.EmojiEmotions, "Interaction Button")
+                Icon(Icons.Outlined.EmojiEmotions, "Interaction Button")
             }
 
-            for (kind in ReactionKind.entries) {
-                val reaction by state.reaction(kind).collectAsState(null)
-                val count by remember {
-                    derivedStateOf {
-                        reaction?.count ?: 0
+            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                for (kind in ReactionKind.entries) {
+                    val reaction by state.reaction(kind).collectAsState(null)
+                    val count by remember {
+                        derivedStateOf {
+                            reaction?.count ?: 0
+                        }
                     }
-                }
-                val isSelf by remember { derivedStateOf { reaction?.self ?: false } }
-                val reactionListOpen by state.reactionListOpen
-                AnimatedVisibility(reactionListOpen || count != 0) {
-                    EmojiChip(kind, count, isSelf, onClick = {
-                        state.react(kind)
-                    })
+                    val isSelf by remember { derivedStateOf { reaction?.self ?: false } }
+                    val reactionListOpen by state.reactionListOpen
+                    AnimatedVisibility(reactionListOpen || count != 0) {
+                        EmojiChip(kind, count, isSelf, onClick = {
+                            state.react(kind)
+                        })
+                    }
                 }
             }
         }
@@ -69,7 +72,7 @@ private fun EmojiChip(
         onClick = wrapClearFocus(onClick),
         leadingIcon = { ReactionPresentation(kind) },
         label = { Text("$count") },
-        modifier = Modifier.padding(4.dp),
+        border = FilterChipDefaults.filterChipBorder(borderColor = MaterialTheme.colorScheme.outline)
     )
 }
 
