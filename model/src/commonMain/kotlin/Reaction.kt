@@ -9,15 +9,13 @@ class Reaction(
     val self: Boolean,
 )
 
-enum class ReactionKind(
-    val id: Int,
-) {
-    PLUS_ONE(0),
-    MINUS_ONE(1),
-    SMILE(2),
-    CELEBRATION(3),
-    THINKING(4),
-    HEART(5),
-    ROCKET(6),
-    EYES(7),
+enum class ReactionKind {
+    PLUS_ONE,
+    MINUS_ONE,
+    SMILE,
+    CELEBRATION,
+    THINKING,
+    HEART,
+    ROCKET,
+    EYES,
 }

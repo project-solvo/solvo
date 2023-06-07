@@ -20,6 +20,8 @@ interface ContentDBFacade {
     suspend fun getCourseName(courseCode: String): String?
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
     suspend fun viewComment(commentId: UUID): CommentDownstream?
+    suspend fun viewAllReactions(targetId: UUID, userId: UUID?): List<Reaction>
+    suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
 }
 
 class ContentDBFacadeImpl(
@@ -28,6 +30,7 @@ class ContentDBFacadeImpl(
     private val questions: QuestionDBControl,
     private val comments: CommentDBControl,
     private val sharedContents: SharedContentDBControl,
+    private val reactions: ReactionDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
         if (courses.getId(course.code) != null) return null
@@ -98,5 +101,13 @@ class ContentDBFacadeImpl(
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {
         val questionId = questions.getId(articleId, index) ?: return null
         return questions.view(questionId)
+    }
+
+    override suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean {
+        return reactions.post(userId, targetId, reaction)
+    }
+
+    override suspend fun viewAllReactions(targetId: UUID, userId: UUID?): List<Reaction> {
+        return reactions.getAllReactions(userId, targetId)
     }
 }
