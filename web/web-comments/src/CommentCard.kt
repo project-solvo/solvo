@@ -30,12 +30,13 @@ fun LargeCommentCard(
     author: User?,
     date: String,
     modifier: Modifier = Modifier,
+    contentModifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
     onClickExpand: () -> Unit = {},
     isExpand: Boolean = false,
     subComments: @Composable (() -> Unit)? = null,
     actions: (@Composable () -> Unit)? = null,
-    contentModifier: Modifier = Modifier,
+    interactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val state: ShowMoreButtonState = remember { ShowMoreButtonState() }
@@ -69,9 +70,11 @@ fun LargeCommentCard(
         showMoreSwitch = null,
         subComments = subComments,
         contentModifier = contentModifier,
+        interactions = interactions,
         content = content,
     )
 }
+
 
 @Immutable
 class CommentCardPaddings(
@@ -99,6 +102,9 @@ class CommentCardPaddings(
     }
 }
 
+/**
+ * In comment column (sidebar)
+ */
 @Composable
 fun CommentSummaryCard(
     viewModel: FullCommentCardViewModel,
@@ -106,6 +112,7 @@ fun CommentSummaryCard(
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
+    interactions: (@Composable () -> Unit)? = null,
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     CommentCard(
@@ -125,6 +132,7 @@ fun CommentSummaryCard(
         },
         onClickCard = onClickCard,
         showMoreSwitch = showMoreSwitch,
+        interactions = interactions,
         content = content,
     )
 }
@@ -135,6 +143,7 @@ fun DraftCommentCard(
     state: ShowMoreButtonState = remember { ShowMoreButtonState() },
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
+    interactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     CommentCard(
@@ -145,6 +154,7 @@ fun DraftCommentCard(
         onClickCard = onClickCard,
         showMoreSwitch = showMoreSwitch,
         subComments = null,
+        interactions = interactions,
         content = content,
     )
 }
@@ -159,12 +169,12 @@ internal fun CommentCard(
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreButtonState) -> Unit)? = null,
     subComments: (@Composable () -> Unit)? = null,
+    interactions: @Composable (() -> Unit)? = null,
     contentModifier: Modifier = Modifier,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val backgroundColor = commentCardBackgroundColor()
     val onClickCard by rememberUpdatedState(onClickCard)
-    val interactionBarViewModel = remember { InteractionBarViewModel(listOf(1, 5)) }
 
     Card(
         modifier.clickable(indication = null, onClick = onClickCard),
@@ -206,7 +216,7 @@ internal fun CommentCard(
             Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
         }
 
-        InteractionBar(interactionBarViewModel)
+        interactions?.invoke()
     }
 }
 
