@@ -204,11 +204,17 @@ private fun QuestionPageContent(
                         state = draftAnswerEditor
                     )
 
+                    var showAddCommentEditor by remember { mutableStateOf(false) }
+
                     HorizontallyDivided(
                         left = {
-                            val onClick: (Any?, item: CommentDownstream) -> Unit = { _, item ->
+                            val onClick: (comment: Any?, item: CommentDownstream) -> Unit = { comment, item ->
                                 scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
                                 pagingState.gotoItem(item)
+                                if (comment == null) {
+                                    // clicking "Add your comment" or "See all 7 comments"
+                                    showAddCommentEditor = true
+                                }
                             }
 
                             AnswersList(
@@ -223,7 +229,12 @@ private fun QuestionPageContent(
                         },
                         right = {
                             Column(Modifier.verticalScroll(rememberScrollState())) {
-                                DraftCommentSection(backgroundScope, pagingState)
+                                DraftCommentSection(
+                                    showAddCommentEditor,
+                                    { showAddCommentEditor = it },
+                                    backgroundScope,
+                                    pagingState
+                                )
 
                                 visibleItems.firstOrNull()?.let {
                                     val model = remember { CommentColumnViewModel(it) }
@@ -281,11 +292,12 @@ private fun DraftAnswerButton(
 
 @Composable
 private fun DraftCommentSection(
+    showEditor: Boolean,
+    onShowEditorChange: (Boolean) -> Unit,
     backgroundScope: CoroutineScope,
     pagingState: ExpandablePagingState<CommentDownstream>
 ) {
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
-        var showEditor by remember { mutableStateOf(false) }
         val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
 
         val editorState = rememberRichEditorState(isEditable = true)
@@ -309,7 +321,7 @@ private fun DraftCommentSection(
                 }
             }
 
-            showEditor = !showEditor
+            onShowEditorChange(!showEditor)
         }, Modifier.align(Alignment.End).animateContentSize()
             .ifThen(!showEditor) { fillMaxWidth() }
             .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
@@ -347,11 +359,13 @@ private fun AnswersList(
                 Modifier.requiredSize(0.dp) // `hide` item, but keep rich editor in memory (with size zero)
             }
 
+            var richTextHasVisualOverflow by remember { mutableStateOf(false) }
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
             ExpandedCommentCard(
                 author = item.author,
                 date = postTimeFormatted ?: "",
+                showExpandButton = richTextHasVisualOverflow,
                 modifier = Modifier.then(sizeModifier),
                 onClickExpand = {
                     onSwitchExpand?.invoke(index, item)
@@ -363,11 +377,10 @@ private fun AnswersList(
                     {
                         SubComments(
                             item.previewSubComments,
-                            item.allSubCommentIds.size,
-                            onClickComment = {
-                                onClickComment?.invoke(it, item)
-                            }
-                        )
+                            item.allSubCommentIds.size
+                        ) {
+                            onClickComment?.invoke(it, item)
+                        }
                     }
                 },
                 actions = {},
@@ -376,7 +389,11 @@ private fun AnswersList(
                 CommentCardContent(
                     item,
                     backgroundColor,
-                    Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) }
+                    Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) },
+                    showScrollbar = isExpanded && richTextHasVisualOverflow,
+                    onLayout = {
+                        richTextHasVisualOverflow = hasVisualOverflow
+                    },
                 ) // in column card
             }
         }
