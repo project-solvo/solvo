@@ -165,13 +165,15 @@ private fun QuestionPageContent(
                             AnimatedVisibility(isDraftAnswerEditorOpen) {
                                 Button(
                                     onClick = {
-                                        backgroundScope.launch {
-                                            client.comments.postAnswer(
-                                                question.coid,
-                                                CommentUpstream(draftAnswerEditor.contentMarkdown)
-                                            )
+                                        if (draftAnswerEditor.contentMarkdown != "") {
+                                            backgroundScope.launch {
+                                                client.comments.postAnswer(
+                                                    question.coid,
+                                                    CommentUpstream(draftAnswerEditor.contentMarkdown)
+                                                )
+                                            }
+                                            client.refresh()
                                         }
-                                        client.refresh()
                                     },
                                     shape = buttonShape,
                                     contentPadding = buttonContentPaddings,
@@ -319,7 +321,8 @@ private fun DraftCommentSection(
             if (!client.isLoginIn()) {
                 client.goToLoginPage()
             } else {
-                if (showEditor) {
+                val contentNull = (editorState.contentMarkdown == "")
+                if (showEditor && !contentNull) {
                     pagingState.currentContent.value.firstOrNull()?.let { comment ->
                         backgroundScope.launch {
                             client.comments.postComment(
@@ -330,8 +333,12 @@ private fun DraftCommentSection(
                         }
                     }
                 }
-                onShowEditorChange(!showEditor)
-                client.refresh()
+                if (!showEditor || !contentNull) {
+                    onShowEditorChange(!showEditor)
+                }
+                if (!contentNull) {
+                    client.refresh()
+                }
             }
         }, Modifier.align(Alignment.End).animateContentSize()
             .ifThen(!showEditor) { fillMaxWidth() }
