@@ -263,7 +263,13 @@ private fun DraftAnswerButton(
     modifier: Modifier = Modifier,
 ) {
     FilledTonalButton(
-        onClick = wrapClearFocus { pagingState.switchEditorEnable() },
+        onClick = wrapClearFocus {
+            if (!client.isLoginIn()) {
+                client.goToLoginPage()
+            } else {
+                pagingState.switchEditorEnable()
+            }
+        },
         modifier,
         shape = shape,
         contentPadding = contentPaddings,

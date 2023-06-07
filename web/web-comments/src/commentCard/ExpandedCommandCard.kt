@@ -54,7 +54,7 @@ fun ExpandedCommentCard(
                 if (isExpand || showExpandButton) {
                     ExpandButton(
                         onClickExpand,
-                        showExpandButton,
+                        isExpand,
                     )
                 }
             }
@@ -75,9 +75,9 @@ private fun ExpandButton(
     modifier: Modifier = Modifier,
 ) {
     val text = if (isExpanded) {
-        "Show Full Answer"
-    } else {
         "Go Back"
+    } else {
+        "Show Full Answer"
     }
     FilledTonalButton(
         onClick = wrapClearFocus { onClickExpand() },

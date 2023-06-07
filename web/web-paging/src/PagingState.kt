@@ -111,11 +111,7 @@ internal open class PagingStateImpl<T> protected constructor(
     }
 
     override fun switchEditorEnable() {
-        if (!client.isLoginIn()) {
-            client.goToLoginPage()
-        } else {
-            this._editorEnable.value = !this._editorEnable.value
-        }
+        this._editorEnable.value = !this._editorEnable.value
     }
 
     protected open fun update() {
