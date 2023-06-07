@@ -12,9 +12,11 @@ class CommentColumnViewModel(
 
     val allSubComments: SharedFlow<Flow<List<CommentDownstream>>> = commentDownstream.filterNotNull()
         .map { comment ->
-            comment.allSubCommentIds.asFlow().mapNotNull {
-                client.comments.getComment(it)
-            }.runningList()
+            comment.allSubCommentIds.asFlow()
+                .filterNot { it.value.isBlank() }
+                .mapNotNull {
+                    client.comments.getComment(it)
+                }.runningList()
         }
         .shareInBackground()
 }
