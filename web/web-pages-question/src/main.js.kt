@@ -353,11 +353,6 @@ private fun AnswersList(
                 author = item.author,
                 date = postTimeFormatted ?: "",
                 modifier = Modifier.then(sizeModifier),
-                onClickCard = {
-                    if (!isExpanded) {
-                        onSwitchExpand?.invoke(index, item)
-                    }
-                },
                 onClickExpand = {
                     onSwitchExpand?.invoke(index, item)
                 },

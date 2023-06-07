@@ -43,7 +43,7 @@ fun AuthorLine(
         }
 
         Row(
-            Modifier.fillMaxWidth().height(24.dp),
+            Modifier.fillMaxWidth().height(48.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.End
         ) {
