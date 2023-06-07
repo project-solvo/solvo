@@ -34,6 +34,7 @@ object ServerContext {
         private val _courses: CourseDBControl = CourseDBControlImpl()
         private val _terms: TermDBControl = TermDBControlImpl()
         private val _sharedContents: SharedContentDBControl = SharedContentDBControlImpl()
+        private val _reactions: ReactionDBControl = ReactionDBControlImpl()
         private val _comments: CommentDBControl = CommentDBControlImpl(_accounts)
         private val _questions: QuestionDBControl = QuestionDBControlImpl(_comments, _accounts, _sharedContents)
         private val _articles: ArticleDBControl = ArticleDBControlImpl(_courses, _terms, _accounts)
@@ -41,7 +42,8 @@ object ServerContext {
         private val config: ConfigFacade = ConfigFacadeImpl()
 
         val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _tokens, _resources)
-        val contents: ContentDBFacade = ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents)
+        val contents: ContentDBFacade =
+            ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents, _reactions)
         val resources: ResourceDBFacade = ResourceDBFacadeImpl(_accounts, _resources)
 
         fun init() {
@@ -129,15 +131,17 @@ private fun SampleDataBuilder.sampleData1() {
                 anonymous()
             }
             question("2a") {
-                content { """
+                content {
+                    """
                     Haha.
                     This is some image:
                     ![some image](${image1.url})          
-                """.trimIndent() }
+                """.trimIndent()
+                }
                 anonymous()
             }
             question("2b") {
-                content ( "Haha..!" )
+                content("Haha..!")
                 anonymous()
             }
             comment(bob) {
