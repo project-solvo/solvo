@@ -12,7 +12,7 @@ abstract class Requests {
 
     protected companion object {
         fun HttpRequestBuilder.accountAuthorization() {
-            val token = client.token ?: throw NotAuthorizedException()
+            val token = client.token ?: return
             headers {
                 bearerAuth(token)
             }

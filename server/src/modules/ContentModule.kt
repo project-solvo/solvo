@@ -4,6 +4,7 @@ import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
@@ -120,29 +121,44 @@ fun Application.contentModule() {
             }
         }
 
-        route("/comment") {
-            get("/get/{coid}") {
+        route("/comments") {
+            get("{coid}") {
                 processGetComment(contents)
             }
-            authenticate("authBearer") {
-                get("/get/{coid}/reactions") {
+            authenticate("authBearer", optional = true) {
+                get("{coid}/reactions") {
                     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
                     val userId = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
                     call.respond(contents.viewAllReactions(coid, userId))
                 }
             }
-            postAuthenticated("/post/{parentId}") {
+            postAuthenticated("{parentId}/comment") {
                 processUploadComment(contents, asAnswer = false)
             }
-            postAuthenticated("/post/{parentId}/asAnswer") {
+            postAuthenticated("{parentId}/answer") {
                 processUploadComment(contents, asAnswer = true)
             }
-            postAuthenticated("post/{coid}/reaction") {
+            postAuthenticated("{coid}/reactions/new") {
                 val uid = getUserId() ?: return@postAuthenticated
                 val coid = UUID.fromString(call.parameters.getOrFail("coid"))
                 val reaction = call.receive<ReactionKind>()
                 call.respond(
                     if (contents.postReaction(coid, uid, reaction)) {
+                        HttpStatusCode.OK
+                    } else {
+                        HttpStatusCode.BadRequest
+                    }
+                )
+            }
+            deleteAuthenticated("{coid}/reactions/{kind}") {
+                val uid = getUserId() ?: return@deleteAuthenticated
+                val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+                val kind = ReactionKind.entries.getOrNull(
+                    call.parameters.getOrFail("kind").toIntOrNull() ?: throw BadRequestException("kind must be int")
+                ) ?: throw BadRequestException("invalid kind")
+
+                call.respond(
+                    if (contents.deleteReaction(coid, uid, kind)) {
                         HttpStatusCode.OK
                     } else {
                         HttpStatusCode.BadRequest

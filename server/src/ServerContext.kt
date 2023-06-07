@@ -76,6 +76,7 @@ object ServerContext {
                     QuestionTable,
                     CommentTable,
                     CommentedObjectTable,
+                    ReactionTable,
                 )
             }
         }

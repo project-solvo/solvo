@@ -14,6 +14,20 @@ actual class Uuid(
     val value: String
 ) {
     override fun toString(): String = value
+    
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class.js != other::class.js) return false
+
+        other as Uuid
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
 
     companion object {
         fun fromString(string: String): Uuid = Uuid(string)

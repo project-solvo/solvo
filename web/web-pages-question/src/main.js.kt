@@ -383,7 +383,12 @@ private fun AnswersList(
 //                        {}
 //                    )
                 },
-                reactions = { ReactionBar(listOf()) }
+                reactions = {
+                    val reactions by viewModel.reactions.collectAsState(emptyList())
+                    ReactionBar(item.coid, reactions, applyLocalReactionsChange = {
+                        viewModel.setReactions(it)
+                    })
+                }
             ) { backgroundColor ->
                 CommentCardContent(
                     item,

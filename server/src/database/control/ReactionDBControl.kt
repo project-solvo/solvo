@@ -1,9 +1,7 @@
 package org.solvo.server.database.control
 
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.count
-import org.jetbrains.exposed.sql.insertIgnore
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.*
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.api.communication.Reaction
 import org.solvo.model.api.communication.ReactionKind
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -12,6 +10,7 @@ import java.util.*
 
 interface ReactionDBControl {
     suspend fun post(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean
+    suspend fun delete(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean
     suspend fun getAllReactions(userId: UUID?, targetId: UUID): List<Reaction>
     suspend fun contains(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean
 }
@@ -25,8 +24,17 @@ class ReactionDBControlImpl : ReactionDBControl {
         }.resultedValues?.isNotEmpty() ?: false
     }
 
+    override suspend fun delete(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean = dbQuery {
+        ReactionTable.deleteWhere {
+            (ReactionTable.user eq userId) and
+                    (ReactionTable.target eq targetId) and
+                    (ReactionTable.reaction eq reaction)
+        } > 0
+    }
+
     override suspend fun getAllReactions(userId: UUID?, targetId: UUID): List<Reaction> = dbQuery {
         ReactionTable
+            .slice(ReactionTable.user.count(), ReactionTable.target, ReactionTable.reaction)
             .select { ReactionTable.target eq targetId }
             .groupBy(ReactionTable.reaction)
             .map {
