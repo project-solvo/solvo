@@ -72,7 +72,7 @@ private fun EmojiChip(
         onClick = wrapClearFocus(onClick),
         leadingIcon = { ReactionPresentation(kind) },
         label = { Text("$count") },
-        border = FilterChipDefaults.filterChipBorder(borderColor = MaterialTheme.colorScheme.outline)
+        border = FilterChipDefaults.filterChipBorder(borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
     )
 }
 
