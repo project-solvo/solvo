@@ -3,6 +3,7 @@ package org.solvo.web
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.*
 import androidx.compose.runtime.snapshots.SnapshotStateList
+import org.solvo.web.requests.client
 
 
 @Stable
@@ -110,7 +111,11 @@ internal open class PagingStateImpl<T> protected constructor(
     }
 
     override fun switchEditorEnable() {
-        this._editorEnable.value = !this._editorEnable.value
+        if (!client.isLoginIn()) {
+            client.goToLoginPage()
+        } else {
+            this._editorEnable.value = !this._editorEnable.value
+        }
     }
 
     protected open fun update() {

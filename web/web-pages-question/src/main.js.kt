@@ -309,19 +309,22 @@ private fun DraftCommentSection(
         )
 
         Button({
-            if (showEditor) {
-                pagingState.currentContent.value.firstOrNull()?.let { comment ->
-                    backgroundScope.launch {
-                        client.comments.postComment(
-                            comment.coid, CommentUpstream(
-                                content = editorState.contentMarkdown,
+            if (!client.isLoginIn()) {
+                client.goToLoginPage()
+            } else {
+                if (showEditor) {
+                    pagingState.currentContent.value.firstOrNull()?.let { comment ->
+                        backgroundScope.launch {
+                            client.comments.postComment(
+                                comment.coid, CommentUpstream(
+                                    content = editorState.contentMarkdown,
+                                )
                             )
-                        )
+                        }
                     }
                 }
+                onShowEditorChange(!showEditor)
             }
-
-            onShowEditorChange(!showEditor)
         }, Modifier.align(Alignment.End).animateContentSize()
             .ifThen(!showEditor) { fillMaxWidth() }
             .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
