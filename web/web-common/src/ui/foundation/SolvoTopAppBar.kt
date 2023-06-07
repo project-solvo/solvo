@@ -31,7 +31,7 @@ fun SolvoTopAppBar(
         Modifier.fillMaxWidth(),
         navigationIcon = {
             Row {
-                navigationIcon()
+                // navigationIcon()
                 IconButton(onClick = wrapClearFocus {
                     History.navigate { home() }
                 }) {
@@ -99,7 +99,7 @@ fun SolvoTopAppBar(
 //                onDismissRequest = { settingMenu1 = false },
 //                offset = DpOffset(x = 10.dp, y = 0.dp)
 //            ) {
-//                DropdownMenuItem(
+//                DropdownFItem(
 //                    text = { Text("Appearance") },
 //                    onClick = {
 //                        settingMenu1 = false

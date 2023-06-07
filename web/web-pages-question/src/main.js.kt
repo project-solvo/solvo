@@ -171,6 +171,7 @@ private fun QuestionPageContent(
                                                 CommentUpstream(draftAnswerEditor.contentMarkdown)
                                             )
                                         }
+                                        client.refresh()
                                     },
                                     shape = buttonShape,
                                     contentPadding = buttonContentPaddings,
@@ -330,6 +331,7 @@ private fun DraftCommentSection(
                     }
                 }
                 onShowEditorChange(!showEditor)
+                client.refresh()
             }
         }, Modifier.align(Alignment.End).animateContentSize()
             .ifThen(!showEditor) { fillMaxWidth() }
