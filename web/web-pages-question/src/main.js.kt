@@ -370,14 +370,7 @@ private fun AnswersList(
                         )
                     }
                 },
-                actions = {
-//                    ThumbActions(
-//                        item.likes,
-//                        null,
-//                        {},
-//                        {}
-//                    )
-                },
+                actions = {},
                 reactions = { ReactionBar(listOf()) }
             ) { backgroundColor ->
                 CommentCardContent(
