@@ -216,8 +216,8 @@
     dislikes: 0,
 
     parent: 123,  // parent coid
-    pinned: false, 
-    subComments: [
+    pinned: false,
+    previewSubComments: [
         {
             author: {
                 id: 234,
@@ -230,40 +230,22 @@
             author: null,
             content: "I disagree..."
         },
-    ] // simplified content of up to 3 sub-comments
+    ], // simplified content of up to 3 sub-comments
+    allSubCommentIds: [251, 254, 258, 259, 260, /*...*/]  // coid of all sub-comments
 }
 ```
 
-### GET `/api/comments/get/{coid}/full`
 
-#### Response 404
-
-- Comment with given coid not found
+### GET `/api/comments/get/{coid}/reactions`
 
 #### Response 200
 
-- `FullCommentDownstream`:
--
-```json5
-{
-    coid: 250,  // allocated comment COID
-    auther: {
-        id: 234, 
-        username: "Jerry",
-        avatarUrl: null
-    },   // null if anonymous, otherwise the author
-    content: "blah",
-    anonymity: false,  // true or false
-    likes: 10,
-    dislikes: 0,
+- `List<Reaction>`: List of reactions of the comment. 
+- If user token is provided in the header, each `Reaction` contains whether the user has make this kind of reaction on this content
+- Return an empty list if there's no reaction or given coid does not exist
 
-    parent: 123,  // parent coid
-    pinned: false, 
-    subComments: [251, 254, 258, 259, 260, /*...*/]  // coid of all sub-comments
-}
-```
 
-### POST `/post/{parentId}`, `/post/{parentId}/asAnswer`
+### POST `/api/comments/post/{parentId}`, `/api/comments/post/{parentId}/asAnswer`
 
 - if `/asAnswer` is used, the comment is uploaded as an answer to a question
 
@@ -289,3 +271,21 @@
 #### Response 200
 
 - `UUID`: COID of uploaded comment
+
+### POST `/api/comments/post/{coid}/reaction`
+
+#### Request
+
+`ReactionKind`: type of reaction
+
+#### Response 401
+
+- User unauthorized
+
+#### Response 400
+
+- Bad request format
+
+#### Response 200
+
+- Successfully posted reaction

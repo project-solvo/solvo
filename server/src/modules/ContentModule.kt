@@ -2,6 +2,7 @@ package org.solvo.server.modules
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
 import io.ktor.server.http.content.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
@@ -125,11 +126,30 @@ fun Application.contentModule() {
             get("/get/{coid}") {
                 processGetComment(contents)
             }
+            authenticate("auth-bearer") {
+                get("/get/{coid}/reactions") {
+                    val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+                    val userId = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
+                    call.respond(contents.viewAllReactions(coid, userId))
+                }
+            }
             postAuthenticated("/post/{parentId}") {
                 processUploadComment(contents, asAnswer = false)
             }
             postAuthenticated("/post/{parentId}/asAnswer") {
                 processUploadComment(contents, asAnswer = true)
+            }
+            postAuthenticated("post/{coid}/reaction") {
+                val uid = getUserId() ?: return@postAuthenticated
+                val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+                val reaction = call.receive<ReactionKind>()
+                call.respond(
+                    if (contents.postReaction(coid, uid, reaction)) {
+                        HttpStatusCode.OK
+                    } else {
+                        HttpStatusCode.BadRequest
+                    }
+                )
             }
         }
     }
