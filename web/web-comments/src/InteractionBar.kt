@@ -17,24 +17,14 @@ fun InteractionBar(
     modifier: Modifier = Modifier,
 ) {
     // Image
-    Row {
-        Column(
-            modifier = Modifier.weight(1f)
-        ) {
-            Row {
-                IconButton(
-                    onClick = { state.changeEmojiListState() },
-                ) {
-                    Icon(Icons.Filled.EmojiEmotions, "Interaction Button")
-                }
+    Column {
+        Row {
+            IconButton(
+                onClick = { state.changeEmojiListState() },
+            ) {
+                Icon(Icons.Filled.EmojiEmotions, "Interaction Button")
             }
-            if (state.emojiListIsOpen.value) {
-                IconsList(state)
-            }
-        }
-        Column(
-            modifier = Modifier.weight(2f)
-        ) {
+
             // add when connect to backend.
 //            for (count in state.listCounter.value) {
 //                if (count > 0) {
@@ -46,27 +36,29 @@ fun InteractionBar(
 //                    }
 //                }
 //            }
-            Row {
-                EmojiChips(
-                    state,
-                    0,
-                    { Icon(Icons.Filled.ThumbUp, "Excellent") },
-                ) {
-                    Row {
-                        Text("${state.listCounter[0]}")
-                    }
+            EmojiChips(
+                state,
+                0,
+                { Icon(Icons.Filled.ThumbUp, "Excellent") },
+            ) {
+                Row {
+                    Text("${state.listCounter[0]}")
                 }
+            }
 
-                EmojiChips(
-                    state,
-                    1,
-                    { Icon(Icons.Filled.Celebration, "Celebration") }) {
-                    Row {
-                        Text("${state.listCounter[1]}")
-                    }
+            EmojiChips(
+                state,
+                1,
+                { Icon(Icons.Filled.Celebration, "Celebration") }) {
+                Row {
+                    Text("${state.listCounter[1]}")
                 }
             }
         }
+        if (state.emojiListIsOpen.value) {
+            IconsList(state)
+        }
+
     }
 
 
