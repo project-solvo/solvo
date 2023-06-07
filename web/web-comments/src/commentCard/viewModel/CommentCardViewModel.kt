@@ -1,4 +1,4 @@
-package org.solvo.web.comments
+package org.solvo.web.comments.commentCard.viewModel
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect

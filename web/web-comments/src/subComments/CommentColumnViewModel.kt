@@ -1,4 +1,4 @@
-package org.solvo.web.comments
+package org.solvo.web.comments.subComments
 
 import kotlinx.coroutines.flow.*
 import org.solvo.model.CommentDownstream

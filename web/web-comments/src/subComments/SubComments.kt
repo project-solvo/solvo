@@ -1,4 +1,4 @@
-package org.solvo.web.comments
+package org.solvo.web.comments.subComments
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -16,12 +16,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import org.solvo.model.LightCommentDownstream
+import org.solvo.web.comments.commentCard.components.CommentLine
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
 
 @Composable
-fun CommentCardSubComments(
+fun SubComments(
     subComments: List<LightCommentDownstream>,
     totalCommentCount: Int,
     modifier: Modifier = Modifier,

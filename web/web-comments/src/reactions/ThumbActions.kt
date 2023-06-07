@@ -1,4 +1,4 @@
-package org.solvo.web.comments.like
+package org.solvo.web.comments.reactions
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding

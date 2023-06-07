@@ -26,7 +26,14 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
-import org.solvo.web.comments.*
+import org.solvo.web.comments.CourseMenu
+import org.solvo.web.comments.commentCard.DraftCommentCard
+import org.solvo.web.comments.commentCard.ExpandedCommentCard
+import org.solvo.web.comments.commentCard.components.CommentCardContent
+import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
+import org.solvo.web.comments.subComments.CommentColumn
+import org.solvo.web.comments.subComments.CommentColumnViewModel
+import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichEditorDisplayMode
@@ -341,7 +348,7 @@ private fun AnswersList(
 
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
-            LargeCommentCard(
+            ExpandedCommentCard(
                 author = item.author,
                 date = postTimeFormatted ?: "",
                 modifier = Modifier.then(sizeModifier),
@@ -358,7 +365,7 @@ private fun AnswersList(
                     null
                 } else {
                     {
-                        CommentCardSubComments(
+                        SubComments(
                             item.previewSubComments,
                             item.allSubCommentIds.size,
                             onClickComment = {
