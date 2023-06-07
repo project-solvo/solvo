@@ -28,7 +28,7 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
     return UUID.fromString(uidStr)
 }
 
-suspend inline fun <reified T: Any>  PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
+suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
     content: T?
 ) {
     if (content == null) {
@@ -38,7 +38,7 @@ suspend inline fun <reified T: Any>  PipelineContext<Unit, ApplicationCall>.resp
     }
 }
 
-suspend inline fun <reified T: Any> PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
+suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
     content: T?
 ) {
     if (content == null) {
@@ -53,3 +53,9 @@ fun Route.postAuthenticated(
     path: String,
     body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
 ): Route = authenticate("authBearer") { post(path, body) }
+
+@KtorDsl
+fun Route.deleteAuthenticated(
+    path: String,
+    body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
+): Route = authenticate("authBearer") { delete(path, body) }

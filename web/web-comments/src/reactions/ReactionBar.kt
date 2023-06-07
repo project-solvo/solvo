@@ -1,10 +1,7 @@
 package org.solvo.web.comments.reactions
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material3.*
@@ -18,15 +15,26 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.Reaction
 import org.solvo.model.ReactionKind
+import org.solvo.model.foundation.Uuid
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.theme.EMOJI_FONT
+import org.solvo.web.viewModel.launchInBackgroundAnimated
 
 @Composable
 fun ReactionBar(
+    subjectCoid: Uuid,
     reactions: List<Reaction>,
+    applyLocalReactionsChange: (List<Reaction>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val state: ReactionBarState = remember { ReactionBarState(reactions) }
+    val reactionsState by rememberUpdatedState(reactions)
+    val state: ReactionBarViewModel = remember(subjectCoid) {
+        ReactionBarViewModel(
+            subjectCoid,
+            snapshotFlow { reactionsState },
+            applyLocalChange = applyLocalReactionsChange
+        )
+    }
 
     // Image
     Column(modifier) {
@@ -48,8 +56,11 @@ fun ReactionBar(
                     val isSelf by remember { derivedStateOf { reaction?.self ?: false } }
                     val reactionListOpen by state.reactionListOpen
                     AnimatedVisibility(reactionListOpen || count != 0) {
-                        EmojiChip(kind, count, isSelf, onClick = {
-                            state.react(kind)
+                        val isProcessing = remember { mutableStateOf(false) }
+                        EmojiChip(kind, count, isSelf, isProcessing.value, onClick = {
+                            state.launchInBackgroundAnimated(isProcessing) {
+                                react(kind)
+                            }
                         })
                     }
                 }
@@ -65,13 +76,29 @@ private fun EmojiChip(
     kind: ReactionKind,
     count: Int,
     isSelf: Boolean,
+    isLoading: Boolean,
     onClick: () -> Unit,
 ) {
+    val isLoadingState by rememberUpdatedState(isLoading)
+    val onClickState by rememberUpdatedState(onClick)
     ElevatedFilterChip(
         selected = isSelf,
-        onClick = wrapClearFocus(onClick),
-        leadingIcon = { ReactionPresentation(kind) },
-        label = { Text("$count") },
+        onClick = wrapClearFocus {
+            if (!isLoadingState) onClickState()
+        },
+        leadingIcon = {
+            ReactionPresentation(kind)
+        },
+        enabled = !isLoading,
+        label = {
+            if (isLoading) {
+                Box(Modifier.size(16.dp)) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                Text("$count")
+            }
+        },
         border = FilterChipDefaults.filterChipBorder(borderColor = MaterialTheme.colorScheme.outline.copy(alpha = 0.3f))
     )
 }
