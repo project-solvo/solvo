@@ -17,7 +17,7 @@ fun DraftCommentCard(
     state: ShowMoreSwitchState = remember { ShowMoreSwitchState() },
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreSwitchState) -> Unit)? = null,
-    interactions: (@Composable () -> Unit)? = null,
+    reactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     CommentCard(
@@ -28,7 +28,7 @@ fun DraftCommentCard(
         onClickCard = onClickCard,
         showMoreSwitch = showMoreSwitch,
         subComments = null,
-        interactions = interactions,
+        reactions = reactions,
         content = content,
     )
 }

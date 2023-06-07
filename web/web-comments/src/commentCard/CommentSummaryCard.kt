@@ -26,7 +26,7 @@ fun CommentSummaryCard(
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreSwitchState) -> Unit)? = null,
-    interactions: (@Composable () -> Unit)? = null,
+    reactions: (@Composable () -> Unit)? = null,
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     CommentCard(
@@ -46,7 +46,7 @@ fun CommentSummaryCard(
         },
         onClickCard = onClickCard,
         showMoreSwitch = showMoreSwitch,
-        interactions = interactions,
+        reactions = reactions,
         content = content,
     )
 }

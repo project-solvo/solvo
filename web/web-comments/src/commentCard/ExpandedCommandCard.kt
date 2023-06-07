@@ -30,7 +30,7 @@ fun ExpandedCommentCard(
     isExpand: Boolean = false,
     subComments: @Composable (() -> Unit)? = null,
     actions: (@Composable () -> Unit)? = null,
-    interactions: (@Composable () -> Unit)? = null,
+    reactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val state: ShowMoreSwitchState = remember { ShowMoreSwitchState() }
@@ -64,7 +64,7 @@ fun ExpandedCommentCard(
         showMoreSwitch = null,
         subComments = subComments,
         contentModifier = contentModifier,
-        interactions = interactions,
+        reactions = reactions,
         content = content,
     )
 }

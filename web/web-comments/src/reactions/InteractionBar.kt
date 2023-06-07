@@ -1,4 +1,4 @@
-package org.solvo.web.comments
+package org.solvo.web.comments.reactions
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,8 +17,8 @@ import androidx.compose.ui.unit.dp
 
 
 @Composable
-fun InteractionBar(
-    state: InteractionBarViewModel,
+fun ReactionBar(
+    state: ReactionBarState,
     modifier: Modifier = Modifier,
 ) {
     // Image
@@ -72,7 +72,7 @@ fun InteractionBar(
 
 @Composable
 private fun IconsList(
-    state: InteractionBarViewModel,
+    state: ReactionBarState,
     // iconList: List<Uuid> = listOf(),
 ) {
     Row {
@@ -93,7 +93,7 @@ private fun IconsList(
 
 @Composable
 private fun EmojiChips(
-    state: InteractionBarViewModel,
+    state: ReactionBarState,
     index: Int,
     leadingIcon: @Composable () -> Unit,
     text: @Composable () -> Unit,

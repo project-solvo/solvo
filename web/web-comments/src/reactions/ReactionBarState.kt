@@ -1,9 +1,9 @@
-package org.solvo.web.comments
+package org.solvo.web.comments.reactions
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.snapshots.SnapshotStateList
 
-class InteractionBarViewModel(
+class ReactionBarState(
     // private val emojiList: List<>
     private val emojiCountList: List<Int> = listOf()
 ) {

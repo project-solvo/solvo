@@ -34,7 +34,7 @@ internal fun CommentCard(
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreSwitchState) -> Unit)? = null,
     subComments: (@Composable () -> Unit)? = null,
-    interactions: @Composable (() -> Unit)? = null,
+    reactions: @Composable (() -> Unit)? = null,
     contentModifier: Modifier = Modifier,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
@@ -81,7 +81,7 @@ internal fun CommentCard(
             Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
         }
 
-        interactions?.invoke()
+        reactions?.invoke()
     }
 }
 
