@@ -19,6 +19,7 @@ fun CommentCardContent(
     item: CommentDownstream,
     backgroundColor: Color,
     modifier: Modifier = Modifier,
+    showScrollbar: Boolean = true,
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
 ) {
     key(item.coid) { // redraw editor when item id changed (do not reuse)
@@ -34,7 +35,7 @@ fun CommentCardContent(
                 onTextUpdated = loadedState.onTextChanged,
                 onLayout = onLayout,
                 backgroundColor = backgroundColor,
-                showScrollbar = true,
+                showScrollbar = showScrollbar,
             )
         }
     }

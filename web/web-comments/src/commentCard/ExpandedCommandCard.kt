@@ -2,21 +2,15 @@ package org.solvo.web.comments.commentCard
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.CloseFullscreen
-import androidx.compose.material.icons.filled.OpenInFull
-import androidx.compose.material.icons.outlined.FolderOff
-import androidx.compose.material.icons.outlined.PostAdd
-import androidx.compose.material3.*
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Shape
-import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
-import org.solvo.model.CommentDownstream
 import org.solvo.model.User
 import org.solvo.web.comments.commentCard.components.AuthorLine
 import org.solvo.web.comments.commentCard.impl.CommentCard
@@ -28,6 +22,7 @@ import org.solvo.web.ui.image.RoundedUserAvatar
 fun ExpandedCommentCard(
     author: User?,
     date: String,
+    showExpandButton: Boolean,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
     onClickExpand: () -> Unit = {},
@@ -38,7 +33,6 @@ fun ExpandedCommentCard(
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val state: ShowMoreSwitchState = remember { ShowMoreSwitchState() }
-    val buttonShown = remember { false }
     CommentCard(
         paddings = CommentCardPaddings.Large,
         state = state,
@@ -57,10 +51,12 @@ fun ExpandedCommentCard(
             ) {
                 actions?.invoke()
 
-                ExpandButton(
-                    onClickExpand,
-                    isExpand,
-                )
+                if (isExpand || showExpandButton) {
+                    ExpandButton(
+                        onClickExpand,
+                        showExpandButton,
+                    )
+                }
             }
         },
         showMoreSwitch = null,
@@ -75,9 +71,14 @@ fun ExpandedCommentCard(
 @Composable
 private fun ExpandButton(
     onClickExpand: () -> Unit,
-    isExpand: Boolean = false,
+    isExpanded: Boolean,
     modifier: Modifier = Modifier,
 ) {
+    val text = if (isExpanded) {
+        "Show Full Answer"
+    } else {
+        "Go Back"
+    }
     FilledTonalButton(
         onClick = wrapClearFocus { onClickExpand() },
         modifier,
@@ -89,22 +90,12 @@ private fun ExpandButton(
             bottom = 3.dp
         ),
     ) {
-        if (!isExpand) {
-            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Text(
-                    text = "Show Full Answer",
-                    modifier = Modifier.padding(start = 4.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
-        } else {
-            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Text(
-                    "Go Back To the Answer List",
-                    Modifier.padding(start = 4.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                )
-            }
+        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+            Text(
+                text,
+                Modifier.padding(start = 4.dp),
+                style = MaterialTheme.typography.titleMedium,
+            )
         }
     }
 }
