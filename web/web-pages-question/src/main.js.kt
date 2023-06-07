@@ -31,6 +31,7 @@ import org.solvo.web.comments.commentCard.DraftCommentCard
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
+import org.solvo.web.comments.reactions.ReactionBar
 import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.comments.subComments.CommentColumnViewModel
 import org.solvo.web.comments.subComments.SubComments
@@ -381,7 +382,8 @@ private fun AnswersList(
 //                        {},
 //                        {}
 //                    )
-                }
+                },
+                reactions = { ReactionBar(listOf()) }
             ) { backgroundColor ->
                 CommentCardContent(
                     item,

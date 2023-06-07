@@ -10,6 +10,7 @@ import org.solvo.web.ui.isBrowserInDarkTheme
 
 
 var UNICODE_FONT by mutableStateOf<FontFamily?>(null)
+var EMOJI_FONT by mutableStateOf<FontFamily?>(null)
 
 @Composable
 fun AppTheme(
@@ -25,8 +26,17 @@ fun AppTheme(
     LaunchedEffect(true) {
         try {
             UNICODE_FONT = FontFamily(
+//                Typeface(org.jetbrains.skia.Typeface.makeFromName("FangZhengHeiTiSC", FontStyle.NORMAL)),
                 Font("FangZhengHeiTiSC", resource("fonts/FangZhengHeiTiSC.ttf").readBytes()),
 //            Font("FangZhengHeiTiTC", resource("fonts/FangZhengHeiTiTC.ttf").readBytes()),
+            )
+        } catch (e: Throwable) {
+            console.error("Failed to load font")
+            e.printStackTrace()
+        }
+        try {
+            EMOJI_FONT = FontFamily(
+                Font("NotoColorEmoji", resource("fonts/NotoColorEmoji-Regular.ttf").readBytes())
             )
         } catch (e: Throwable) {
             console.error("Failed to load font")

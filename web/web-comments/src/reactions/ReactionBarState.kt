@@ -1,28 +1,45 @@
 package org.solvo.web.comments.reactions
 
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.snapshots.SnapshotStateList
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import org.solvo.model.Reaction
+import org.solvo.model.ReactionKind
+import org.solvo.web.utils.replacedOrPlus
 
+@Stable
 class ReactionBarState(
-    // private val emojiList: List<>
-    private val emojiCountList: List<Int> = listOf()
+    reactions: List<Reaction>,
 ) {
-    val listCounter: MutableList<Int> = SnapshotStateList<Int>().apply { addAll(emojiCountList) }
+    private val reactions = MutableStateFlow(reactions)
 
-    fun changeEmojiListState() {
-        emojiListIsOpen.value = !emojiListIsOpen.value
+    @Stable
+    fun reaction(kind: ReactionKind): Flow<Reaction?> = reactions.map { list -> list.find { it.kind == kind } }
+
+    fun switchReactionList() {
+        reactionListOpen.value = !reactionListOpen.value
     }
 
-    fun modifyEmojiCount(index: Int) {
-        if (index < emojiCountList.size) {
-            if (listCounter[index] != emojiCountList[index]) {
-                listCounter[index] = emojiCountList[index]
-            } else {
-                listCounter[index] = emojiCountList[index] + 1
-            }
+    fun closeReactionList() {
+        reactionListOpen.value = false
+    }
+
+    fun react(kind: ReactionKind) {
+        val reactions = reactions.value
+        val reaction = reactions.find { it.kind == kind } ?: Reaction(kind, 0, false)
+        if (reaction.self) {
+            this.reactions.value =
+                reactions.replacedOrPlus({ it.kind == kind }, Reaction(kind, reaction.count - 1, false))
+            // TODO: 2023/6/7 send backend request 
+        } else {
+            this.reactions.value =
+                reactions.replacedOrPlus({ it.kind == kind }, Reaction(kind, reaction.count + 1, true))
+            // TODO: 2023/6/7 send backend request 
         }
+        closeReactionList()
     }
 
-    val emojiListIsOpen = mutableStateOf(false)
-
+    val reactionListOpen = mutableStateOf(false)
 }
