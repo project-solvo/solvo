@@ -188,7 +188,7 @@ private fun QuestionPageContent(
                 val isExpanded by pagingState.isExpanded
                 Box(
                     Modifier
-                        .padding(top = 12.dp, bottom = if (isExpanded) 12.dp else 0.dp)
+                        .padding(top = 12.dp)
                         .padding(end = 12.dp, start = 12.dp)
                         .fillMaxSize()
                         .focusProperties {
