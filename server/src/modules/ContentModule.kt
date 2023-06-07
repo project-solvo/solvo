@@ -126,7 +126,7 @@ fun Application.contentModule() {
             get("/get/{coid}") {
                 processGetComment(contents)
             }
-            authenticate("auth-bearer") {
+            authenticate("authBearer") {
                 get("/get/{coid}/reactions") {
                     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
                     val userId = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
