@@ -1,5 +1,6 @@
 package org.solvo.web.viewModel
 
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RememberObserver
 import kotlinx.atomicfu.atomic
 import kotlinx.browser.window
@@ -12,11 +13,7 @@ abstract class AbstractViewModel : RememberObserver {
     private val closed = atomic(false)
     private val isClosed get() = closed.value
 
-    private val _backgroundScope = kotlin.run {
-        CoroutineScope(CoroutineExceptionHandler { _, throwable ->
-            window.alert(throwable.toString())
-        })
-    }
+    private var _backgroundScope = createBackgroundScope()
     val backgroundScope: CoroutineScope
         get() {
             return _backgroundScope
@@ -43,7 +40,17 @@ abstract class AbstractViewModel : RememberObserver {
     }
 
     final override fun onRemembered() {
+        console.log("${this::class.simpleName} onRemembered")
+        if (!_backgroundScope.isActive) {
+            _backgroundScope = createBackgroundScope()
+        }
         this.init()
+    }
+
+    private fun createBackgroundScope(): CoroutineScope {
+        return CoroutineScope(CoroutineExceptionHandler { _, throwable ->
+            window.alert(throwable.toString())
+        })
     }
 
     /**
@@ -56,6 +63,11 @@ abstract class AbstractViewModel : RememberObserver {
         started: SharingStarted = SharingStarted.Eagerly,
         replay: Int = 1
     ): SharedFlow<T> = shareIn(backgroundScope, started, replay)
+
+    fun <T> Flow<T>.stateInBackground(
+        started: SharingStarted = SharingStarted.Eagerly,
+        initialValue: T
+    ): SharedFlow<T> = stateIn(backgroundScope, started, initialValue)
 
 
     fun <T> Flow<T>.runningList(): Flow<List<T>> {
@@ -72,5 +84,18 @@ fun <V : AbstractViewModel> V.launchInBackground(
 ): Job {
     return backgroundScope.launch(context, start) {
         block()
+    }
+}
+
+fun <V : AbstractViewModel> V.launchInBackgroundAnimated(
+    isLoadingState: MutableState<Boolean>,
+    context: CoroutineContext = EmptyCoroutineContext,
+    start: CoroutineStart = CoroutineStart.DEFAULT,
+    block: suspend V.() -> Unit
+): Job {
+    isLoadingState.value = true
+    return backgroundScope.launch(context, start) {
+        block()
+        isLoadingState.value = false
     }
 }

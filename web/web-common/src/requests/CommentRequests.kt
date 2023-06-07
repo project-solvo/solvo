@@ -1,9 +1,12 @@
 package org.solvo.web.requests
 
+import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
 import org.solvo.model.CommentDownstream
 import org.solvo.model.CommentUpstream
+import org.solvo.model.Reaction
+import org.solvo.model.ReactionKind
 import org.solvo.model.foundation.Uuid
 
 class CommentRequests(
@@ -12,7 +15,7 @@ class CommentRequests(
 
     suspend fun getComment(
         coid: Uuid,
-    ): CommentDownstream? = client.http.get(api("comment/get/$coid")).bodyOrNull()
+    ): CommentDownstream? = client.http.get(api("comments/$coid")).bodyOrNull()
 
     suspend fun postComment(
         parentCoid: Uuid,
@@ -30,9 +33,9 @@ class CommentRequests(
         isAnswer: Boolean,
     ): CommentDownstream? {
         val url = if (isAnswer) {
-            api("comment/post/$parentCoid/asAnswer")
+            api("comments/$parentCoid/answer")
         } else {
-            api("comment/post/$parentCoid")
+            api("comments/$parentCoid/comment")
         }
         return client.http.post(url) {
             accountAuthorization()
@@ -41,4 +44,29 @@ class CommentRequests(
         }.bodyOrNull()
     }
 
+    suspend fun getReactions(coid: Uuid): List<Reaction> {
+        return client.http.get(api("comments/${coid}/reactions")) {
+            accountAuthorization()
+        }.body<List<Reaction>>()
+    }
+
+    suspend fun removeReaction(
+        coid: Uuid,
+        reactionKind: ReactionKind,
+    ) {
+        client.http.delete(api("comments/${coid}/reactions/${reactionKind.ordinal}")) {
+            accountAuthorization()
+        }
+    }
+
+    suspend fun addReaction(
+        coid: Uuid,
+        reactionKind: ReactionKind,
+    ) {
+        client.http.post(api("comments/${coid}/reactions/new")) {
+            accountAuthorization()
+            contentType(ContentType.Application.Json)
+            setBody(reactionKind)
+        }
+    }
 }

@@ -18,7 +18,7 @@ class CommentUpstream(
 
 @Immutable
 @Serializable
-class CommentDownstream(
+data class CommentDownstream(
     override val coid: Uuid,
     override val author: User?,
     override val content: String,
