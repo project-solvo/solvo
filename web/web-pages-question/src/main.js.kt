@@ -370,14 +370,7 @@ private fun AnswersList(
                         )
                     }
                 },
-                actions = {
-//                    ThumbActions(
-//                        item.likes,
-//                        null,
-//                        {},
-//                        {}
-//                    )
-                },
+                actions = {},
                 reactions = {
                     val reactions by viewModel.reactions.collectAsState(emptyList())
                     ReactionBar(item.coid, reactions, applyLocalReactionsChange = {
