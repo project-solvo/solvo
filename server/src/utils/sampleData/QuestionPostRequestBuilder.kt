@@ -1,7 +1,7 @@
 package org.solvo.server.utils.sampleData
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.QuestionUpstream
+import org.solvo.model.api.communication.QuestionUpstream
 import org.solvo.server.ServerContext
 import java.util.*
 

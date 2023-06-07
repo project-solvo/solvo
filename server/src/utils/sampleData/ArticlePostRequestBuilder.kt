@@ -1,7 +1,7 @@
 package org.solvo.server.utils.sampleData
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.ArticleUpstream
+import org.solvo.model.api.communication.ArticleUpstream
 import org.solvo.server.ServerContext
 
 class ArticlePostRequest(

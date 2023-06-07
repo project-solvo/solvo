@@ -9,8 +9,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import org.solvo.model.*
-import org.solvo.model.api.ImageUrlExchange
+import org.solvo.model.api.communication.*
 import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.ServerPathType
@@ -114,7 +113,6 @@ fun Application.contentModule() {
 
         route("/shared-content") {
             postAuthenticated("/upload") {
-                val uid = getUserId() ?: return@postAuthenticated
                 val content = call.receive<SharedContent>()
 
                 val id = contents.postSharedContent(content)

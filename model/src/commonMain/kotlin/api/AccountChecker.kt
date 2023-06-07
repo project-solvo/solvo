@@ -1,5 +1,6 @@
 package org.solvo.model.api
 
+import org.solvo.model.api.communication.AuthStatus
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.model.utils.Digest
 

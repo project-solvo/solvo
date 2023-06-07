@@ -1,6 +1,6 @@
 @file:UseSerializers(UuidAsStringSerializer::class)
 
-package org.solvo.model
+package org.solvo.model.api.communication
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
@@ -10,16 +10,18 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 
 @Immutable
 @Serializable
-class QuestionUpstream(
+class ArticleUpstream(
     override val content: String,
     override val anonymity: Boolean,
 
-    val sharedContent: Uuid?,
+    val code: String,
+    val displayName: String,
+    val termYear: String,
 ) : CommentableUpstream
 
 @Immutable
 @Serializable
-class QuestionDownstream(
+class ArticleDownstream(
     override val coid: Uuid,
     override val author: User?,
     override val content: String,
@@ -27,9 +29,13 @@ class QuestionDownstream(
     override val likes: UInt,
     override val dislikes: UInt,
 
-    val sharedContent: SharedContent,
     val code: String,
-    val article: Uuid,
-    val answers: List<Uuid>,
+    val displayName: String,
+    val course: Course,
+    val termYear: String,
+
+    val questionIndexes: List<String>,
     val comments: List<Uuid>,
+    val stars: UInt,
+    val views: UInt,
 ) : CommentableDownstream

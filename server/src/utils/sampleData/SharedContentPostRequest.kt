@@ -1,6 +1,6 @@
 package org.solvo.server.utils.sampleData
 
-import org.solvo.model.SharedContent
+import org.solvo.model.api.communication.SharedContent
 import org.solvo.server.ServerContext
 import java.util.*
 

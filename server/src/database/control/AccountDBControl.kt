@@ -2,7 +2,7 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.User
+import org.solvo.model.api.communication.User
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext

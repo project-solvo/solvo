@@ -5,9 +5,9 @@ import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insert
 import org.jetbrains.exposed.sql.select
-import org.solvo.model.QuestionDownstream
-import org.solvo.model.QuestionUpstream
-import org.solvo.model.SharedContent
+import org.solvo.model.api.communication.QuestionDownstream
+import org.solvo.model.api.communication.QuestionUpstream
+import org.solvo.model.api.communication.SharedContent
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable

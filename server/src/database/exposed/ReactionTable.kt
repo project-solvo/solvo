@@ -1,7 +1,7 @@
 package org.solvo.server.database.exposed
 
 import org.jetbrains.exposed.sql.Table
-import org.solvo.model.ReactionKind
+import org.solvo.model.api.communication.ReactionKind
 
 object ReactionTable: Table() {
     val target = reference("target", CommentedObjectTable)

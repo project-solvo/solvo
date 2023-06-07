@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
-import org.solvo.model.Course
+import org.solvo.model.api.communication.Course
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CourseTable

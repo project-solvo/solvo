@@ -1,6 +1,6 @@
 @file:UseSerializers(UuidAsStringSerializer::class)
 
-package org.solvo.model
+package org.solvo.model.api.communication
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers

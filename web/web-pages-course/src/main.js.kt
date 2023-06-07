@@ -17,8 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.Course
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.Course
 import org.solvo.web.document.History
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow

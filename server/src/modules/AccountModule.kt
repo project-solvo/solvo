@@ -8,7 +8,7 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import org.solvo.model.api.ImageUrlExchange
+import org.solvo.model.api.communication.ImageUrlExchange
 import org.solvo.server.ServerContext
 import java.util.*
 

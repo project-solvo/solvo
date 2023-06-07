@@ -1,6 +1,6 @@
 package org.solvo.server.utils.sampleData
 
-import org.solvo.model.Course
+import org.solvo.model.api.communication.Course
 import org.solvo.server.ServerContext
 
 

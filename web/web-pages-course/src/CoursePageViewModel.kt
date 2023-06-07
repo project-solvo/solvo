@@ -4,7 +4,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
-import org.solvo.model.ArticleDownstream
+import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.document.parameters.PathParameters
 import org.solvo.web.document.parameters.course

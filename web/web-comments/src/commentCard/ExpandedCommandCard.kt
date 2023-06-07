@@ -12,7 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.solvo.model.User
+import org.solvo.model.api.communication.User
 import org.solvo.web.comments.commentCard.components.AuthorLine
 import org.solvo.web.comments.commentCard.impl.CommentCard
 import org.solvo.web.comments.showMore.ShowMoreSwitchState

@@ -1,8 +1,8 @@
 package org.solvo.web
 
-import org.solvo.model.CommentDownstream
-import org.solvo.model.LightCommentDownstream
-import org.solvo.model.User
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.LightCommentDownstream
+import org.solvo.model.api.communication.User
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.dummy.createDummyText
 import kotlin.random.Random

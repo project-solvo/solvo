@@ -2,7 +2,7 @@ package org.solvo.web.comments
 
 import androidx.compose.ui.Modifier
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.CommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.dummy.createDummyText

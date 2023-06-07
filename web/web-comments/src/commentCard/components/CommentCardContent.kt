@@ -8,7 +8,7 @@ import androidx.compose.runtime.key
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
-import org.solvo.model.CommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.web.editor.RichEditorLayoutResult
 import org.solvo.web.editor.RichText
 import org.solvo.web.editor.rememberRichEditorLoadedState

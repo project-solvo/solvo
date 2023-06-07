@@ -3,10 +3,10 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.solvo.model.User
-import org.solvo.model.api.AuthRequest
-import org.solvo.model.api.AuthResponse
-import org.solvo.model.api.UsernameValidityResponse
+import org.solvo.model.api.communication.User
+import org.solvo.model.api.communication.AuthRequest
+import org.solvo.model.api.communication.AuthResponse
+import org.solvo.model.api.communication.UsernameValidityResponse
 
 class AccountRequests(
     override val client: Client,

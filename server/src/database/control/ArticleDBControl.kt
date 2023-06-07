@@ -2,8 +2,8 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.ArticleUpstream
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.ArticleUpstream
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable

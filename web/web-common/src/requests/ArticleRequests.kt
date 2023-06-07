@@ -1,7 +1,7 @@
 package org.solvo.web.requests
 
 import io.ktor.client.request.*
-import org.solvo.model.ArticleDownstream
+import org.solvo.model.api.communication.ArticleDownstream
 
 class ArticleRequests(
     override val client: Client

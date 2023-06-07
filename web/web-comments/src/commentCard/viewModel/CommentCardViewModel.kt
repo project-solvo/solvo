@@ -6,9 +6,9 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.mapNotNull
-import org.solvo.model.CommentDownstream
-import org.solvo.model.ICommentDownstream
-import org.solvo.model.LightCommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.ICommentDownstream
+import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.web.utils.DateFormatter
 import org.solvo.web.viewModel.AbstractViewModel
 
@@ -51,4 +51,4 @@ fun rememberLightCommentCardViewModel(value: LightCommentDownstream? = null): Li
 }
 
 class LightCommentCardViewModel(initial: LightCommentDownstream? = null) :
-    CommentCardViewModel<LightCommentDownstream>(initial) 
+    CommentCardViewModel<LightCommentDownstream>(initial)

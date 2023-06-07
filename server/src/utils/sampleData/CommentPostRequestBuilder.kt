@@ -1,7 +1,7 @@
 package org.solvo.server.utils.sampleData
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.CommentUpstream
+import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.server.ServerContext
 import java.util.*
 

@@ -25,7 +25,7 @@ import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.*
+import org.solvo.model.api.communication.*
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.commentCard.DraftCommentCard
 import org.solvo.web.comments.commentCard.ExpandedCommentCard

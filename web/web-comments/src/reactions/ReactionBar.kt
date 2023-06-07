@@ -16,8 +16,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.solvo.model.Reaction
-import org.solvo.model.ReactionKind
+import org.solvo.model.api.communication.Reaction
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.theme.EMOJI_FONT
 
@@ -38,7 +38,7 @@ fun ReactionBar(
             }
 
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (kind in ReactionKind.entries) {
+                for (kind in ReactionKind.values()) {
                     val reaction by state.reaction(kind).collectAsState(null)
                     val count by remember {
                         derivedStateOf {
