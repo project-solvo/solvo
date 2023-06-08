@@ -7,10 +7,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.East
 import androidx.compose.material.icons.filled.West
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
-import androidx.compose.runtime.Stable
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -26,9 +23,10 @@ fun <T> rememberPagingState(pageSlice: Int, initialList: List<T> = emptyList()):
     return remember { PagingStateImpl.create(initialList, pageSlice) }
 }
 
+@Stable
 interface PagingContentContext<T> {
-    val visibleIndices: IntRange
-    val visibleItems: List<T>
+    val visibleIndices: State<IntRange>
+    val visibleItems: State<List<T>>
 
     @Stable
     val scrollState: ScrollState

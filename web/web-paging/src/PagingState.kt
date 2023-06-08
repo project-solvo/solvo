@@ -62,8 +62,8 @@ internal open class PagingStateImpl<T> protected constructor(
         get() = _editorEnable
 
     override val pagingContext = object : PagingContentContext<T> {
-        override val visibleIndices: IntRange get() = currentIndices.value
-        override val visibleItems: List<T> get() = currentContent.value
+        override val visibleIndices: State<IntRange> get() = currentIndices
+        override val visibleItems: State<List<T>> get() = currentContent
         override val scrollState: ScrollState = ScrollState(0)
     }
 

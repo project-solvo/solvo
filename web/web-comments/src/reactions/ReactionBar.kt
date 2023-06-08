@@ -28,11 +28,11 @@ fun ReactionBar(
     modifier: Modifier = Modifier,
 ) {
     val reactionsState by rememberUpdatedState(reactions)
+    val applyLocalChangeState by rememberUpdatedState(applyLocalReactionsChange)
     val state: ReactionBarViewModel = remember(subjectCoid) {
         ReactionBarViewModel(
             subjectCoid,
             snapshotFlow { reactionsState },
-            applyLocalChange = applyLocalReactionsChange
         )
     }
 
@@ -59,7 +59,7 @@ fun ReactionBar(
                         val isProcessing = remember { mutableStateOf(false) }
                         EmojiChip(kind, count, isSelf, isProcessing.value, onClick = {
                             state.launchInBackgroundAnimated(isProcessing) {
-                                react(kind)
+                                react(kind, applyLocalChangeState)
                             }
                         })
                     }

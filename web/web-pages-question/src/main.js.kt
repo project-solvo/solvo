@@ -1,8 +1,6 @@
 package org.solvo.web
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.*
@@ -27,24 +25,16 @@ import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.*
 import org.solvo.web.comments.CourseMenu
-import org.solvo.web.comments.commentCard.DraftCommentCard
-import org.solvo.web.comments.commentCard.ExpandedCommentCard
-import org.solvo.web.comments.commentCard.components.CommentCardContent
-import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
-import org.solvo.web.comments.reactions.ReactionBar
 import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.comments.subComments.CommentColumnViewModel
-import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
-import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.RichText
 import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
-import org.solvo.web.ui.modifiers.clickable
 
 
 fun main() {
@@ -100,159 +90,176 @@ private fun QuestionPageContent(
     article: ArticleDownstream,
     question: QuestionDownstream,
     allAnswers: List<CommentDownstream>,
+): Unit = HorizontallyDivided(
+    left = {
+        PaperView(
+            questionSelectedBar = {
+                // ScrollableTab row TODO()
+                Row(
+                    modifier = Modifier.horizontalScroll(rememberScrollState(), true),
+                    horizontalArrangement = Arrangement.spacedBy(6.dp)
+                ) {
+                    article.questionIndexes.forEach { questionCode ->
+                        InputChip(
+                            selected = question.code == questionCode,
+                            onClick = wrapClearFocus {
+                                if (question.code != questionCode) {
+                                    History.pushState { question(course.code, article.code, questionCode) }
+                                } // else: don't navigate if clicking same question
+                            },
+                            label = { Text(questionCode) },
+                            shape = RoundedCornerShape(8.dp),
+                        )
+                    }
+
+                }
+            },
+            onZoomIn = {},
+            onZoomOut = {},
+            Modifier.fillMaxSize()
+        ) {
+            Box(Modifier.padding(all = 12.dp)) {
+                RichText(
+                    question.content, Modifier.fillMaxSize(),
+                    backgroundColor = MaterialTheme.colorScheme.background,
+                    contentColor = MaterialTheme.colorScheme.onBackground,
+                )
+            }
+        }
+    },
+    right = {
+        val pagingState = rememberExpandablePagingState(
+            Int.MAX_VALUE,
+            allAnswers,
+        )
+        val draftAnswerEditor = rememberRichEditorState(true)
+        val isDraftAnswerEditorOpen by pagingState.editorEnable
+
+        PagingContent(
+            pagingState,
+            controlBar = controlBar@{ expandablePagingState ->
+                PagingControlBar(
+                    expandablePagingState,
+                    showPagingController = expandablePagingState.isExpanded.value
+                ) {
+                    Row(
+                        Modifier.align(Alignment.CenterStart),
+                        horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
+                    ) {
+                        DraftAnswerButton(
+                            pagingState = pagingState,
+                            contentPaddings = buttonContentPaddings,
+                            shape = buttonShape,
+                        )
+
+                        AnimatedVisibility(isDraftAnswerEditorOpen) {
+                            Button(
+                                onClick = {
+                                    backgroundScope.launch {
+                                        client.comments.postAnswer(
+                                            question.coid,
+                                            CommentUpstream(draftAnswerEditor.contentMarkdown)
+                                        )
+                                    }
+                                },
+                                shape = buttonShape,
+                                contentPadding = buttonContentPaddings,
+                            ) {
+                                Text("Post Answer")
+                            }
+                        }
+                    }
+                }
+            }
+        ) {
+            val isExpanded by pagingState.isExpanded
+            Box(
+                Modifier
+                    .padding(top = 12.dp)
+                    .padding(end = 12.dp, start = 12.dp)
+                    .fillMaxSize()
+                    .focusProperties {
+                        this.canFocus = false
+                    }
+                    .focusable(false) // compose bug
+            ) {
+                RichEditor(
+                    Modifier.fillMaxWidth().ifThenElse(
+                        isDraftAnswerEditorOpen,
+                        then = { fillMaxHeight() },
+                        `else` = { height(0.dp) }
+                    ),
+                    state = draftAnswerEditor
+                )
+
+                ExpandedAnswerContent(
+                    pagingState,
+                    allAnswers,
+                    isExpanded,
+                    backgroundScope,
+                    isDraftAnswerEditorOpen
+                )
+            }
+        }
+    }
+)
+
+@Composable
+private fun PagingContentContext<CommentDownstream>.ExpandedAnswerContent(
+    pagingState: ExpandablePagingState<CommentDownstream>,
+    allAnswers: List<CommentDownstream>,
+    isExpanded: Boolean,
+    backgroundScope: CoroutineScope,
+    isDraftAnswerEditorOpen: Boolean
 ) {
+    val scope = rememberCoroutineScope()
+
+    var showAddCommentEditor by remember { mutableStateOf(false) }
     HorizontallyDivided(
         left = {
-            PaperView(
-                questionSelectedBar = {
-                    // ScrollableTab row TODO()
-                    Row(
-                        modifier = Modifier.horizontalScroll(rememberScrollState(), true),
-                        horizontalArrangement = Arrangement.spacedBy(6.dp)
-                    ) {
-                        article.questionIndexes.forEach { questionCode ->
-                            InputChip(
-                                selected = question.code == questionCode,
-                                onClick = wrapClearFocus {
-                                    if (question.code != questionCode) {
-                                        History.pushState { question(course.code, article.code, questionCode) }
-                                    } // else: don't navigate if clicking same question
-                                },
-                                label = { Text(questionCode) },
-                                shape = RoundedCornerShape(8.dp),
-                            )
-                        }
+            val onClick: (comment: Any?, item: CommentDownstream) -> Unit = { comment, item ->
+                scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
+                pagingState.gotoItem(item)
+                if (comment == null) {
+                    // clicking "Add your comment" or "See all 7 comments"
+                    showAddCommentEditor = true
+                }
+            }
 
-                    }
-                },
-                onZoomIn = {},
-                onZoomOut = {},
-                Modifier.fillMaxSize()
-            ) {
-                Box(Modifier.padding(all = 12.dp)) {
-                    RichText(
-                        question.content, Modifier.fillMaxSize(),
-                        backgroundColor = MaterialTheme.colorScheme.background,
-                        contentColor = MaterialTheme.colorScheme.onBackground,
-                    )
+            val visibleIndices by visibleIndices
+            AnswersList(
+                allItems = allAnswers,
+                visibleIndices = visibleIndices,
+                isExpanded = isExpanded,
+                modifier = Modifier.fillMaxSize()
+                    .ifThen(!isExpanded) { verticalScroll(scrollState) },
+                onClickComment = onClick,
+                onSwitchExpand = onClick,
+            )
+        },
+        right = {
+            Column(Modifier.verticalScroll(rememberScrollState())) {
+                DraftCommentSection(
+                    showAddCommentEditor,
+                    { showAddCommentEditor = it },
+                    backgroundScope,
+                    pagingState
+                )
+
+                val visibleItems by visibleItems
+                val firstItem by remember { derivedStateOf { visibleItems.firstOrNull() } }
+                if (firstItem != null) {
+                    val model = remember(firstItem) { CommentColumnViewModel(firstItem) }
+                    val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
+                    val allSubComments by allSubCommentsFlow.collectAsState(null)
+                    CommentColumn(allSubComments ?: emptyList())
                 }
             }
         },
-        right = {
-            val pagingState = rememberExpandablePagingState(
-                Int.MAX_VALUE,
-                allAnswers,
-            )
-            val draftAnswerEditor = rememberRichEditorState(true)
-            val isDraftAnswerEditorOpen by pagingState.editorEnable
-
-            PagingContent(
-                pagingState,
-                controlBar = controlBar@{ expandablePagingState ->
-                    PagingControlBar(
-                        expandablePagingState,
-                        showPagingController = expandablePagingState.isExpanded.value
-                    ) {
-                        Row(
-                            Modifier.align(Alignment.CenterStart),
-                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-                        ) {
-                            DraftAnswerButton(
-                                pagingState = pagingState,
-                                contentPaddings = buttonContentPaddings,
-                                shape = buttonShape,
-                            )
-
-                            AnimatedVisibility(isDraftAnswerEditorOpen) {
-                                Button(
-                                    onClick = {
-                                        backgroundScope.launch {
-                                            client.comments.postAnswer(
-                                                question.coid,
-                                                CommentUpstream(draftAnswerEditor.contentMarkdown)
-                                            )
-                                        }
-                                    },
-                                    shape = buttonShape,
-                                    contentPadding = buttonContentPaddings,
-                                ) {
-                                    Text("Post Answer")
-                                }
-                            }
-                        }
-                    }
-                }
-            ) {
-                val isExpanded by pagingState.isExpanded
-                Box(
-                    Modifier
-                        .padding(top = 12.dp)
-                        .padding(end = 12.dp, start = 12.dp)
-                        .fillMaxSize()
-                        .focusProperties {
-                            this.canFocus = false
-                        }
-                        .focusable(false) // compose bug
-                ) {
-                    val scope = rememberCoroutineScope()
-
-                    RichEditor(
-                        Modifier.fillMaxWidth().ifThenElse(
-                            isDraftAnswerEditorOpen,
-                            then = { fillMaxHeight() },
-                            `else` = { height(0.dp) }
-                        ),
-                        state = draftAnswerEditor
-                    )
-
-                    var showAddCommentEditor by remember { mutableStateOf(false) }
-
-                    HorizontallyDivided(
-                        left = {
-                            val onClick: (comment: Any?, item: CommentDownstream) -> Unit = { comment, item ->
-                                scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
-                                pagingState.gotoItem(item)
-                                if (comment == null) {
-                                    // clicking "Add your comment" or "See all 7 comments"
-                                    showAddCommentEditor = true
-                                }
-                            }
-
-                            AnswersList(
-                                allItems = allAnswers,
-                                visibleIndices = visibleIndices,
-                                isExpanded = isExpanded,
-                                modifier = Modifier.fillMaxSize()
-                                    .ifThen(!isExpanded) { verticalScroll(scrollState) },
-                                onClickComment = onClick,
-                                onSwitchExpand = onClick,
-                            )
-                        },
-                        right = {
-                            Column(Modifier.verticalScroll(rememberScrollState())) {
-                                DraftCommentSection(
-                                    showAddCommentEditor,
-                                    { showAddCommentEditor = it },
-                                    backgroundScope,
-                                    pagingState
-                                )
-
-                                visibleItems.firstOrNull()?.let {
-                                    val model = remember { CommentColumnViewModel(it) }
-                                    val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
-                                    val allSubComments by allSubCommentsFlow.collectAsState(null)
-                                    CommentColumn(allSubComments ?: emptyList())
-                                }
-                            }
-                        },
-                        initialLeftWeight = 0.618f,
-                        isRightVisible = isExpanded,
-                        modifier = Modifier.ifThen(isDraftAnswerEditorOpen) { width(0.dp) },
-                        dividerModifier = Modifier.padding(horizontal = 8.dp),
-                    )
-                }
-            }
-        }
+        initialLeftWeight = 0.618f,
+        isRightVisible = isExpanded,
+        modifier = Modifier.ifThen(isDraftAnswerEditorOpen) { width(0.dp) },
+        dividerModifier = Modifier.padding(horizontal = 8.dp),
     )
 }
 
@@ -279,158 +286,13 @@ private fun DraftAnswerButton(
                 )
             }
         } else {
-            Icon(Icons.Outlined.FolderOff, "Editor fold", Modifier.fillMaxHeight())
+            Icon(Icons.Outlined.FolderOff, "Fold Editor", Modifier.fillMaxHeight())
 
             Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                 Text(
-                    "Fold up editor",
+                    "Fold Editor",
                     Modifier.padding(start = 4.dp),
                 )
-            }
-        }
-    }
-}
-
-@Composable
-private fun DraftCommentSection(
-    showEditor: Boolean,
-    onShowEditorChange: (Boolean) -> Unit,
-    backgroundScope: CoroutineScope,
-    pagingState: ExpandablePagingState<CommentDownstream>
-) {
-    DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
-        val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
-
-        val editorState = rememberRichEditorState(isEditable = true)
-        RichEditor(
-            Modifier.fillMaxWidth().height(editorHeight),
-            displayMode = RichEditorDisplayMode.EDIT_ONLY,
-            isToolbarVisible = false,
-            state = editorState,
-        )
-
-        Button({
-            if (showEditor) {
-                pagingState.currentContent.value.firstOrNull()?.let { comment ->
-                    backgroundScope.launch {
-                        client.comments.postComment(
-                            comment.coid, CommentUpstream(
-                                content = editorState.contentMarkdown,
-                            )
-                        )
-                    }
-                }
-            }
-
-            onShowEditorChange(!showEditor)
-        }, Modifier.align(Alignment.End).animateContentSize()
-            .ifThen(!showEditor) { fillMaxWidth() }
-            .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
-        ) {
-            Text("Add Comment")
-        }
-    }
-}
-
-@Stable
-private val ANSWER_CONTENT_MAX_HEIGHT = 260.dp
-
-// when not expanded
-@Composable
-private fun AnswersList(
-    allItems: List<CommentDownstream>,
-    visibleIndices: IntRange,
-    isExpanded: Boolean,
-    modifier: Modifier = Modifier,
-    onSwitchExpand: ((index: Int, item: CommentDownstream) -> Unit)? = null,
-    onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
-) {
-    val onSwitchExpandState by rememberUpdatedState(onSwitchExpand)
-    val onClickCommentState by rememberUpdatedState(onClickComment)
-
-    Column(modifier) {
-        val allItemsIndexed = remember(allItems) { allItems.withIndex() }
-        for ((index, item) in allItemsIndexed) {
-            val viewModel = remember(item) { FullCommentCardViewModel(item) }
-            val sizeModifier = if (index in visibleIndices) {
-                Modifier
-                    .padding(bottom = 12.dp) // item spacing
-                    .fillMaxWidth()
-                    .then(
-                        if (isExpanded) Modifier.fillMaxHeight() else Modifier.wrapContentHeight()
-                    )
-            } else {
-                Modifier.requiredSize(0.dp) // `hide` item, but keep rich editor in memory (with size zero)
-            }
-
-            var richTextHasVisualOverflow by remember { mutableStateOf(false) }
-
-            val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
-            ExpandedCommentCard(
-                author = item.author,
-                date = postTimeFormatted ?: "",
-                showExpandButton = richTextHasVisualOverflow,
-                modifier = Modifier.then(sizeModifier),
-                onClickExpand = {
-                    onSwitchExpandState?.invoke(index, item)
-                },
-                isExpand = isExpanded,
-                subComments = if (isExpanded) {
-                    null
-                } else {
-                    {
-                        SubComments(
-                            item.previewSubComments,
-                            item.allSubCommentIds.size
-                        ) {
-                            onClickCommentState?.invoke(it, item)
-                        }
-                    }
-                },
-                actions = {},
-                reactions = {
-                    val reactions by viewModel.reactions.collectAsState(emptyList())
-                    ReactionBar(item.coid, reactions, applyLocalReactionsChange = {
-                        viewModel.setReactions(it)
-                    })
-
-                    if (!isExpanded) {
-                        OutlinedTextField(
-                            "", {},
-                            Modifier
-                                .height(48.dp)
-                                .clickable(indication = null) { onClickCommentState?.invoke(null, item) }
-                                .padding(top = 6.dp, bottom = 6.dp)
-                                .padding(horizontal = 12.dp)
-                                .fillMaxWidth(),
-                            readOnly = true,
-                            placeholder = {
-                                Text(
-                                    "Add your comment...",
-                                    Modifier.clickable(indication = null) { onClickCommentState?.invoke(null, item) }
-                                        .fillMaxWidth()
-                                )
-                            },
-                            shape = RoundedCornerShape(8.dp),
-                            contentPadding = PaddingValues(vertical = 4.dp, horizontal = 12.dp),
-                            colors = TextFieldDefaults.outlinedTextFieldColors(
-                                focusedBorderColor = MaterialTheme.colorScheme.outline.copy(0.3f),
-                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(0.3f),
-                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
-                            )
-                        )
-                    }
-                }
-            ) { backgroundColor ->
-                CommentCardContent(
-                    item,
-                    backgroundColor,
-                    Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) },
-                    showScrollbar = isExpanded && richTextHasVisualOverflow,
-                    onLayout = {
-                        richTextHasVisualOverflow = hasVisualOverflow
-                    },
-                ) // in column card
             }
         }
     }

@@ -15,7 +15,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.solvo.web.comments.commentCard.CommentCardPaddings
-import org.solvo.web.comments.showMore.ShowMoreSwitchState
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
@@ -28,11 +27,10 @@ internal val CommentCardShape = RoundedCornerShape(16.dp)
 @Composable
 internal fun CommentCard(
     paddings: CommentCardPaddings,
-    state: ShowMoreSwitchState,
     modifier: Modifier = Modifier,
     authorLine: (@Composable () -> Unit)? = null,
     onClickCard: () -> Unit = {},
-    showMoreSwitch: (@Composable (state: ShowMoreSwitchState) -> Unit)? = null,
+    showMoreSwitch: (@Composable () -> Unit)? = null,
     subComments: (@Composable () -> Unit)? = null,
     reactions: @Composable (() -> Unit)? = null,
     contentModifier: Modifier = Modifier,
@@ -62,7 +60,7 @@ internal fun CommentCard(
                 Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).padding(bottom = 6.dp)
                     .cursorHoverIcon(CursorIcon.POINTER)
             ) {
-                showMoreSwitch.invoke(state)
+                showMoreSwitch.invoke()
             }
         }
 

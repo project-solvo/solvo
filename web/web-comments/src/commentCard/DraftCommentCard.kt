@@ -2,11 +2,9 @@ package org.solvo.web.comments.commentCard
 
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import org.solvo.web.comments.commentCard.impl.CommentCard
-import org.solvo.web.comments.showMore.ShowMoreSwitchState
 
 /**
  * "Add Comment" Card
@@ -14,15 +12,13 @@ import org.solvo.web.comments.showMore.ShowMoreSwitchState
 @Composable
 fun DraftCommentCard(
     modifier: Modifier = Modifier,
-    state: ShowMoreSwitchState = remember { ShowMoreSwitchState() },
     onClickCard: () -> Unit = {},
-    showMoreSwitch: (@Composable (state: ShowMoreSwitchState) -> Unit)? = null,
+    showMoreSwitch: (@Composable () -> Unit)? = null,
     reactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     CommentCard(
         paddings = CommentCardPaddings.Small,
-        state = state,
         modifier = modifier,
         authorLine = null,
         onClickCard = onClickCard,
