@@ -3,8 +3,8 @@ package org.solvo.web.comments.reactions
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.*
-import org.solvo.model.Reaction
-import org.solvo.model.ReactionKind
+import org.solvo.model.api.communication.Reaction
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.requests.client
 import org.solvo.web.utils.replacedOrPlus
@@ -14,7 +14,7 @@ class ReactionBarViewModel(
     private val subjectCoid: Uuid,
     reactions: Flow<List<Reaction>>,
     private val applyLocalChange: (List<Reaction>) -> Unit,
-) : AbstractViewModel() : AbstractViewModel() {
+) : AbstractViewModel() {
     private val reactions: StateFlow<List<Reaction>> =
         reactions.stateIn(backgroundScope, started = SharingStarted.Eagerly, emptyList())
 

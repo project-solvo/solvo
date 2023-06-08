@@ -15,8 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import org.solvo.model.CommentDownstream
-import org.solvo.model.CommentUpstream
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.commentCard.DraftCommentCard
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichEditorDisplayMode
@@ -48,7 +49,7 @@ fun DraftCommentSection(
                     backgroundScope.launch {
                         client.comments.postComment(
                             comment.coid, CommentUpstream(
-                                content = editorState.contentMarkdown,
+                                content = NonBlankString.fromStringOrNull(editorState.contentMarkdown) ?: return@launch,
                             )
                         )
                     }

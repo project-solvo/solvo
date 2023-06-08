@@ -12,8 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import org.solvo.model.CommentDownstream
-import org.solvo.model.LightCommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
 import org.solvo.web.comments.commentCard.components.AuthorLineDateTextStyle
 import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle

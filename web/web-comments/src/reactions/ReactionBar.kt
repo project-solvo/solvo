@@ -26,7 +26,6 @@ fun ReactionBar(
     subjectCoid: Uuid,
     reactions: Flow<List<Reaction>>,
     applyLocalReactionsChange: (List<Reaction>) -> Unit,
-    applyLocalReactionsChange: (List<Reaction>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val applyLocalChangeState by rememberUpdatedState(applyLocalReactionsChange)
@@ -34,6 +33,7 @@ fun ReactionBar(
         ReactionBarViewModel(
             subjectCoid,
             reactions,
+            applyLocalChangeState
         )
     }
 
