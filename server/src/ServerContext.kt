@@ -106,7 +106,7 @@ private fun SampleDataBuilder.sampleData1() {
                 anonymous()
                 sharedContent(sharedContent1)
                 answer(alex) {
-                    content("I am answering my own question.")
+                    content("Try dynamic programming")
                     anonymous()
                     pin()
                 }
@@ -126,24 +126,43 @@ private fun SampleDataBuilder.sampleData1() {
                     content("I am commenting a question.")
                 }
             }
-            question("1b") {
-                content("Haha.")
-                sharedContent(sharedContent1)
-                anonymous()
-            }
+//            question("1b") {
+//                content("Haha.")
+//                sharedContent(sharedContent1)
+//                anonymous()
+//            }
+//            question("2a") {
+//                content {
+//                    """
+//                    Haha.
+//                    This is some image:
+//                    ![some image](${image1.url})          
+//                """.trimIndent()
+//                }
+//                anonymous()
+//            }
             question("2a") {
-                content {
-                    """
-                    Haha.
-                    This is some image:
-                    ![some image](${image1.url})          
-                """.trimIndent()
+                content("### 10 * 25 + 1 = ?")
+                anonymous()
+                answer(bob) {
+                    content(
+                        """
+                        I believe it's 251. 
+                        Calculations: 
+                        ```math
+                        10 * 25 + 1 = 250 + 1 =  251
+                        ```
+                        Smarter calculations:
+                        ```math
+                        10 * 25 + 1 = \sum_{i=1}^{10} 25 + 1 = 251
+                        ```
+                        Even smarter calculations:
+                        ```math
+                        10 * 25 + 1 = 25 + 25 + 25 + 25 + 25 + 25 + 25 + 25 + 25 + 25 + 1 = 251
+                        ```
+                    """.trimIndent()
+                    )
                 }
-                anonymous()
-            }
-            question("2b") {
-                content("Haha..!")
-                anonymous()
             }
             comment(bob) {
                 content("I am commenting an article!")

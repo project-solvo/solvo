@@ -10,7 +10,7 @@ import androidx.compose.ui.unit.sp
 import org.solvo.web.editor.impl.RichEditor
 import org.solvo.web.editor.impl.RichEditorIdManager
 
-val DEFAULT_RICH_EDITOR_FONT_SIZE = 18.sp
+val DEFAULT_RICH_EDITOR_FONT_SIZE = 20.sp
 
 @Composable
 fun rememberRichEditorState(

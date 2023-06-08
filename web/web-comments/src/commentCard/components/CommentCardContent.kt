@@ -1,10 +1,12 @@
 package org.solvo.web.comments.commentCard.components
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.key
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -20,23 +22,44 @@ fun CommentCardContent(
     backgroundColor: Color,
     modifier: Modifier = Modifier,
     showScrollbar: Boolean = true,
+    showFullAnswer: @Composable() (() -> Unit)? = null,
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
 ) {
+    @Suppress("NAME_SHADOWING")
+    val onLayout by rememberUpdatedState(onLayout)
+    var hasOverflow by remember { mutableStateOf(false) }
+
     key(item.coid) { // redraw editor when item id changed (do not reuse)
         val loadedState = rememberRichEditorLoadedState()
         OverlayLoadableContent(
             !loadedState.isReady,
             loadingContent = { LinearProgressIndicator(Modifier.height(2.dp)) }
         ) {
-            RichText(
-                item.content,
-                modifier = modifier.fillMaxWidth(),
-                onEditorLoaded = loadedState.onEditorLoaded,
-                onTextUpdated = loadedState.onTextChanged,
-                onLayout = onLayout,
-                backgroundColor = backgroundColor,
-                showScrollbar = showScrollbar,
-            )
+            Column {
+                RichText(
+                    item.content,
+                    modifier = modifier.fillMaxWidth(),
+                    onEditorLoaded = loadedState.onEditorLoaded,
+                    onTextUpdated = loadedState.onTextChanged,
+                    onLayout = {
+                        hasOverflow = hasVisualOverflow
+                        onLayout?.invoke(this)
+                    },
+                    backgroundColor = backgroundColor,
+                    showScrollbar = showScrollbar,
+                )
+
+                if (showFullAnswer != null && hasOverflow) {
+//                    Surface(
+//                        Modifier.fillMaxWidth().wrapContentHeight(),
+//                        color = MaterialTheme.colorScheme.surface.copy(0.7f),
+//                    ) {
+                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                        showFullAnswer()
+                    }
+//                    }
+                }
+            }
         }
     }
 }
