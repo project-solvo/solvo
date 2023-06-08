@@ -1,4 +1,4 @@
-package org.solvo.server.utils.sampleData
+package org.solvo.server.utils.sampleData.builder
 
 import io.ktor.http.*
 import org.solvo.server.ServerContext

@@ -1,9 +1,10 @@
-package org.solvo.server.utils.sampleData
+package org.solvo.server.utils.sampleData.builder
 
 import org.intellij.lang.annotations.Language
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
+import org.solvo.server.utils.sampleData.SampleDataDslMarker
 import java.util.*
 
 class CommentPostRequest(

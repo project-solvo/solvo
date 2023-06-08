@@ -1,4 +1,4 @@
-package org.solvo.server.utils.sampleData
+package org.solvo.server.utils.sampleData.builder
 
 import org.solvo.server.ServerContext
 import java.util.*

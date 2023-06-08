@@ -1,7 +1,8 @@
-package org.solvo.server.utils.sampleData
+package org.solvo.server.utils.sampleData.builder
 
 import org.solvo.model.api.communication.Course
 import org.solvo.server.ServerContext
+import org.solvo.server.utils.sampleData.SampleDataDslMarker
 
 
 class CoursePostRequest(

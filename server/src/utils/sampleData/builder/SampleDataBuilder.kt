@@ -1,8 +1,9 @@
-package org.solvo.server.utils.sampleData
+package org.solvo.server.utils.sampleData.builder
 
 import io.ktor.http.*
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.StaticResourcePurpose
+import org.solvo.server.utils.sampleData.SampleDataDslMarker
 
 @SampleDataDslMarker
 class SampleDataBuilder {
