@@ -11,7 +11,7 @@ object Versions {
     const val jsoup = "1.15.4"
     const val slf4j = "2.0.7"
     const val serialization = "1.5.0"
-    const val compose = "1.5.0-dev1049"
+    const val compose = "1.5.0-dev1063"
     const val exposed = "0.41.1"
     const val h2 = "2.1.214"
 }
