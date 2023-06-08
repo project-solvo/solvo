@@ -59,6 +59,9 @@ fun DraftCommentSection(
                             )
                         }
                     }
+                    if (editorState.contentMarkdown.isNotBlank()) {
+                        client.refresh()
+                    }
                 }
             }
 
