@@ -10,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -45,13 +46,18 @@ fun DraftCommentSection(
 
         Button({
             if (showEditor) {
-                pagingState.currentContent.value.firstOrNull()?.let { comment ->
-                    backgroundScope.launch {
-                        client.comments.postComment(
-                            comment.coid, CommentUpstream(
-                                content = NonBlankString.fromStringOrNull(editorState.contentMarkdown) ?: return@launch,
+                // val contentNull by remember(editorState.contentMarkdown == ""){ false }
+                if (!client.isLoginIn()) {
+                    client.jumpToLoginPage()
+                } else {
+                    pagingState.currentContent.value.firstOrNull()?.let { comment ->
+                        backgroundScope.launch {
+                            client.comments.postComment(
+                                comment.coid, CommentUpstream(
+                                    content = editorState.contentMarkdown,
+                                )
                             )
-                        )
+                        }
                     }
                 }
             }

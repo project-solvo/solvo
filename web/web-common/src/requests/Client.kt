@@ -10,6 +10,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.reflect.*
 import kotlinx.browser.window
 import kotlinx.serialization.json.Json
+import org.solvo.web.document.History
 import org.solvo.web.session.LocalSessionToken
 
 val client = Client()
@@ -33,6 +34,24 @@ class Client {
         }
     }
     val token: String? get() = LocalSessionToken.value
+
+
+    fun isLoginIn() = (token != null)
+
+    fun logOut() {
+        LocalSessionToken.remove()
+        refresh()
+    }
+
+    fun jumpToLoginPage() {
+        History.navigate {
+            auth()
+        }
+    }
+
+    fun refresh() {
+        window.location.href = window.location.href
+    }
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }
     val courses: CourseRequests by lazy { CourseRequests(this) }

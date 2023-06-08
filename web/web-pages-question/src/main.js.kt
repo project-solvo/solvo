@@ -184,14 +184,15 @@ private fun QuestionPageContent(
                         AnimatedVisibility(isDraftAnswerEditorOpen) {
                             Button(
                                 onClick = {
-                                    backgroundScope.launch {
-                                        client.comments.postAnswer(
-                                            question.coid,
-                                            CommentUpstream(
-                                                    NonBlankString.fromStringOrNull(draftAnswerEditor.contentMarkdown)
-                                                        ?: return@launch
-                                                )
-                                        )
+                                    if (draftAnswerEditor.contentMarkdown != "") {
+                                        backgroundScope.launch {
+                                            client.comments.postAnswer(
+                                                question.coid,
+                                                CommentUpstream(NonBlankString.fromStringOrNull(draftAnswerEditor.contentMarkdown)
+                                            ?: return@launch
+                                                ))
+                                        }
+                                        client.refresh()
                                     }
                                 },
                                 shape = buttonShape,
@@ -303,7 +304,13 @@ private fun DraftAnswerButton(
     modifier: Modifier = Modifier,
 ) {
     FilledTonalButton(
-        onClick = wrapClearFocus { pagingState.switchEditorEnable() },
+        onClick = wrapClearFocus {
+            if (!client.isLoginIn()) {
+                client.jumpToLoginPage()
+            } else {
+                pagingState.switchEditorEnable()
+            }
+        },
         modifier,
         shape = shape,
         contentPadding = contentPaddings,

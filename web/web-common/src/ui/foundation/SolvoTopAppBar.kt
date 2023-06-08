@@ -12,6 +12,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.DpOffset
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.History
+import org.solvo.web.requests.client
 import org.solvo.web.session.UserViewModel
 import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.image.RoundedUserAvatar
@@ -128,7 +129,9 @@ private fun RowScope.UserIcons(
         }
     }
     AnimatedVisibility(loggedIn == true) {
-        IconButton(onClick = wrapClearFocus {}) {
+        IconButton(onClick = wrapClearFocus {
+            client.logOut()
+        }) {
             Icon(Icons.Filled.Logout, null)
         }
     }
