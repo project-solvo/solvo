@@ -3,6 +3,7 @@
 package org.solvo.web.editor
 
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -38,7 +39,7 @@ fun RichEditor(
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
     state: RichEditorState = rememberRichEditorState(isEditable = true),
     displayMode: RichEditorDisplayMode = RichEditorDisplayMode.EDIT_PREVIEW,
-    fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
+    fontSize: TextUnit = LocalTextStyle.current.fontSize,
     isToolbarVisible: Boolean = true,
     isInDarkTheme: Boolean = LocalSolvoWindow.current.isInDarkMode(),
     backgroundColor: Color = Color.Unspecified,

@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.flow.emptyFlow
@@ -152,6 +153,7 @@ private fun QuestionPageContent(
                     question.content, Modifier.fillMaxSize(),
                     backgroundColor = MaterialTheme.colorScheme.background,
                     contentColor = MaterialTheme.colorScheme.onBackground,
+                    fontSize = 20.sp,
                 )
             }
         }
@@ -224,7 +226,8 @@ private fun QuestionPageContent(
                         then = { fillMaxHeight() },
                         `else` = { height(0.dp) }
                     ),
-                    state = draftAnswerEditor
+                    state = draftAnswerEditor,
+                    fontSize = 18.sp
                 )
 
                 ExpandedAnswerContent(

@@ -10,10 +10,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.solvo.model.api.communication.CommentDownstream
@@ -42,6 +42,7 @@ fun DraftCommentSection(
             displayMode = RichEditorDisplayMode.EDIT_ONLY,
             isToolbarVisible = false,
             state = editorState,
+            fontSize = 18.sp,
         )
 
         Button({

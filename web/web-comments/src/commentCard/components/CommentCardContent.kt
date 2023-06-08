@@ -22,7 +22,7 @@ fun CommentCardContent(
     backgroundColor: Color,
     modifier: Modifier = Modifier,
     showScrollbar: Boolean = true,
-    showFullAnswer: @Composable() (() -> Unit)? = null,
+    showFullAnswer: @Composable (() -> Unit)? = null,
     onLayout: (RichEditorLayoutResult.() -> Unit)? = null,
 ) {
     @Suppress("NAME_SHADOWING")
@@ -47,6 +47,7 @@ fun CommentCardContent(
                     },
                     backgroundColor = backgroundColor,
                     showScrollbar = showScrollbar,
+                    fontSize = AuthorNameTextStyle.fontSize,
                 )
 
                 if (showFullAnswer != null && hasOverflow) {

@@ -90,6 +90,8 @@ internal class RichEditor internal constructor(
     private val _size = mutableStateOf(IntSize.Zero)
     val size: State<IntSize> = _size
 
+    private val _fontSize: MutableState<Float> = mutableStateOf(0f)
+
     private val _boundsInRoot = mutableStateOf(Rect.Zero)
     val boundsInRoot: State<Rect> = _boundsInRoot
 
@@ -119,6 +121,15 @@ internal class RichEditor internal constructor(
         with(getHtmlEditormdDiv().asDynamic().style) {
             margin = "0px"
         }
+    }
+
+    suspend fun setContentMarkdown(value: String) {
+        onEditorLoaded {
+            expectEditorChange {
+                editor.setValue(value)
+            }
+        }
+        setFontSizePx(_fontSize.value)
     }
 
     internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
@@ -200,6 +211,7 @@ internal class RichEditor internal constructor(
     suspend fun setShowScrollBar(show: Boolean) {
         onEditorLoaded {
             getHtmlEditormdPreview().asDynamic().style.overflow = if (show) null else "hidden"
+            getHtmlPreviewMarkdownBody().asDynamic().style.overflow = if (show) null else "hidden"
         }
     }
 
@@ -335,13 +347,31 @@ internal class RichEditor internal constructor(
     }
 
     suspend fun setFontSize(size: TextUnit, density: Density) {
+        val px = with(density) {
+            size.value * fontScale
+        }
+        setFontSizePx(px)
+    }
+
+    private suspend fun setFontSizePx(px: Float) {
+        println("setFontSizePx px: $px")
+        _fontSize.value = px
         onEditorLoaded {
-            val px =
-                with(density) { (size / density.density).toPx() }
-            val markdownTextArea =
-                getHtmlPreviewMarkdownBody()
-            markdownTextArea.asDynamic().style.fontSize = px.toString() + "px"
-            getHtmlCodeMirrorBody().asDynamic().style.fontSize = px.toString() + "px"
+            val markdownTextArea = getHtmlPreviewMarkdownBody()
+
+            val pxText = px.toString() + "px"
+
+            markdownTextArea.asDynamic().style.fontSize = pxText
+            getHtmlCodeMirrorBody().asDynamic().style.fontSize = pxText
+            getHtmlPreviewMarkdownBody().children.asList().flatMap {
+                it.children.asList()
+            }.forEach {
+                val element = (it as? Element) ?: return@forEach
+                try {
+                    element.asDynamic().style.fontSize = pxText
+                } catch (_: Throwable) {
+                }
+            }
         }
     }
 

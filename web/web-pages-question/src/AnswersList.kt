@@ -117,20 +117,22 @@ fun AnswersList(
                     backgroundColor,
                     Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) },
                     showScrollbar = isExpanded && richTextHasVisualOverflow,
-                    showFullAnswer = {
-                        Row {
-                            Text(
-                                "... see full answer",
-                                Modifier.clickable(indication = null, onClick = wrapClearFocus<Unit> {
-                                    onClickCommentState?.invoke(null, item)
-                                }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
-                                fontWeight = FontWeight.W600,
-                                fontSize = AuthorNameTextStyle.fontSize,
-                                textAlign = TextAlign.End,
-                                textDecoration = TextDecoration.Underline,
-                                color = MaterialTheme.colorScheme.primary,
-                            )
-                            Icon(Icons.Outlined.OpenInNew, "See Full Answer")
+                    showFullAnswer = if (isExpanded) null else {
+                        {
+                            Row {
+                                Text(
+                                    "... see full answer",
+                                    Modifier.clickable(indication = null, onClick = wrapClearFocus<Unit> {
+                                        onClickCommentState?.invoke(null, item)
+                                    }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
+                                    fontWeight = FontWeight.W600,
+                                    fontSize = AuthorNameTextStyle.fontSize,
+                                    textAlign = TextAlign.End,
+                                    textDecoration = TextDecoration.Underline,
+                                    color = MaterialTheme.colorScheme.primary,
+                                )
+                                Icon(Icons.Outlined.OpenInNew, "See Full Answer")
+                            }
                         }
                     }
                 ) {
