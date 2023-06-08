@@ -10,6 +10,9 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.reflect.*
 import kotlinx.browser.window
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.modules.SerializersModule
+import org.solvo.model.foundation.Uuid
+import org.solvo.model.foundation.UuidAsStringSerializer
 import org.solvo.web.document.History
 import org.solvo.web.session.LocalSessionToken
 
@@ -30,6 +33,9 @@ class Client {
                 isLenient = true
                 ignoreUnknownKeys = true
                 encodeDefaults = true
+                serializersModule = SerializersModule {
+                    contextual(Uuid::class, UuidAsStringSerializer)
+                }
             })
         }
     }

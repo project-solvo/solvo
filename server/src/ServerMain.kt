@@ -13,7 +13,10 @@ import kotlinx.serialization.KSerializer
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonElement
+import kotlinx.serialization.modules.SerializersModule
 import org.slf4j.event.Level
+import org.solvo.model.foundation.Uuid
+import org.solvo.model.foundation.UuidAsStringSerializer
 import org.solvo.server.modules.accountModule
 import org.solvo.server.modules.authenticateModule
 import org.solvo.server.modules.content.contentModule
@@ -45,16 +48,16 @@ fun Application.basicModule() {
         filter { call -> call.request.path().startsWith("/") }
     }
     install(ContentNegotiation) {
-        json(Json {
-            ignoreUnknownKeys = true
-            encodeDefaults = true
-        })
+        json(DefaultJson)
     }
 }
 
 private val DefaultJson = Json {
     ignoreUnknownKeys = true
     encodeDefaults = true
+    serializersModule = SerializersModule {
+        contextual(Uuid::class, UuidAsStringSerializer)
+    }
 }
 
 internal suspend fun ApplicationCall.respondJsonElement(

@@ -20,18 +20,18 @@ class CommentRequests(
     suspend fun postComment(
         parentCoid: Uuid,
         upstream: CommentUpstream,
-    ): CommentDownstream? = postCommentImpl(parentCoid, upstream, isAnswer = false)
+    ): Uuid? = postCommentImpl(parentCoid, upstream, isAnswer = false)
 
     suspend fun postAnswer(
         parentCoid: Uuid,
         upstream: CommentUpstream,
-    ): CommentDownstream? = postCommentImpl(parentCoid, upstream, isAnswer = true)
+    ): Uuid? = postCommentImpl(parentCoid, upstream, isAnswer = true)
 
     private suspend fun postCommentImpl(
         parentCoid: Uuid,
         upstream: CommentUpstream,
         isAnswer: Boolean,
-    ): CommentDownstream? {
+    ): Uuid? {
         val url = if (isAnswer) {
             api("comments/$parentCoid/answer")
         } else {
