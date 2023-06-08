@@ -2,11 +2,6 @@ package org.solvo.web
 
 import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.*
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ZoomIn
-import androidx.compose.material.icons.filled.ZoomOut
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -32,14 +27,14 @@ fun PaperView(
             ) {
                 questionSelectedBar()
             }
-
-            IconButton(onZoomIn) {
-                Icon(Icons.Filled.ZoomIn, "Zoom In")
-            }
-
-            IconButton(onZoomOut) {
-                Icon(Icons.Filled.ZoomOut, "Zoom OUt")
-            }
+//
+//            IconButton(onZoomIn) {
+//                Icon(Icons.Filled.ZoomIn, "Zoom In")
+//            }
+//
+//            IconButton(onZoomOut) {
+//                Icon(Icons.Filled.ZoomOut, "Zoom OUt")
+//            }
         }
 
         Column(Modifier.fillMaxSize()) {

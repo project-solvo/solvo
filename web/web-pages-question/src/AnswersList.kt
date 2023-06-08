@@ -2,6 +2,8 @@ package org.solvo.web
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -103,17 +105,20 @@ fun AnswersList(
                     Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) },
                     showScrollbar = isExpanded && richTextHasVisualOverflow,
                     showFullAnswer = {
-                        Text(
-                            "... See Full Answer",
-                            Modifier.clickable(indication = null, onClick = wrapClearFocus<Unit> {
-                                onClickCommentState?.invoke(null, item)
-                            }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
-                            fontWeight = FontWeight.W600,
-                            fontSize = AuthorNameTextStyle.fontSize,
-                            textAlign = TextAlign.End,
-                            textDecoration = TextDecoration.Underline,
-                            color = MaterialTheme.colorScheme.primary,
-                        )
+                        Row {
+                            Text(
+                                "... see full answer",
+                                Modifier.clickable(indication = null, onClick = wrapClearFocus<Unit> {
+                                    onClickCommentState?.invoke(null, item)
+                                }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
+                                fontWeight = FontWeight.W600,
+                                fontSize = AuthorNameTextStyle.fontSize,
+                                textAlign = TextAlign.End,
+                                textDecoration = TextDecoration.Underline,
+                                color = MaterialTheme.colorScheme.primary,
+                            )
+                            Icon(Icons.Outlined.OpenInNew, "See Full Answer")
+                        }
                     }
                 ) {
                     richTextHasVisualOverflow = hasVisualOverflow
