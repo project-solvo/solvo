@@ -36,9 +36,9 @@ fun Application.authenticateModule() {
         post("/register") {
             val request = call.receive<AuthRequest>()
             val username = request.username
-            val hash = AuthDigest(request.password)
+            val hash = AuthDigest(request.password.str)
 
-            val response = accounts.register(username, hash)
+            val response = accounts.register(username.str, hash)
             call.respondAuth(response)
         }
 
@@ -52,9 +52,9 @@ fun Application.authenticateModule() {
         post("/login") {
             val request = call.receive<AuthRequest>()
             val username = request.username
-            val hash = AuthDigest(request.password)
+            val hash = AuthDigest(request.password.str)
 
-            val response = accounts.login(username, hash)
+            val response = accounts.login(username.str, hash)
             call.respondAuth(response)
         }
     }

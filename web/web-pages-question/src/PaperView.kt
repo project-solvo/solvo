@@ -55,8 +55,8 @@ fun PaperTitle(
     year: String,
 ) {
     Row {
-        Text(course.code, fontWeight = FontWeight.W800, fontSize = 22.sp)
-        Text(course.name, Modifier.padding(start = 4.dp), fontWeight = FontWeight.W800, fontSize = 22.sp)
+        Text(course.code.str, fontWeight = FontWeight.W800, fontSize = 22.sp)
+        Text(course.name.str, Modifier.padding(start = 4.dp), fontWeight = FontWeight.W800, fontSize = 22.sp)
         Text(year, Modifier.padding(start = 16.dp), fontWeight = FontWeight.W700, fontSize = 18.sp)
     }
 

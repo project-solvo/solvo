@@ -13,7 +13,7 @@ class CoursePostRequest(
         db: ServerContext.Databases,
     ) {
         db.contents.apply {
-            newCourse(Course(code, name))
+            newCourse(Course.fromString(code, name))
             articles.map { articleRequest -> articleRequest.submit(db, code) }
         }
     }

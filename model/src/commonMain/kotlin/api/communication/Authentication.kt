@@ -1,11 +1,12 @@
 package org.solvo.model.api.communication
 
 import kotlinx.serialization.Serializable
+import org.solvo.model.utils.NonBlankString
 
 @Serializable
 class AuthRequest(
-    val username: String,
-    val password: String,
+    val username: NonBlankString,
+    val password: NonBlankString,
 )
 
 @Serializable

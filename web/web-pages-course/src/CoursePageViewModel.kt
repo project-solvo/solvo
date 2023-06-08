@@ -17,7 +17,7 @@ class CoursePageViewModel : AbstractViewModel() {
     val course = params.course().filterNotNull().shareInBackground()
 
     val articles: SharedFlow<List<ArticleDownstream>> =
-        course.mapNotNull { client.courses.getAllArticles(it.code) }.shareInBackground()
+        course.mapNotNull { client.courses.getAllArticles(it.code.str) }.shareInBackground()
 
-    val courseCode: SharedFlow<String> = course.map { it.code }.shareInBackground()
+    val courseCode: SharedFlow<String> = course.map { it.code.str }.shareInBackground()
 }

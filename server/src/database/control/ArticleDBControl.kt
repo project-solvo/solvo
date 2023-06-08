@@ -44,18 +44,18 @@ class ArticleDBControlImpl(
     }
 
     override suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
-        if (content.termYear.length > ModelConstraints.TERM_TIME_MAX_LENGTH
-            || content.code.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH
+        if (content.termYear.str.length > ModelConstraints.TERM_TIME_MAX_LENGTH
+            || content.code.str.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH
         ) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         val courseId = courseDB.getId(courseCode) ?: return null
-        val termId = termDB.getOrInsertId(content.termYear)
+        val termId = termDB.getOrInsertId(content.termYear.str)
 
         dbQuery {
             assert(ArticleTable.insert {
                 it[ArticleTable.coid] = coid
-                it[ArticleTable.code] = content.code
-                it[ArticleTable.displayName] = content.displayName
+                it[ArticleTable.code] = content.code.str
+                it[ArticleTable.displayName] = content.displayName.str
                 it[ArticleTable.course] = courseId
                 it[ArticleTable.term] = termId
             }.resultedValues?.singleOrNull() != null)

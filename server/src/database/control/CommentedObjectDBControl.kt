@@ -30,7 +30,7 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : Commented
     protected suspend fun insertAndGetCOID(content: T, authorId: UUID): UUID? = dbQuery {
         CommentedObjectTable.insertIgnoreAndGetId {
             it[CommentedObjectTable.author] = authorId
-            it[CommentedObjectTable.content] = content.content
+            it[CommentedObjectTable.content] = content.content.str
             it[CommentedObjectTable.anonymity] = content.anonymity
         }?.value
     }

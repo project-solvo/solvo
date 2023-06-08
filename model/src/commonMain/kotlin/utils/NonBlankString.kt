@@ -30,7 +30,7 @@ value class NonBlankString private constructor(
     }
 }
 
-private object NonBlankStringSerializer : KSerializer<NonBlankString> {
+internal object NonBlankStringSerializer : KSerializer<NonBlankString> {
     override val descriptor: SerialDescriptor
         get() = String.serializer().descriptor
 

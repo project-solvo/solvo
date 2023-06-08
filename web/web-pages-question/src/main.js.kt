@@ -26,6 +26,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.api.communication.*
+import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.commentCard.DraftCommentCard
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
@@ -81,7 +82,7 @@ fun main() {
                     model.menuState,
                     onClickQuestion = wrapClearFocus { a: ArticleDownstream, q: QuestionDownstream ->
                         History.navigate {
-                            question(a.course.code, a.code, q.code)
+                            question(a.course.code.str, a.code, q.code)
                         }
                     }
                 )
@@ -114,7 +115,7 @@ private fun QuestionPageContent(
                                 selected = question.code == questionCode,
                                 onClick = wrapClearFocus {
                                     if (question.code != questionCode) {
-                                        History.pushState { question(course.code, article.code, questionCode) }
+                                        History.pushState { question(course.code.str, article.code, questionCode) }
                                     } // else: don't navigate if clicking same question
                                 },
                                 label = { Text(questionCode) },
@@ -168,7 +169,10 @@ private fun QuestionPageContent(
                                         backgroundScope.launch {
                                             client.comments.postAnswer(
                                                 question.coid,
-                                                CommentUpstream(draftAnswerEditor.contentMarkdown)
+                                                CommentUpstream(
+                                                    NonBlankString.fromStringOrNull(draftAnswerEditor.contentMarkdown)
+                                                        ?: return@launch
+                                                )
                                             )
                                         }
                                     },
@@ -302,7 +306,7 @@ private fun DraftCommentSection(
                     backgroundScope.launch {
                         client.comments.postComment(
                             comment.coid, CommentUpstream(
-                                content = editorState.contentMarkdown,
+                                content = NonBlankString.fromStringOrNull(editorState.contentMarkdown) ?: return@launch,
                             )
                         )
                     }

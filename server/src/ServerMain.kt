@@ -16,7 +16,7 @@ import kotlinx.serialization.json.JsonElement
 import org.slf4j.event.Level
 import org.solvo.server.modules.accountModule
 import org.solvo.server.modules.authenticateModule
-import org.solvo.server.modules.contentModule
+import org.solvo.server.modules.content.contentModule
 import org.solvo.server.modules.webPageModule
 
 object ServerMain {

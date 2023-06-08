@@ -65,13 +65,13 @@ fun HomePageContent(
 private fun CourseCard(item: Course) {
     ElevatedCard(
         onClick = {
-            History.navigate { course(item.code) }
+            History.navigate { course(item.code.str) }
         },
         modifier = Modifier.padding(25.dp).clickable {},
         shape = RoundedCornerShape(8.dp),
     ) {
         Text(
-            text = item.name,
+            text = item.name.str,
             modifier = Modifier.padding(15.dp),
             style = MaterialTheme.typography.headlineSmall,
         )

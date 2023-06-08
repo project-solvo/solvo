@@ -24,7 +24,7 @@ fun CommentLine(
         icon = {
             RoundedUserAvatar(subComment.author?.avatarUrl, 24.dp)
         },
-        authorName = { Text(subComment.author?.username ?: "") }, // TODO: 2023/5/29 handle anonymous 
+        authorName = { Text(subComment.author?.username?.str ?: "") }, // TODO: 2023/5/29 handle anonymous
     ) {
         Text(subComment.content)
     }

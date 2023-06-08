@@ -7,16 +7,17 @@ import kotlinx.serialization.UseSerializers
 import org.solvo.model.annotations.Immutable
 import org.solvo.model.foundation.Uuid
 import org.solvo.model.foundation.UuidAsStringSerializer
+import org.solvo.model.utils.NonBlankString
 
 @Immutable
 @Serializable
 class ArticleUpstream(
-    override val content: String,
+    override val content: NonBlankString,
     override val anonymity: Boolean,
 
-    val code: String,
-    val displayName: String,
-    val termYear: String,
+    val code: NonBlankString,
+    val displayName: NonBlankString,
+    val termYear: NonBlankString,
 ) : CommentableUpstream
 
 @Immutable

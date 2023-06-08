@@ -44,7 +44,7 @@ fun ExpandedCommentCard(
                     RoundedUserAvatar(author?.avatarUrl, 48.dp)
                 },
                 authorName = {
-                    Text(author?.username ?: "Anonymous")
+                    Text(author?.username?.str ?: "Anonymous")
                 },
                 date = {
                     Text(date)

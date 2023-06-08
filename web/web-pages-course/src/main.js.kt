@@ -61,7 +61,7 @@ fun PageContent(
             horizontalArrangement = Arrangement.Center
         ) {
             for (article in articles) {
-                CourseCard(course.code, article)
+                CourseCard(course.code.str, article)
             }
         }
     }
