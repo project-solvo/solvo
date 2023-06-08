@@ -49,23 +49,24 @@ fun DraftCommentSection(
                 if (!client.isLoginIn()) {
                     client.jumpToLoginPage()
                 } else {
-                    pagingState.currentContent.value.firstOrNull()?.let { comment ->
-                        backgroundScope.launch {
-                            client.comments.postComment(
-                                comment.coid, CommentUpstream(
-                                    content = NonBlankString.fromStringOrNull(editorState.contentMarkdown)
-                                        ?: return@launch,
-                                )
-                            )
-                        }
-                    }
                     if (editorState.contentMarkdown.isNotBlank()) {
+                        pagingState.currentContent.value.firstOrNull()?.let { comment ->
+                            backgroundScope.launch {
+                                client.comments.postComment(
+                                    comment.coid, CommentUpstream(
+                                        content = NonBlankString.fromStringOrNull(editorState.contentMarkdown)
+                                            ?: return@launch,
+                                    )
+                                )
+                            }
+                        }
                         client.refresh()
                     }
                 }
             }
-
-            onShowEditorChange(!showEditor)
+            if (editorState.contentMarkdown.isNotBlank()) {
+                onShowEditorChange(!showEditor)
+            }
         }, Modifier.align(Alignment.End).animateContentSize()
             .ifThen(!showEditor) { fillMaxWidth() }
             .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
