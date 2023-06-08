@@ -97,7 +97,7 @@ fun AnswersList(
                         applyLocalReactionsChange = {
                             viewModel.setReactions(it)
                         },
-                        Modifier.padding(bottom = 6.dp).heightIn(max = 42.dp),
+                        Modifier.heightIn(max = 42.dp),
                     )
 
                     Row(Modifier.padding(bottom = 6.dp).offset(x = (-12).dp)) {

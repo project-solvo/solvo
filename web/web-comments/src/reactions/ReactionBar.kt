@@ -77,8 +77,9 @@ fun ReactionsIconButton(state: ReactionBarViewModel, modifier: Modifier = Modifi
     IconButton(
         onClick = wrapClearFocus { stateUpdated.switchReactionList() },
         modifier = modifier,
+//        modifier = Modifier.then(modifier).background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)),
     ) {
-        Icon(Icons.Outlined.EmojiEmotions, "Interaction Button")
+        Icon(Icons.Outlined.EmojiEmotions, "Interaction Button") // tint = MaterialTheme.colorScheme.onPrimary
     }
 }
 
