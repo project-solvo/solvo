@@ -44,11 +44,12 @@ fun SolvoTopAppBar(
             IconButton(onClick = wrapClearFocus {
                 windowState.setDarkMode(
                     when (windowState.preferDarkMode.value) {
-                        null -> false
                         false -> true
-                        true -> null
+                        true -> false
+                        null -> true
                     }
                 )
+                client.refresh() // temporarily fix compose bug
             }) {
                 val isInDarkMode by windowState.preferDarkMode.collectAsState()
                 Icon(
