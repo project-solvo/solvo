@@ -30,7 +30,7 @@ fun SolvoTopAppBar(
         Modifier.fillMaxWidth(),
         navigationIcon = {
             Row {
-                navigationIcon()
+//                navigationIcon()
                 IconButton(onClick = wrapClearFocus {
                     History.navigate { home() }
                 }) {
@@ -58,9 +58,9 @@ fun SolvoTopAppBar(
                     }, null
                 )
             }
-            IconButton(onClick = wrapClearFocus { notifyMenu1 = !notifyMenu1 }) {
-                Icon(Icons.Filled.Notifications, null)
-            }
+//            IconButton(onClick = wrapClearFocus { notifyMenu1 = !notifyMenu1 }) {
+//                Icon(Icons.Filled.Notifications, null)
+//            }
 
             UserIcons(userViewModel)
 
@@ -132,11 +132,11 @@ private fun RowScope.UserIcons(
             Icon(Icons.Filled.Logout, null)
         }
     }
-    AnimatedVisibility(loggedIn == true) {
-        IconButton(onClick = wrapClearFocus {}) {
-            Icon(Icons.Filled.Settings, null)
-        }
-    }
+//    AnimatedVisibility(loggedIn == true) {
+//        IconButton(onClick = wrapClearFocus {}) {
+//            Icon(Icons.Filled.Settings, null)
+//        }
+//    }
     AnimatedVisibility(loggedIn == null) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             IconButton(onClick = wrapClearFocus {
