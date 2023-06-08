@@ -30,6 +30,7 @@ kotlin {
                 api(compose.components.resources)
                 api(`ktor-client-js`)
                 api(`ktor-client-content-negotiation`)
+                api(`ktor-client-websockets`)
                 api(`ktor-serialization-kotlinx-json`)
                 api(`kotlinx-serialization-json`)
                 api(`kotlinx-datetime`)

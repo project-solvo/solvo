@@ -19,6 +19,7 @@ kotlin {
         val commonMain by getting {
             dependencies {
                 api(`kotlinx-serialization-core`)
+                api(`kotlinx-serialization-json`)
             }
         }
         val jvmMain by getting {

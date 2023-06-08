@@ -4,21 +4,25 @@ import io.ktor.client.*
 import io.ktor.client.engine.js.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.contentnegotiation.*
+import io.ktor.client.plugins.websocket.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
+import io.ktor.serialization.kotlinx.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.util.reflect.*
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineExceptionHandler
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import org.solvo.model.foundation.Uuid
-import org.solvo.model.foundation.UuidAsStringSerializer
+import org.solvo.model.utils.DefaultCommonJson
 import org.solvo.web.document.History
 import org.solvo.web.session.LocalSessionToken
+import org.solvo.web.utils.byWindowAlert
 
 val client = Client()
 
 class Client {
+    internal val scope = CoroutineScope(CoroutineExceptionHandler.byWindowAlert())
     val origin = window.location.origin
     val http = HttpClient(Js) {
         install(HttpTimeout) {
@@ -28,15 +32,10 @@ class Client {
             socketTimeoutMillis = timeout
         }
         install(ContentNegotiation) {
-            json(Json {
-                prettyPrint = true
-                isLenient = true
-                ignoreUnknownKeys = true
-                encodeDefaults = true
-                serializersModule = SerializersModule {
-                    contextual(Uuid::class, UuidAsStringSerializer)
-                }
-            })
+            json(DefaultCommonJson)
+        }
+        install(WebSockets) {
+            contentConverter = KotlinxWebsocketSerializationConverter(Json)
         }
     }
     val token: String? get() = LocalSessionToken.value

@@ -10,6 +10,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -31,7 +32,8 @@ fun DraftCommentSection(
     showEditor: Boolean,
     onShowEditorChange: (Boolean) -> Unit,
     backgroundScope: CoroutineScope,
-    pagingState: ExpandablePagingState<CommentDownstream>
+    pagingState: ExpandablePagingState<CommentDownstream>,
+    onAddComment: (CommentUpstream) -> Unit,
 ) {
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
         val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
@@ -45,23 +47,25 @@ fun DraftCommentSection(
             fontSize = 18.sp,
         )
 
-        Button({
-            if (showEditor) {
-                if (!client.isLoginIn()) {
-                    client.jumpToLoginPage()
-                } else {
-                    if (editorState.contentMarkdown.isNotBlank()) {
-                        pagingState.currentContent.value.firstOrNull()?.let { comment ->
-                            backgroundScope.launch {
-                                client.comments.postComment(
-                                    comment.coid, CommentUpstream(
-                                        content = NonBlankString.fromStringOrNull(editorState.contentMarkdown)
-                                            ?: return@launch,
-                                    )
+        val onAddCommentState by rememberUpdatedState(onAddComment)
+
+        Button(
+            {
+                if (showEditor) {
+                    if (!client.isLoginIn()) {
+                        client.jumpToLoginPage()
+                    } else {
+                        if (editorState.contentMarkdown.isNotBlank()) {
+                            pagingState.currentContent.value.firstOrNull()?.let { comment ->
+                                val upstream = CommentUpstream(
+                                    content = NonBlankString.fromStringOrNull(editorState.contentMarkdown)
+                                        ?: return@let,
                                 )
+                                backgroundScope.launch {
+                                    client.comments.postComment(comment.coid, upstream)
+                                    onAddCommentState(upstream)
+                                }
                             }
-                        }
-                        client.refresh()
                     }
                 }
             }

@@ -3,9 +3,9 @@ package org.solvo.web.viewModel
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.RememberObserver
 import kotlinx.atomicfu.atomic
-import kotlinx.browser.window
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import org.solvo.web.utils.byWindowAlert
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
 
@@ -48,9 +48,7 @@ abstract class AbstractViewModel : RememberObserver {
     }
 
     private fun createBackgroundScope(): CoroutineScope {
-        return CoroutineScope(CoroutineExceptionHandler { _, throwable ->
-            window.alert(throwable.toString())
-        })
+        return CoroutineScope(CoroutineExceptionHandler.byWindowAlert())
     }
 
     /**
@@ -67,7 +65,7 @@ abstract class AbstractViewModel : RememberObserver {
     fun <T> Flow<T>.stateInBackground(
         started: SharingStarted = SharingStarted.Eagerly,
         initialValue: T
-    ): SharedFlow<T> = stateIn(backgroundScope, started, initialValue)
+    ): StateFlow<T> = stateIn(backgroundScope, started, initialValue)
 
 
     fun <T> Flow<T>.runningList(): Flow<List<T>> {

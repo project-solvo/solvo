@@ -235,7 +235,8 @@ private fun QuestionPageContent(
                     allAnswers,
                     isExpanded,
                     backgroundScope,
-                    isDraftAnswerEditorOpen
+                    isDraftAnswerEditorOpen,
+                    onAddComment = { }
                 )
             }
         }
@@ -248,7 +249,8 @@ private fun PagingContentContext<CommentDownstream>.ExpandedAnswerContent(
     allAnswers: List<CommentDownstream>,
     isExpanded: Boolean,
     backgroundScope: CoroutineScope,
-    isDraftAnswerEditorOpen: Boolean
+    isDraftAnswerEditorOpen: Boolean,
+    onAddComment: (CommentUpstream) -> Unit,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -277,17 +279,19 @@ private fun PagingContentContext<CommentDownstream>.ExpandedAnswerContent(
         },
         right = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                DraftCommentSection(
-                    showAddCommentEditor,
-                    { showAddCommentEditor = it },
-                    backgroundScope,
-                    pagingState
-                )
-
                 val visibleItems by visibleItems
                 val firstItem by remember { derivedStateOf { visibleItems.firstOrNull() } }
                 if (firstItem != null) {
                     val model = remember(firstItem) { CommentColumnViewModel(firstItem) }
+
+                    DraftCommentSection(
+                        showEditor = showAddCommentEditor,
+                        onShowEditorChange = { showAddCommentEditor = it },
+                        backgroundScope = backgroundScope,
+                        pagingState = pagingState,
+                        onAddComment = onAddComment
+                    )
+
                     val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
                     val allSubComments by allSubCommentsFlow.collectAsState(null)
                     CommentColumn(allSubComments ?: emptyList())

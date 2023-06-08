@@ -1,11 +1,24 @@
 package org.solvo.web.document
 
+import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.mutableStateOf
 import kotlinx.browser.window
 import org.solvo.web.document.parameters.WindowEvents
 import org.w3c.dom.CustomEvent
 
 object History {
     const val DEFAULT_TITLE = "Solvo"
+
+    private val _pageVersion: MutableState<Int> = mutableStateOf(0)
+    val pageVersion get() = _pageVersion.value
+
+    fun advancePageVersion() {
+        _pageVersion.value++
+    }
+
+//
+//    private val _currentState = mutableStateOf(0)
+//    val currentState: Any? get() = window.history.state
 
     /**
      * Navigate to page relative to origin

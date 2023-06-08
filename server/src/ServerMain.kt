@@ -1,6 +1,5 @@
 package org.solvo.server
 
-import io.ktor.http.*
 import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
@@ -8,15 +7,8 @@ import io.ktor.server.netty.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
-import io.ktor.server.response.*
-import kotlinx.serialization.KSerializer
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.modules.SerializersModule
 import org.slf4j.event.Level
-import org.solvo.model.foundation.Uuid
-import org.solvo.model.foundation.UuidAsStringSerializer
+import org.solvo.model.utils.DefaultCommonJson
 import org.solvo.server.modules.accountModule
 import org.solvo.server.modules.authenticateModule
 import org.solvo.server.modules.content.contentModule
@@ -48,29 +40,6 @@ fun Application.basicModule() {
         filter { call -> call.request.path().startsWith("/") }
     }
     install(ContentNegotiation) {
-        json(DefaultJson)
+        json(DefaultCommonJson)
     }
-}
-
-private val DefaultJson = Json {
-    ignoreUnknownKeys = true
-    encodeDefaults = true
-    serializersModule = SerializersModule {
-        contextual(Uuid::class, UuidAsStringSerializer)
-    }
-}
-
-internal suspend fun ApplicationCall.respondJsonElement(
-    element: JsonElement,
-    status: HttpStatusCode = HttpStatusCode.OK,
-) {
-    respondText(DefaultJson.encodeToString(element), ContentType.Application.Json, status)
-}
-
-internal suspend fun <T> ApplicationCall.respondJson(
-    serializer: KSerializer<T>,
-    element: T,
-    status: HttpStatusCode = HttpStatusCode.OK,
-) {
-    respondText(DefaultJson.encodeToString(serializer, element), ContentType.Application.Json, status)
 }
