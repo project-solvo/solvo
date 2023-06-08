@@ -42,9 +42,8 @@ fun CommentColumn(
                         state.showingMore.value -> Modifier.wrapContentHeight()
                         hasOverflow -> Modifier.heightIn(max = 200.dp)
                         else -> Modifier.heightIn(max = 200.dp)
-                    },
-                    onLayout = { hasOverflow = hasVisualOverflow }
-                )
+                    }
+                ) { hasOverflow = hasVisualOverflow }
             }
         }
     }

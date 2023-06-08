@@ -2,23 +2,29 @@ package org.solvo.web
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextFieldDefaults
-import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import org.solvo.model.CommentDownstream
 import org.solvo.model.LightCommentDownstream
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
+import org.solvo.web.comments.commentCard.components.AuthorLineDateTextStyle
+import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
 import org.solvo.web.comments.reactions.ReactionBar
 import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.ui.foundation.OutlinedTextField
 import org.solvo.web.ui.foundation.ifThen
+import org.solvo.web.ui.foundation.wrapClearFocus
+import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
+import org.solvo.web.ui.modifiers.cursorHoverIcon
 
 @Stable
 private val ANSWER_CONTENT_MAX_HEIGHT = 260.dp
@@ -60,7 +66,7 @@ fun AnswersList(
             ExpandedCommentCard(
                 author = item.author,
                 date = postTimeFormatted ?: "",
-                showExpandButton = richTextHasVisualOverflow,
+                showExpandButton = false && richTextHasVisualOverflow,
                 modifier = Modifier.then(sizeModifier),
                 onClickExpand = {
                     onSwitchExpandState?.invoke(index, item)
@@ -70,11 +76,13 @@ fun AnswersList(
                     null
                 } else {
                     {
-                        SubComments(
-                            item.previewSubComments,
-                            item.allSubCommentIds.size
-                        ) {
-                            onClickCommentState?.invoke(it, item)
+                        ProvideTextStyle(TextStyle(fontSize = AuthorLineDateTextStyle.fontSize)) {
+                            SubComments(
+                                item.previewSubComments,
+                                item.allSubCommentIds.size
+                            ) {
+                                onClickCommentState?.invoke(it, item)
+                            }
                         }
                     }
                 },
@@ -94,10 +102,22 @@ fun AnswersList(
                     backgroundColor,
                     Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) },
                     showScrollbar = isExpanded && richTextHasVisualOverflow,
-                    onLayout = {
-                        richTextHasVisualOverflow = hasVisualOverflow
-                    },
-                ) // in column card
+                    showFullAnswer = {
+                        Text(
+                            "... See Full Answer",
+                            Modifier.clickable(indication = null, onClick = wrapClearFocus<Unit> {
+                                onClickCommentState?.invoke(null, item)
+                            }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
+                            fontWeight = FontWeight.W600,
+                            fontSize = AuthorNameTextStyle.fontSize,
+                            textAlign = TextAlign.End,
+                            textDecoration = TextDecoration.Underline,
+                            color = MaterialTheme.colorScheme.primary,
+                        )
+                    }
+                ) {
+                    richTextHasVisualOverflow = hasVisualOverflow
+                } // in column card
             }
         }
     }

@@ -53,7 +53,7 @@ fun AuthorLine(
 }
 
 @Stable
-internal val AuthorNameTextStyle = TextStyle(
+val AuthorNameTextStyle = TextStyle(
     fontWeight = FontWeight.Bold,
     fontSize = 20.sp,
     fontFamily = UNICODE_FONT,
@@ -62,7 +62,7 @@ internal val AuthorNameTextStyle = TextStyle(
 )
 
 @Stable
-internal val AuthorLineDateTextStyle = TextStyle(
+val AuthorLineDateTextStyle = TextStyle(
     fontWeight = FontWeight.SemiBold,
     fontSize = 16.sp,
     fontFamily = UNICODE_FONT,
