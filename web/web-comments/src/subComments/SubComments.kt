@@ -64,25 +64,5 @@ fun SubComments(
             )
         }
     } else {
-        CommentLine(
-            Modifier
-                .cursorHoverIcon(CursorIcon.POINTER)
-                .clickable(indication = null) { onClickComment?.invoke(null) },
-            icon = {
-                Image(
-                    Icons.Outlined.Chat, "Add Your Comment", Modifier.fillMaxSize(),
-                    colorFilter = ColorFilter.tint(LocalContentColor.current)
-                )
-            },
-            message = {
-                Text(
-                    remember(totalCommentCount) { "Add your comment" },
-                    Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
-                    textDecoration = TextDecoration.Underline,
-                    color = MaterialTheme.colorScheme.primary,
-                    textAlign = TextAlign.Center
-                )
-            },
-        )
     }
 }
