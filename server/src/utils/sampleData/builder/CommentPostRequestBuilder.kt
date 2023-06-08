@@ -12,12 +12,13 @@ class CommentPostRequest(
     val content: () -> String,
     val anonymity: Boolean,
     val pinned: Boolean,
+    val reactions: MutableList<ReactionPostRequest> = mutableListOf(),
     val comments: List<CommentPostRequest> = listOf(),
     val isAnswer: Boolean = false,
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
-        parentId: UUID
+        parentId: UUID,
     ) {
         db.contents.apply {
             val commentId = if (isAnswer) {
@@ -25,7 +26,7 @@ class CommentPostRequest(
                     answer = CommentUpstream(NonBlankString.fromString(content()), anonymity),
                     authorId = author.uid,
                     questionId = parentId
-                )!! // TODO: fix bug (possibly problem with contains())
+                )!!
             } else {
                 postComment(
                     comment = CommentUpstream(NonBlankString.fromString(content()), anonymity),
@@ -33,8 +34,11 @@ class CommentPostRequest(
                     parentId = parentId
                 )!!
             }
+            if (isAnswer) {
+                reactions.forEach { reactionRequest -> reactionRequest.submit(db, commentId) }
+            }
             // TODO: pin the comment
-            comments.map { commentRequest -> commentRequest.submit(db, commentId) }
+            comments.forEach { commentRequest -> commentRequest.submit(db, commentId) }
         }
     }
 }
@@ -50,6 +54,9 @@ class CommentPostRequestBuilder(
 
     @PublishedApi
     internal var comments: MutableList<CommentPostRequest> = mutableListOf()
+
+    @PublishedApi
+    internal val reactions: MutableList<ReactionPostRequest> = mutableListOf()
 
     fun content(set: () -> String) {
         content = set
@@ -80,7 +87,12 @@ class CommentPostRequestBuilder(
         comments.add(CommentPostRequestBuilder(author).apply(builds).build())
     }
 
+    @SampleDataDslMarker
+    inline fun reaction(user: UserRegisterRequest, builds: ReactionPostRequestBuilder.() -> Unit) {
+        reactions.add(ReactionPostRequestBuilder(user).apply(builds).build())
+    }
+
     fun build(): CommentPostRequest {
-        return CommentPostRequest(author, content, anonymity, pinned, comments, isAnswer)
+        return CommentPostRequest(author, content, anonymity, pinned, reactions, comments, isAnswer)
     }
 }

@@ -1,12 +1,14 @@
 package org.solvo.server.utils.sampleData.data
 
 import io.ktor.http.*
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.sampleData.builder.SampleDataBuilder
 
 fun SampleDataBuilder.sampleData1() {
     val alex = user("Alex", AuthDigest("alex123"))
     val bob = user("Bob", AuthDigest("bob456"))
+    val carol = user("Carol", AuthDigest("carol789"))
 
     val image1a = image("./test-resources/Algorithm-2022-1a.png", alex, ContentType.Image.PNG)
     val answerImage1 = image("./test-resources/Answer-Image-1.png", alex, ContentType.Image.PNG)
@@ -42,6 +44,17 @@ fun SampleDataBuilder.sampleData1() {
                             ![some image](${answerImage1.url})
                         """.trimIndent()
                     }
+                    reaction(alex) {
+                        react(ReactionKind.PLUS_ONE)
+                    }
+                    reaction(bob) {
+                        react(ReactionKind.PLUS_ONE)
+                        react(ReactionKind.HEART)
+                    }
+                    reaction(carol) {
+                        react(ReactionKind.PLUS_ONE)
+                        react(ReactionKind.ROCKET)
+                    }
                 }
                 answer(bob) {
                     content(
@@ -54,6 +67,23 @@ fun SampleDataBuilder.sampleData1() {
                     )
                     comment(alex) {
                         content("great answer")
+                    }
+                    reaction(alex) {
+                        react(ReactionKind.PLUS_ONE)
+                        react(ReactionKind.SMILE)
+                    }
+                    reaction(carol) {
+                        react(ReactionKind.PLUS_ONE)
+                    }
+                }
+                answer(carol) {
+                    content("Haha!")
+                    reaction(alex) {
+                        react(ReactionKind.THINKING)
+                    }
+                    reaction(bob) {
+                        react(ReactionKind.THINKING)
+                        react(ReactionKind.EYES)
                     }
                 }
             }
