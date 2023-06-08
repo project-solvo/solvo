@@ -4,6 +4,7 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -16,6 +17,8 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.web.viewModel.launchInBackground
@@ -72,7 +75,11 @@ fun AuthenticationContent(viewModel: AuthenticationViewModel) {
                 onValueChange = { viewModel.setPassword(it) },
                 isError = (passwordError != null),
                 label = { Text("Password") },
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(8.dp),
+                keyboardOptions = KeyboardOptions(
+                    keyboardType = KeyboardType.Password,
+                ),
+                visualTransformation = PasswordVisualTransformation('*')
             )
         }
         AnimatedVisibility(passwordError != null) {
@@ -95,7 +102,11 @@ fun AuthenticationContent(viewModel: AuthenticationViewModel) {
                     onValueChange = { viewModel.setVerifyPassword(it) },
                     isError = (verifyPasswordError != null),
                     label = { Text("Verify Password") },
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
+                    keyboardOptions = KeyboardOptions(
+                        keyboardType = KeyboardType.Password,
+                    ),
+                    visualTransformation = PasswordVisualTransformation('*')
                 )
             }
         }
