@@ -20,7 +20,12 @@ class SampleDataBuilder {
 
     @SampleDataDslMarker
     fun sharedContent(content: String): SharedContentPostRequest {
-        return SharedContentPostRequest(content).also { sharedContents.add(it) }
+        return SharedContentPostRequest { content }.also { sharedContents.add(it) }
+    }
+
+    @SampleDataDslMarker
+    fun sharedContent(set: () -> String): SharedContentPostRequest {
+        return SharedContentPostRequest(set).also { sharedContents.add(it) }
     }
 
     @SampleDataDslMarker

@@ -43,7 +43,7 @@ class CommentPostRequestBuilder(
     private val author: UserRegisterRequest,
     private val isAnswer: Boolean = false,
 ) {
-    private var content: () -> String = { "" }
+    private var content: () -> String = { "Default content" }
     private var anonymity: Boolean = false
     private var pinned: Boolean = false
 

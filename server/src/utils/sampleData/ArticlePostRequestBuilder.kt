@@ -48,7 +48,7 @@ class ArticlePostRequestBuilder(
     private val code: String,
     private val author: UserRegisterRequest,
 ) {
-    private var content: () -> String = { "" }
+    private var content: () -> String = { "Default content" }
     private var anonymity: Boolean = false
     private var displayName: String = code
     private var termYear: String = ""

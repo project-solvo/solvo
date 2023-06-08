@@ -5,7 +5,7 @@ import org.solvo.server.ServerContext
 import java.util.*
 
 class SharedContentPostRequest(
-    val content: String
+    val content: () -> String
 ) {
     lateinit var id: UUID
         private set
@@ -14,7 +14,7 @@ class SharedContentPostRequest(
         db: ServerContext.Databases,
     ) {
         db.contents.apply {
-            id = postSharedContent(SharedContent(content))!!
+            id = postSharedContent(SharedContent(content()))!!
         }
     }
 }

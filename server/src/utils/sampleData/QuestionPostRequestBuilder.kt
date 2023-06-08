@@ -38,7 +38,7 @@ class QuestionPostRequest(
 class QuestionPostRequestBuilder(
     private val code: String
 ) {
-    private var content: () -> String = { "" }
+    private var content: () -> String = { "Default content" }
     private var anonymity = false
     private var sharedContent: SharedContentPostRequest? = null
 

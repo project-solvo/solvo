@@ -90,8 +90,10 @@ private fun SampleDataBuilder.sampleData1() {
     val alex = user("Alex", AuthDigest("alex123"))
     val bob = user("Bob", AuthDigest("bob456"))
 
-    val sharedContent1 = sharedContent("Question 1! What is 1 + 1?")
-    val image1 = image("./test-resources/image1.jpg", alex, ContentType.Image.JPEG)
+    val image1a = image("./test-resources/Algorithm-2022-1a.png", alex, ContentType.Image.PNG)
+    val sharedContent1a = sharedContent {
+        "![some image](${image1a.url})"
+    }
 
     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
 
@@ -101,10 +103,9 @@ private fun SampleDataBuilder.sampleData1() {
             anonymous()
             displayName("Paper 2022")
             termYear("2022")
-            question("1a") {
-                content("![](https://him188.github.io/static/images/Algorithm-2022-1a.png)")
+            question("1a.i)") {
+                content { "![some image](${image1a.url})" }
                 anonymous()
-                sharedContent(sharedContent1)
                 answer(alex) {
                     content("Try dynamic programming")
                     anonymous()
@@ -114,33 +115,21 @@ private fun SampleDataBuilder.sampleData1() {
                     content("I am answering a question!")
                     comment(alex) {
                         content("Hello bob")
-                        comment(bob) {
-                            content("Hello alex")
-                        }
-                        comment(alex) {
-                            content("Blah blah")
-                        }
                     }
                 }
-                comment(bob) {
-                    content("I am commenting a question.")
-                }
             }
-//            question("1b") {
-//                content("Haha.")
-//                sharedContent(sharedContent1)
-//                anonymous()
-//            }
-//            question("2a") {
-//                content {
-//                    """
-//                    Haha.
-//                    This is some image:
-//                    ![some image](${image1.url})          
-//                """.trimIndent()
-//                }
-//                anonymous()
-//            }
+            question("1a.ii)") {
+                content { "![some image](${image1a.url})" }
+                anonymous()
+            }
+            question("1a.iii)") {
+                content { "![some image](${image1a.url})" }
+                anonymous()
+            }
+            question("1b") {
+                content { "Haha..!" }
+                anonymous()
+            }
             question("2a") {
                 content("### 10 * 25 + 1 = ?")
                 anonymous()
