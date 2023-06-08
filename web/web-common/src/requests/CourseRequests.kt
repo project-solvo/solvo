@@ -2,8 +2,8 @@ package org.solvo.web.requests
 
 import io.ktor.client.call.*
 import io.ktor.client.request.*
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.Course
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.Course
 
 open class CourseRequests(
     override val client: Client,

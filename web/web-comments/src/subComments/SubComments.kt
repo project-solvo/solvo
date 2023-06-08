@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
-import org.solvo.model.LightCommentDownstream
+import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.web.comments.commentCard.components.CommentLine
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable

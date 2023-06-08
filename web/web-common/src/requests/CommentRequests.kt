@@ -3,10 +3,10 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.solvo.model.CommentDownstream
-import org.solvo.model.CommentUpstream
-import org.solvo.model.Reaction
-import org.solvo.model.ReactionKind
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.api.communication.Reaction
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.foundation.Uuid
 
 class CommentRequests(

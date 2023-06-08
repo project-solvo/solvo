@@ -1,7 +1,8 @@
 package org.solvo.server.utils.sampleData
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.QuestionUpstream
+import org.solvo.model.api.communication.QuestionUpstream
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -21,7 +22,9 @@ class QuestionPostRequest(
 
         db.contents.apply {
             val questionId = postQuestion(
-                question = QuestionUpstream(content(), anonymity, sharedContentId),
+                question = QuestionUpstream(
+                    NonBlankString.fromString(content()), anonymity, sharedContentId
+                ),
                 authorId = author.uid,
                 articleId = articleId,
                 code = code,

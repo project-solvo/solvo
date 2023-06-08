@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import org.solvo.model.CommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.web.comments.commentCard.CommentSummaryCard
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.rememberFullCommentCardViewModel

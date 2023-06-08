@@ -2,8 +2,8 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.Reaction
-import org.solvo.model.ReactionKind
+import org.solvo.model.api.communication.Reaction
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ReactionTable
 import java.util.*

@@ -1,10 +1,10 @@
 package org.solvo.server.database
 
 import io.ktor.http.*
-import org.solvo.model.User
+import org.solvo.model.api.communication.User
 import org.solvo.model.api.AccountChecker
-import org.solvo.model.api.AuthResponse
-import org.solvo.model.api.AuthStatus
+import org.solvo.model.api.communication.AuthResponse
+import org.solvo.model.api.communication.AuthStatus
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.AccountDBControl

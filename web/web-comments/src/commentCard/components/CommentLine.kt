@@ -10,7 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import org.solvo.model.LightCommentDownstream
+import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.web.ui.image.RoundedUserAvatar
 import org.solvo.web.ui.theme.UNICODE_FONT
 
@@ -24,7 +24,7 @@ fun CommentLine(
         icon = {
             RoundedUserAvatar(subComment.author?.avatarUrl, 24.dp)
         },
-        authorName = { Text(subComment.author?.username ?: "") }, // TODO: 2023/5/29 handle anonymous 
+        authorName = { Text(subComment.author?.username?.str ?: "") }, // TODO: 2023/5/29 handle anonymous
     ) {
         Text(subComment.content)
     }

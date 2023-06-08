@@ -1,7 +1,8 @@
 package org.solvo.server.utils.sampleData
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.CommentUpstream
+import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
 import java.util.*
 
@@ -20,13 +21,13 @@ class CommentPostRequest(
         db.contents.apply {
             val commentId = if (isAnswer) {
                 postAnswer(
-                    answer = CommentUpstream(content(), anonymity),
+                    answer = CommentUpstream(NonBlankString.fromString(content()), anonymity),
                     authorId = author.uid,
                     questionId = parentId
                 )!! // TODO: fix bug (possibly problem with contains())
             } else {
                 postComment(
-                    comment = CommentUpstream(content(), anonymity),
+                    comment = CommentUpstream(NonBlankString.fromString(content()), anonymity),
                     authorId = author.uid,
                     parentId = parentId
                 )!!

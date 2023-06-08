@@ -1,7 +1,8 @@
 package org.solvo.server.utils.sampleData
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.ArticleUpstream
+import org.solvo.model.api.communication.ArticleUpstream
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
 
 class ArticlePostRequest(
@@ -21,11 +22,11 @@ class ArticlePostRequest(
         db.contents.apply {
             val articleId = postArticle(
                 article = ArticleUpstream(
-                    content = content(),
+                    content = NonBlankString.fromString(content()),
                     anonymity = anonymity,
-                    code = code,
-                    displayName = displayName,
-                    termYear = termYear,
+                    code = NonBlankString.fromString(code),
+                    displayName = NonBlankString.fromString(displayName),
+                    termYear = NonBlankString.fromString(termYear),
                 ),
                 authorId = author.uid,
                 courseCode = courseCode,

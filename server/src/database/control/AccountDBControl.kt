@@ -2,8 +2,9 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.User
+import org.solvo.model.api.communication.User
 import org.solvo.model.utils.ModelConstraints
+import org.solvo.model.utils.NonBlankString
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -166,7 +167,7 @@ class AccountDBControlImpl : AccountDBControl {
             .map {
                 User(
                     uid,
-                    it[UserTable.username],
+                    NonBlankString.fromString(it[UserTable.username]),
                     it[UserTable.avatar]?.value?.let { avatarId ->
                         ServerContext.paths.resolveResourcePath(
                             avatarId,

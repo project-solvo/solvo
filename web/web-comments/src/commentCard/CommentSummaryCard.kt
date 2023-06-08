@@ -39,7 +39,7 @@ fun CommentSummaryCard(
                 icon = {
                     RoundedUserAvatar(author?.avatarUrl, 20.dp)
                 },
-                authorName = author?.username ?: "",
+                authorName = author?.username?.str ?: "",
                 date = postTime?.let { DateFormatter.format(it) } ?: "",
             )
         },

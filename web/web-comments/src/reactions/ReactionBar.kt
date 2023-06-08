@@ -14,8 +14,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.Flow
-import org.solvo.model.Reaction
-import org.solvo.model.ReactionKind
+import org.solvo.model.api.communication.Reaction
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.theme.EMOJI_FONT
@@ -25,6 +25,7 @@ import org.solvo.web.viewModel.launchInBackgroundAnimated
 fun ReactionBar(
     subjectCoid: Uuid,
     reactions: Flow<List<Reaction>>,
+    applyLocalReactionsChange: (List<Reaction>) -> Unit,
     applyLocalReactionsChange: (List<Reaction>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -46,7 +47,7 @@ fun ReactionBar(
             }
 
             FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (kind in ReactionKind.entries) {
+                for (kind in ReactionKind.values()) {
                     val reaction by state.reaction(kind).collectAsState(null)
                     val count by remember {
                         derivedStateOf {

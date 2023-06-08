@@ -2,9 +2,9 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.CommentDownstream
-import org.solvo.model.CommentUpstream
-import org.solvo.model.LightCommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable

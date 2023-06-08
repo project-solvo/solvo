@@ -1,6 +1,6 @@
 package org.solvo.server.database
 
-import org.solvo.model.*
+import org.solvo.model.api.communication.*
 import org.solvo.server.database.control.*
 import java.util.*
 
@@ -34,7 +34,7 @@ class ContentDBFacadeImpl(
     private val reactions: ReactionDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
-        if (courses.getId(course.code) != null) return null
+        if (courses.getId(course.code.toString()) != null) return null
         return courses.insert(course)
     }
 
@@ -71,7 +71,7 @@ class ContentDBFacadeImpl(
 
     override suspend fun getCourseName(courseCode: String): String? {
         val courseId = courses.getId(courseCode) ?: return null
-        return courses.getCourse(courseId)?.name
+        return courses.getCourse(courseId)?.name?.toString()
     }
 
     override suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>? {

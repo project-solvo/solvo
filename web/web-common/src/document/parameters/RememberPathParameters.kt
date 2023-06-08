@@ -7,9 +7,9 @@ import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.Course
-import org.solvo.model.QuestionDownstream
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.Course
+import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.requests.client
 

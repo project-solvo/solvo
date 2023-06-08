@@ -2,7 +2,7 @@ package org.solvo.web.comments.subComments
 
 import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.*
-import org.solvo.model.CommentDownstream
+import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
 

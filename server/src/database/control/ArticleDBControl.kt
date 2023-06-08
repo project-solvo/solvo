@@ -2,8 +2,8 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.ArticleUpstream
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.ArticleUpstream
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
@@ -44,18 +44,18 @@ class ArticleDBControlImpl(
     }
 
     override suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
-        if (content.termYear.length > ModelConstraints.TERM_TIME_MAX_LENGTH
-            || content.code.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH
+        if (content.termYear.str.length > ModelConstraints.TERM_TIME_MAX_LENGTH
+            || content.code.str.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH
         ) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         val courseId = courseDB.getId(courseCode) ?: return null
-        val termId = termDB.getOrInsertId(content.termYear)
+        val termId = termDB.getOrInsertId(content.termYear.str)
 
         dbQuery {
             assert(ArticleTable.insert {
                 it[ArticleTable.coid] = coid
-                it[ArticleTable.code] = content.code
-                it[ArticleTable.displayName] = content.displayName
+                it[ArticleTable.code] = content.code.str
+                it[ArticleTable.displayName] = content.displayName.str
                 it[ArticleTable.course] = courseId
                 it[ArticleTable.term] = termId
             }.resultedValues?.singleOrNull() != null)

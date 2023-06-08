@@ -13,7 +13,8 @@ import org.solvo.web.viewModel.AbstractViewModel
 class ReactionBarViewModel(
     private val subjectCoid: Uuid,
     reactions: Flow<List<Reaction>>,
-) : AbstractViewModel() {
+    private val applyLocalChange: (List<Reaction>) -> Unit,
+) : AbstractViewModel() : AbstractViewModel() {
     private val reactions: StateFlow<List<Reaction>> =
         reactions.stateIn(backgroundScope, started = SharingStarted.Eagerly, emptyList())
 

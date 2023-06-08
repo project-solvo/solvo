@@ -1,6 +1,6 @@
 package org.solvo.server.utils.sampleData
 
-import org.solvo.model.Course
+import org.solvo.model.api.communication.Course
 import org.solvo.server.ServerContext
 
 
@@ -13,7 +13,7 @@ class CoursePostRequest(
         db: ServerContext.Databases,
     ) {
         db.contents.apply {
-            newCourse(Course(code, name))
+            newCourse(Course.fromString(code, name))
             articles.map { articleRequest -> articleRequest.submit(db, code) }
         }
     }

@@ -1,9 +1,10 @@
-package org.solvo.model
+package org.solvo.model.api.communication
 
 import org.solvo.model.foundation.Uuid
+import org.solvo.model.utils.NonBlankString
 
 interface CommentableUpstream {
-    val content: String
+    val content: NonBlankString
     val anonymity: Boolean
 }
 

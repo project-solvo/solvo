@@ -5,7 +5,7 @@ import org.jetbrains.exposed.sql.insertAndGetId
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.selectAll
-import org.solvo.model.Course
+import org.solvo.model.api.communication.Course
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CourseTable
@@ -20,7 +20,7 @@ interface CourseDBControl {
 
 class CourseDBControlImpl : CourseDBControl {
     override suspend fun all(): List<Course> = dbQuery {
-        CourseTable.selectAll().map { Course(it[CourseTable.code], it[CourseTable.name]) }
+        CourseTable.selectAll().map { Course.fromString(it[CourseTable.code], it[CourseTable.name]) }
     }
 
     override suspend fun getId(courseCode: String): Int? = dbQuery {
@@ -33,26 +33,26 @@ class CourseDBControlImpl : CourseDBControl {
     override suspend fun getCourse(courseId: Int): Course? = dbQuery {
         CourseTable
             .select(CourseTable.id eq courseId)
-            .map { Course(it[CourseTable.code], it[CourseTable.name]) }
+            .map { Course.fromString(it[CourseTable.code], it[CourseTable.name]) }
             .singleOrNull()
     }
 
     override suspend fun getIdOrInsert(course: Course): Int = dbQuery {
-        getId(course.code) ?: CourseTable.insertAndGetId {
-            it[CourseTable.code] = course.code
-            it[CourseTable.name] = course.name
+        getId(course.code.str) ?: CourseTable.insertAndGetId {
+            it[CourseTable.code] = course.code.str
+            it[CourseTable.name] = course.name.str
         }.value
     }
 
     override suspend fun insert(course: Course): Int? = dbQuery {
-        if (course.code.length > ModelConstraints.COURSE_CODE_MAX_LENGTH
-            || course.name.length > ModelConstraints.COURSE_NAME_MAX_LENGTH) {
+        if (course.code.str.length > ModelConstraints.COURSE_CODE_MAX_LENGTH
+            || course.name.str.length > ModelConstraints.COURSE_NAME_MAX_LENGTH) {
             return@dbQuery null
         }
 
         CourseTable.insertIgnoreAndGetId {
-            it[CourseTable.code] = course.code
-            it[CourseTable.name] = course.name
+            it[CourseTable.code] = course.code.str
+            it[CourseTable.name] = course.name.str
         }?.value
     }
 }

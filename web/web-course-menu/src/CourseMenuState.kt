@@ -4,8 +4,8 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.QuestionDownstream
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.QuestionDownstream
 
 
 @Stable

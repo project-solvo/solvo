@@ -1,18 +1,19 @@
 @file:UseSerializers(UuidAsStringSerializer::class)
 
-package org.solvo.model
+package org.solvo.model.api.communication
 
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.solvo.model.annotations.Immutable
 import org.solvo.model.foundation.Uuid
 import org.solvo.model.foundation.UuidAsStringSerializer
+import org.solvo.model.utils.NonBlankString
 
 
 @Immutable
 @Serializable
 class CommentUpstream(
-    override val content: String,
+    override val content: NonBlankString,
     override val anonymity: Boolean = false,
 ) : CommentableUpstream
 

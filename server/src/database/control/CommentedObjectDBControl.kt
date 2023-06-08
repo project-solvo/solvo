@@ -5,8 +5,8 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
-import org.solvo.model.CommentableDownstream
-import org.solvo.model.CommentableUpstream
+import org.solvo.model.api.communication.CommentableDownstream
+import org.solvo.model.api.communication.CommentableUpstream
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.COIDTable
@@ -30,7 +30,7 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : Commented
     protected suspend fun insertAndGetCOID(content: T, authorId: UUID): UUID? = dbQuery {
         CommentedObjectTable.insertIgnoreAndGetId {
             it[CommentedObjectTable.author] = authorId
-            it[CommentedObjectTable.content] = content.content
+            it[CommentedObjectTable.content] = content.content.str
             it[CommentedObjectTable.anonymity] = content.anonymity
         }?.value
     }

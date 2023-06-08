@@ -16,9 +16,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
-import org.solvo.model.ArticleDownstream
-import org.solvo.model.Course
-import org.solvo.model.QuestionDownstream
+import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.Course
+import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
@@ -53,7 +53,7 @@ fun CourseMenuContent(state: CourseMenuState) {
                         0u,
                         "50001",
                         "50001",
-                        Course("50001", "50001"),
+                        Course.fromString("50001", "50001"),
                         "2020",
                         listOf("1a", "1b", "2a"),
                         listOf(),

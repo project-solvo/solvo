@@ -1,9 +1,10 @@
 package org.solvo.web
 
-import org.solvo.model.CommentDownstream
-import org.solvo.model.LightCommentDownstream
-import org.solvo.model.User
+import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.LightCommentDownstream
+import org.solvo.model.api.communication.User
 import org.solvo.model.foundation.Uuid
+import org.solvo.model.utils.NonBlankString
 import org.solvo.web.dummy.createDummyText
 import kotlin.random.Random
 import kotlin.random.nextUInt
@@ -17,7 +18,7 @@ fun createCommentDownstream(): CommentDownstream {
         if (Random.nextBoolean()) {
             null
         } else {
-            User(Uuid.random(), "User $id", null)
+            User(Uuid.random(), NonBlankString.fromString("User $id"), null)
         },
         createDummyText(id),
         Random.nextBoolean(),
@@ -29,8 +30,14 @@ fun createCommentDownstream(): CommentDownstream {
         0,
         0,
         listOf(
-            LightCommentDownstream(User(id = Uuid.random(), "查尔斯", null), "你是好人！"),
-            LightCommentDownstream(User(id = Uuid.random(), "Commenter2", null), "[Image] Content 2"),
+            LightCommentDownstream(
+                User(id = Uuid.random(), NonBlankString.fromString("查尔斯"), null),
+                "你是好人！"
+            ),
+            LightCommentDownstream(
+                User(id = Uuid.random(), NonBlankString.fromString("Commenter2"), null),
+                "[Image] Content 2"
+            ),
         ),
         listOf(),
     )
