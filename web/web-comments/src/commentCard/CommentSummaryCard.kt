@@ -23,7 +23,6 @@ fun CommentSummaryCard(
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable (state: ShowMoreSwitchState) -> Unit)? = null,
-    reactions: (@Composable () -> Unit)? = null,
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     @Suppress("NAME_SHADOWING")
@@ -45,7 +44,6 @@ fun CommentSummaryCard(
         },
         onClickCard = onClickCard,
         showMoreSwitch = { showMoreSwitch?.invoke(state) },
-        reactions = reactions,
         content = content,
     )
 }

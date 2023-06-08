@@ -1,12 +1,8 @@
 package org.solvo.web.comments.commentCard.impl
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.surfaceColorAtElevation
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -31,8 +27,7 @@ internal fun CommentCard(
     authorLine: (@Composable () -> Unit)? = null,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable () -> Unit)? = null,
-    subComments: (@Composable () -> Unit)? = null,
-    reactions: @Composable (() -> Unit)? = null,
+    subComments: (@Composable ColumnScope.() -> Unit)? = null,
     contentModifier: Modifier = Modifier,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
@@ -57,7 +52,7 @@ internal fun CommentCard(
 
         if (showMoreSwitch != null) {
             Column(
-                Modifier.padding(horizontal = 16.dp).padding(top = 6.dp).padding(bottom = 6.dp)
+                Modifier.padding(horizontal = 16.dp).padding(vertical = 6.dp)
                     .cursorHoverIcon(CursorIcon.POINTER)
             ) {
                 showMoreSwitch.invoke()
@@ -65,23 +60,19 @@ internal fun CommentCard(
         }
 
         if (subComments != null) {
+            Divider(
+                Modifier.padding(vertical = 8.dp).fillMaxWidth(),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(0.3f)
+            )
             Column(
-                Modifier.padding(horizontal = 16.dp).padding(top = 6.dp)
-                    .background(Color(0x212121), shape = CommentCardShape)
-                    .fillMaxWidth()
-                    .wrapContentHeight()
+                Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             ) {
-                subComments.invoke()
+                subComments.invoke(this)
             }
         }
 
-        if (reactions != null) {
-            Column(Modifier.padding(horizontal = 4.dp).padding(vertical = 2.dp)) {
-                reactions.invoke()
-            }
-        }
-
-        if (subComments == null && reactions == null) {
+        if (subComments == null) {
             Spacer(Modifier.height(paddings.bottom).fillMaxWidth())
         }
     }

@@ -25,9 +25,8 @@ fun ExpandedCommentCard(
     contentModifier: Modifier = Modifier,
     onClickExpand: () -> Unit = {},
     isExpand: Boolean = false,
-    subComments: @Composable (() -> Unit)? = null,
+    subComments: @Composable (ColumnScope.() -> Unit)? = null,
     actions: (@Composable () -> Unit)? = null,
-    reactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     CommentCard(
@@ -58,7 +57,6 @@ fun ExpandedCommentCard(
         showMoreSwitch = null,
         subComments = subComments,
         contentModifier = contentModifier,
-        reactions = reactions,
         content = content,
     )
 }

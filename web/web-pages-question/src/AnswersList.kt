@@ -20,6 +20,8 @@ import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
 import org.solvo.web.comments.reactions.ReactionBar
+import org.solvo.web.comments.reactions.ReactionsIconButton
+import org.solvo.web.comments.reactions.rememberReactionBarViewModel
 import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.ui.foundation.OutlinedTextField
 import org.solvo.web.ui.foundation.ifThen
@@ -65,39 +67,50 @@ fun AnswersList(
             var richTextHasVisualOverflow by remember { mutableStateOf(false) }
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
+
             ExpandedCommentCard(
                 author = item.author,
                 date = postTimeFormatted ?: "",
-                showExpandButton = false && richTextHasVisualOverflow,
+                showExpandButton = false,
                 modifier = Modifier.then(sizeModifier),
                 onClickExpand = {
                     onSwitchExpandState?.invoke(index, item)
                 },
                 isExpand = isExpanded,
-                subComments = if (isExpanded) {
-                    null
-                } else {
-                    {
+                subComments = {
+                    if (!isExpanded) {
                         ProvideTextStyle(TextStyle(fontSize = AuthorLineDateTextStyle.fontSize)) {
                             SubComments(
                                 item.previewSubComments,
-                                item.allSubCommentIds.size
+                                item.allSubCommentIds.size,
+                                Modifier.padding(top = 4.dp)
                             ) {
                                 onClickCommentState?.invoke(it, item)
                             }
                         }
                     }
+
+                    val reactionBarState = rememberReactionBarViewModel(item.coid, viewModel.reactions)
+
+                    ReactionBar(
+                        reactionBarState,
+                        applyLocalReactionsChange = {
+                            viewModel.setReactions(it)
+                        },
+                        Modifier.padding(bottom = 6.dp).heightIn(max = 42.dp),
+                    )
+
+                    Row(Modifier.padding(bottom = 6.dp).offset(x = (-12).dp)) {
+                        ReactionsIconButton(reactionBarState)
+                        if (!isExpanded) {
+                            AddYourCommentTextField(
+                                onClickCommentState,
+                                item,
+                            )
+                        }
+                    }
                 },
                 actions = {},
-                reactions = {
-                    ReactionBar(item.coid, viewModel.reactions, applyLocalReactionsChange = {
-                        viewModel.setReactions(it)
-                    })
-
-                    if (!isExpanded) {
-                        AddYourCommentTextField(onClickCommentState, item)
-                    }
-                }
             ) { backgroundColor ->
                 CommentCardContent(
                     item,
@@ -131,18 +144,18 @@ fun AnswersList(
 @Composable
 private fun AddYourCommentTextField(
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)?,
-    item: CommentDownstream
+    item: CommentDownstream,
+    modifier: Modifier = Modifier,
 ) {
     val onClickCommentState by rememberUpdatedState(onClickComment)
     val itemState by rememberUpdatedState(item)
 
     OutlinedTextField(
         "", {},
-        Modifier
+        modifier
             .height(48.dp)
             .clickable(indication = null) { onClickCommentState?.invoke(null, itemState) }
-            .padding(top = 6.dp, bottom = 6.dp)
-            .padding(horizontal = 12.dp)
+            .padding(top = 6.dp, bottom = 6.dp) // inner
             .fillMaxWidth(),
         readOnly = true,
         placeholder = {

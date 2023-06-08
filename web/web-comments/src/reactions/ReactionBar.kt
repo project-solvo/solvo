@@ -1,7 +1,10 @@
 package org.solvo.web.comments.reactions
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.FlowRow
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.EmojiEmotions
 import androidx.compose.material3.*
@@ -22,54 +25,61 @@ import org.solvo.web.ui.theme.EMOJI_FONT
 import org.solvo.web.viewModel.launchInBackgroundAnimated
 
 @Composable
-fun ReactionBar(
+fun rememberReactionBarViewModel(
     subjectCoid: Uuid,
     reactions: Flow<List<Reaction>>,
+) = remember(subjectCoid, reactions) {
+    ReactionBarViewModel(
+        subjectCoid,
+        reactions,
+    )
+}
+
+@Composable
+fun ReactionBar(
+    viewModel: ReactionBarViewModel,
     applyLocalReactionsChange: (List<Reaction>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val applyLocalChangeState by rememberUpdatedState(applyLocalReactionsChange)
-    val state: ReactionBarViewModel = remember(subjectCoid, reactions) {
-        ReactionBarViewModel(
-            subjectCoid,
-            reactions,
-            applyLocalChangeState
-        )
-    }
+    val viewModelState by rememberUpdatedState(viewModel)
 
     // Image
-    Column(modifier) {
-        Row(verticalAlignment = Alignment.CenterVertically) {
-            IconButton(
-                onClick = wrapClearFocus { state.switchReactionList() },
-            ) {
-                Icon(Icons.Outlined.EmojiEmotions, "Interaction Button")
-            }
-
-            FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                for (kind in ReactionKind.values()) {
-                    val reaction by state.reaction(kind).collectAsState(null)
-                    val count by remember {
-                        derivedStateOf {
-                            reaction?.count ?: 0
-                        }
-                    }
-                    val isSelf by remember { derivedStateOf { reaction?.self ?: false } }
-                    val reactionListOpen by state.reactionListOpen
-                    AnimatedVisibility(reactionListOpen || count != 0) {
-                        val isProcessing = remember { mutableStateOf(false) }
-                        EmojiChip(kind, count, isSelf, isProcessing.value, onClick = {
-                            state.launchInBackgroundAnimated(isProcessing) {
-                                react(kind, applyLocalChangeState)
-                            }
-                        })
-                    }
+    FlowRow(
+        modifier,
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
+        for (kind in ReactionKind.entries) {
+            val reaction by viewModelState.reaction(kind).collectAsState(null)
+            val count by remember {
+                derivedStateOf {
+                    reaction?.count ?: 0
                 }
+            }
+            val isSelf by remember { derivedStateOf { reaction?.self ?: false } }
+            val reactionListOpen by viewModelState.reactionListOpen
+            AnimatedVisibility(reactionListOpen || count != 0) {
+                val isProcessing = remember { mutableStateOf(false) }
+                EmojiChip(kind, count, isSelf, isProcessing.value, onClick = {
+                    viewModelState.launchInBackgroundAnimated(isProcessing) {
+                        react(kind, applyLocalChangeState)
+                    }
+                })
             }
         }
     }
+}
 
-
+@Composable
+fun ReactionsIconButton(state: ReactionBarViewModel, modifier: Modifier = Modifier) {
+    val stateUpdated by rememberUpdatedState(state)
+    IconButton(
+        onClick = wrapClearFocus { stateUpdated.switchReactionList() },
+        modifier = modifier,
+    ) {
+        Icon(Icons.Outlined.EmojiEmotions, "Interaction Button")
+    }
 }
 
 @Composable

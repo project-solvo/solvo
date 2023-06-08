@@ -14,7 +14,6 @@ fun DraftCommentCard(
     modifier: Modifier = Modifier,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable () -> Unit)? = null,
-    reactions: (@Composable () -> Unit)? = null,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     CommentCard(
@@ -24,7 +23,6 @@ fun DraftCommentCard(
         onClickCard = onClickCard,
         showMoreSwitch = showMoreSwitch,
         subComments = null,
-        reactions = reactions,
         content = content,
     )
 }

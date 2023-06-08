@@ -63,6 +63,5 @@ fun SubComments(
                 },
             )
         }
-    } else {
     }
 }
