@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.EmojiEmotions
+import androidx.compose.material.icons.outlined.AddReaction
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -79,7 +79,7 @@ fun ReactionsIconButton(state: ReactionBarViewModel, modifier: Modifier = Modifi
         modifier = modifier,
 //        modifier = Modifier.then(modifier).background(MaterialTheme.colorScheme.primary, RoundedCornerShape(8.dp)),
     ) {
-        Icon(Icons.Outlined.EmojiEmotions, "Interaction Button") // tint = MaterialTheme.colorScheme.onPrimary
+        Icon(Icons.Outlined.AddReaction, "Interaction Button") // tint = MaterialTheme.colorScheme.onPrimary
     }
 }
 

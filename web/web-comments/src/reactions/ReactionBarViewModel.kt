@@ -18,6 +18,7 @@ class ReactionBarViewModel(
         reactions.stateIn(backgroundScope, started = SharingStarted.Eagerly, emptyList())
 
     val reactionListOpen = mutableStateOf(false)
+    val isEmpty = reactions.map { list -> list.sumOf { it.count } == 0 }.shareInBackground()
 
     @Stable
     fun reaction(kind: ReactionKind): Flow<Reaction?> = reactions.map { list -> list.find { it.kind == kind } }
