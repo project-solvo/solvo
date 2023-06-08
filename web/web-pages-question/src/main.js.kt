@@ -188,9 +188,11 @@ private fun QuestionPageContent(
                                         backgroundScope.launch {
                                             client.comments.postAnswer(
                                                 question.coid,
-                                                CommentUpstream(NonBlankString.fromStringOrNull(draftAnswerEditor.contentMarkdown)
-                                            ?: return@launch
-                                                ))
+                                                CommentUpstream(
+                                                    NonBlankString.fromStringOrNull(draftAnswerEditor.contentMarkdown)
+                                                        ?: return@launch
+                                                )
+                                            )
                                         }
                                         client.refresh()
                                     }

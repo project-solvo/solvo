@@ -46,7 +46,6 @@ fun DraftCommentSection(
 
         Button({
             if (showEditor) {
-                // val contentNull by remember(editorState.contentMarkdown == ""){ false }
                 if (!client.isLoginIn()) {
                     client.jumpToLoginPage()
                 } else {
@@ -54,7 +53,8 @@ fun DraftCommentSection(
                         backgroundScope.launch {
                             client.comments.postComment(
                                 comment.coid, CommentUpstream(
-                                    content = editorState.contentMarkdown,
+                                    content = NonBlankString.fromStringOrNull(editorState.contentMarkdown)
+                                        ?: return@launch,
                                 )
                             )
                         }
