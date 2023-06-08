@@ -1,10 +1,12 @@
 package org.solvo.web.comments.subComments
 
+import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.*
 import org.solvo.model.CommentDownstream
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
 
+@Stable
 class CommentColumnViewModel(
     initialCommentDownstream: CommentDownstream? = null,
 ) : AbstractViewModel() {

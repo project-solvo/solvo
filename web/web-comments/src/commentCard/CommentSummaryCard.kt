@@ -1,10 +1,7 @@
 package org.solvo.web.comments.commentCard
 
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
@@ -29,9 +26,11 @@ fun CommentSummaryCard(
     reactions: (@Composable () -> Unit)? = null,
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
+    @Suppress("NAME_SHADOWING")
+    val showMoreSwitch by rememberUpdatedState(showMoreSwitch)
+
     CommentCard(
         paddings = CommentCardPaddings.Small,
-        state = state,
         modifier = modifier,
         authorLine = {
             val postTime by viewModel.postTime.collectAsState(null)
@@ -45,7 +44,7 @@ fun CommentSummaryCard(
             )
         },
         onClickCard = onClickCard,
-        showMoreSwitch = showMoreSwitch,
+        showMoreSwitch = { showMoreSwitch?.invoke(state) },
         reactions = reactions,
         content = content,
     )

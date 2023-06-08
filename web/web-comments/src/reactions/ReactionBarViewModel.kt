@@ -13,7 +13,6 @@ import org.solvo.web.viewModel.AbstractViewModel
 class ReactionBarViewModel(
     private val subjectCoid: Uuid,
     reactions: Flow<List<Reaction>>,
-    private val applyLocalChange: (List<Reaction>) -> Unit,
 ) : AbstractViewModel() {
     private val reactions: StateFlow<List<Reaction>> =
         reactions.stateIn(backgroundScope, started = SharingStarted.Eagerly, emptyList())
@@ -31,8 +30,8 @@ class ReactionBarViewModel(
         reactionListOpen.value = false
     }
 
-    suspend fun react(kind: ReactionKind) {
-        println("Sending reaction: $kind")
+    suspend fun react(kind: ReactionKind, applyLocalChange: (List<Reaction>) -> Unit) {
+        println("Sending reaction: $kind, subject=$subjectCoid")
         val reactions = reactions.value
         val reaction = reactions.find { it.kind == kind } ?: Reaction(kind, 0, false)
         if (reaction.self) {
