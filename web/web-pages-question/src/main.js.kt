@@ -17,6 +17,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.intl.Locale
+import androidx.compose.ui.text.intl.LocaleList
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
@@ -36,8 +38,34 @@ import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
 
+@Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
+internal class JsLocale(val locale: dynamic) : androidx.compose.ui.text.intl.PlatformLocale {
+    override val language: String
+        get() = "en"
+
+    override val script: String
+        get() = "en"
+
+    override val region: String
+        get() = "en"
+
+    override fun toLanguageTag(): String = "en" // locale.toLanguageTag()
+}
+
 
 fun main() {
+    @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE", "VAL_REASSIGNMENT", "CANNOT_OVERRIDE_INVISIBLE_MEMBER")
+    androidx.compose.ui.text.intl.platformLocaleDelegate =
+        object : androidx.compose.ui.text.intl.PlatformLocaleDelegate {
+            override val current: LocaleList
+                get() = LocaleList(listOf(Locale(JsLocale(Any()))))
+
+
+            override fun parseLanguageTag(languageTag: String): androidx.compose.ui.text.intl.PlatformLocale {
+                return JsLocale(Any())
+            }
+        }
+
     onWasmReady {
         SolvoWindow {
             val model = remember { QuestionPageViewModel() }

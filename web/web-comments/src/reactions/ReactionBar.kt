@@ -13,6 +13,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import kotlinx.coroutines.flow.Flow
 import org.solvo.model.Reaction
 import org.solvo.model.ReactionKind
 import org.solvo.model.foundation.Uuid
@@ -23,16 +24,15 @@ import org.solvo.web.viewModel.launchInBackgroundAnimated
 @Composable
 fun ReactionBar(
     subjectCoid: Uuid,
-    reactions: List<Reaction>,
+    reactions: Flow<List<Reaction>>,
     applyLocalReactionsChange: (List<Reaction>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val reactionsState by rememberUpdatedState(reactions)
     val applyLocalChangeState by rememberUpdatedState(applyLocalReactionsChange)
-    val state: ReactionBarViewModel = remember(subjectCoid) {
+    val state: ReactionBarViewModel = remember(subjectCoid, reactions) {
         ReactionBarViewModel(
             subjectCoid,
-            snapshotFlow { reactionsState },
+            reactions,
         )
     }
 

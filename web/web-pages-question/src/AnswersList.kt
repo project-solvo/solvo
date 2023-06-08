@@ -80,8 +80,7 @@ fun AnswersList(
                 },
                 actions = {},
                 reactions = {
-                    val reactions by viewModel.reactions.collectAsState(emptyList())
-                    ReactionBar(item.coid, reactions, applyLocalReactionsChange = {
+                    ReactionBar(item.coid, viewModel.reactions, applyLocalReactionsChange = {
                         viewModel.setReactions(it)
                     })
 
