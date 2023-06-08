@@ -44,6 +44,7 @@ import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
+import org.solvo.web.ui.modifiers.clickable
 
 
 fun main() {
@@ -344,10 +345,13 @@ private fun AnswersList(
     onSwitchExpand: ((index: Int, item: CommentDownstream) -> Unit)? = null,
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
 ) {
+    val onSwitchExpandState by rememberUpdatedState(onSwitchExpand)
+    val onClickCommentState by rememberUpdatedState(onClickComment)
+
     Column(modifier) {
         val allItemsIndexed = remember(allItems) { allItems.withIndex() }
         for ((index, item) in allItemsIndexed) {
-            val viewModel = remember { FullCommentCardViewModel(item) }
+            val viewModel = remember(item) { FullCommentCardViewModel(item) }
             val sizeModifier = if (index in visibleIndices) {
                 Modifier
                     .padding(bottom = 12.dp) // item spacing
@@ -368,7 +372,7 @@ private fun AnswersList(
                 showExpandButton = richTextHasVisualOverflow,
                 modifier = Modifier.then(sizeModifier),
                 onClickExpand = {
-                    onSwitchExpand?.invoke(index, item)
+                    onSwitchExpandState?.invoke(index, item)
                 },
                 isExpand = isExpanded,
                 subComments = if (isExpanded) {
@@ -379,7 +383,7 @@ private fun AnswersList(
                             item.previewSubComments,
                             item.allSubCommentIds.size
                         ) {
-                            onClickComment?.invoke(it, item)
+                            onClickCommentState?.invoke(it, item)
                         }
                     }
                 },
@@ -389,6 +393,33 @@ private fun AnswersList(
                     ReactionBar(item.coid, reactions, applyLocalReactionsChange = {
                         viewModel.setReactions(it)
                     })
+
+                    if (!isExpanded) {
+                        OutlinedTextField(
+                            "", {},
+                            Modifier
+                                .height(48.dp)
+                                .clickable(indication = null) { onClickCommentState?.invoke(null, item) }
+                                .padding(top = 6.dp, bottom = 6.dp)
+                                .padding(horizontal = 12.dp)
+                                .fillMaxWidth(),
+                            readOnly = true,
+                            placeholder = {
+                                Text(
+                                    "Add your comment...",
+                                    Modifier.clickable(indication = null) { onClickCommentState?.invoke(null, item) }
+                                        .fillMaxWidth()
+                                )
+                            },
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(vertical = 4.dp, horizontal = 12.dp),
+                            colors = TextFieldDefaults.outlinedTextFieldColors(
+                                focusedBorderColor = MaterialTheme.colorScheme.outline.copy(0.3f),
+                                unfocusedBorderColor = MaterialTheme.colorScheme.outline.copy(0.3f),
+                                containerColor = MaterialTheme.colorScheme.surfaceColorAtElevation(6.dp)
+                            )
+                        )
+                    }
                 }
             ) { backgroundColor ->
                 CommentCardContent(
