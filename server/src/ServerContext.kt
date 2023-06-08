@@ -1,6 +1,5 @@
 package org.solvo.server
 
-import io.ktor.http.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
 import org.jetbrains.exposed.sql.Database
@@ -10,10 +9,9 @@ import org.jetbrains.exposed.sql.transactions.transaction
 import org.solvo.server.database.*
 import org.solvo.server.database.control.*
 import org.solvo.server.database.exposed.*
-import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.*
-import org.solvo.server.utils.sampleData.SampleDataBuilder
-import org.solvo.server.utils.sampleData.incorporateSampleData
+import org.solvo.server.utils.sampleData.builder.incorporateSampleData
+import org.solvo.server.utils.sampleData.data.sampleData1
 
 object ServerContext {
     val localtime: ServerLocalTime = ServerLocalTimeImpl()
@@ -84,93 +82,4 @@ object ServerContext {
         suspend fun <T> dbQuery(block: suspend () -> T): T =
             newSuspendedTransaction(Dispatchers.IO) { block() }
     }
-}
-
-private fun SampleDataBuilder.sampleData1() {
-    val alex = user("Alex", AuthDigest("alex123"))
-    val bob = user("Bob", AuthDigest("bob456"))
-
-    val image1a = image("./test-resources/Algorithm-2022-1a.png", alex, ContentType.Image.PNG)
-    val sharedContent1a = sharedContent {
-        "![some image](${image1a.url})"
-    }
-
-    val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
-
-    course("50001", "Algorithm Design and Analysis") {
-        article("Paper_2022", alex) {
-            content("My content")
-            anonymous()
-            displayName("Paper 2022")
-            termYear("2022")
-            question("1a.i)") {
-                content { "![some image](${image1a.url})" }
-                anonymous()
-                answer(alex) {
-                    content("Try dynamic programming")
-                    anonymous()
-                    pin()
-                }
-                answer(bob) {
-                    content("I am answering a question!")
-                    comment(alex) {
-                        content("Hello bob")
-                    }
-                }
-            }
-            question("1a.ii)") {
-                content { "![some image](${image1a.url})" }
-                anonymous()
-            }
-            question("1a.iii)") {
-                content { "![some image](${image1a.url})" }
-                anonymous()
-            }
-            question("1b") {
-                content { "Haha..!" }
-                anonymous()
-            }
-            question("2a") {
-                content("### 10 * 25 + 1 = ?")
-                anonymous()
-                answer(bob) {
-                    content(
-                        """
-                        I believe it's 251. 
-                        Calculations: 
-                        ```math
-                        10 * 25 + 1 = 250 + 1 =  251
-                        ```
-                        Smarter calculations:
-                        ```math
-                        10 * 25 + 1 = \sum_{i=1}^{10} 25 + 1 = 251
-                        ```
-                        Even smarter calculations:
-                        ```math
-                        10 * 25 + 1 = 25 + 25 + 25 + 25 + 25 + 25 + 25 + 25 + 25 + 25 + 1 = 251
-                        ```
-                    """.trimIndent()
-                    )
-                }
-            }
-            comment(bob) {
-                content("I am commenting an article!")
-                anonymous()
-            }
-        }
-        article("Paper_2021", alex) {
-            content("My content")
-            anonymous()
-            displayName("Paper 2021")
-            termYear("2021")
-            questions(questionsList)
-        }
-    }
-    course("50002", "Software Engineering Design")
-    course("50003", "Models of Computation")
-    course("50004", "Operating Systems")
-    course("50005", "Networks and Communications")
-    course("50006", "Compilers")
-    course("50008", "Probability and Statistics")
-    course("50009", "Symbolic Reasoning")
 }

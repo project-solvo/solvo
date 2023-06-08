@@ -23,7 +23,7 @@ fun Route.commentRouting(contents: ContentDBFacade) {
         authenticate("authBearer", optional = true) {
             get("{coid}/reactions") {
                 val coid = UUID.fromString(call.parameters.getOrFail("coid"))
-                val userId = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
+                val userId = call.principal<UserIdPrincipal>()?.let { UUID.fromString(it.name) }
                 call.respond(contents.viewAllReactions(coid, userId))
             }
         }
