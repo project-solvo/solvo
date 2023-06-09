@@ -10,6 +10,7 @@ object Versions {
     const val jna = "5.13.0"
     const val jsoup = "1.15.4"
     const val slf4j = "2.0.7"
+    const val log4j = "2.20.0"
     const val serialization = "1.5.0"
     const val compose = "1.5.0-dev1063"
     const val exposed = "0.41.1"
@@ -55,3 +56,6 @@ const val `ktor-client-websockets` = "io.ktor:ktor-client-websockets:${Versions.
 
 const val `slf4j-api` = "org.slf4j:slf4j-api:${Versions.slf4j}"
 const val `slf4j-simple` = "org.slf4j:slf4j-simple:${Versions.slf4j}"
+const val `log4j2-core` = "org.apache.logging.log4j:log4j-core:${Versions.log4j}"
+const val `log4j2-slf4j-impl` = "org.apache.logging.log4j:log4j-slf4j-impl:${Versions.log4j}"
+const val `log4j2-slf4j2-impl` = "org.apache.logging.log4j:log4j-slf4j2-impl:${Versions.log4j}"
