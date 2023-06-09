@@ -27,15 +27,19 @@ fun Route.eventRouting(
             contents.getQuestionId(articleId, questionCode)
         } ?: run {
             close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "QuestionId does not exist"))
+            println("Connection on $path closed with reason ${closeReason.await()}")
             return@webSocket
         }
 
         try {
             while (true) {
-                commentUpdates.events.filter { commentEvent -> commentEvent.parentCoid == questionId }
-                    .collect { event ->
-                        sendSerialized(event)
-                    }
+                commentUpdates.events.filter { commentEvent ->
+                    val answerId = commentEvent.parentCoid
+                    contents.viewComment(answerId)!!.parent == questionId
+                }.collect { event ->
+                    sendSerialized(event)
+                    println("Sent CommentEvent with coid ${event.commentCoid} and parent ${event.parentCoid}")
+                }
             }
         } catch (e: ClosedReceiveChannelException) {
             println("Connection on $path closed with reason ${closeReason.await()}")
