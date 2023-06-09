@@ -54,7 +54,7 @@ fun SolvoTopAppBar(
                 val isInDarkMode by windowState.preferDarkMode.collectAsState()
                 Icon(
                     when (isInDarkMode) {
-                        null -> Icons.Default.BrightnessAuto
+                        null -> Icons.Default.LightMode
                         false -> Icons.Default.LightMode
                         true -> Icons.Default.DarkMode
                     }, null
