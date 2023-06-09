@@ -1,5 +1,6 @@
 package org.solvo.server.modules.content
 
+import io.ktor.server.request.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.server.websocket.*
@@ -15,7 +16,8 @@ fun Route.eventRouting(
     commentUpdates: CommentEventHandler,
 ) {
     webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
-        println("onConnect")
+        val path = call.request.path()
+        println("Connection on $path established")
 
         val courseCode = call.parameters.getOrFail("courseCode")
         val articleCode = call.parameters.getOrFail("articleCode")
@@ -36,9 +38,9 @@ fun Route.eventRouting(
                     }
             }
         } catch (e: ClosedReceiveChannelException) {
-            println("onClose ${closeReason.await()}")
+            println("Connection on $path closed with reason ${closeReason.await()}")
         } catch (e: Throwable) {
-            println("onError ${closeReason.await()}")
+            println("Connection on $path closed erroneously with reason ${closeReason.await()}")
             e.printStackTrace()
         }
     }
