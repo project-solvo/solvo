@@ -3,37 +3,47 @@ package org.solvo.web.comments.subComments
 import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.*
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.events.CommentEvent
+import org.solvo.model.api.events.UpdateCommentEvent
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
+import org.solvo.web.viewModel.LoadingUuidItem
 
 @Stable
 class CommentColumnViewModel(
-    initialCommentDownstream: CommentDownstream? = null,
+    initialCommentDownstream: Flow<CommentDownstream?>,
+    events: Flow<CommentEvent>,
 ) : AbstractViewModel() {
-    val commentDownstream: MutableStateFlow<CommentDownstream?> = MutableStateFlow(initialCommentDownstream)
+    private val commentDownstream: StateFlow<CommentDownstream?> = initialCommentDownstream.stateInBackground()
 
-
-    private val localAllSubComments =
-        MutableStateFlow<StateFlow<List<CommentDownstream>>>(MutableStateFlow(emptyList()))
-    val remoteAllSubComments: Flow<StateFlow<List<CommentDownstream>>> = commentDownstream.filterNotNull()
-        .map { comment ->
-            comment.allSubCommentIds.asFlow()
-                .filterNot { it.value.isBlank() }
-                .mapNotNull {
-                    client.comments.getComment(it)
-                }.runningList().stateInBackground(initialValue = emptyList())
+    private val changes = events
+        .filter { it.parentCoid == commentDownstream.value?.parent }
+        .map {
+            handleEvent(it)
         }
 
-    fun addLocalSubComment(subComment: CommentDownstream) {
-        localAllSubComments.value = MutableStateFlow(listOf(subComment) + allSubComments.value.value)
+    private fun handleEvent(event: CommentEvent): List<LoadingUuidItem<CommentDownstream>> {
+        return when (event) {
+            is UpdateCommentEvent -> {
+                listOf(
+                    LoadingUuidItem(
+                        event.commentCoid,
+                        event.commentDownstream
+                    )
+                ) + allSubComments.value
+            }
+        }
     }
 
-    fun setLocalSubComments(subComments: List<CommentDownstream>) {
-        localAllSubComments.value = MutableStateFlow(subComments)
-    }
+    private val remoteAllSubComments: Flow<List<LoadingUuidItem<CommentDownstream>>> = commentDownstream.filterNotNull()
+        .mapLatestSupervised { comment ->
+            comment.allSubCommentIds
+                .filterNot { it.value.isBlank() }
+                .mapLoadIn(this) {
+                    client.comments.getComment(it)
+                }
+        }
 
-    val allSubComments: StateFlow<StateFlow<List<CommentDownstream>>> = merge(
-        localAllSubComments,
-        remoteAllSubComments
-    ).stateInBackground(initialValue = MutableStateFlow(emptyList()))
+    val allSubComments: StateFlow<List<LoadingUuidItem<CommentDownstream>>> =
+        merge(changes, remoteAllSubComments).stateInBackground(initialValue = emptyList())
 }

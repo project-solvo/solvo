@@ -5,6 +5,7 @@ import androidx.compose.runtime.RememberObserver
 import kotlinx.atomicfu.atomic
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.*
+import org.solvo.model.foundation.Uuid
 import org.solvo.web.utils.byWindowAlert
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -64,8 +65,12 @@ abstract class AbstractViewModel : RememberObserver {
 
     fun <T> Flow<T>.stateInBackground(
         started: SharingStarted = SharingStarted.Eagerly,
-        initialValue: T
+        initialValue: T,
     ): StateFlow<T> = stateIn(backgroundScope, started, initialValue)
+
+    fun <T> Flow<T>.stateInBackground(
+        started: SharingStarted = SharingStarted.Eagerly,
+    ): StateFlow<T?> = stateIn(backgroundScope, started, null)
 
 
     fun <T> Flow<T>.runningList(): Flow<List<T>> {
@@ -73,7 +78,28 @@ abstract class AbstractViewModel : RememberObserver {
             acc + value
         }
     }
+
+    fun <T> CoroutineScope.load(uuid: Uuid, calc: suspend () -> T?): LoadingUuidItem<T> {
+        val flow = MutableStateFlow<T?>(null)
+        launch {
+            flow.value = calc()
+        }
+        return LoadingUuidItem(uuid, flow)
+    }
+
+    fun <T, R> Flow<T>.mapLatestSupervised(transform: suspend CoroutineScope.(value: T) -> R): Flow<R> =
+        mapLatest {
+            supervisorScope { transform(it) }
+        }
+
+    inline fun <T> List<Uuid>.mapLoadIn(
+        scope: CoroutineScope,
+        crossinline calc: suspend (Uuid) -> T?
+    ): List<LoadingUuidItem<T>> {
+        return map { scope.load(it) { calc(it) } }
+    }
 }
+
 
 fun <V : AbstractViewModel> V.launchInBackground(
     context: CoroutineContext = EmptyCoroutineContext,

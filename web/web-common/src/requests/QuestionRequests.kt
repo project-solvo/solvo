@@ -1,7 +1,9 @@
 package org.solvo.web.requests
 
 import io.ktor.client.request.*
+import kotlinx.coroutines.flow.SharedFlow
 import org.solvo.model.api.communication.QuestionDownstream
+import org.solvo.model.api.events.Event
 
 class QuestionRequests(
     override val client: Client
@@ -12,4 +14,11 @@ class QuestionRequests(
         questionCode: String,
     ): QuestionDownstream? =
         http.get("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode").bodyOrNull()
+
+    fun subscribeEvents(
+        courseCode: String,
+        articleCode: String,
+        questionCode: String,
+    ): SharedFlow<Event> =
+        connectEvents("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode/events")
 }

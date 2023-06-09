@@ -23,10 +23,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.api.communication.*
+import org.solvo.model.api.events.Event
 import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.subComments.CommentColumn
@@ -95,6 +98,7 @@ fun main() {
                             article = article ?: return@LoadableContent,
                             question = question ?: return@LoadableContent,
                             allAnswers = allAnswers,
+                            events = model.questionEvents,
                         )
                     }
                 }
@@ -120,6 +124,7 @@ private fun QuestionPageContent(
     article: ArticleDownstream,
     question: QuestionDownstream,
     allAnswers: List<CommentDownstream>,
+    events: SharedFlow<Event>,
 ): Unit = HorizontallyDivided(
     left = {
         PaperView(
@@ -236,7 +241,7 @@ private fun QuestionPageContent(
                     isExpanded,
                     backgroundScope,
                     isDraftAnswerEditorOpen,
-                    onAddComment = { }
+                    events,
                 )
             }
         }
@@ -250,7 +255,7 @@ private fun PagingContentContext<CommentDownstream>.ExpandedAnswerContent(
     isExpanded: Boolean,
     backgroundScope: CoroutineScope,
     isDraftAnswerEditorOpen: Boolean,
-    onAddComment: (CommentUpstream) -> Unit,
+    events: SharedFlow<Event>,
 ) {
     val scope = rememberCoroutineScope()
 
@@ -282,19 +287,18 @@ private fun PagingContentContext<CommentDownstream>.ExpandedAnswerContent(
                 val visibleItems by visibleItems
                 val firstItem by remember { derivedStateOf { visibleItems.firstOrNull() } }
                 if (firstItem != null) {
-                    val model = remember(firstItem) { CommentColumnViewModel(firstItem) }
+                    val model =
+                        remember { CommentColumnViewModel(snapshotFlow { firstItem }, events.filterIsInstance()) }
 
                     DraftCommentSection(
                         showEditor = showAddCommentEditor,
                         onShowEditorChange = { showAddCommentEditor = it },
                         backgroundScope = backgroundScope,
                         pagingState = pagingState,
-                        onAddComment = onAddComment
                     )
 
-                    val allSubCommentsFlow by model.allSubComments.collectAsState(emptyFlow())
-                    val allSubComments by allSubCommentsFlow.collectAsState(null)
-                    CommentColumn(allSubComments ?: emptyList())
+                    val allSubCommentsFlow by model.allSubComments.collectAsState(emptyList())
+                    CommentColumn(allSubCommentsFlow)
                 }
             }
         },

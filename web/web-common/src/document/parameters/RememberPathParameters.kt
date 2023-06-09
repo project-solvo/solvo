@@ -5,12 +5,14 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.QuestionDownstream
+import org.solvo.model.api.events.Event
 import org.solvo.web.requests.client
 
 @Composable
@@ -51,3 +53,15 @@ fun PathParameters.question(): Flow<QuestionDownstream?> {
         client.questions.getQuestion(courseCode, articleCode, questionCode)
     }
 }
+
+@Stable
+fun PathParameters.questionEvents(): Flow<SharedFlow<Event>> {
+    return combine(
+        argument(WebPagePathPatterns.VAR_COURSE_CODE),
+        argument(WebPagePathPatterns.VAR_ARTICLE_CODE),
+        argument(WebPagePathPatterns.VAR_QUESTION_CODE),
+    ) { courseCode, articleCode, questionCode ->
+        client.questions.subscribeEvents(courseCode, articleCode, questionCode)
+    }
+}
+

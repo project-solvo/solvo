@@ -10,7 +10,6 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -33,7 +32,6 @@ fun DraftCommentSection(
     onShowEditorChange: (Boolean) -> Unit,
     backgroundScope: CoroutineScope,
     pagingState: ExpandablePagingState<CommentDownstream>,
-    onAddComment: (CommentUpstream) -> Unit,
 ) {
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
         val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
@@ -46,8 +44,6 @@ fun DraftCommentSection(
             state = editorState,
             fontSize = 18.sp,
         )
-
-        val onAddCommentState by rememberUpdatedState(onAddComment)
 
         Button(
             {
@@ -63,7 +59,6 @@ fun DraftCommentSection(
                                 )
                                 backgroundScope.launch {
                                     client.comments.postComment(comment.coid, upstream)
-                                    onAddCommentState(upstream)
                                 }
                             }
                     }

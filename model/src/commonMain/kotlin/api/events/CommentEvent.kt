@@ -4,8 +4,8 @@ import kotlinx.serialization.Serializable
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.foundation.Uuid
 
-sealed interface CommentEvent {
-    val questionCoid: Uuid
+sealed interface CommentEvent : Event {
+    val parentCoid: Uuid
     val commentCoid: Uuid
 }
 
@@ -13,6 +13,6 @@ sealed interface CommentEvent {
 class UpdateCommentEvent(
     val commentDownstream: CommentDownstream,
 ) : CommentEvent {
-    override val questionCoid: Uuid get() = commentDownstream.parent
+    override val parentCoid: Uuid get() = commentDownstream.parent
     override val commentCoid: Uuid get() = commentDownstream.coid
 }

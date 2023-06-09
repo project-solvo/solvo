@@ -54,6 +54,7 @@ private val optIns = listOf(
     "androidx.compose.foundation.layout.ExperimentalLayoutApi",
     "androidx.compose.material3.ExperimentalMaterial3Api",
     "org.jetbrains.compose.resources.ExperimentalResourceApi",
+    "kotlinx.coroutines.ExperimentalCoroutinesApi",
 )
 
 fun Project.configureCommonOptIns() {

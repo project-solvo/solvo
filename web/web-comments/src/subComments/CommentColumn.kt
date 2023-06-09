@@ -10,10 +10,12 @@ import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.rememberFullCommentCardViewModel
 import org.solvo.web.comments.showMore.ShowMoreSwitch
 import org.solvo.web.comments.showMore.ShowMoreSwitchState
+import org.solvo.web.viewModel.LoadingUuidItem
+import org.solvo.web.viewModel.collectAsState
 
 @Composable
 fun CommentColumn(
-    items: List<CommentDownstream>,
+    items: List<LoadingUuidItem<CommentDownstream>>,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -25,8 +27,9 @@ fun CommentColumn(
 
             var hasOverflow by remember { mutableStateOf(false) }
 
+            val commentDownstream by item.collectAsState()
             CommentSummaryCard(
-                rememberFullCommentCardViewModel(item),
+                rememberFullCommentCardViewModel(commentDownstream),
                 state,
                 Modifier.wrapContentHeight().fillMaxWidth(),
                 showMoreSwitch = if (hasOverflow || state.showingMore.value) {
@@ -36,7 +39,7 @@ fun CommentColumn(
                 } else null
             ) { backgroundColor ->
                 CommentCardContent(
-                    item,
+                    commentDownstream ?: return@CommentSummaryCard,
                     backgroundColor,
                     when {
                         state.showingMore.value -> Modifier.wrapContentHeight()

@@ -6,11 +6,11 @@ import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.*
-import org.solvo.web.requests.client
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.ICommentDownstream
 import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.model.api.communication.Reaction
+import org.solvo.web.requests.client
 import org.solvo.web.utils.DateFormatter
 import org.solvo.web.viewModel.AbstractViewModel
 

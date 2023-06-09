@@ -2,6 +2,7 @@ package org.solvo.web.requests
 
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
+import io.ktor.http.*
 import kotlinx.browser.window
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
@@ -24,7 +25,10 @@ abstract class Requests {
         client.scope.launch {
             while (isActive) {
                 try {
-                    val session = http.webSocketSession(path)
+                    val session = http.webSocketSession {
+                        url.takeFrom(path)
+                        url.protocol = URLProtocol.WS
+                    }
                     while (isActive) {
                         val event = session.receiveDeserialized<Event>()
                         flow.emit(event)
