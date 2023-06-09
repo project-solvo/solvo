@@ -16,13 +16,14 @@ class CommentColumnViewModel(
 ) : AbstractViewModel() {
     private val commentDownstream: StateFlow<CommentDownstream?> = initialCommentDownstream.stateInBackground()
 
-    private val changes = events
-        .filter { it.parentCoid == commentDownstream.value?.parent }
+    private val newSubComments = events
+        .filter { it.parentCoid == commentDownstream.value?.coid }
         .map {
             handleEvent(it)
         }
 
     private fun handleEvent(event: CommentEvent): List<LoadingUuidItem<CommentDownstream>> {
+        println("CommentColumnViewModel.handleEvent: $event")
         return when (event) {
             is UpdateCommentEvent -> {
                 listOf(
@@ -45,5 +46,5 @@ class CommentColumnViewModel(
         }
 
     val allSubComments: StateFlow<List<LoadingUuidItem<CommentDownstream>>> =
-        merge(changes, remoteAllSubComments).stateInBackground(initialValue = emptyList())
+        merge(newSubComments, remoteAllSubComments).stateInBackground(initialValue = emptyList())
 }

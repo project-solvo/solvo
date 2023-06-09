@@ -11,7 +11,7 @@ sealed interface CommentEvent : Event {
 }
 
 @Serializable
-class UpdateCommentEvent(
+data class UpdateCommentEvent(
     val commentDownstream: CommentDownstream,
 ) : CommentEvent {
     override val parentCoid: Uuid get() = commentDownstream.parent

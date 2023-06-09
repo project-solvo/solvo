@@ -55,7 +55,7 @@ class Client {
     }
 
     fun refresh() {
-        window.location.href = window.location.href
+        window.location.reload()
     }
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }

@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.combine
@@ -55,13 +56,13 @@ fun PathParameters.question(): Flow<QuestionDownstream?> {
 }
 
 @Stable
-fun PathParameters.questionEvents(): Flow<SharedFlow<Event>> {
+fun PathParameters.questionEvents(scope: CoroutineScope): Flow<SharedFlow<Event>> {
     return combine(
         argument(WebPagePathPatterns.VAR_COURSE_CODE),
         argument(WebPagePathPatterns.VAR_ARTICLE_CODE),
         argument(WebPagePathPatterns.VAR_QUESTION_CODE),
     ) { courseCode, articleCode, questionCode ->
-        client.questions.subscribeEvents(courseCode, articleCode, questionCode)
+        client.questions.subscribeEvents(scope, courseCode, articleCode, questionCode)
     }
 }
 

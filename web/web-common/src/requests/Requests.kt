@@ -3,7 +3,9 @@ package org.solvo.web.requests
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import io.ktor.websocket.*
 import kotlinx.browser.window
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -20,24 +22,35 @@ abstract class Requests {
         return "${apiUrl}/${url.removePrefix("/")}"
     }
 
-    protected fun connectEvents(path: String): SharedFlow<Event> {
+    protected fun connectEvents(
+        scope: CoroutineScope,
+        path: String,
+    ): SharedFlow<Event> {
         val flow = MutableSharedFlow<Event>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-        client.scope.launch {
+        var session: DefaultClientWebSocketSession? = null
+        val job = scope.launch {
             while (isActive) {
                 try {
-                    val session = http.webSocketSession {
+                    session = http.webSocketSession {
                         url.takeFrom(path)
                         url.protocol = URLProtocol.WS
                     }
+                    println("Event connected: $path")
                     while (isActive) {
-                        val event = session.receiveDeserialized<Event>()
+                        val event = session!!.receiveDeserialized<Event>()
+                        println("Received event: $event")
                         flow.emit(event)
                     }
+                    println("Event disconnected normally")
                 } catch (e: Throwable) {
+                    println("Event disconnected exceptionally")
                     e.printStackTrace()
                     delay(5.seconds)
                 }
             }
+        }
+        job.invokeOnCompletion {
+            client.scope.launch { session?.close() }
         }
         return flow
     }

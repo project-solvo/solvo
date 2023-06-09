@@ -7,6 +7,7 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.filter
+import org.solvo.model.api.events.Event
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.eventHandler.CommentEventHandler
 
@@ -37,7 +38,7 @@ fun Route.eventRouting(
                     val answerId = commentEvent.parentCoid
                     contents.viewComment(answerId)!!.parent == questionId
                 }.collect { event ->
-                    sendSerialized(event)
+                    sendSerialized(event as Event)
                     println("Sent CommentEvent with coid ${event.commentCoid} and parent ${event.parentCoid}")
                 }
             }

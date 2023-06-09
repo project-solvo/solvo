@@ -1,7 +1,6 @@
 package org.solvo.web
 
 import androidx.compose.runtime.Stable
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.*
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.web.comments.CourseMenuState
@@ -17,8 +16,7 @@ class QuestionPageViewModel : AbstractViewModel() {
     val article = pathParameters.article().shareInBackground()
     val question = pathParameters.question().shareInBackground()
 
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val questionEvents = pathParameters.questionEvents().flatMapLatest { it }.shareInBackground()
+    val questionEvents = pathParameters.questionEvents(backgroundScope).flatMapLatest { it }.shareInBackground()
 
     val allAnswers = question.filterNotNull().map { question ->
         question.answers.asFlow()
