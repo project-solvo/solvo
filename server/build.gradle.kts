@@ -27,6 +27,8 @@ dependencies {
     implementation(`slf4j-api`)
     implementation(`slf4j-simple`)
     implementation(project(mapOf("path" to ":model")))
+    implementation("io.ktor:ktor-server-core-jvm:2.3.0")
+    implementation("io.ktor:ktor-server-websockets-jvm:2.3.0")
 }
 
 application {

@@ -6,18 +6,12 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import io.ktor.util.pipeline.*
 import org.solvo.model.api.communication.ArticleUpstream
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.QuestionUpstream
-import org.solvo.server.ServerContext
 import org.solvo.server.database.AccountDBFacade
 import org.solvo.server.database.ContentDBFacade
-import org.solvo.server.modules.getUserId
-import org.solvo.server.modules.postAuthenticated
-import org.solvo.server.modules.respondContentOrBadRequest
-import org.solvo.server.modules.respondContentOrNotFound
-import java.util.*
+import org.solvo.server.modules.*
 
 fun Route.courseRouting(
     contents: ContentDBFacade,
@@ -83,15 +77,4 @@ fun Route.courseRouting(
             }
         }
     }
-}
-
-private suspend fun PipelineContext<Unit, ApplicationCall>.getArticleIdFromContext(): UUID? {
-    val courseCode = call.parameters.getOrFail("courseCode")
-    val articleCode = call.parameters.getOrFail("articleCode")
-
-    val articleId = ServerContext.Databases.contents.getArticleId(courseCode, articleCode)
-    if (articleId == null) {
-        call.respond(HttpStatusCode.NotFound)
-    }
-    return articleId
 }

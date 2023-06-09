@@ -12,6 +12,7 @@ fun Application.contentModule() {
     val contents = ServerContext.Databases.contents
     val accounts = ServerContext.Databases.accounts
     val resources = ServerContext.Databases.resources
+    val commentUpdates = ServerContext.Events.commentUpdates
 
     routing {
         staticFiles("/resources", File(ServerContext.paths.resourcesPath()), index = null) {
@@ -27,6 +28,7 @@ fun Application.contentModule() {
         imageRouting(resources)
         courseRouting(contents, accounts)
         sharedContentRouting(contents)
-        commentRouting(contents)
+        commentRouting(contents, commentUpdates)
+        eventRouting(contents, commentUpdates)
     }
 }

@@ -5,8 +5,10 @@ import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.util.*
 import io.ktor.util.*
 import io.ktor.util.pipeline.*
+import org.solvo.server.ServerContext
 import java.util.*
 
 
@@ -59,3 +61,15 @@ fun Route.deleteAuthenticated(
     path: String,
     body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
 ): Route = authenticate("authBearer") { delete(path, body) }
+
+
+suspend fun PipelineContext<Unit, ApplicationCall>.getArticleIdFromContext(): UUID? {
+    val courseCode = call.parameters.getOrFail("courseCode")
+    val articleCode = call.parameters.getOrFail("articleCode")
+
+    val articleId = ServerContext.Databases.contents.getArticleId(courseCode, articleCode)
+    if (articleId == null) {
+        call.respond(HttpStatusCode.NotFound)
+    }
+    return articleId
+}

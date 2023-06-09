@@ -10,6 +10,8 @@ import org.solvo.server.database.*
 import org.solvo.server.database.control.*
 import org.solvo.server.database.exposed.*
 import org.solvo.server.utils.*
+import org.solvo.server.utils.eventHandler.CommentEventHandler
+import org.solvo.server.utils.eventHandler.CommentEventHandlerImpl
 import org.solvo.server.utils.sampleData.builder.incorporateSampleData
 import org.solvo.server.utils.sampleData.data.sampleData1
 
@@ -22,6 +24,10 @@ object ServerContext {
     fun init() {
         DatabaseFactory.init()
         Databases.init()
+    }
+
+    object Events {
+        val commentUpdates: CommentEventHandler = CommentEventHandlerImpl()
     }
 
     object Databases {

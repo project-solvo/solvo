@@ -11,11 +11,13 @@ import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.ReactionKind
+import org.solvo.model.api.events.UpdateCommentEvent
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.modules.*
+import org.solvo.server.utils.eventHandler.CommentEventHandler
 import java.util.*
 
-fun Route.commentRouting(contents: ContentDBFacade) {
+fun Route.commentRouting(contents: ContentDBFacade, commentUpdates: CommentEventHandler) {
     route("/comments") {
         get("{coid}") {
             processGetComment(contents)
@@ -28,10 +30,10 @@ fun Route.commentRouting(contents: ContentDBFacade) {
             }
         }
         postAuthenticated("{parentId}/comment") {
-            processUploadComment(contents, asAnswer = false)
+            processUploadComment(contents, asAnswer = false, commentUpdates)
         }
         postAuthenticated("{parentId}/answer") {
-            processUploadComment(contents, asAnswer = true)
+            processUploadComment(contents, asAnswer = true, commentUpdates)
         }
         postAuthenticated("{coid}/reactions/new") {
             val uid = getUserId() ?: return@postAuthenticated
@@ -74,6 +76,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     contents: ContentDBFacade,
     asAnswer: Boolean,
+    commentUpdates: CommentEventHandler,
 ) {
     val uid = getUserId() ?: return
     val parentId = UUID.fromString(call.parameters.getOrFail("parentId"))
@@ -84,5 +87,6 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     } else {
         contents.postComment(comment, uid, parentId)
     }
+    if (commentId != null) commentUpdates.announce(UpdateCommentEvent(contents.viewComment(commentId)!!))
     respondContentOrBadRequest(commentId)
 }
