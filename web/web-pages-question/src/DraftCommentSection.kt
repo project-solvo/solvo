@@ -40,10 +40,10 @@ fun DraftCommentSection(
         val editorState = rememberRichEditorState(isEditable = true)
         RichEditor(
             Modifier.fillMaxWidth().height(editorHeight),
-            displayMode = RichEditorDisplayMode.EDIT_ONLY,
-            isToolbarVisible = false,
             state = editorState,
+            displayMode = RichEditorDisplayMode.EDIT_ONLY,
             fontSize = 18.sp,
+            isToolbarVisible = false,
         )
 
         Button(

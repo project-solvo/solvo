@@ -1,13 +1,8 @@
 package org.solvo.web.editor
 
-import androidx.compose.ui.layout.LayoutCoordinates
-import androidx.compose.ui.unit.Constraints
 import androidx.compose.ui.unit.IntSize
 
 class RichEditorLayoutResult(
-    val coordinates: LayoutCoordinates,
-    val constraints: Constraints,
-
     /**
      * The amount of space required to paint this text fully.
      * This would be the size of the full text.
@@ -36,4 +31,10 @@ class RichEditorLayoutResult(
      * Returns true if either vertical overflow or horizontal overflow happens.
      */
     val hasVisualOverflow get() = didOverflowHeight || didOverflowWidth
+
+
+    internal fun canReuse(
+        intrinsicSize: IntSize,
+        size: IntSize,
+    ): Boolean = this.intrinsicSize == intrinsicSize && this.size == size
 }

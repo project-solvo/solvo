@@ -1,4 +1,5 @@
 @file:OptIn(ExperimentalJsExport::class)
+@file:Suppress("UnusedReceiverParameter")
 
 package org.solvo.web.editor.impl
 
@@ -97,13 +98,21 @@ internal class RichEditor internal constructor(
     private val _boundsInRoot = mutableStateOf(Rect.Zero)
     val boundsInRoot: State<Rect> = _boundsInRoot
 
-    private val editorLoaded = CompletableDeferred<Unit>()
+    internal val editorLoaded = CompletableDeferred<Unit>()
 
     private var editorChanged: CompletableDeferred<Unit>? = null
     private val onEditorChanged: Channel<Unit> = Channel(onBufferOverflow = BufferOverflow.DROP_OLDEST)
 
+
+    @Stable
+    val actualSizeFlow: Flow<Size> = onEditorChanged.receiveAsFlow().map {
+        onEditorLoaded { getActualSize() }
+    }
+
     init {
         init()
+        setEditorBounds(Rect.Zero, density = Density(1f))
+        setPosition(Offset.Zero, density = Density(1f))
     }
 
     @NoLiveLiterals
@@ -134,11 +143,7 @@ internal class RichEditor internal constructor(
         setFontSizePx(_fontSize.value)
     }
 
-    internal suspend inline fun <R> onEditorLoaded(action: () -> R): R {
-        contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
-        editorLoaded.join()
-        return action()
-    }
+    val isEditorLoaded get() = editorLoaded.isCompleted
 
     suspend fun hidePreviewCloseButton() {
         onEditorLoaded {
@@ -267,15 +272,9 @@ internal class RichEditor internal constructor(
         }
     }
 
-    val onActualAreaChanged: Flow<Size> = onEditorChanged.receiveAsFlow().map {
-        awaitActualSize()
-    }
-
-    suspend fun awaitActualSize(): Size {
-        onEditorLoaded {
-            val rect = getHtmlPreviewMarkdownBody().getBoundingClientRect()
-            return Size(rect.width.toFloat(), rect.height.toFloat())
-        }
+    fun EditorLoaded.getActualSize(): Size {
+        val rect = getHtmlPreviewMarkdownBody().getBoundingClientRect()
+        return Size(rect.width.toFloat(), rect.height.toFloat())
     }
 
     suspend fun resizeToWrapPreviewContent(onClip: (size: DpSize) -> Unit) {
@@ -304,28 +303,25 @@ internal class RichEditor internal constructor(
         }
     }
 
-    suspend fun setEditorSize(size: IntSize, density: Density, force: Boolean = false) {
+    fun EditorLoaded.setEditorSize(size: IntSize, density: Density, force: Boolean = false) {
         if (!force && _size.value == size) return
 
         _size.value = size
         val widthPx = size.width / density.density
         val heightPx = size.height / density.density
         setEditorSizePx(widthPx, heightPx)
-        onEditorLoaded {
-            updateDisplaySpacing(widthPx, heightPx)
-        }
+        updateDisplaySpacing(widthPx, heightPx)
     }
 
-    private suspend fun RichEditor.setEditorSizePx(widthPx: Float, heightPx: Float) {
+
+    private fun EditorLoaded.setEditorSizePx(widthPx: Float, heightPx: Float) {
         positionDiv.asDynamic().style.width = widthPx.toString() + "px"
         positionDiv.asDynamic().style.height = heightPx.toString() + "px"
 
-        onEditorLoaded {
-            editor.resize()
-        }
+        editor.resize()
     }
 
-    private fun updateDisplaySpacing(widthPx: Float, heightPx: Float) {
+    private fun EditorLoaded.updateDisplaySpacing(widthPx: Float, heightPx: Float) {
         if (!isTextMode) { // fix spacing bug
             getHtmlPreviewMarkdownBody().let { element ->
                 element.asDynamic().style.width = (widthPx / 2).toString() + "px"
@@ -337,6 +333,7 @@ internal class RichEditor internal constructor(
     }
 
     fun setEditorBounds(bounds: Rect, density: Density) {
+        println("bounds.top=${bounds.top}; positionInRoot.value.y=${positionInRoot.value.y}")
         if (_boundsInRoot.value == bounds) return
         _boundsInRoot.value = bounds
 
@@ -468,7 +465,7 @@ internal class RichEditor internal constructor(
                         delay: conf.delay,
                         watch : true,                // 关闭实时预览
 //                        htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
-                        toolbar  : true,             //关闭工具栏
+                        toolbar  : false,             //关闭工具栏
                         previewCodeHighlight : true, // 关闭预览 HTML 的代码块高亮，默认开启
                         emoji : true,
                         taskList : true,
@@ -540,10 +537,24 @@ internal class RichEditor internal constructor(
     }
 }
 
+internal inline fun <R> RichEditor.ifEditorLoaded(action: EditorLoaded.() -> R): R? {
+    return if (this.isEditorLoaded) {
+        action.invoke(EditorLoaded)
+    } else {
+        null
+    }
+}
+
+internal suspend inline fun <R> RichEditor.onEditorLoaded(action: EditorLoaded.() -> R): R {
+    contract { callsInPlace(action, InvocationKind.EXACTLY_ONCE) }
+    editorLoaded.join()
+    return action.invoke(EditorLoaded)
+}
+
 private fun Color.toHtmlRgbaString(): String {
     convert(ColorSpaces.Srgb).apply {
         return "rgba(${this.red * 255},${this.green * 255},${this.blue * 255},${this.alpha})"
     }
 }
 
-
+object EditorLoaded
