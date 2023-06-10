@@ -1,14 +1,41 @@
 package org.solvo.model.foundation
 
 import kotlinx.serialization.KSerializer
+import kotlinx.serialization.Serializable
 import kotlinx.serialization.SerializationException
 import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
-import java.util.*
+import org.solvo.model.utils.getRandomString
 
-actual typealias Uuid = UUID
+@Serializable
+actual class Uuid(
+    val value: String
+) {
+    override fun toString(): String = value
+
+    override fun equals(other: Any?): Boolean {
+        if (this === other) return true
+        if (other == null || this::class.js != other::class.js) return false
+
+        other as Uuid
+
+        return value == other.value
+    }
+
+    override fun hashCode(): Int {
+        return value.hashCode()
+    }
+
+
+    companion object {
+        fun fromString(string: String): Uuid = Uuid(string)
+        fun random(): Uuid = Uuid(getRandomString(16))
+    }
+}
+
+actual fun randomUuid(): Uuid = Uuid.random()
 
 actual object UuidAsStringSerializer : KSerializer<Uuid> {
     override val descriptor: SerialDescriptor = String.serializer().descriptor

@@ -4,9 +4,8 @@ import androidx.compose.runtime.Stable
 import kotlinx.coroutines.flow.*
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.events.CommentEvent
-import org.solvo.model.api.events.UpdateCommentEvent
+import org.solvo.web.comments.CommentEventHandler
 import org.solvo.web.requests.client
-import org.solvo.web.utils.replacedOrPrepend
 import org.solvo.web.viewModel.AbstractViewModel
 import org.solvo.web.viewModel.LoadingUuidItem
 
@@ -17,25 +16,16 @@ class CommentColumnViewModel(
 ) : AbstractViewModel() {
     private val commentDownstream: StateFlow<CommentDownstream?> = initialCommentDownstream.stateInBackground()
 
+
+    private val eventHandler = CommentEventHandler(
+        getCurrentAllComments = { allSubComments.value }
+    )
+
     private val newSubComments = events
         .filter { it.parentCoid == commentDownstream.value?.coid }
         .map {
-            handleEvent(it)
+            eventHandler.handleEvent(it)
         }
-
-    private fun handleEvent(event: CommentEvent): List<LoadingUuidItem<CommentDownstream>> {
-        println("CommentColumnViewModel.handleEvent: $event")
-        return when (event) {
-            is UpdateCommentEvent -> {
-                allSubComments.value.replacedOrPrepend(
-                    LoadingUuidItem(
-                        event.commentCoid,
-                        event.commentDownstream
-                    )
-                )
-            }
-        }
-    }
 
     private val remoteAllSubComments: Flow<List<LoadingUuidItem<CommentDownstream>>> = commentDownstream.filterNotNull()
         .mapLatestSupervised { comment ->

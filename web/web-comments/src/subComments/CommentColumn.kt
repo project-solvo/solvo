@@ -11,7 +11,6 @@ import org.solvo.web.comments.commentCard.viewModel.rememberFullCommentCardViewM
 import org.solvo.web.comments.showMore.ShowMoreSwitch
 import org.solvo.web.comments.showMore.ShowMoreSwitchState
 import org.solvo.web.viewModel.LoadingUuidItem
-import org.solvo.web.viewModel.collectAsState
 
 @Composable
 fun CommentColumn(
@@ -22,32 +21,38 @@ fun CommentColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
+        println("CommentColumn recompose: ${items.joinToString { it.ready?.content.toString() }}")
         for (item in items) {
-            val state: ShowMoreSwitchState = remember { ShowMoreSwitchState() }
-
-            var hasOverflow by remember { mutableStateOf(false) }
-
-            val commentDownstream by item.collectAsState()
-            CommentSummaryCard(
-                rememberFullCommentCardViewModel(commentDownstream),
-                state,
-                Modifier.wrapContentHeight().fillMaxWidth(),
-                showMoreSwitch = if (hasOverflow || state.showingMore.value) {
-                    {
-                        ShowMoreSwitch(it)
-                    }
-                } else null
-            ) { backgroundColor ->
-                CommentCardContent(
-                    commentDownstream ?: return@CommentSummaryCard,
-                    backgroundColor,
-                    when {
-                        state.showingMore.value -> Modifier.wrapContentHeight()
-                        hasOverflow -> Modifier.heightIn(max = 200.dp)
-                        else -> Modifier.heightIn(max = 200.dp)
-                    }
-                ) { hasOverflow = hasVisualOverflow }
-            }
+            CommentColumnItem(item)
         }
+    }
+}
+
+@Composable
+private fun CommentColumnItem(item: LoadingUuidItem<CommentDownstream>) {
+    val state: ShowMoreSwitchState = remember { ShowMoreSwitchState() }
+
+    var hasOverflow by remember { mutableStateOf(false) }
+
+    val commentDownstream by item.asFlow().collectAsState(null)
+    CommentSummaryCard(
+        rememberFullCommentCardViewModel(commentDownstream),
+        state,
+        Modifier.wrapContentHeight().fillMaxWidth(),
+        showMoreSwitch = if (hasOverflow || state.showingMore.value) {
+            {
+                ShowMoreSwitch(it)
+            }
+        } else null
+    ) { backgroundColor ->
+        CommentCardContent(
+            commentDownstream ?: return@CommentSummaryCard,
+            backgroundColor,
+            when {
+                state.showingMore.value -> Modifier.wrapContentHeight()
+                hasOverflow -> Modifier.heightIn(max = 200.dp)
+                else -> Modifier.heightIn(max = 200.dp)
+            }
+        ) { hasOverflow = hasVisualOverflow }
     }
 }

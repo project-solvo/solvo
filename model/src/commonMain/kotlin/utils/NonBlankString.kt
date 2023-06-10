@@ -30,6 +30,11 @@ value class NonBlankString private constructor(
     }
 }
 
+inline val String.nonBlank: NonBlankString
+    get() = NonBlankString.fromString(this)
+inline val String.nonBlankOrNull: NonBlankString?
+    get() = NonBlankString.fromStringOrNull(this)
+
 internal object NonBlankStringSerializer : KSerializer<NonBlankString> {
     override val descriptor: SerialDescriptor
         get() = String.serializer().descriptor

@@ -29,38 +29,38 @@ fun CommentCardContent(
     val onLayout by rememberUpdatedState(onLayout)
     var hasOverflow by remember { mutableStateOf(false) }
 
-    key(item.coid) { // redraw editor when item id changed (do not reuse)
-        val loadedState = rememberRichEditorLoadedState()
-        OverlayLoadableContent(
-            !loadedState.isReady,
-            loadingContent = { LinearProgressIndicator(Modifier.height(2.dp)) }
-        ) {
-            Column {
-                RichText(
-                    item.content,
-                    modifier = modifier.fillMaxWidth(),
-                    onEditorLoaded = loadedState.onEditorLoaded,
-                    onTextUpdated = loadedState.onTextChanged,
-                    onLayout = {
-                        hasOverflow = hasVisualOverflow
-                        onLayout?.invoke(this)
-                    },
-                    backgroundColor = backgroundColor,
-                    showScrollbar = showScrollbar,
-                    fontSize = AuthorNameTextStyle.fontSize,
-                )
+//    key(item.coid) { // redraw editor when item id changed (do not reuse)
+    val loadedState = rememberRichEditorLoadedState()
+    OverlayLoadableContent(
+        !loadedState.isReady,
+        loadingContent = { LinearProgressIndicator(Modifier.height(2.dp)) }
+    ) {
+        Column {
+            RichText(
+                item.content,
+                modifier = modifier.fillMaxWidth(),
+                onEditorLoaded = loadedState.onEditorLoaded,
+                onTextUpdated = loadedState.onTextChanged,
+                onLayout = {
+                    hasOverflow = hasVisualOverflow
+                    onLayout?.invoke(this)
+                },
+                backgroundColor = backgroundColor,
+                showScrollbar = showScrollbar,
+                fontSize = AuthorNameTextStyle.fontSize,
+            )
 
-                if (showFullAnswer != null && hasOverflow) {
+            if (showFullAnswer != null && hasOverflow) {
 //                    Surface(
 //                        Modifier.fillMaxWidth().wrapContentHeight(),
 //                        color = MaterialTheme.colorScheme.surface.copy(0.7f),
 //                    ) {
-                    Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
-                        showFullAnswer()
-                    }
-//                    }
+                Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
+                    showFullAnswer()
                 }
+//                    }
             }
         }
     }
+//    }
 }

@@ -64,8 +64,8 @@ abstract class AbstractViewModel : RememberObserver {
     ): SharedFlow<T> = shareIn(backgroundScope, started, replay)
 
     fun <T> Flow<T>.stateInBackground(
-        started: SharingStarted = SharingStarted.Eagerly,
         initialValue: T,
+        started: SharingStarted = SharingStarted.Eagerly,
     ): StateFlow<T> = stateIn(backgroundScope, started, initialValue)
 
     fun <T> Flow<T>.stateInBackground(
@@ -79,7 +79,7 @@ abstract class AbstractViewModel : RememberObserver {
         }
     }
 
-    fun <T> CoroutineScope.load(uuid: Uuid, calc: suspend () -> T?): LoadingUuidItem<T> {
+    inline fun <T> CoroutineScope.load(uuid: Uuid, crossinline calc: suspend () -> T?): LoadingUuidItem<T> {
         val flow = MutableStateFlow<T?>(null)
         launch {
             flow.value = calc()
@@ -87,7 +87,7 @@ abstract class AbstractViewModel : RememberObserver {
         return LoadingUuidItem(uuid, flow)
     }
 
-    fun <T, R> Flow<T>.mapLatestSupervised(transform: suspend CoroutineScope.(value: T) -> R): Flow<R> =
+    inline fun <T, R> Flow<T>.mapLatestSupervised(crossinline transform: suspend CoroutineScope.(value: T) -> R): Flow<R> =
         mapLatest {
             supervisorScope { transform(it) }
         }

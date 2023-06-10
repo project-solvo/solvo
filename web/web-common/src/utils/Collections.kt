@@ -40,33 +40,11 @@ inline fun <T> List<T>.replacedOrPrepend(
         return list
     }
 
-    return mutableListOf<T>().apply {
-        add(with)
-        addAll(this)
-    }
+    return listOf(with) + this
 }
 
 
 inline fun <T : HasCoid> List<T>.replacedOrPrepend(
     with: T,
     filter: (T) -> Boolean = { it.coid == with.coid },
-): List<T> {
-    var found = false
-    val list = mutableListOf<T>()
-    this.mapTo(list) {
-        if (filter(it)) {
-            found = true
-            with
-        } else {
-            it
-        }
-    }
-    if (found) {
-        return list
-    }
-
-    return mutableListOf<T>().apply {
-        add(with)
-        addAll(this)
-    }
-}
+): List<T> = replacedOrPrepend(filter, with)

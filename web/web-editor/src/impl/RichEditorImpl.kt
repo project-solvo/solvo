@@ -33,11 +33,13 @@ import kotlin.time.Duration.Companion.seconds
 internal val editormd: dynamic = js("""editormd""")
 private const val RICH_TEXT_EDITORS = "rich-text-editors"
 
+private const val RICH_TEXT_DEBUG = false
+
 @JsExport
 @JsName("onRichEditorInitialized")
 fun onRichEditorInitialized(jsEditor: dynamic) {
     val id = jsEditor.id as String
-    console.log("Editor.md $id initialized")
+    if (RICH_TEXT_DEBUG) console.log("Editor.md $id initialized")
     val editor = RichEditorIdManager.getInstanceById(id) ?: return // null if already removed
     editor.notifyLoaded()
 }
@@ -46,7 +48,7 @@ fun onRichEditorInitialized(jsEditor: dynamic) {
 @JsName("onRichEditorChanged")
 fun onRichEditorChanged(jsEditor: dynamic) {
     val id = jsEditor.id as String
-    console.log("Editor.md $id changed")
+    if (RICH_TEXT_DEBUG) console.log("Editor.md $id changed")
     val editor = RichEditorIdManager.getInstanceById(id) ?: return // null if already removed
     editor.notifyChanged()
 }
@@ -354,7 +356,7 @@ internal class RichEditor internal constructor(
     }
 
     private suspend fun setFontSizePx(px: Float) {
-        println("setFontSizePx px: $px")
+        if (RICH_TEXT_DEBUG) console.log("setFontSizePx px: $px")
         _fontSize.value = px
         onEditorLoaded {
             val markdownTextArea = getHtmlPreviewMarkdownBody()

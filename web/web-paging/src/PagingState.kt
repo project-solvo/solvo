@@ -29,8 +29,20 @@ interface PagingState<T> {
     fun switchEditorEnable()
 }
 
+fun <T> PagingState<T>.findItemPageOf(predicate: (T) -> Boolean): Int? {
+    val index = items.indexOfFirst(predicate)
+    if (index == -1) return null
+    return index / pageSlice.value
+}
+
 fun <T> PagingState<T>.gotoItem(item: T): Boolean {
     return findItemPage(item)?.let {
+        gotoPage(it)
+    } != null
+}
+
+fun <T> PagingState<T>.gotoItemOf(predicate: (T) -> Boolean): Boolean {
+    return findItemPageOf(predicate)?.let {
         gotoPage(it)
     } != null
 }

@@ -24,12 +24,14 @@ import org.solvo.web.comments.reactions.ReactionBar
 import org.solvo.web.comments.reactions.ReactionsIconButton
 import org.solvo.web.comments.reactions.rememberReactionBarViewModel
 import org.solvo.web.comments.subComments.SubComments
+import org.solvo.web.dummy.Loading
 import org.solvo.web.ui.foundation.OutlinedTextField
 import org.solvo.web.ui.foundation.ifThen
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
+import org.solvo.web.viewModel.LoadingUuidItem
 
 @Stable
 private val ANSWER_CONTENT_MAX_HEIGHT = 260.dp
@@ -37,7 +39,7 @@ private val ANSWER_CONTENT_MAX_HEIGHT = 260.dp
 // when not expanded
 @Composable
 fun AnswersList(
-    allItems: List<CommentDownstream>,
+    allItems: List<LoadingUuidItem<CommentDownstream>>,
     visibleIndices: IntRange,
     isExpanded: Boolean,
     modifier: Modifier = Modifier,
@@ -49,9 +51,9 @@ fun AnswersList(
 
     Column(modifier) {
         val allItemsIndexed = remember(allItems) { allItems.withIndex() }
-        for ((index, item) in allItemsIndexed) {
-            @Suppress("NAME_SHADOWING")
-            val item by rememberUpdatedState(item)
+        for ((index, itemLoading) in allItemsIndexed) {
+            val item by itemLoading.asFlow().collectAsState(Loading.CommentDownstream)
+            if (item === Loading.CommentDownstream) continue // TODO: replace dummy loading data with some scaffold when data is not ready
 
             val viewModel = remember(item) { FullCommentCardViewModel(item) }
             val sizeModifier = if (index in visibleIndices) {
@@ -93,7 +95,6 @@ fun AnswersList(
 
                     val reactionBarState = rememberReactionBarViewModel(item.coid, viewModel.reactions)
 
-                    val isReactionsEmpty by reactionBarState.isEmpty.collectAsState(true)
                     Row(Modifier, verticalAlignment = Alignment.CenterVertically) {
                         reactionBarState.reactionListOpen
                         ReactionsIconButton(reactionBarState, Modifier.offset(x = (-12).dp))

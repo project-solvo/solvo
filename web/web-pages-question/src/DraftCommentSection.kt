@@ -25,13 +25,14 @@ import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.ifThen
+import org.solvo.web.viewModel.LoadingUuidItem
 
 @Composable
 fun DraftCommentSection(
     showEditor: Boolean,
     onShowEditorChange: (Boolean) -> Unit,
     backgroundScope: CoroutineScope,
-    pagingState: ExpandablePagingState<CommentDownstream>,
+    pagingState: ExpandablePagingState<LoadingUuidItem<CommentDownstream>>,
 ) {
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
         val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
@@ -61,15 +62,15 @@ fun DraftCommentSection(
                                     client.comments.postComment(comment.coid, upstream)
                                 }
                             }
+                        }
                     }
                 }
-            }
-            if (editorState.contentMarkdown.isNotBlank()) {
-                onShowEditorChange(!showEditor)
-            }
-        }, Modifier.align(Alignment.End).animateContentSize()
-            .ifThen(!showEditor) { fillMaxWidth() }
-            .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
+                if (editorState.contentMarkdown.isNotBlank()) {
+                    onShowEditorChange(!showEditor)
+                }
+            }, Modifier.align(Alignment.End).animateContentSize()
+                .ifThen(!showEditor) { fillMaxWidth() }
+                .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
         ) {
             Text("Add Comment")
         }

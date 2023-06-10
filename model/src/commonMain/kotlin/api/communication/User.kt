@@ -8,7 +8,7 @@ import org.solvo.model.utils.NonBlankString
 
 @Immutable
 @Serializable
-class User(
+data class User(
     val id: @Serializable(UuidAsStringSerializer::class) Uuid,
     val username: NonBlankString,
     val avatarUrl: String?,

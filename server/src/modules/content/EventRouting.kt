@@ -41,7 +41,8 @@ fun Route.eventRouting(
             while (true) {
                 commentUpdates.events.filter { commentEvent ->
                     val answerId = commentEvent.parentCoid
-                    contents.viewComment(answerId)!!.parent == questionId
+                    contents.viewComment(answerId)?.parent == questionId // is sub comment
+                            || commentEvent.parentCoid == questionId // is answer or comment to the question
                 }.collect { event ->
                     sendSerialized(event as Event)
                     println("Sent CommentEvent with coid ${event.commentCoid} and parent ${event.parentCoid}")
