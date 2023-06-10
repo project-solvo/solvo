@@ -3,13 +3,10 @@
 package org.solvo.web.ui
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.size
-import androidx.compose.material3.LocalContentColor
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.contentColorFor
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
@@ -20,6 +17,7 @@ import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.skiko.SkikoView
 import org.solvo.web.document.Cookies
+import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.ui.theme.AppTheme
 import org.w3c.dom.Window
 
@@ -35,8 +33,10 @@ fun SolvoWindow(
             val isInDarkMode by windowState.preferDarkMode.collectAsState()
             AppTheme(useDarkTheme = isInDarkMode ?: isBrowserInDarkTheme()) {
                 val currentSize by windowState.size.collectAsState()
+                val snackbarHostState = remember { SnackbarHostState() }
                 CompositionLocalProvider(
                     LocalSolvoWindow provides windowState,
+                    LocalTopSnackBar provides snackbarHostState,
                 ) {
                     Column(modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
                         CompositionLocalProvider(
@@ -44,7 +44,17 @@ fun SolvoWindow(
                                 MaterialTheme.colorScheme.background
                             )
                         ) {
-                            content()
+                            Box(Modifier.fillMaxSize()) {
+                                Column(Modifier.fillMaxSize()) {
+                                    content()
+                                }
+                                SnackbarHost(
+                                    snackbarHostState,
+                                    Modifier.padding(top = 8.dp).align(Alignment.TopCenter)
+                                ) {
+                                    Snackbar(it)
+                                }
+                            }
                         }
                     }
                 }
