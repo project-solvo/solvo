@@ -2,6 +2,7 @@ package org.solvo.web.viewModel
 
 import androidx.compose.runtime.*
 import kotlinx.coroutines.flow.StateFlow
+import org.solvo.model.api.HasCoid
 import org.solvo.model.foundation.Uuid
 import kotlin.coroutines.CoroutineContext
 import kotlin.coroutines.EmptyCoroutineContext
@@ -13,7 +14,7 @@ fun <T> LoadingUuidItem(uuid: Uuid, ready: T?): LoadingUuidItem<T> =
 fun <T> LoadingUuidItem(uuid: Uuid, ready: StateFlow<T?>): LoadingUuidItem<T> =
     StateFlowLoadingUuidItem(uuid, ready)
 
-interface LoadingUuidItem<T> {
+interface LoadingUuidItem<T> : HasCoid {
     @Composable
     fun collectAsState(
         context: CoroutineContext
@@ -26,7 +27,7 @@ interface LoadingUuidItem<T> {
 inline fun <T> LoadingUuidItem<T>.collectAsState(): State<T?> = collectAsState(EmptyCoroutineContext)
 
 internal class ComputedLoadingUuidItem<T>(
-    val id: Uuid,
+    override val coid: Uuid,
     val ready: T?
 ) : LoadingUuidItem<T> {
     @Composable
@@ -34,7 +35,7 @@ internal class ComputedLoadingUuidItem<T>(
 }
 
 internal class StateFlowLoadingUuidItem<T>(
-    val id: Uuid,
+    override val coid: Uuid,
     val flow: StateFlow<T?>,
 ) : LoadingUuidItem<T> {
     @Composable

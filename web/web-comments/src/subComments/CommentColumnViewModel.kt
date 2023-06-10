@@ -6,6 +6,7 @@ import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.events.CommentEvent
 import org.solvo.model.api.events.UpdateCommentEvent
 import org.solvo.web.requests.client
+import org.solvo.web.utils.replacedOrPrepend
 import org.solvo.web.viewModel.AbstractViewModel
 import org.solvo.web.viewModel.LoadingUuidItem
 
@@ -26,12 +27,12 @@ class CommentColumnViewModel(
         println("CommentColumnViewModel.handleEvent: $event")
         return when (event) {
             is UpdateCommentEvent -> {
-                listOf(
+                allSubComments.value.replacedOrPrepend(
                     LoadingUuidItem(
                         event.commentCoid,
                         event.commentDownstream
                     )
-                ) + allSubComments.value
+                )
             }
         }
     }

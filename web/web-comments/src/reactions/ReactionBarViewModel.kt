@@ -7,7 +7,7 @@ import org.solvo.model.api.communication.Reaction
 import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.requests.client
-import org.solvo.web.utils.replacedOrPlus
+import org.solvo.web.utils.replacedOrAppend
 import org.solvo.web.viewModel.AbstractViewModel
 
 class ReactionBarViewModel(
@@ -37,12 +37,12 @@ class ReactionBarViewModel(
         val reaction = reactions.find { it.kind == kind } ?: Reaction(kind, 0, false)
         if (reaction.self) {
             applyLocalChange(
-                reactions.replacedOrPlus({ it.kind == kind }, Reaction(kind, reaction.count - 1, false))
+                reactions.replacedOrAppend({ it.kind == kind }, Reaction(kind, reaction.count - 1, false))
             )
             client.comments.removeReaction(subjectCoid, kind)
         } else {
             applyLocalChange(
-                reactions.replacedOrPlus({ it.kind == kind }, Reaction(kind, reaction.count + 1, true))
+                reactions.replacedOrAppend({ it.kind == kind }, Reaction(kind, reaction.count + 1, true))
             )
             client.comments.addReaction(subjectCoid, kind)
         }
