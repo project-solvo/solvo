@@ -21,7 +21,6 @@ fun CommentColumn(
         modifier = modifier,
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
-        println("CommentColumn recompose: ${items.joinToString { it.ready?.content.toString() }}")
         for (item in items) {
             CommentColumnItem(item)
         }

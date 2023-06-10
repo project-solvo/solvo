@@ -11,7 +11,6 @@ class CommentEventHandler(
     private val getCurrentAllComments: () -> List<LoadingUuidItem<CommentDownstream>>,
 ) {
     fun handleEvent(event: CommentEvent): List<LoadingUuidItem<CommentDownstream>> {
-        println("CommentEventHandler.handleEvent: $event")
         return when (event) {
             is UpdateCommentEvent -> {
                 getCurrentAllComments().replacedOrPrepend(
@@ -24,8 +23,6 @@ class CommentEventHandler(
 
             is RemoveCommentEvent -> getCurrentAllComments()
                 .filterNot { it.coid == event.commentCoid }
-        }.also {
-            println("after CommentEventHandler.handleEvent: $it")
         }
     }
 }

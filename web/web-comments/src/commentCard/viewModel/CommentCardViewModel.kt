@@ -27,7 +27,6 @@ sealed class CommentCardViewModel<T : ICommentDownstream>(
 @Composable
 fun rememberFullCommentCardViewModel(value: CommentDownstream? = null): FullCommentCardViewModel {
     val model = remember { FullCommentCardViewModel(value) }
-    println("rememberFullCommentCardViewModel recompose: ${value?.content}")
     SideEffect {
         model.comment.value = value
     }
