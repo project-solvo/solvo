@@ -26,6 +26,7 @@ dependencies {
     implementation(`ktor-serialization-kotlinx-json`)
     implementation(`log4j2-core`)
     implementation(`log4j2-slf4j-impl`)
+    implementation(`log4j-api-kotlin`)
     implementation(project(mapOf("path" to ":model")))
     implementation("io.ktor:ktor-server-core-jvm:2.3.0")
     implementation("io.ktor:ktor-server-websockets-jvm:2.3.0")

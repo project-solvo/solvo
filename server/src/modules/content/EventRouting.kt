@@ -9,7 +9,12 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.filter
 import org.solvo.model.api.events.Event
 import org.solvo.server.database.ContentDBFacade
+import org.solvo.server.utils.LogManagerKt
 import org.solvo.server.utils.eventHandler.CommentEventHandler
+
+private object EventRouting
+
+private val logger = LogManagerKt.logger<EventRouting>()
 
 
 fun Route.eventRouting(
@@ -18,7 +23,7 @@ fun Route.eventRouting(
 ) {
     webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
         val path = call.request.path()
-        println("Connection on $path established")
+        logger.info { "Connection on $path established" }
 
         val courseCode = call.parameters.getOrFail("courseCode")
         val articleCode = call.parameters.getOrFail("articleCode")
@@ -28,7 +33,7 @@ fun Route.eventRouting(
             contents.getQuestionId(articleId, questionCode)
         } ?: run {
             close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "QuestionId does not exist"))
-            println("Connection on $path closed with reason ${closeReason.await()}")
+            logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
             return@webSocket
         }
 
@@ -43,9 +48,9 @@ fun Route.eventRouting(
                 }
             }
         } catch (e: ClosedReceiveChannelException) {
-            println("Connection on $path closed with reason ${closeReason.await()}")
+            logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
         } catch (e: Throwable) {
-            println("Connection on $path closed erroneously with reason ${closeReason.await()}")
+            logger.info { "Connection on $path closed erroneously with reason ${closeReason.await()}" }
             e.printStackTrace()
         }
     }
