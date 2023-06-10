@@ -64,7 +64,7 @@ fun registerCopyIndexPagesTasks(destination: File) {
     for ((path, projectPath) in pages) {
         val pageProject = project(projectPath)
         val srcJsFile =
-            pageProject.buildDir.resolve("$DEVELOPMENT_EXECUTABLE/${projectPath.substringAfterLast(":")}.js")
+            pageProject.buildDir.resolve("${currentBuildType.executableDirName}/${projectPath.substringAfterLast(":")}.js")
 
         // Temp workaround for Compose bug
         disableWebProductionTasks(pageProject)

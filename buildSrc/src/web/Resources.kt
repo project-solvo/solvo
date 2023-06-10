@@ -9,10 +9,26 @@ import projectLevelCache
 import rootProject
 import java.io.File
 
-const val WEBPACK_TASK_NAME = "jsBrowserDevelopmentWebpack"
+val currentBuildType by projectLevelCache {
+    BuildType.valueOf(System.getProperty("solvo.build.type", BuildType.DEVELOPMENT.name))
+}
 
-const val DEVELOPMENT_EXECUTABLE = "developmentExecutable"
-
+enum class BuildType(
+    val webpackTaskName: String,
+    val executableDirName: String,
+    val tasksToDisable: List<String>
+) {
+    DEVELOPMENT(
+        "jsBrowserDevelopmentWebpack",
+        "developmentExecutable",
+        listOf("jsProductionExecutableCompileSync", "jsBrowserProductionWebpack")
+    ),
+    PRODUCTION(
+        "jsBrowserProductionWebpack",
+        "distributions",
+        listOf("jsDevelopmentExecutableCompileSync", "jsBrowserDevelopmentWebpack")
+    ),
+}
 
 val indexHtmlFile by projectLevelCache {
     rootProject.project(":server").projectDir.resolve("resource-merger/static/index.html")
@@ -38,8 +54,8 @@ fun Project.registerCopyStaticResourcesTasks(destination: File, configureEach: (
 
         tasks.register("copyWebResources$capitalizedName", Copy::class) {
             group = "solvo"
-            dependsOn(webCommon.tasks.getByName(WEBPACK_TASK_NAME))
-            from(webCommon.buildDir.resolve(DEVELOPMENT_EXECUTABLE).resolve(staticResourceName))
+            dependsOn(webCommon.tasks.getByName(currentBuildType.webpackTaskName))
+            from(webCommon.buildDir.resolve(currentBuildType.executableDirName).resolve(staticResourceName))
             into(destination)
         }.let {
             configureEach(it)
@@ -79,7 +95,7 @@ fun Project.registerCopyWebResourceJsTask(
 ) {
     tasks.register("copyWebResources${destinationFilename.capitalized()}Js", Copy::class) {
         group = "solvo"
-        dependsOn(pageProject.tasks.getByName(WEBPACK_TASK_NAME))
+        dependsOn(pageProject.tasks.getByName(currentBuildType.webpackTaskName))
         from(srcFile)
         rename { "$destinationFilename.js" }
         into(destinationDir)
@@ -90,7 +106,8 @@ fun Project.registerCopyWebResourceJsTask(
 
 fun disableWebProductionTasks(pageProject: Project) {
     pageProject.afterEvaluate {
-        pageProject.tasks.getByName("jsProductionExecutableCompileSync").enabled = false
-        pageProject.tasks.getByName("jsBrowserProductionWebpack").enabled = false
+        currentBuildType.tasksToDisable.forEach { taskName ->
+            pageProject.tasks.getByName(taskName).enabled = false
+        }
     }
 }
