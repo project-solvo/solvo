@@ -20,6 +20,7 @@ import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.commentCard.DraftCommentCard
+import org.solvo.web.document.History
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.rememberRichEditorState
@@ -50,7 +51,9 @@ fun DraftCommentSection(
             {
                 if (showEditor) {
                     if (!client.isLoginIn()) {
-                        client.jumpToLoginPage()
+                        History.navigate {
+                            auth()
+                        }
                     } else {
                         if (editorState.contentMarkdown.isNotBlank()) {
                             pagingState.currentContent.value.firstOrNull()?.let { comment ->

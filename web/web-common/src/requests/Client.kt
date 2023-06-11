@@ -43,19 +43,9 @@ class Client {
 
     fun isLoginIn() = (token != null)
 
-    fun logOut() {
+    fun invalidateToken() {
         LocalSessionToken.remove()
-        refresh()
-    }
-
-    fun jumpToLoginPage() {
-        History.navigate {
-            auth()
-        }
-    }
-
-    fun refresh() {
-        window.location.reload()
+        History.refresh()
     }
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }

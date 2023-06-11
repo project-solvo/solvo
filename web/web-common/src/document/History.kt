@@ -9,6 +9,9 @@ import org.w3c.dom.CustomEvent
 object History {
     const val DEFAULT_TITLE = "Solvo"
 
+    @PublishedApi
+    internal val webPagePaths = object : WebPagePaths() {}
+
     private val _pageVersion: MutableState<Int> = mutableStateOf(0)
     val pageVersion get() = _pageVersion.value
 
@@ -45,13 +48,18 @@ object History {
     }
 
     inline fun navigate(page: WebPagePaths.() -> String) {
-        return navigate(WebPagePaths.run(page))
+        return navigate(webPagePaths.run(page))
     }
 
     inline fun navigateNotNull(page: WebPagePaths.() -> String?) {
-        WebPagePaths.run(page)?.let {
+        webPagePaths.run(page)?.let {
             return navigate(it)
         }
+    }
+
+
+    fun refresh() {
+        window.location.reload()
     }
 
     inline fun pushState(
@@ -59,7 +67,7 @@ object History {
         title: String = DEFAULT_TITLE,
         page: WebPagePaths.() -> String
     ) {
-        return pushState(data, title, WebPagePaths.run(page))
+        return pushState(data, title, webPagePaths.run(page))
     }
 
     inline fun pushState(
@@ -67,7 +75,7 @@ object History {
         title: String = DEFAULT_TITLE,
         page: WebPagePaths.() -> String?
     ) {
-        WebPagePaths.run(page)?.let {
+        webPagePaths.run(page)?.let {
             return pushState(data, title, it)
         }
     }

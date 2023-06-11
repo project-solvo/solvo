@@ -19,7 +19,7 @@ fun main() {
             val isLoggedIn by user.isLoggedIn.collectAsState(null)
             if (isLoggedIn == true) {
                 LaunchedEffect(true) {
-                    History.navigate { home() }
+                    History.navigate { authReturnOrHome() }
                 }
             }
             AuthenticationContent(model)

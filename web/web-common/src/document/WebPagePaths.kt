@@ -1,17 +1,25 @@
 package org.solvo.web.document
 
+import kotlinx.browser.localStorage
+import kotlinx.browser.window
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.WebPagePathPatterns.VAR_ARTICLE_CODE
 import org.solvo.model.api.WebPagePathPatterns.VAR_COURSE_CODE
 import org.solvo.model.api.WebPagePathPatterns.VAR_QUESTION_CODE
-import org.solvo.web.session.LocalSessionToken
+import org.solvo.web.session.item
 
 abstract class WebPagePaths {
     val patterns get() = WebPagePathPatterns
 
     fun home() = patterns.home
+    fun authReturnOrHome(): String {
+        return (LocalAuthReturnPath.value ?: patterns.home).also {
+            LocalAuthReturnPath.value = null
+        }
+    }
+
     fun auth(): String {
-        LocalSessionToken
+        LocalAuthReturnPath.value = window.location.href
         return patterns.auth
     }
 
@@ -30,3 +38,5 @@ abstract class WebPagePaths {
 
 
 }
+
+internal val LocalAuthReturnPath = localStorage.item("authReturnPath")

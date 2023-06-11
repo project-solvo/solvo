@@ -49,7 +49,8 @@ fun SolvoTopAppBar(
                         null -> true
                     }
                 )
-                client.refresh() // temporarily fix compose bug
+                History.refresh()
+                // temporarily fix compose bug
             }) {
                 val isInDarkMode by windowState.preferDarkMode.collectAsState()
                 Icon(
@@ -131,7 +132,7 @@ private fun RowScope.UserIcons(
     }
     AnimatedVisibility(loggedIn == true) {
         IconButton(onClick = wrapClearFocus {
-            client.logOut()
+            client.invalidateToken()
         }) {
             Icon(Icons.Filled.Logout, null)
         }

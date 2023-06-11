@@ -301,7 +301,9 @@ private fun DraftAnswerButton(
     FilledTonalButton(
         onClick = wrapClearFocus {
             if (!client.isLoginIn()) {
-                client.jumpToLoginPage()
+                History.navigate {
+                    auth()
+                }
             } else {
                 pagingState.switchEditorEnable()
             }

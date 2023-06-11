@@ -4,13 +4,13 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
-import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.api.AccountChecker
 import org.solvo.model.api.communication.AuthStatus
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.web.document.History
 import org.solvo.web.requests.client
+import org.solvo.web.session.LocalSessionToken
 import org.solvo.web.viewModel.AbstractViewModel
 
 @Stable
@@ -76,8 +76,8 @@ class AuthenticationViewModel : AbstractViewModel() {
                     isRegister.value = false
                     onClickProceed()
                 } else {
-                    window.localStorage.setItem("token", response.token)
-                    History.navigate { home() }
+                    LocalSessionToken.value = response.token
+                    History.navigate { authReturnOrHome() }
                 }
             }
 
