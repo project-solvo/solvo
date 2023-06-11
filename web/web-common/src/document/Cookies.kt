@@ -2,6 +2,7 @@ package org.solvo.web.document
 
 import io.ktor.http.*
 import kotlinx.browser.document
+import kotlinx.browser.window
 import kotlin.js.Date
 import kotlin.time.Duration
 
@@ -10,7 +11,7 @@ object Cookies {
 //        document.cookie = renderSetCookieHeader(cookie)
 //    }
 
-    fun setCookie(name: String, value: String, expires: Duration? = null, path: String? = null) {
+    fun setCookie(name: String, value: String, expires: Duration? = null, path: String? = window.location.origin) {
         document.cookie = buildString {
             append(name.encodeURLPathPart())
             append("=")
