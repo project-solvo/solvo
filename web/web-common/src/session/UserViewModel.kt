@@ -22,6 +22,9 @@ class UserViewModel : AbstractViewModel() {
     override fun init() {
         launchInBackground {
             val self = client.accounts.getSelf()
+            if (self == null) {
+                LocalSessionToken.remove() // invalidate token
+            }
             user.value = self
             isLoggedIn.value = self != null
         }
