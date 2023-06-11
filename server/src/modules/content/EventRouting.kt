@@ -30,7 +30,7 @@ fun Route.eventRouting(
             val path = call.request.path()
             val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
             val session = events.register(uid)
-            logger.info { "Connection on $path established" + uid?.let { "with user $it" } }
+            logger.info { "Connection on $path established" + (uid?.let { "with user $it" } ?: "") }
 
             val courseCode = call.parameters.getOrFail("courseCode")
             val articleCode = call.parameters.getOrFail("articleCode")
