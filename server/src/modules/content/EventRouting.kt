@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.filter
 import org.solvo.model.api.events.Event
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.LogManagerKt
-import org.solvo.server.utils.eventHandler.CommentEventHandler
+import org.solvo.server.utils.eventHandler.QuestionPageEventHandler
 
 private object EventRouting
 
@@ -19,7 +19,7 @@ private val logger = LogManagerKt.logger<EventRouting>()
 
 fun Route.eventRouting(
     contents: ContentDBFacade,
-    commentUpdates: CommentEventHandler,
+    questionPageEvents: QuestionPageEventHandler,
 ) {
     webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
         val path = call.request.path()
@@ -39,13 +39,9 @@ fun Route.eventRouting(
 
         try {
             while (true) {
-                commentUpdates.events.filter { commentEvent ->
-                    val answerId = commentEvent.parentCoid
-                    contents.viewComment(answerId)?.parent == questionId // is sub comment
-                            || commentEvent.parentCoid == questionId // is answer or comment to the question
-                }.collect { event ->
+                questionPageEvents.events.filter { it.questionCoid == questionId }.collect { event ->
                     sendSerialized(event as Event)
-                    println("Sent CommentEvent with coid ${event.commentCoid} and parent ${event.parentCoid}")
+                    logger.info { "Sent QuestionPageEvent $event" }
                 }
             }
         } catch (e: ClosedReceiveChannelException) {

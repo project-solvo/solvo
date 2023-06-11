@@ -40,6 +40,18 @@ suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.resp
     }
 }
 
+suspend inline fun PipelineContext<Unit, ApplicationCall>.respondOKOrBadRequest(
+    success: Boolean,
+    processIfSucceed: PipelineContext<Unit, ApplicationCall>.() -> Unit = {},
+) {
+    if (success) {
+        call.respond(HttpStatusCode.OK)
+        processIfSucceed()
+    } else {
+        call.respond(HttpStatusCode.BadRequest)
+    }
+}
+
 suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
     content: T?
 ) {
