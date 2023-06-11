@@ -85,21 +85,18 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
         val questionId = if (asAnswer) {
             parentId
         } else {
-            getQuestionIdOfComment(contents, commentId, parentId)
+            getQuestionIdOfAnswer(contents, parentId)
         }
         questionPageEvents.announce(UpdateCommentEvent(commentDownstream, questionId))
     }
     respondContentOrBadRequest(commentId)
 }
 
-private suspend fun getQuestionIdOfComment(
+private suspend fun getQuestionIdOfAnswer(
     contents: ContentDBFacade,
-    commentId: UUID,
-    parentId: UUID? = null,
+    answerId: UUID,
 ): UUID {
-    return contents.viewComment(
-        parentId ?: contents.viewComment(commentId)!!.parent
-    )!!.parent
+    return contents.viewComment(answerId)?.parent ?: error("111111")
 }
 
 private suspend fun announceUpdateReaction(
@@ -113,7 +110,7 @@ private suspend fun announceUpdateReaction(
         UpdateReactionEvent(
             reaction = contents.viewReaction(coid, uid, kind),
             parentCoid = coid,
-            questionCoid = getQuestionIdOfComment(contents, coid),
+            questionCoid = getQuestionIdOfAnswer(contents, coid),
         )
     )
 }

@@ -1,9 +1,13 @@
+@file:UseSerializers(UuidAsStringSerializer::class)
+
 package org.solvo.model.api.events
 
 import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
+import kotlinx.serialization.UseSerializers
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.foundation.Uuid
+import org.solvo.model.foundation.UuidAsStringSerializer
 
 
 @Serializable
@@ -14,7 +18,7 @@ sealed interface CommentEvent : QuestionPageEvent {
 @Serializable
 data class UpdateCommentEvent(
     val commentDownstream: CommentDownstream,
-    override val questionCoid: @Contextual Uuid,
+    override val questionCoid: Uuid,
 ) : CommentEvent {
     override val parentCoid: Uuid get() = commentDownstream.parent
     override val commentCoid: Uuid get() = commentDownstream.coid
