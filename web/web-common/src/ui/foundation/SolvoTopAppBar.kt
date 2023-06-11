@@ -167,7 +167,7 @@ private fun RowScope.UserIcons(
             }
             TextButton(onClick = wrapClearFocus {
                 if (loggedIn == false) {
-                    History.navigate { auth() }
+                    History.navigate { auth(isRegister = true) }
                 }
             }) {
                 Text("Register")

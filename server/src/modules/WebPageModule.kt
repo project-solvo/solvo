@@ -32,11 +32,14 @@ fun Application.webPageModule() {
         }
 
         // WEB PAGES
-        routeWebPage(WebPagePathPatterns.home, "/index")
-        routeWebPage(WebPagePathPatterns.auth, "/auth")
-        routeWebPage(WebPagePathPatterns.course, "/course")
-        routeWebPage(WebPagePathPatterns.article, "/article")
-        routeWebPage(WebPagePathPatterns.question, "/question")
+        with(WebPagePathPatterns) {
+            routeWebPage(home, "/index")
+            routeWebPage(auth.replace(VAR_AUTH_METHOD, VAR_AUTH_METHOD_REGISTER), "/auth")
+            routeWebPage(auth.replace(VAR_AUTH_METHOD, VAR_AUTH_METHOD_LOGIN), "/auth")
+            routeWebPage(course, "/course")
+            routeWebPage(article, "/article")
+            routeWebPage(question, "/question")
+        }
     }
 }
 

@@ -4,6 +4,9 @@ import kotlinx.browser.localStorage
 import kotlinx.browser.window
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.WebPagePathPatterns.VAR_ARTICLE_CODE
+import org.solvo.model.api.WebPagePathPatterns.VAR_AUTH_METHOD
+import org.solvo.model.api.WebPagePathPatterns.VAR_AUTH_METHOD_LOGIN
+import org.solvo.model.api.WebPagePathPatterns.VAR_AUTH_METHOD_REGISTER
 import org.solvo.model.api.WebPagePathPatterns.VAR_COURSE_CODE
 import org.solvo.model.api.WebPagePathPatterns.VAR_QUESTION_CODE
 import org.solvo.web.session.item
@@ -13,14 +16,19 @@ abstract class WebPagePaths {
 
     fun home() = patterns.home
     fun authReturnOrHome(): String {
-        return (LocalAuthReturnPath.value ?: patterns.home).also {
-            LocalAuthReturnPath.value = null
+        return (LocalRefer.value ?: patterns.home).also {
+            LocalRefer.value = null
         }
     }
 
-    fun auth(): String {
-        LocalAuthReturnPath.value = window.location.href
-        return patterns.auth
+    fun auth(isRegister: Boolean = false, recordRefer: Boolean = true): String {
+        if (recordRefer) {
+            LocalRefer.value = window.location.href
+        }
+        return patterns.auth.replace(
+            VAR_AUTH_METHOD,
+            if (isRegister) VAR_AUTH_METHOD_REGISTER else VAR_AUTH_METHOD_LOGIN
+        )
     }
 
     fun courses() = patterns.courses
@@ -39,4 +47,4 @@ abstract class WebPagePaths {
 
 }
 
-internal val LocalAuthReturnPath = localStorage.item("authReturnPath")
+internal val LocalRefer = localStorage.item("authReturnPath")

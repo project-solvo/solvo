@@ -33,7 +33,9 @@ object History {
         if (path.startsWith("http")) {
             window.location.href = path
         } else {
-            window.location.href = window.location.origin.removeSuffix("/") + "/${path.removePrefix("/")}"
+            var value = window.location.origin.removeSuffix("/") + "/${path.removePrefix("/")}"
+            value = value.removeSuffix("/")
+            window.location.href = value
         }
     }
 

@@ -12,7 +12,7 @@ class AuthRequest(
 @Serializable
 class AuthResponse(
     val status: AuthStatus,
-    val token: String = "",
+    val token: String? = null,
 )
 
 @Serializable

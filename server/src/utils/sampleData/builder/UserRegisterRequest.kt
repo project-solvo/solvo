@@ -12,7 +12,7 @@ class UserRegisterRequest(
     suspend fun submit(db: ServerContext.Databases) {
         db.accounts.apply {
             register(username, password)
-            val token = login(username, password).token
+            val token = login(username, password).token!!
             uid = ServerContext.tokens.matchToken(token)!!
         }
     }

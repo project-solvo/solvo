@@ -4,17 +4,32 @@ import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
 import org.solvo.model.api.AccountChecker
+import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.AuthStatus
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.web.document.History
+import org.solvo.web.document.parameters.PathParameters
 import org.solvo.web.requests.client
 import org.solvo.web.session.LocalSessionToken
 import org.solvo.web.viewModel.AbstractViewModel
 
+
+@Stable
+private fun PathParameters.isRegister(): Flow<Boolean> {
+    return argument(WebPagePathPatterns.VAR_AUTH_METHOD).map { authMethod ->
+        authMethod == WebPagePathPatterns.VAR_AUTH_METHOD_REGISTER
+    }
+}
+
 @Stable
 class AuthenticationViewModel : AbstractViewModel() {
+    private val pathParameters = PathParameters(WebPagePathPatterns.auth)
+    val isRegister = pathParameters.isRegister().stateInBackground(false)
+
     private val _username: MutableState<String> = mutableStateOf("")
     val username: State<String> get() = _username
 
@@ -29,7 +44,6 @@ class AuthenticationViewModel : AbstractViewModel() {
     val passwordError: MutableStateFlow<String?> = MutableStateFlow(null)
     val verifyPasswordError: MutableStateFlow<String?> = MutableStateFlow(null)
 
-    val isRegister: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     val isProcessing: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
@@ -69,12 +83,17 @@ class AuthenticationViewModel : AbstractViewModel() {
         val username = username.value
         val password = password.value
 
-        val response = client.accounts.authenticate(username, password, isRegister.value)
+        doAuth(username, password, isRegister.value)
+    }
+
+    private suspend fun doAuth(username: String, password: String, isRegister: Boolean) {
+        val response = client.accounts.authenticate(username, password, isRegister)
         when (response.status) {
             AuthStatus.SUCCESS -> {
-                if (isRegister.value) {
-                    isRegister.value = false
-                    onClickProceed()
+                if (isRegister) {
+                    History.pushState { auth(isRegister = false, recordRefer = false) }
+                    // register OK, then log in
+                    doAuth(username, password, isRegister = false)
                 } else {
                     LocalSessionToken.value = response.token
                     History.navigate { authReturnOrHome() }
@@ -120,7 +139,7 @@ class AuthenticationViewModel : AbstractViewModel() {
     fun onClickSwitch() {
         flush()
         if (isProcessing.value) return
-        isRegister.value = !isRegister.value
+        History.pushState { auth(isRegister = !isRegister.value) }
     }
 
     private fun flush() {
