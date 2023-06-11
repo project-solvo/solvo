@@ -28,7 +28,7 @@ import org.solvo.web.comments.reactions.rememberReactionBarViewModel
 import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.dummy.Loading
 import org.solvo.web.ui.foundation.OutlinedTextField
-import org.solvo.web.ui.foundation.ifThen
+import org.solvo.web.ui.foundation.ifThenElse
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
@@ -71,6 +71,7 @@ fun AnswersList(
             }
 
             var richTextHasVisualOverflow by remember { mutableStateOf(false) }
+            var isShowingFullAnswer by remember { mutableStateOf(false) } // in list mode
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
 
@@ -124,15 +125,20 @@ fun AnswersList(
                 CommentCardContent(
                     item,
                     backgroundColor,
-                    Modifier.ifThen(!isExpanded) { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) },
+                    Modifier
+                        .ifThenElse(
+                            isExpanded || isShowingFullAnswer,
+                            then = { wrapContentHeight() },
+                            `else` = { heightIn(max = ANSWER_CONTENT_MAX_HEIGHT) }
+                        ),
                     showScrollbar = isExpanded && richTextHasVisualOverflow,
                     showFullAnswer = if (isExpanded) null else {
                         {
                             Row {
                                 Text(
-                                    "... see full answer",
-                                    Modifier.clickable(indication = null, onClick = wrapClearFocus<Unit> {
-                                        onClickCommentState?.invoke(null, item)
+                                    if (isShowingFullAnswer) "see less" else "...see more",
+                                    Modifier.clickable(indication = null, onClick = wrapClearFocus {
+                                        isShowingFullAnswer = !isShowingFullAnswer
                                     }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
                                     fontWeight = FontWeight.W600,
                                     fontSize = AuthorNameTextStyle.fontSize,

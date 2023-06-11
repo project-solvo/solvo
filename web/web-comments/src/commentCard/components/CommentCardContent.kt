@@ -8,7 +8,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -18,8 +17,6 @@ import org.solvo.web.editor.RichEditorLayoutResult
 import org.solvo.web.editor.RichText
 import org.solvo.web.editor.rememberRichEditorLoadedState
 import org.solvo.web.ui.OverlayLoadableContent
-import org.solvo.web.ui.foundation.rememberMutableDebouncedState
-import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun CommentCardContent(
@@ -33,9 +30,6 @@ fun CommentCardContent(
     @Suppress("NAME_SHADOWING")
     val onLayout by rememberUpdatedState(onLayout)
 
-    var richTextHasVisualOverflow by rememberMutableDebouncedState(false, 200.milliseconds)
-
-//    key(item.coid) { // redraw editor when item id changed (do not reuse)
     val loadedState = rememberRichEditorLoadedState()
     OverlayLoadableContent(
         !loadedState.isReady,
@@ -48,7 +42,6 @@ fun CommentCardContent(
                 onEditorLoaded = loadedState.onEditorLoaded,
                 onTextUpdated = loadedState.onTextChanged,
                 onLayout = {
-                    richTextHasVisualOverflow = hasVisualOverflow
                     onLayout?.invoke(this)
                 },
                 backgroundColor = backgroundColor,
@@ -56,17 +49,11 @@ fun CommentCardContent(
                 fontSize = AuthorNameTextStyle.fontSize,
             )
 
-            if (showFullAnswer != null && richTextHasVisualOverflow) {
-//                    Surface(
-//                        Modifier.fillMaxWidth().wrapContentHeight(),
-//                        color = MaterialTheme.colorScheme.surface.copy(0.7f),
-//                    ) {
+            if (showFullAnswer != null) {
                 Box(Modifier.fillMaxWidth(), contentAlignment = Alignment.Center) {
                     showFullAnswer()
                 }
-//                    }
             }
         }
     }
-//    }
 }
