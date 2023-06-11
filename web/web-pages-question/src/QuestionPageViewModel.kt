@@ -28,7 +28,10 @@ class QuestionPageViewModel : AbstractViewModel() {
 
     private val newAnswers = questionEvents
         .filterIsInstance<CommentEvent>()
-        .filter { it.parentCoid == question.value?.coid }
+        .filter { event ->
+            event.parentCoid == question.value?.coid // new answer
+                    || allAnswers.value.any { it.coid == event.commentCoid } // update answer (e.g. update previews)
+        }
         .map { event ->
             eventHandler.handleEvent(event)
         }

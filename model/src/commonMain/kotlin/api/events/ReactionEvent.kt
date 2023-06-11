@@ -11,6 +11,9 @@ import org.solvo.model.foundation.UuidAsStringSerializer
 
 sealed interface ReactionEvent : QuestionPageEvent
 
+@Deprecated("compiler bug workaround", level = DeprecationLevel.HIDDEN)
+class UpdateReactionEvent
+
 @Serializable
 data class UpdateReactionServerEvent(
     val reactionKind: ReactionKind,

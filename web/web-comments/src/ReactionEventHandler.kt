@@ -14,6 +14,7 @@ class ReactionEventHandler(
             { it.kind == event.reaction.kind },
             event.reaction
         )
+
         is UpdateReactionServerEvent -> error("Should not receive an UpdateReactionServerEvent")
     }
 }

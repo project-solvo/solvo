@@ -23,7 +23,7 @@ abstract class LoadingUuidItem<T> : HasCoid {
     final override fun equals(other: Any?): Boolean {
         if (other === null) return false
         if (other !is LoadingUuidItem<*>) return false
-        return other.coid == this.coid
+        return other.coid == this.coid && this.ready == other.ready
     }
 
     override fun hashCode(): Int = coid.hashCode()

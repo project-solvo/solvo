@@ -72,7 +72,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     questionPageEvents: QuestionPageEventHandler,
 ) {
     val uid = getUserId() ?: return
-    val parentId = UUID.fromString(call.parameters.getOrFail("parentId"))
+    val parentId: UUID = UUID.fromString(call.parameters.getOrFail("parentId"))
     val comment = call.receive<CommentUpstream>()
 
     val commentId = if (asAnswer) {
@@ -88,6 +88,14 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
             getQuestionIdOfAnswer(contents, parentId)
         }
         questionPageEvents.announce(UpdateCommentEvent(commentDownstream, questionId))
+        contents.viewComment(parentId)?.let { parentComment ->
+            questionPageEvents.announce(
+                UpdateCommentEvent(
+                    parentComment,
+                    questionId
+                )
+            ) // also update parent's previews
+        }
     }
     respondContentOrBadRequest(commentId)
 }
