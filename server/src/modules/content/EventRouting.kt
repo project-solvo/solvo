@@ -10,10 +10,10 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
 import org.solvo.model.api.events.QuestionPageEvent
+import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.LogManagerKt
 import org.solvo.server.utils.events.EventSessionHandler
-import java.util.*
 import kotlin.coroutines.cancellation.CancellationException
 
 private object EventRouting
@@ -28,7 +28,9 @@ fun Route.eventRouting(
     authenticate("authBearer", optional = true) {
         webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
             val path = call.request.path()
-            val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
+            val token = call.parameters.getOrFail("token")
+            val uid = ServerContext.tokens.matchToken(token)
+            // val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
             val session = events.register(uid)
             logger.info { "Connection on $path established" + (uid?.let { "with user $it" } ?: "") }
 
