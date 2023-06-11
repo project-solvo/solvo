@@ -48,7 +48,7 @@ fun <T, S : PagingState<T>> PagingContent(
 @Composable
 fun <T> PagingControlBar(
     state: PagingState<T>,
-    showPagingController: Boolean = true,
+    showPagingController: Boolean = false,
     content: @Composable context(ControlBarScope) BoxScope.() -> Unit = {},
 ) {
     ControlBar {

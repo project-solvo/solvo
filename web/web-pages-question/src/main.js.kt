@@ -158,28 +158,28 @@ private fun QuestionPageContent(
                             horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
                         ) {
                             DraftAnswerButton(
-                                true,
+                            true,
                                 pagingState = pagingState,
                                 contentPaddings = buttonContentPaddings,
                                 shape = buttonShape,
                             )
-                            if (!pagingState.editorEnable.value) {
-                                DraftAnswerButton(
-                                    false,
-                                    pagingState = pagingState,
-                                    contentPaddings = buttonContentPaddings,
-                                    shape = buttonShape,
-                                )
-                            }
+                        if (!pagingState.editorEnable.value) {
+                            DraftAnswerButton(
+                                false,
+                                pagingState = pagingState,
+                                contentPaddings = buttonContentPaddings,
+                                shape = buttonShape,
+                            )
+                        }
                             AnimatedVisibility(isDraftAnswerEditorOpen) {
                                 val snackBar = LocalTopSnackBar.current
                                 Button(
                                     onClick = {
                                         if (draftAnswerEditor.contentMarkdown == "") {
                                             backgroundScope.launch {
-                                                val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
+                                            val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
                                                 snackBar.showSnackbar(
-                                                    "$text can not be empty", withDismissAction = true
+                                                "$text can not be empty", withDismissAction = true
                                                 )
                                             }
                                         } else {
@@ -198,6 +198,7 @@ private fun QuestionPageContent(
                                         }
                                     },
                                     shape = buttonShape,
+                                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
                                     contentPadding = buttonContentPaddings,
                                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
                                 ) {
@@ -213,12 +214,12 @@ private fun QuestionPageContent(
                             contentPadding = buttonContentPaddings,
                             colors = ButtonDefaults.buttonColors()
                         ) {
-                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                                Text(
-                                    "Go Back",
-                                    Modifier.padding(start = 4.dp),
-                                    style = MaterialTheme.typography.titleMedium,
-                                )
+                                if (pagingState.isAnswer.value) {
+                                    Text("Post Answer")
+                                } else {
+                                    Text("Post Thought")
+                                }
+
                             }
                         }
                     }
@@ -334,7 +335,7 @@ private fun DraftAnswerButton(
     modifier: Modifier = Modifier,
 ) {
     val color = if (isAnswer) ButtonDefaults.buttonColors()
-    else ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
+            else ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
     FilledTonalButton(
         onClick = wrapClearFocus {
             if (!client.isLoginIn()) {
