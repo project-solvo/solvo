@@ -10,8 +10,8 @@ import org.solvo.server.database.*
 import org.solvo.server.database.control.*
 import org.solvo.server.database.exposed.*
 import org.solvo.server.utils.*
-import org.solvo.server.utils.eventHandler.QuestionPageEventHandler
-import org.solvo.server.utils.eventHandler.QuestionPageEventHandlerImpl
+import org.solvo.server.utils.events.EventSessionHandler
+import org.solvo.server.utils.events.EventSessionHandlerImpl
 import org.solvo.server.utils.sampleData.builder.incorporateSampleData
 import org.solvo.server.utils.sampleData.data.sampleData1
 
@@ -20,14 +20,11 @@ object ServerContext {
     val tokens: TokenGenerator = TokenGeneratorDBImpl(Databases.accounts)
     val paths: ServerResourcesPath = ServerResourcesPathImpl()
     val files: FileManager = FileManagerImpl()
+    val events: EventSessionHandler = EventSessionHandlerImpl()
 
     fun init() {
         DatabaseFactory.init()
         Databases.init()
-    }
-
-    object Events {
-        val questionPage: QuestionPageEventHandler = QuestionPageEventHandlerImpl()
     }
 
     object Databases {

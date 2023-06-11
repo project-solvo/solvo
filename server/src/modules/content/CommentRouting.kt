@@ -9,15 +9,16 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.api.communication.Reaction
 import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.api.events.UpdateCommentEvent
-import org.solvo.model.api.events.UpdateReactionServerEvent
+import org.solvo.model.api.events.UpdateReactionEvent
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.modules.*
-import org.solvo.server.utils.eventHandler.QuestionPageEventHandler
+import org.solvo.server.utils.events.EventSessionHandler
 import java.util.*
 
-fun Route.commentRouting(contents: ContentDBFacade, questionPageEvents: QuestionPageEventHandler) {
+fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler) {
     route("/comments") {
         get("{coid}") {
             processGetComment(contents)
@@ -30,10 +31,10 @@ fun Route.commentRouting(contents: ContentDBFacade, questionPageEvents: Question
             }
         }
         postAuthenticated("{parentId}/comment") {
-            processUploadComment(contents, asAnswer = false, questionPageEvents)
+            processUploadComment(contents, asAnswer = false, events)
         }
         postAuthenticated("{parentId}/answer") {
-            processUploadComment(contents, asAnswer = true, questionPageEvents)
+            processUploadComment(contents, asAnswer = true, events)
         }
         postAuthenticated("{coid}/reactions/new") {
             val uid = getUserId() ?: return@postAuthenticated
@@ -41,7 +42,7 @@ fun Route.commentRouting(contents: ContentDBFacade, questionPageEvents: Question
             val kind = call.receive<ReactionKind>()
 
             respondOKOrBadRequest(contents.postReaction(coid, uid, kind)) {
-                announceUpdateReaction(questionPageEvents, contents, coid, kind)
+                announceUpdateReaction(events, contents, coid, kind)
             }
         }
         deleteAuthenticated("{coid}/reactions/{kind}") {
@@ -52,7 +53,7 @@ fun Route.commentRouting(contents: ContentDBFacade, questionPageEvents: Question
             ) ?: throw BadRequestException("invalid kind")
 
             respondOKOrBadRequest(contents.deleteReaction(coid, uid, kind)) {
-                announceUpdateReaction(questionPageEvents, contents, coid, kind)
+                announceUpdateReaction(events, contents, coid, kind)
             }
         }
     }
@@ -69,7 +70,7 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     contents: ContentDBFacade,
     asAnswer: Boolean,
-    questionPageEvents: QuestionPageEventHandler,
+    events: EventSessionHandler,
 ) {
     val uid = getUserId() ?: return
     val parentId: UUID = UUID.fromString(call.parameters.getOrFail("parentId"))
@@ -82,43 +83,36 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     }
     if (commentId != null) {
         val commentDownstream = contents.viewComment(commentId)!!
-        val questionId = if (asAnswer) {
-            parentId
+        val questionId: UUID
+        if (asAnswer) {
+            questionId = parentId
         } else {
-            getQuestionIdOfAnswer(contents, parentId)
+            val parent = contents.viewComment(parentId)!!
+            questionId = parent.parent
+            events.announce(UpdateCommentEvent(parent, questionId)) // also announce its parent (answer)
         }
-        questionPageEvents.announce(UpdateCommentEvent(commentDownstream, questionId))
-        contents.viewComment(parentId)?.let { parentComment ->
-            questionPageEvents.announce(
-                UpdateCommentEvent(
-                    parentComment,
-                    questionId
-                )
-            ) // also update parent's previews
-        }
+        events.announce(UpdateCommentEvent(commentDownstream, questionId))
     }
     respondContentOrBadRequest(commentId)
 }
 
-private suspend fun getQuestionIdOfAnswer(
-    contents: ContentDBFacade,
-    answerId: UUID,
-): UUID {
-    return contents.viewComment(answerId)?.parent ?: error("111111")
-}
-
 private suspend fun announceUpdateReaction(
-    questionPageEvents: QuestionPageEventHandler,
+    events: EventSessionHandler,
     contents: ContentDBFacade,
     coid: UUID,
     kind: ReactionKind
 ) {
-    questionPageEvents.announce(
-        UpdateReactionServerEvent(
-            reactionKind = kind,
-            userIds = contents.viewUsersOfReaction(coid, kind),
+    val userIds = contents.viewUsersOfReaction(coid, kind)
+    val questionId = contents.viewComment(coid)!!.parent
+    events.announce {
+        UpdateReactionEvent(
+            reaction = Reaction(
+                kind = kind,
+                count = userIds.size,
+                self = userIds.contains(userId),
+            ),
             parentCoid = coid,
-            questionCoid = getQuestionIdOfAnswer(contents, coid),
+            questionCoid = questionId,
         )
-    )
+    }
 }
