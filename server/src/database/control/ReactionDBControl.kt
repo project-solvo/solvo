@@ -12,7 +12,7 @@ interface ReactionDBControl {
     suspend fun post(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean
     suspend fun delete(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean
     suspend fun getAllReactions(userId: UUID?, targetId: UUID): List<Reaction>
-    suspend fun getReaction(targetId: UUID, userId: UUID?, kind: ReactionKind): Reaction
+    suspend fun getUserIds(targetId: UUID, kind: ReactionKind): List<UUID>
     suspend fun contains(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean
 }
 
@@ -48,22 +48,10 @@ class ReactionDBControlImpl : ReactionDBControl {
             }
     }
 
-    override suspend fun getReaction(targetId: UUID, userId: UUID?, kind: ReactionKind): Reaction = dbQuery {
+    override suspend fun getUserIds(targetId: UUID, kind: ReactionKind): List<UUID> = dbQuery {
         ReactionTable
-            .slice(ReactionTable.user.count(), ReactionTable.target, ReactionTable.reaction)
             .select { (ReactionTable.target eq targetId) and (ReactionTable.reaction eq kind) }
-            .groupBy(ReactionTable.reaction)
-            .map {
-                Reaction(
-                    kind = kind,
-                    count = it[ReactionTable.user.count()].toInt(),
-                    self = userId?.let { contains(userId, targetId, kind) } ?: false
-                )
-            }.singleOrNull() ?: Reaction(
-            kind = kind,
-            count = 0,
-            self = false,
-        )
+            .map { it[ReactionTable.user].value }
     }
 
     override suspend fun contains(userId: UUID, targetId: UUID, reaction: ReactionKind): Boolean = dbQuery {

@@ -21,7 +21,7 @@ interface ContentDBFacade {
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
     suspend fun viewComment(commentId: UUID): CommentDownstream?
     suspend fun viewAllReactions(targetId: UUID, userId: UUID?): List<Reaction>
-    suspend fun viewReaction(targetId: UUID, userId: UUID?, kind: ReactionKind): Reaction
+    suspend fun viewUsersOfReaction(targetId: UUID, kind: ReactionKind): List<UUID>
     suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
     suspend fun deleteReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
 }
@@ -117,7 +117,7 @@ class ContentDBFacadeImpl(
         return reactions.getAllReactions(userId, targetId)
     }
 
-    override suspend fun viewReaction(targetId: UUID, userId: UUID?, kind: ReactionKind): Reaction {
-        return reactions.getReaction(targetId, userId, kind)
+    override suspend fun viewUsersOfReaction(targetId: UUID, kind: ReactionKind): List<UUID> {
+        return reactions.getUserIds(targetId, kind)
     }
 }
