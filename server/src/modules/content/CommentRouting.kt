@@ -11,7 +11,7 @@ import io.ktor.util.pipeline.*
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.api.events.UpdateCommentEvent
-import org.solvo.model.api.events.UpdateReactionEvent
+import org.solvo.model.api.events.UpdateReactionServerEvent
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.modules.*
 import org.solvo.server.utils.eventHandler.QuestionPageEventHandler
@@ -41,7 +41,7 @@ fun Route.commentRouting(contents: ContentDBFacade, questionPageEvents: Question
             val kind = call.receive<ReactionKind>()
 
             respondOKOrBadRequest(contents.postReaction(coid, uid, kind)) {
-                announceUpdateReaction(questionPageEvents, contents, coid, uid, kind)
+                announceUpdateReaction(questionPageEvents, contents, coid, kind)
             }
         }
         deleteAuthenticated("{coid}/reactions/{kind}") {
@@ -52,7 +52,7 @@ fun Route.commentRouting(contents: ContentDBFacade, questionPageEvents: Question
             ) ?: throw BadRequestException("invalid kind")
 
             respondOKOrBadRequest(contents.deleteReaction(coid, uid, kind)) {
-                announceUpdateReaction(questionPageEvents, contents, coid, uid, kind)
+                announceUpdateReaction(questionPageEvents, contents, coid, kind)
             }
         }
     }
@@ -103,12 +103,12 @@ private suspend fun announceUpdateReaction(
     questionPageEvents: QuestionPageEventHandler,
     contents: ContentDBFacade,
     coid: UUID,
-    uid: UUID,
     kind: ReactionKind
 ) {
     questionPageEvents.announce(
-        UpdateReactionEvent(
-            reaction = contents.viewReaction(coid, uid, kind),
+        UpdateReactionServerEvent(
+            reactionKind = kind,
+            userIds = contents.viewUsersOfReaction(coid, kind),
             parentCoid = coid,
             questionCoid = getQuestionIdOfAnswer(contents, coid),
         )
