@@ -13,7 +13,6 @@ import io.ktor.util.reflect.*
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.serialization.json.Json
 import org.solvo.model.utils.DefaultCommonJson
 import org.solvo.web.document.History
 import org.solvo.web.session.LocalSessionToken
@@ -35,7 +34,7 @@ class Client {
             json(DefaultCommonJson)
         }
         install(WebSockets) {
-            contentConverter = KotlinxWebsocketSerializationConverter(Json)
+            contentConverter = KotlinxWebsocketSerializationConverter(DefaultCommonJson)
         }
     }
     val token: String? get() = LocalSessionToken.value
