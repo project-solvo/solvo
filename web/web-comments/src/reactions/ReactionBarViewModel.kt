@@ -29,16 +29,22 @@ class ReactionBarViewModel(
             eventHandler.handleEvent(it)
         }
 
-    private val remoteReactions = subjectCoid.filterNotNull()
-        .mapNotNull { client.comments.getReactions(it) }
-
-    val allReactions: StateFlow<List<Reaction>> = merge(eventReactions, remoteReactions).stateInBackground(emptyList())
+    val allReactions: StateFlow<List<Reaction>> = merge(
+        eventReactions,
+        subjectCoid.filterNotNull()
+            .mapNotNull { client.comments.getReactions(it) }
+    ).stateInBackground(emptyList())
 
     val reactionListOpen = mutableStateOf(false)
-    val isEmpty = remoteReactions.map { list -> list.sumOf { it.count } == 0 }.shareInBackground()
+    val isEmpty = allReactions.map { list -> list.sumOf { it.count } == 0 }.shareInBackground()
 
     @Stable
-    fun reaction(kind: ReactionKind): Flow<Reaction?> = remoteReactions.map { list -> list.find { it.kind == kind } }
+    fun reaction(kind: ReactionKind): StateFlow<Reaction> {
+        val default = Reaction(kind, 0, false)
+        return allReactions
+            .map { list -> list.find { it.kind == kind } ?: default }
+            .stateInBackground(default)
+    }
 
     fun switchReactionList() {
         reactionListOpen.value = !reactionListOpen.value
@@ -49,7 +55,6 @@ class ReactionBarViewModel(
     }
 
     suspend fun react(kind: ReactionKind) {
-        println("Sending reaction: $kind, subject=${subjectCoid.value}")
         val subjectCoid = subjectCoid.value ?: return
         val reactions = allReactions.value
         val reaction = reactions.find { it.kind == kind } ?: Reaction(kind, 0, false)

@@ -1,10 +1,7 @@
 package org.solvo.web.comments.reactions
 
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.FlowRow
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddReaction
 import androidx.compose.material3.*
@@ -50,23 +47,30 @@ fun ReactionBar(
         horizontalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         for (kind in ReactionKind.entries) {
-            val reaction by viewModelState.reaction(kind).collectAsState(null)
-            val count by remember {
-                derivedStateOf {
-                    reaction?.count ?: 0
+            ReactionButtonItem(kind, viewModelState) { isProcessing ->
+                viewModelState.launchInBackgroundAnimated(isProcessing) {
+                    react(kind)
                 }
             }
-            val isSelf by remember { derivedStateOf { reaction?.self ?: false } }
-            val reactionListOpen by viewModelState.reactionListOpen
-            AnimatedVisibility(reactionListOpen || count != 0) {
-                val isProcessing = remember { mutableStateOf(false) }
-                EmojiChip(kind, count, isSelf, isProcessing.value, onClick = {
-                    viewModelState.launchInBackgroundAnimated(isProcessing) {
-                        react(kind)
-                    }
-                })
-            }
         }
+    }
+}
+
+@Composable
+private fun RowScope.ReactionButtonItem(
+    kind: ReactionKind,
+    viewModel: ReactionBarViewModel,
+    onClick: (isProcessing: MutableState<Boolean>) -> Unit,
+) {
+    val reaction by remember(viewModel, kind) { viewModel.reaction(kind) }.collectAsState()
+    val alwaysOpen by viewModel.reactionListOpen
+
+    val count = reaction.count
+    val isSelf = reaction.self
+    val onClickUpdated by rememberUpdatedState(onClick)
+    AnimatedVisibility(alwaysOpen || count != 0) {
+        val isProcessing = remember { mutableStateOf(false) }
+        EmojiChip(reaction.kind, count, isSelf, isProcessing.value, onClick = { onClickUpdated(isProcessing) })
     }
 }
 
