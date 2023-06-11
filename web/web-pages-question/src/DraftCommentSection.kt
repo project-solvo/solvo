@@ -49,16 +49,17 @@ fun DraftCommentSection(
 
         Button(
             {
+                val contentMarkdown = editorState.contentMarkdown
                 if (showEditor) {
                     if (!client.isLoginIn()) {
                         History.navigate {
                             auth()
                         }
                     } else {
-                        if (editorState.contentMarkdown.isNotBlank()) {
+                        if (!contentMarkdown.isNullOrBlank()) {
                             pagingState.currentContent.value.firstOrNull()?.let { comment ->
                                 val upstream = CommentUpstream(
-                                    content = NonBlankString.fromStringOrNull(editorState.contentMarkdown)
+                                    content = NonBlankString.fromStringOrNull(contentMarkdown)
                                         ?: return@let,
                                 )
                                 backgroundScope.launch {
@@ -68,7 +69,7 @@ fun DraftCommentSection(
                         }
                     }
                 }
-                if (editorState.contentMarkdown.isNotBlank()) {
+                if (!contentMarkdown.isNullOrBlank()) {
                     onShowEditorChange(!showEditor)
                 }
             }, Modifier.align(Alignment.End).animateContentSize()

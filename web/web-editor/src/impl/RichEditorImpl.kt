@@ -134,6 +134,14 @@ internal class RichEditor internal constructor(
         }
     }
 
+    /**
+     * Input markdown. `null` if editor not ready
+     */
+    val contentMarkdown: String?
+        get() = ifEditorLoaded {
+            editor.getMarkdown() as String
+        }
+
     suspend fun setContentMarkdown(value: String) {
         onEditorLoaded {
             expectEditorChange {
@@ -334,7 +342,6 @@ internal class RichEditor internal constructor(
     }
 
     fun setEditorBounds(bounds: Rect, density: Density) {
-//        println("bounds.top=${bounds.top}; positionInRoot.value.y=${positionInRoot.value.y}")
         if (_boundsInRoot.value == bounds) return
         _boundsInRoot.value = bounds
 
@@ -343,7 +350,13 @@ internal class RichEditor internal constructor(
         val rightPx = bounds.right / density.density + leftPx
         val bottomPx = bounds.bottom / density.density + topPx
 
-        positionDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
+
+        if (bounds.top == 0f && bounds.left == 0f) {
+            // out of screen
+            positionDiv.asDynamic().style.clip = "rect(${bottomPx}px, ${rightPx}px, ${bottomPx}px, ${rightPx}px)"
+        } else {
+            positionDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
+        }
     }
 
     suspend fun setFontSize(size: TextUnit, density: Density) {

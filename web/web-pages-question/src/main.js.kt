@@ -176,7 +176,9 @@ private fun QuestionPageContent(
                                             client.comments.postAnswer(
                                                 question.coid,
                                                 CommentUpstream(
-                                                    NonBlankString.fromStringOrNull(draftAnswerEditor.contentMarkdown)
+                                                    NonBlankString.fromStringOrNull(
+                                                        draftAnswerEditor.contentMarkdown ?: ""
+                                                    )
                                                         ?: return@launch
                                                 )
                                             )

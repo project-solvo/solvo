@@ -34,11 +34,7 @@ fun rememberRichEditorState(
 class RichEditorState internal constructor(
     internal val richEditor: RichEditor
 ) {
-    /**
-     * Input markdown
-     */
-    val contentMarkdown: String
-        get() = richEditor.editor.getMarkdown() as String
+    val contentMarkdown get() = richEditor.contentMarkdown
 
     suspend fun setContentMarkdown(value: String) {
         richEditor.setContentMarkdown(value)
