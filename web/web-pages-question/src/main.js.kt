@@ -359,6 +359,15 @@ private fun DraftAnswerButton(
                     Modifier.padding(start = 4.dp),
                 )
             }
+        } else {
+            Icon(Icons.Outlined.FolderOff, "Fold Editor", Modifier.fillMaxHeight())
+
+            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                Text(
+                    "Fold Editor",
+                    Modifier.padding(start = 4.dp),
+                )
+            }
         }
     }
 }
