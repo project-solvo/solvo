@@ -41,6 +41,9 @@ abstract class Requests {
                     println("Event connected: $path")
                     while (isActive) {
                         val event = session!!.receiveDeserialized<Event>()
+//                        val frame = session!!.incoming.receive()
+//                        val string = frame.data.decodeToString()
+//                        val event = client.json.decodeFromString(Event.serializer(), string)
                         println("Received event: $event")
                         flow.emit(event)
                     }

@@ -7,10 +7,12 @@ import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.isActive
 import org.solvo.model.api.events.Event
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.LogManagerKt
 import org.solvo.server.utils.eventHandler.QuestionPageEventHandler
+import kotlin.coroutines.cancellation.CancellationException
 
 private object EventRouting
 
@@ -38,15 +40,18 @@ fun Route.eventRouting(
         }
 
         try {
-            while (true) {
+            while (isActive) {
                 questionPageEvents.events.filter { it.questionCoid == questionId }.collect { event ->
                     sendSerialized(event as Event)
                     logger.info { "Sent QuestionPageEvent $event" }
                 }
             }
-        } catch (e: ClosedReceiveChannelException) {
-            logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
         } catch (e: Throwable) {
+            if (e is CancellationException || e is ClosedReceiveChannelException) {
+                logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
+                return@webSocket
+            }
+
             logger.info { "Connection on $path closed erroneously with reason ${closeReason.await()}" }
             e.printStackTrace()
         }

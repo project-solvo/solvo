@@ -9,7 +9,6 @@ import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
 import io.ktor.server.websocket.*
-import kotlinx.serialization.json.Json
 import org.slf4j.event.Level
 import org.solvo.model.utils.DefaultCommonJson
 import org.solvo.server.modules.accountModule
@@ -51,6 +50,6 @@ fun Application.basicModule() {
         timeout = Duration.ofSeconds(15)
         maxFrameSize = Long.MAX_VALUE
         masking = false
-        contentConverter = KotlinxWebsocketSerializationConverter(Json)
+        contentConverter = KotlinxWebsocketSerializationConverter(DefaultCommonJson)
     }
 }

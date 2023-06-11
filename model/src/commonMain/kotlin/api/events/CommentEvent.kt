@@ -10,7 +10,6 @@ import org.solvo.model.foundation.Uuid
 import org.solvo.model.foundation.UuidAsStringSerializer
 
 
-@Serializable
 sealed interface CommentEvent : QuestionPageEvent {
     val commentCoid: Uuid
 }

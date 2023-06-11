@@ -8,7 +8,6 @@ import org.solvo.model.api.communication.Reaction
 import org.solvo.model.foundation.Uuid
 import org.solvo.model.foundation.UuidAsStringSerializer
 
-@Serializable
 sealed interface ReactionEvent : QuestionPageEvent
 
 @Serializable

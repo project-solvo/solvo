@@ -23,6 +23,7 @@ val client = Client()
 class Client {
     internal val scope = CoroutineScope(CoroutineExceptionHandler.byWindowAlert())
     val origin = window.location.origin
+    val json = DefaultCommonJson
     val http = HttpClient(Js) {
         install(HttpTimeout) {
             val timeout = 30_000L
@@ -31,10 +32,10 @@ class Client {
             socketTimeoutMillis = timeout
         }
         install(ContentNegotiation) {
-            json(DefaultCommonJson)
+            json(json)
         }
         install(WebSockets) {
-            contentConverter = KotlinxWebsocketSerializationConverter(DefaultCommonJson)
+            contentConverter = KotlinxWebsocketSerializationConverter(json)
         }
     }
     val token: String? get() = LocalSessionToken.value
