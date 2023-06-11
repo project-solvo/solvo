@@ -133,7 +133,11 @@ fun AnswersList(
                         ),
                     showScrollbar = isExpanded && richTextHasVisualOverflow,
                     showFullAnswer = if (isExpanded) null else {
-                        {
+                        showFullAnswer@{
+                            if (!richTextHasVisualOverflow && !isShowingFullAnswer) {
+                                return@showFullAnswer // text is short, no need to display "see more" 
+                            }
+
                             Row {
                                 Text(
                                     if (isShowingFullAnswer) "see less" else "...see more",
