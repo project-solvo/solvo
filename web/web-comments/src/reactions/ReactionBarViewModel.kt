@@ -5,23 +5,40 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.*
 import org.solvo.model.api.communication.Reaction
 import org.solvo.model.api.communication.ReactionKind
+import org.solvo.model.api.events.Event
+import org.solvo.model.api.events.ReactionEvent
 import org.solvo.model.foundation.Uuid
+import org.solvo.web.comments.ReactionEventHandler
 import org.solvo.web.requests.client
-import org.solvo.web.utils.replacedOrAppend
 import org.solvo.web.viewModel.AbstractViewModel
 
 class ReactionBarViewModel(
-    private val subjectCoid: Uuid,
-    reactions: Flow<List<Reaction>>,
+    subjectCoidFlow: Flow<Uuid>,
+    events: Flow<Event>,
 ) : AbstractViewModel() {
-    private val reactions: StateFlow<List<Reaction>> =
-        reactions.stateIn(backgroundScope, started = SharingStarted.Eagerly, emptyList())
+    private val subjectCoid = subjectCoidFlow.stateInBackground()
+
+    private val eventHandler = ReactionEventHandler(
+        getAllReactions = { allReactions.value }
+    )
+
+    private val eventReactions = events
+        .filterIsInstance<ReactionEvent>()
+        .filter { it.parentCoid == this.subjectCoid.value }
+        .map {
+            eventHandler.handleEvent(it)
+        }
+
+    private val remoteReactions = subjectCoid.filterNotNull()
+        .mapNotNull { client.comments.getReactions(it) }
+
+    val allReactions: StateFlow<List<Reaction>> = merge(eventReactions, remoteReactions).stateInBackground(emptyList())
 
     val reactionListOpen = mutableStateOf(false)
-    val isEmpty = reactions.map { list -> list.sumOf { it.count } == 0 }.shareInBackground()
+    val isEmpty = remoteReactions.map { list -> list.sumOf { it.count } == 0 }.shareInBackground()
 
     @Stable
-    fun reaction(kind: ReactionKind): Flow<Reaction?> = reactions.map { list -> list.find { it.kind == kind } }
+    fun reaction(kind: ReactionKind): Flow<Reaction?> = remoteReactions.map { list -> list.find { it.kind == kind } }
 
     fun switchReactionList() {
         reactionListOpen.value = !reactionListOpen.value
@@ -31,19 +48,14 @@ class ReactionBarViewModel(
         reactionListOpen.value = false
     }
 
-    suspend fun react(kind: ReactionKind, applyLocalChange: (List<Reaction>) -> Unit) {
-        println("Sending reaction: $kind, subject=$subjectCoid")
-        val reactions = reactions.value
+    suspend fun react(kind: ReactionKind) {
+        println("Sending reaction: $kind, subject=${subjectCoid.value}")
+        val subjectCoid = subjectCoid.value ?: return
+        val reactions = allReactions.value
         val reaction = reactions.find { it.kind == kind } ?: Reaction(kind, 0, false)
         if (reaction.self) {
-            applyLocalChange(
-                reactions.replacedOrAppend({ it.kind == kind }, Reaction(kind, reaction.count - 1, false))
-            )
             client.comments.removeReaction(subjectCoid, kind)
         } else {
-            applyLocalChange(
-                reactions.replacedOrAppend({ it.kind == kind }, Reaction(kind, reaction.count + 1, true))
-            )
             client.comments.addReaction(subjectCoid, kind)
         }
         closeReactionList()

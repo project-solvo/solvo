@@ -4,13 +4,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.key
 import androidx.compose.runtime.remember
-import kotlinx.coroutines.channels.BufferOverflow
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.mapNotNull
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.ICommentDownstream
 import org.solvo.model.api.communication.LightCommentDownstream
-import org.solvo.model.api.communication.Reaction
-import org.solvo.web.requests.client
 import org.solvo.web.utils.DateFormatter
 import org.solvo.web.viewModel.AbstractViewModel
 
@@ -37,19 +35,6 @@ class FullCommentCardViewModel(initial: CommentDownstream? = null) : CommentCard
     val lastCommentTime = comment.mapNotNull { it?.lastCommentTime }
     val postTime = comment.mapNotNull { it?.postTime }.shareInBackground()
     val postTimeFormatted = postTime.mapNotNull { DateFormatter.format(it) }.shareInBackground()
-
-    private val localReactions =
-        MutableSharedFlow<List<Reaction>>(1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
-
-    val reactions = merge(
-        comment.filterNotNull()
-            .mapNotNull { client.comments.getReactions(it.coid) },
-        localReactions
-    ).shareInBackground()
-
-    fun setReactions(reactions: List<Reaction>) {
-        localReactions.tryEmit(reactions)
-    }
 }
 
 @Composable

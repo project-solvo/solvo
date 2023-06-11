@@ -17,8 +17,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.Flow
-import org.solvo.model.api.communication.Reaction
 import org.solvo.model.api.communication.ReactionKind
+import org.solvo.model.api.events.Event
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.theme.EMOJI_FONT
@@ -27,21 +27,20 @@ import org.solvo.web.viewModel.launchInBackgroundAnimated
 @Composable
 fun rememberReactionBarViewModel(
     subjectCoid: Uuid,
-    reactions: Flow<List<Reaction>>,
-) = remember(subjectCoid, reactions) {
-    ReactionBarViewModel(
-        subjectCoid,
-        reactions,
-    )
+    events: Flow<Event>
+): ReactionBarViewModel {
+    val subjectCoidUpdated by rememberUpdatedState(subjectCoid)
+    val flow = snapshotFlow { subjectCoidUpdated }
+    return remember(events) {
+        ReactionBarViewModel(flow, events)
+    }
 }
 
 @Composable
 fun ReactionBar(
     viewModel: ReactionBarViewModel,
-    applyLocalReactionsChange: (List<Reaction>) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val applyLocalChangeState by rememberUpdatedState(applyLocalReactionsChange)
     val viewModelState by rememberUpdatedState(viewModel)
 
     // Image
@@ -63,7 +62,7 @@ fun ReactionBar(
                 val isProcessing = remember { mutableStateOf(false) }
                 EmojiChip(kind, count, isSelf, isProcessing.value, onClick = {
                     viewModelState.launchInBackgroundAnimated(isProcessing) {
-                        react(kind, applyLocalChangeState)
+                        react(kind)
                     }
                 })
             }

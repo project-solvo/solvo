@@ -258,6 +258,7 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
                 allItems = allAnswers,
                 visibleIndices = visibleIndices,
                 isExpanded = isExpanded,
+                events = events,
                 modifier = Modifier.fillMaxSize()
                     .ifThen(!isExpanded) { verticalScroll(scrollState) },
                 onClickComment = onClick,

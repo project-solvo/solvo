@@ -13,8 +13,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.Flow
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.LightCommentDownstream
+import org.solvo.model.api.events.Event
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
 import org.solvo.web.comments.commentCard.components.AuthorLineDateTextStyle
 import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
@@ -42,6 +44,7 @@ fun AnswersList(
     allItems: List<LoadingUuidItem<CommentDownstream>>,
     visibleIndices: IntRange,
     isExpanded: Boolean,
+    events: Flow<Event>,
     modifier: Modifier = Modifier,
     onSwitchExpand: ((index: Int, item: CommentDownstream) -> Unit)? = null,
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
@@ -93,17 +96,13 @@ fun AnswersList(
                         }
                     }
 
-                    val reactionBarState = rememberReactionBarViewModel(item.coid, viewModel.reactions)
+                    val reactionBarState = rememberReactionBarViewModel(item.coid, events)
 
                     Row(Modifier, verticalAlignment = Alignment.CenterVertically) {
-                        reactionBarState.reactionListOpen
                         ReactionsIconButton(reactionBarState, Modifier.offset(x = (-12).dp))
 
                         ReactionBar(
                             reactionBarState,
-                            applyLocalReactionsChange = {
-                                viewModel.setReactions(it)
-                            },
                             Modifier.heightIn(max = 42.dp),
                         )
                     }
