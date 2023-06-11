@@ -98,6 +98,7 @@ private fun QuestionPageContent(
     allAnswers: List<LoadingUuidItem<CommentDownstream>>,
     events: SharedFlow<Event>,
 ): Unit = HorizontallyDivided(
+
     left = {
         PaperView(
             questionSelectedBar = {
@@ -152,34 +153,34 @@ private fun QuestionPageContent(
                     expandablePagingState,
                     showPagingController = expandablePagingState.isExpanded.value
                 ) {
-                    if (!pagingState.isExpanded.value) {
+                    if(!pagingState.isExpanded.value) {
                         Row(
                             Modifier.align(Alignment.CenterStart),
                             horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
                         ) {
                             DraftAnswerButton(
-                            true,
+                                true,
                                 pagingState = pagingState,
                                 contentPaddings = buttonContentPaddings,
                                 shape = buttonShape,
                             )
-                        if (!pagingState.editorEnable.value) {
-                            DraftAnswerButton(
-                                false,
-                                pagingState = pagingState,
-                                contentPaddings = buttonContentPaddings,
-                                shape = buttonShape,
-                            )
-                        }
+                            if (!pagingState.editorEnable.value) {
+                                DraftAnswerButton(
+                                    false,
+                                    pagingState = pagingState,
+                                    contentPaddings = buttonContentPaddings,
+                                    shape = buttonShape,
+                                )
+                            }
                             AnimatedVisibility(isDraftAnswerEditorOpen) {
                                 val snackBar = LocalTopSnackBar.current
                                 Button(
                                     onClick = {
                                         if (draftAnswerEditor.contentMarkdown == "") {
                                             backgroundScope.launch {
-                                            val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
+                                                val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
                                                 snackBar.showSnackbar(
-                                                "$text can not be empty", withDismissAction = true
+                                                    "$text can not be empty", withDismissAction = true
                                                 )
                                             }
                                         } else {
@@ -198,12 +199,15 @@ private fun QuestionPageContent(
                                         }
                                     },
                                     shape = buttonShape,
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
+                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
                                     contentPadding = buttonContentPaddings,
-                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
                                 ) {
-                                    val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
-                                    Text("Post $text")
+                                    if (pagingState.isAnswer.value) {
+                                        Text("Post Answer")
+                                    } else {
+                                        Text("Post Thought")
+                                    }
+
                                 }
                             }
                         }
@@ -214,12 +218,12 @@ private fun QuestionPageContent(
                             contentPadding = buttonContentPaddings,
                             colors = ButtonDefaults.buttonColors()
                         ) {
-                                if (pagingState.isAnswer.value) {
-                                    Text("Post Answer")
-                                } else {
-                                    Text("Post Thought")
-                                }
-
+                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    "Go Back",
+                                    Modifier.padding(start = 4.dp),
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
                             }
                         }
                     }
