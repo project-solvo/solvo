@@ -199,7 +199,7 @@ private fun QuestionPageContent(
                                     },
                                     shape = buttonShape,
                                     contentPadding = buttonContentPaddings,
-                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer)
+                                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
                                 ) {
                                     val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
                                     Text("Post $text")
