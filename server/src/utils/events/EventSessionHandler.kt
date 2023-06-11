@@ -5,6 +5,7 @@ import java.util.*
 
 interface EventSessionHandler {
     fun register(userId: UUID? = null): UserSession
+    fun destroy(session: UserSession)
     suspend fun announce(event: Event)
     suspend fun announce(getEvent: UserSession.() -> Event)
 }
@@ -13,6 +14,10 @@ class EventSessionHandlerImpl: EventSessionHandler {
     private val sessions: MutableSet<UserSession> = mutableSetOf()
     override fun register(userId: UUID?): UserSession {
         return UserSession(userId).also { sessions.add(it) }
+    }
+
+    override fun destroy(session: UserSession) {
+        sessions.remove(session)
     }
 
     override suspend fun announce(event: Event) {

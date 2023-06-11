@@ -41,6 +41,7 @@ fun Route.eventRouting(
             } ?: run {
                 close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "QuestionId does not exist"))
                 logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
+                events.destroy(session)
                 return@webSocket
             }
 
@@ -61,6 +62,8 @@ fun Route.eventRouting(
 
                 logger.info { "Connection on $path closed erroneously with reason ${closeReason.await()}" }
                 e.printStackTrace()
+            } finally {
+                events.destroy(session)
             }
         }
     }
