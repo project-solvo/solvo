@@ -204,15 +204,18 @@ private fun QuestionPageContent(
                     }
                     .focusable(false) // compose bug
             ) {
-                RichEditor(
-                    Modifier.fillMaxWidth().ifThenElse(
-                        isDraftAnswerEditorOpen,
-                        then = { fillMaxHeight() },
-                        `else` = { height(0.dp) }
-                    ),
-                    state = draftAnswerEditor,
-                    fontSize = 18.sp
-                )
+                @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
+                if (!org.solvo.web.editor.RichEditorLayoutDebug) {
+                    RichEditor(
+                        Modifier.fillMaxWidth().ifThenElse(
+                            isDraftAnswerEditorOpen,
+                            then = { fillMaxHeight() },
+                            `else` = { height(0.dp) }
+                        ),
+                        state = draftAnswerEditor,
+                        fontSize = 18.sp
+                    )
+                }
 
                 ExpandedAnswerContent(
                     pagingState,

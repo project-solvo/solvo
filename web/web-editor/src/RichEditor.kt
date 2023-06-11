@@ -84,10 +84,11 @@ fun RichEditor(
 
     LaunchedEffect(state, density) {
         state.richEditor.actualSizeFlow.collect {
+            val size = (it * density.density).asIntSize()
             if (RichEditorLayoutDebug) {
-                println("listen actual area change: $it ")
+                println("listen actual area change: $size")
             }
-            measurePolicy.setActualSize((it * density.density).asIntSize())
+            measurePolicy.setActualSize(size)
         }
     }
 
@@ -137,7 +138,7 @@ internal class RichEditorMeasurePolicy(
     val previousLayoutResult = MutableStateFlow<RichEditorLayoutResult?>(null)
     fun setActualSize(size: IntSize?) {
         if (RichEditorLayoutDebug) {
-            println("actualSize changed: $actualSize")
+            println("setActualSize: old=$actualSize, new=$size")
         }
 
         _actualSize.value = size
@@ -152,7 +153,7 @@ internal class RichEditorMeasurePolicy(
             if (RichEditorLayoutDebug) println("layout did not change")
         } else {
             // new layout
-            if (RichEditorLayoutDebug) println("new layout: intrinsicSize=$intrinsicSize, layoutSize=$layoutSize")
+            if (RichEditorLayoutDebug) println("new layout: layoutSize=$layoutSize, actualSize=$intrinsicSize")
 
             val new = RichEditorLayoutResult(intrinsicSize, layoutSize)
             previousLayoutResult.value = new
@@ -161,41 +162,45 @@ internal class RichEditorMeasurePolicy(
     }
 
 
-    @OptIn(ExperimentalComposeUiApi::class)
     override fun MeasureScope.measure(
         measurables: List<Measurable>,
         constraints: Constraints
     ): MeasureResult {
-        val actualSize = actualSize
-        val width = (actualSize?.width ?: 100.dp.roundToPx()).coerceIn(constraints.minWidth, constraints.maxWidth)
-        val height = (actualSize?.height ?: 100.dp.roundToPx()).coerceIn(constraints.minHeight, constraints.maxHeight)
+        val currentActualSize = actualSize
+        val width =
+            (currentActualSize?.width ?: 100.dp.toPx().toInt()).coerceIn(constraints.minWidth, constraints.maxWidth)
+        val height =
+            (currentActualSize?.height ?: 100.dp.toPx().toInt()).coerceIn(constraints.minHeight, constraints.maxHeight)
         if (RichEditorLayoutDebug) {
             println(constraints)
-            println("Layout: width=$width, height=$height")
+            println("Layout: width=$width, height=$height, constraintMaxHeight=${constraints.maxHeight}")
         }
-        return layout(
-            width,
-            height,
-        ) {
-            val density = this@measure
-            if (RichEditorLayoutDebug) {
-                println("Place: width=$width, height=$height")
-            }
+        val layoutSize = IntSize(width, height)
+        return layout(width, height, placementBlock = placement(layoutSize))
+    }
 
-            coordinates?.let { state.updateEditorBounds(it, density) }
+    @OptIn(ExperimentalComposeUiApi::class)
+    private fun MeasureScope.placement(
+        layoutSize: IntSize,
+    ): Placeable.PlacementScope.() -> Unit = {
+        val density = this@placement
 
-            val layoutSize = IntSize(width, height)
+        coordinates?.let { state.updateEditorBounds(it, density) }
+        val actualSize = actualSize
 
-            if (actualSize == null) {
-                notifyLayoutChange(layoutSize, layoutSize)
-            } else {
-                notifyLayoutChange(actualSize, layoutSize)
-            }
+        if (RichEditorLayoutDebug) {
+            println("Place: layoutSize=$layoutSize, actualSize=$actualSize")
+        }
 
-            with(state.richEditor) {
-                ifEditorLoaded {
-                    setEditorSize(layoutSize, density)
-                }
+        if (actualSize == null) {
+            notifyLayoutChange(layoutSize, layoutSize)
+        } else {
+            notifyLayoutChange(actualSize, layoutSize)
+        }
+
+        with(state.richEditor) {
+            ifEditorLoaded {
+                setEditorSize(layoutSize, density, true)
             }
         }
     }

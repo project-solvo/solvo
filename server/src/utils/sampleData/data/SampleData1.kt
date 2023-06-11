@@ -158,6 +158,9 @@ fun SampleDataBuilder.sampleData1() {
             question("1b") {
                 content { "Haha..!" }
                 anonymous()
+                answer(alex) {
+                    content("Short answer")
+                }
             }
             question("2a") {
                 content("### 10 * 25 + 1 = ?")

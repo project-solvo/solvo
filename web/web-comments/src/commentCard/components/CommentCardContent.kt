@@ -5,7 +5,10 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.material3.LinearProgressIndicator
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -15,6 +18,8 @@ import org.solvo.web.editor.RichEditorLayoutResult
 import org.solvo.web.editor.RichText
 import org.solvo.web.editor.rememberRichEditorLoadedState
 import org.solvo.web.ui.OverlayLoadableContent
+import org.solvo.web.ui.foundation.rememberMutableDebouncedState
+import kotlin.time.Duration.Companion.milliseconds
 
 @Composable
 fun CommentCardContent(
@@ -27,7 +32,8 @@ fun CommentCardContent(
 ) {
     @Suppress("NAME_SHADOWING")
     val onLayout by rememberUpdatedState(onLayout)
-    var hasOverflow by remember { mutableStateOf(false) }
+
+    var richTextHasVisualOverflow by rememberMutableDebouncedState(false, 200.milliseconds)
 
 //    key(item.coid) { // redraw editor when item id changed (do not reuse)
     val loadedState = rememberRichEditorLoadedState()
@@ -42,7 +48,7 @@ fun CommentCardContent(
                 onEditorLoaded = loadedState.onEditorLoaded,
                 onTextUpdated = loadedState.onTextChanged,
                 onLayout = {
-                    hasOverflow = hasVisualOverflow
+                    richTextHasVisualOverflow = hasVisualOverflow
                     onLayout?.invoke(this)
                 },
                 backgroundColor = backgroundColor,
@@ -50,7 +56,7 @@ fun CommentCardContent(
                 fontSize = AuthorNameTextStyle.fontSize,
             )
 
-            if (showFullAnswer != null && hasOverflow) {
+            if (showFullAnswer != null && richTextHasVisualOverflow) {
 //                    Surface(
 //                        Modifier.fillMaxWidth().wrapContentHeight(),
 //                        color = MaterialTheme.colorScheme.surface.copy(0.7f),

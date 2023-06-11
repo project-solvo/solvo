@@ -315,25 +315,26 @@ internal class RichEditor internal constructor(
 
 
     private fun EditorLoaded.setEditorSizePx(widthPx: Float, heightPx: Float) {
-        positionDiv.asDynamic().style.width = widthPx.toString() + "px"
-        positionDiv.asDynamic().style.height = heightPx.toString() + "px"
+        positionDiv.asDynamic().style.width = widthPx.toInt().toString() + "px"
+        positionDiv.asDynamic().style.height = heightPx.toInt().toString() + "px"
 
         editor.resize()
+        onEditorChanged.trySend(Unit)
     }
 
     private fun EditorLoaded.updateDisplaySpacing(widthPx: Float, heightPx: Float) {
         if (!isTextMode) { // fix spacing bug
             getHtmlPreviewMarkdownBody().let { element ->
-                element.asDynamic().style.width = (widthPx / 2).toString() + "px"
-                element.asDynamic().style.height = (heightPx / 2).toString() + "px"
+                element.asDynamic().style.width = (widthPx / 2).toInt().toString() + "px"
+                element.asDynamic().style.height = (heightPx / 2).toInt().toString() + "px"
 
-                element.asDynamic().style.marginLeft = (widthPx / 2).toString() + "px"
+                element.asDynamic().style.marginLeft = (widthPx / 2).toInt().toString() + "px"
             }
         }
     }
 
     fun setEditorBounds(bounds: Rect, density: Density) {
-        println("bounds.top=${bounds.top}; positionInRoot.value.y=${positionInRoot.value.y}")
+//        println("bounds.top=${bounds.top}; positionInRoot.value.y=${positionInRoot.value.y}")
         if (_boundsInRoot.value == bounds) return
         _boundsInRoot.value = bounds
 
