@@ -37,6 +37,7 @@ abstract class Requests {
                     session = http.webSocketSession {
                         url.takeFrom(path)
                         url.protocol = URLProtocol.WS
+                        accountAuthorization()
                     }
                     println("Event connected: $path")
                     while (isActive) {
