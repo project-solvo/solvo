@@ -36,8 +36,8 @@ abstract class Requests {
                 try {
                     session = http.webSocketSession {
                         url.takeFrom(path)
+                        url.parameters.append("token", client.token ?: "")
                         url.protocol = URLProtocol.WS
-                        accountAuthorization()
                     }
                     println("Event connected: $path")
                     while (isActive) {
@@ -65,6 +65,13 @@ abstract class Requests {
     protected companion object {
         fun HttpRequestBuilder.accountAuthorization() {
             val token = client.token ?: return
+            headers {
+                bearerAuth(token)
+            }
+        }
+
+        fun HttpRequestBuilder.accountAuthorizationOrFail() {
+            val token = client.token ?: throw IllegalArgumentException("No session token")
             headers {
                 bearerAuth(token)
             }
