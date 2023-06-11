@@ -9,7 +9,6 @@ import org.solvo.server.ServerContext
 import org.solvo.server.database.ResourceDBFacade
 import org.solvo.server.modules.getUserId
 import org.solvo.server.modules.postAuthenticated
-import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 
 fun Route.imageRouting(resources: ResourceDBFacade) {
@@ -20,10 +19,9 @@ fun Route.imageRouting(resources: ResourceDBFacade) {
             val contentType = call.request.contentType()
             val input = call.receiveStream()
             val imageId = resources.postImage(uid, input, StaticResourcePurpose.TEXT_IMAGE, contentType)
-            val path = ServerContext.paths.resolveResourcePath(
+            val path = ServerContext.paths.resolveRelativeResourcePath(
                 imageId,
                 StaticResourcePurpose.TEXT_IMAGE,
-                ServerPathType.REMOTE
             )
 
             call.respond(ImageUrlExchange(path))

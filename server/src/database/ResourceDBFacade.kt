@@ -4,7 +4,6 @@ import io.ktor.http.*
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.AccountDBControl
 import org.solvo.server.database.control.ResourcesDBControl
-import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
 import java.io.InputStream
@@ -29,7 +28,7 @@ class ResourceDBFacadeImpl(
         contentType: ContentType
     ): UUID {
         val newImageId = resources.addResource(purpose, contentType)
-        val path = ServerContext.paths.resolveResourcePath(newImageId, purpose, ServerPathType.LOCAL)
+        val path = ServerContext.paths.resolveResourcePath(newImageId, purpose)
 
         ServerContext.files.write(input, path)
         return newImageId
@@ -38,7 +37,7 @@ class ResourceDBFacadeImpl(
     override suspend fun getImage(resourceId: UUID): File? {
         val purpose = resources.getPurpose(resourceId) ?: return null
 
-        val path = ServerContext.paths.resolveResourcePath(resourceId, purpose, ServerPathType.LOCAL)
+        val path = ServerContext.paths.resolveResourcePath(resourceId, purpose)
         return File(path)
     }
 
@@ -56,16 +55,14 @@ class ResourceDBFacadeImpl(
                 val path = ServerContext.paths.resolveResourcePath(
                     oldAvatarId,
                     StaticResourcePurpose.USER_AVATAR,
-                    ServerPathType.LOCAL
                 )
                 ServerContext.files.delete(path)
             }
         }
 
-        return ServerContext.paths.resolveResourcePath(
+        return ServerContext.paths.resolveRelativeResourcePath(
             newAvatarId,
             StaticResourcePurpose.USER_AVATAR,
-            ServerPathType.REMOTE
         )
     }
 

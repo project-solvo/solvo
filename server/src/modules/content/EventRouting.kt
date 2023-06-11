@@ -30,7 +30,7 @@ fun Route.eventRouting(
         webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
             val path = call.request.path()
             val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
-            logger.info { "Connection on $path established" }
+            logger.info { "Connection on $path established" + uid?.let { "with user $it" } }
 
             val courseCode = call.parameters.getOrFail("courseCode")
             val articleCode = call.parameters.getOrFail("articleCode")

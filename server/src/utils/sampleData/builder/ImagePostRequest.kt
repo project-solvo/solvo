@@ -2,7 +2,6 @@ package org.solvo.server.utils.sampleData.builder
 
 import io.ktor.http.*
 import org.solvo.server.ServerContext
-import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
 
@@ -22,7 +21,7 @@ class ImagePostRequest(
             val uid = user.uid
             val input = File(path).inputStream()
             val imageId = postImage(uid, input, purpose, contentType)
-            url = ServerContext.paths.resolveResourcePath(imageId, purpose, ServerPathType.REMOTE)
+            url = ServerContext.paths.resolveRelativeResourcePath(imageId, purpose)
         }
     }
 }

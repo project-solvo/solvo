@@ -1,16 +1,15 @@
 package org.solvo.server.database
 
 import io.ktor.http.*
-import org.solvo.model.api.communication.User
 import org.solvo.model.api.AccountChecker
 import org.solvo.model.api.communication.AuthResponse
 import org.solvo.model.api.communication.AuthStatus
+import org.solvo.model.api.communication.User
 import org.solvo.model.utils.UserPermission
 import org.solvo.server.ServerContext
 import org.solvo.server.database.control.AccountDBControl
 import org.solvo.server.database.control.AuthTokenDBControl
 import org.solvo.server.database.control.ResourcesDBControl
-import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
 import java.util.*
@@ -64,7 +63,6 @@ class AccountDBFacadeImpl(
         val path = ServerContext.paths.resolveResourcePath(
             resourceId,
             StaticResourcePurpose.USER_AVATAR,
-            ServerPathType.LOCAL
         )
         return Pair(File(path), contentType)
     }

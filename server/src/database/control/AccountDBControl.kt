@@ -10,7 +10,6 @@ import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AuthTable
 import org.solvo.server.database.exposed.UserTable
-import org.solvo.server.utils.ServerPathType
 import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
@@ -169,10 +168,9 @@ class AccountDBControlImpl : AccountDBControl {
                     uid,
                     NonBlankString.fromString(it[UserTable.username]),
                     it[UserTable.avatar]?.value?.let { avatarId ->
-                        ServerContext.paths.resolveResourcePath(
+                        ServerContext.paths.resolveRelativeResourcePath(
                             avatarId,
                             StaticResourcePurpose.USER_AVATAR,
-                            ServerPathType.REMOTE
                         )
                     }
                 )
