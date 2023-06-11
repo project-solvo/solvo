@@ -3,9 +3,9 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.solvo.model.api.communication.User
 import org.solvo.model.api.communication.AuthRequest
 import org.solvo.model.api.communication.AuthResponse
+import org.solvo.model.api.communication.User
 import org.solvo.model.api.communication.UsernameValidityResponse
 import org.solvo.model.utils.NonBlankString
 

@@ -1,7 +1,9 @@
 package org.solvo.web.requests
 
+import io.ktor.client.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
+import io.ktor.client.statement.*
 import io.ktor.http.*
 import io.ktor.websocket.*
 import kotlinx.browser.window
@@ -13,6 +15,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import org.solvo.model.api.events.Event
+import org.solvo.web.document.History
 import kotlin.time.Duration.Companion.seconds
 
 abstract class Requests {
@@ -61,6 +64,50 @@ abstract class Requests {
             headers {
                 bearerAuth(token)
             }
+        }
+
+        suspend fun HttpClient.postAuthorized(
+            urlString: String,
+            block: HttpRequestBuilder.() -> Unit = {}
+        ): HttpResponse {
+            return authorized(urlString) {
+                method = HttpMethod.Post
+                block()
+            }
+        }
+
+        suspend fun HttpClient.getAuthorized(
+            urlString: String,
+            block: HttpRequestBuilder.() -> Unit = {}
+        ): HttpResponse {
+            return authorized(urlString) {
+                method = HttpMethod.Get
+                block()
+            }
+        }
+
+        suspend fun HttpClient.deleteAuthorized(
+            urlString: String,
+            block: HttpRequestBuilder.() -> Unit = {}
+        ): HttpResponse {
+            return authorized(urlString) {
+                method = HttpMethod.Delete
+                block()
+            }
+        }
+
+        suspend fun HttpClient.authorized(
+            urlString: String,
+            block: HttpRequestBuilder.() -> Unit = {}
+        ): HttpResponse {
+            val resp = request(urlString) {
+                accountAuthorization()
+                block()
+            }
+            if (resp.status == HttpStatusCode.Unauthorized) {
+                History.navigate { auth() }
+            }
+            return resp
         }
     }
 }

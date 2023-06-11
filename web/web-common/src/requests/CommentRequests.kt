@@ -37,34 +37,28 @@ class CommentRequests(
         } else {
             api("comments/$parentCoid/comment")
         }
-        return client.http.post(url) {
-            accountAuthorization()
+        return client.http.postAuthorized(url) {
             contentType(ContentType.Application.Json)
             setBody(upstream)
         }.bodyOrNull()
     }
 
     suspend fun getReactions(coid: Uuid): List<Reaction> {
-        return client.http.get(api("comments/${coid}/reactions")) {
-            accountAuthorization()
-        }.body<List<Reaction>>()
+        return client.http.getAuthorized(api("comments/${coid}/reactions")).body<List<Reaction>>()
     }
 
     suspend fun removeReaction(
         coid: Uuid,
         reactionKind: ReactionKind,
     ) {
-        client.http.delete(api("comments/${coid}/reactions/${reactionKind.ordinal}")) {
-            accountAuthorization()
-        }
+        client.http.deleteAuthorized(api("comments/${coid}/reactions/${reactionKind.ordinal}"))
     }
 
     suspend fun addReaction(
         coid: Uuid,
         reactionKind: ReactionKind,
     ) {
-        client.http.post(api("comments/${coid}/reactions/new")) {
-            accountAuthorization()
+        client.http.postAuthorized(api("comments/${coid}/reactions/new")) {
             contentType(ContentType.Application.Json)
             setBody(reactionKind)
         }

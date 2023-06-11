@@ -4,12 +4,17 @@ import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.WebPagePathPatterns.VAR_ARTICLE_CODE
 import org.solvo.model.api.WebPagePathPatterns.VAR_COURSE_CODE
 import org.solvo.model.api.WebPagePathPatterns.VAR_QUESTION_CODE
+import org.solvo.web.session.LocalSessionToken
 
-object WebPagePaths {
-    val patterns = WebPagePathPatterns
+abstract class WebPagePaths {
+    val patterns get() = WebPagePathPatterns
 
     fun home() = patterns.home
-    fun auth() = patterns.auth
+    fun auth(): String {
+        LocalSessionToken
+        return patterns.auth
+    }
+
     fun courses() = patterns.courses
     fun course(code: String) = patterns.course
         .replace(VAR_COURSE_CODE, code)
