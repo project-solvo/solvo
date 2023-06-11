@@ -34,6 +34,8 @@ data class CommentDownstream(
     val lastCommentTime: Long,
     val previewSubComments: List<LightCommentDownstream>, // up to 3
     val allSubCommentIds: List<Uuid>,
+
+    val answerCode: Int? = null
 ) : CommentableDownstream, ICommentDownstream
 
 @Immutable

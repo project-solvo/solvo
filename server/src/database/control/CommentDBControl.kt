@@ -7,6 +7,7 @@ import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
+import org.solvo.server.database.exposed.AnswerCodeTable
 import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
@@ -31,6 +32,17 @@ class CommentDBControlImpl(
                 it[CommentTable.coid] = coid
                 it[CommentTable.parent] = parentID
                 it[CommentTable.asAnswer] = asAnswer
+            }.resultedValues?.singleOrNull() != null)
+        }
+
+        if (asAnswer) dbQuery {
+            val code = AnswerCodeTable
+                .select(AnswerCodeTable.parent eq parentID)
+                .maxOfOrNull { it[AnswerCodeTable.code] }?.inc() ?: 1
+            assert(AnswerCodeTable.insert {
+                it[AnswerCodeTable.coid] = coid
+                it[AnswerCodeTable.parent] = parentID
+                it[AnswerCodeTable.code] = code
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
@@ -83,6 +95,12 @@ class CommentDBControlImpl(
                     lastCommentTime = it[CommentedObjectTable.lastCommentTime],
                     previewSubComments = previewSubComments,
                     allSubCommentIds = subCommentIds,
+                    answerCode = if (!it[CommentTable.asAnswer]) null else {
+                        AnswerCodeTable
+                            .select(AnswerCodeTable.coid eq coid)
+                            .map { answerRow -> answerRow[AnswerCodeTable.code] }
+                            .singleOrNull()
+                    }
                 )
             }.singleOrNull()
     }
