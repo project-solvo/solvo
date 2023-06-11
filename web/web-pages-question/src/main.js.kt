@@ -143,6 +143,8 @@ private fun QuestionPageContent(
         val draftAnswerEditor = rememberRichEditorState(true)
         val isDraftAnswerEditorOpen by pagingState.editorEnable
 
+        val scope = rememberCoroutineScope()
+
         PagingContent(
             pagingState,
             controlBar = controlBar@{ expandablePagingState ->
@@ -150,48 +152,75 @@ private fun QuestionPageContent(
                     expandablePagingState,
                     showPagingController = expandablePagingState.isExpanded.value
                 ) {
-                    Row(
-                        Modifier.align(Alignment.CenterStart),
-                        horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
-                    ) {
-                        DraftAnswerButton(
-                            pagingState = pagingState,
-                            contentPaddings = buttonContentPaddings,
-                            shape = buttonShape,
-                        )
-
-                        AnimatedVisibility(isDraftAnswerEditorOpen) {
-                            val snackBar = LocalTopSnackBar.current
-                            Button(
-                                onClick = {
-                                    if (draftAnswerEditor.contentMarkdown == "") {
-                                        backgroundScope.launch {
-                                            snackBar.showSnackbar(
-                                                "Answer can not be empty", withDismissAction = true
-                                            )
-                                        }
-                                    } else {
-                                        pagingState.switchEditorEnable()
-                                        backgroundScope.launch {
-                                            client.comments.postAnswer(
-                                                question.coid,
-                                                CommentUpstream(
-                                                    NonBlankString.fromStringOrNull(
-                                                        draftAnswerEditor.contentMarkdown ?: ""
-                                                    )
-                                                        ?: return@launch
-                                                )
-                                            )
-                                        }
-                                    }
-                                },
+                    if (!pagingState.isExpanded.value) {
+                        Row(
+                            Modifier.align(Alignment.CenterStart),
+                            horizontalArrangement = Arrangement.spacedBy(buttonSpacing)
+                        ) {
+                            DraftAnswerButton(
+                                true,
+                                pagingState = pagingState,
+                                contentPaddings = buttonContentPaddings,
                                 shape = buttonShape,
-                                contentPadding = buttonContentPaddings,
-                            ) {
-                                Text("Post Answer")
+                            )
+                            if (!pagingState.editorEnable.value) {
+                                DraftAnswerButton(
+                                    false,
+                                    pagingState = pagingState,
+                                    contentPaddings = buttonContentPaddings,
+                                    shape = buttonShape,
+                                )
+                            }
+                            AnimatedVisibility(isDraftAnswerEditorOpen) {
+                                val snackBar = LocalTopSnackBar.current
+                                Button(
+                                    onClick = {
+                                        if (draftAnswerEditor.contentMarkdown == "") {
+                                            backgroundScope.launch {
+                                                val text = if (pagingState.isAnswer.value) "Answer" else "Thought"
+                                                snackBar.showSnackbar(
+                                                    "$text can not be empty", withDismissAction = true
+                                                )
+                                            }
+                                        } else {
+                                            pagingState.switchEditorEnable()
+                                            backgroundScope.launch {
+                                                client.comments.postAnswer(
+                                                    question.coid,
+                                                    CommentUpstream(
+                                                        NonBlankString.fromStringOrNull(
+                                                            draftAnswerEditor.contentMarkdown ?: ""
+                                                        )
+                                                            ?: return@launch
+                                                    )
+                                                )
+                                            }
+                                        }
+                                    },
+                                    shape = buttonShape,
+                                    contentPadding = buttonContentPaddings,
+                                ) {
+                                    Text("Post Answer")
+                                }
+                            }
+                        }
+                    } else {
+                        FilledTonalButton(
+                            onClick = {scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }},
+                            shape = buttonShape,
+                            contentPadding = buttonContentPaddings,
+                            colors = ButtonDefaults.buttonColors()
+                        ) {
+                            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+                                Text(
+                                    "Go Back",
+                                    Modifier.padding(start = 4.dp),
+                                    style = MaterialTheme.typography.titleMedium,
+                                )
                             }
                         }
                     }
+
                 }
             }
         ) {
@@ -226,6 +255,7 @@ private fun QuestionPageContent(
                     backgroundScope,
                     isDraftAnswerEditorOpen,
                     events,
+                    scope,
                 )
             }
         }
@@ -240,8 +270,8 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
     backgroundScope: CoroutineScope,
     isDraftAnswerEditorOpen: Boolean,
     events: SharedFlow<Event>,
+    scope: CoroutineScope,
 ) {
-    val scope = rememberCoroutineScope()
 
     var showAddCommentEditor by remember { mutableStateOf(false) }
     HorizontallyDivided(
@@ -295,11 +325,14 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
 
 @Composable
 private fun DraftAnswerButton(
+    isAnswer: Boolean,
     pagingState: ExpandablePagingState<LoadingUuidItem<CommentDownstream>>,
     contentPaddings: PaddingValues,
     shape: Shape,
     modifier: Modifier = Modifier,
 ) {
+    val color = if (isAnswer) ButtonDefaults.buttonColors()
+    else ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
     FilledTonalButton(
         onClick = wrapClearFocus {
             if (!client.isLoginIn()) {
@@ -307,28 +340,22 @@ private fun DraftAnswerButton(
                     auth()
                 }
             } else {
+                pagingState.isAnswerAssign(isAnswer)
                 pagingState.switchEditorEnable()
             }
         },
         modifier,
         shape = shape,
+        colors = color,
         contentPadding = contentPaddings,
     ) {
         if (!pagingState.editorEnable.value) {
-            Icon(Icons.Outlined.PostAdd, "Draft Answer", Modifier.fillMaxHeight())
+            val text = if (isAnswer) "Draft Answer" else "Draft Thoughts"
+            Icon(Icons.Outlined.PostAdd, text, Modifier.fillMaxHeight())
 
             Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
                 Text(
-                    "Draft Answer",
-                    Modifier.padding(start = 4.dp),
-                )
-            }
-        } else {
-            Icon(Icons.Outlined.FolderOff, "Fold Editor", Modifier.fillMaxHeight())
-
-            Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-                Text(
-                    "Fold Editor",
+                    text,
                     Modifier.padding(start = 4.dp),
                 )
             }

@@ -53,40 +53,40 @@ fun <T> PagingControlBar(
 ) {
     ControlBar {
         Box(Modifier.fillMaxWidth()) {
-            if (showPagingController) {
-                Row(
-                    Modifier.fillMaxHeight().align(Alignment.Center),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    TextButton(
-                        onClick = {
-                            state.clickPrePage()
-                        },
-                        enabled = state.allowNavigatePrev.value,
-                        contentPadding = buttonContentPaddings
-                    ) {
-                        Icon(Icons.Default.West, "Previous")
-                        Text("Previous", Modifier.padding(horizontal = 4.dp))
-                    }
-
-                    Text(
-                        "${state.currentPage.value + 1} / ${state.pageCount.value}",
-                        Modifier.padding(horizontal = 16.dp),
-                        fontFamily = FontFamily.Monospace
-                    )
-
-                    TextButton(
-                        onClick = {
-                            state.clickNextPage()
-                        },
-                        enabled = state.allowNavigateNext.value,
-                        contentPadding = buttonContentPaddings
-                    ) {
-                        Text("Next", Modifier.padding(horizontal = 4.dp))
-                        Icon(Icons.Default.East, "Next")
-                    }
-                }
-            }
+//            if (showPagingController) {
+//                Row(
+//                    Modifier.fillMaxHeight().align(Alignment.Center),
+//                    verticalAlignment = Alignment.CenterVertically
+//                ) {
+//                    TextButton(
+//                        onClick = {
+//                            state.clickPrePage()
+//                        },
+//                        enabled = state.allowNavigatePrev.value,
+//                        contentPadding = buttonContentPaddings
+//                    ) {
+//                        Icon(Icons.Default.West, "Previous")
+//                        Text("Previous", Modifier.padding(horizontal = 4.dp))
+//                    }
+//
+//                    Text(
+//                        "${state.currentPage.value + 1} / ${state.pageCount.value}",
+//                        Modifier.padding(horizontal = 16.dp),
+//                        fontFamily = FontFamily.Monospace
+//                    )
+//
+//                    TextButton(
+//                        onClick = {
+//                            state.clickNextPage()
+//                        },
+//                        enabled = state.allowNavigateNext.value,
+//                        contentPadding = buttonContentPaddings
+//                    ) {
+//                        Text("Next", Modifier.padding(horizontal = 4.dp))
+//                        Icon(Icons.Default.East, "Next")
+//                    }
+//                }
+//            }
 
             ProvideTextStyle(textStyle) {
                 content(ControlBarScope, this)

@@ -16,6 +16,7 @@ interface PagingState<T> {
     val allowNavigateNext: State<Boolean>
     val allowNavigatePrev: State<Boolean>
     val editorEnable: State<Boolean>
+    val isAnswer: State<Boolean>
 
     val pagingContext: PagingContentContext<T>
 
@@ -27,6 +28,8 @@ interface PagingState<T> {
     fun setAllItems(items: List<T>)
     fun getPageItems(page: Int): List<T>
     fun switchEditorEnable()
+
+    fun isAnswerAssign(isAnswer: Boolean)
 }
 
 fun <T> PagingState<T>.findItemPageOf(predicate: (T) -> Boolean): Int? {
@@ -72,6 +75,10 @@ internal open class PagingStateImpl<T> protected constructor(
     private val _editorEnable: MutableState<Boolean> = mutableStateOf(false)
     override val editorEnable: State<Boolean>
         get() = _editorEnable
+
+    private val _isAnswer: MutableState<Boolean> = mutableStateOf(true)
+    override val isAnswer: State<Boolean>
+        get() = _isAnswer
 
     override val pagingContext = object : PagingContentContext<T> {
         override val visibleIndices: State<IntRange> get() = currentIndices
@@ -123,6 +130,10 @@ internal open class PagingStateImpl<T> protected constructor(
 
     override fun switchEditorEnable() {
         this._editorEnable.value = !this._editorEnable.value
+    }
+
+    override fun isAnswerAssign(isAnswer: Boolean) {
+        _isAnswer.value = isAnswer
     }
 
     protected open fun update() {

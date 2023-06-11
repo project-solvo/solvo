@@ -46,12 +46,12 @@ fun ExpandedCommentCard(
             ) {
                 actions?.invoke()
 
-                if (isExpand || showExpandButton) {
-                    ExpandButton(
-                        onClickExpand,
-                        isExpand,
-                    )
-                }
+//                if (isExpand || showExpandButton) {
+//                    ExpandButton(
+//                        onClickExpand,
+//                        isExpand,
+//                    )
+//                }
             }
         },
         showMoreSwitch = null,
@@ -62,34 +62,34 @@ fun ExpandedCommentCard(
 }
 
 
-@Composable
-private fun ExpandButton(
-    onClickExpand: () -> Unit,
-    isExpanded: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    val text = if (!isExpanded) {
-        "Show Full Answer"
-    } else {
-        "Go Back"
-    }
-    FilledTonalButton(
-        onClick = wrapClearFocus { onClickExpand() },
-        modifier,
-        shape = RoundedCornerShape(8.dp),
-        contentPadding = PaddingValues(
-            start = 12.dp,
-            top = 3.dp,
-            end = 12.dp,
-            bottom = 3.dp
-        ),
-    ) {
-        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
-            Text(
-                text,
-                Modifier.padding(start = 4.dp),
-                style = MaterialTheme.typography.titleMedium,
-            )
-        }
-    }
-}
+//@Composable
+//private fun ExpandButton(
+//    onClickExpand: () -> Unit,
+//    isExpanded: Boolean,
+//    modifier: Modifier = Modifier,
+//) {
+//    val text = if (!isExpanded) {
+//        "Show Full Answer"
+//    } else {
+//        "Go Back"
+//    }
+//    FilledTonalButton(
+//        onClick = wrapClearFocus { onClickExpand() },
+//        modifier,
+//        shape = RoundedCornerShape(8.dp),
+//        contentPadding = PaddingValues(
+//            start = 12.dp,
+//            top = 3.dp,
+//            end = 12.dp,
+//            bottom = 3.dp
+//        ),
+//    ) {
+//        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+//            Text(
+//                text,
+//                Modifier.padding(start = 4.dp),
+//                style = MaterialTheme.typography.titleMedium,
+//            )
+//        }
+//    }
+//}
