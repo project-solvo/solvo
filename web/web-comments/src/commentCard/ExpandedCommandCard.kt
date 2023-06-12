@@ -1,33 +1,27 @@
 package org.solvo.web.comments.commentCard
 
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.FilledTonalButton
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import org.solvo.model.api.communication.User
 import org.solvo.web.comments.commentCard.components.AuthorLine
 import org.solvo.web.comments.commentCard.impl.CommentCard
-import org.solvo.web.ui.foundation.wrapClearFocus
+import org.solvo.web.comments.commentCard.impl.commentCardBackgroundColor
 import org.solvo.web.ui.image.RoundedUserAvatar
 
 @Composable
 fun ExpandedCommentCard(
     author: User?,
     date: String,
-    showExpandButton: Boolean,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
-    onClickExpand: () -> Unit = {},
-    isExpand: Boolean = false,
+    backgroundColor: Color = commentCardBackgroundColor(),
     subComments: @Composable (ColumnScope.() -> Unit)? = null,
-    actions: (@Composable () -> Unit)? = null,
-    content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
+    actions: @Composable (() -> Unit)? = null,
+    content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     CommentCard(
         paddings = CommentCardPaddings.Large,
@@ -57,6 +51,7 @@ fun ExpandedCommentCard(
         showMoreSwitch = null,
         subComments = subComments,
         contentModifier = contentModifier,
+        backgroundColor = backgroundColor,
         content = content,
     )
 }

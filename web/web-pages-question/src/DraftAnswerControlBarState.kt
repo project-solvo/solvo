@@ -1,9 +1,5 @@
 package org.solvo.web
 
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.PostAdd
-import androidx.compose.material.icons.outlined.TipsAndUpdates
-import androidx.compose.ui.graphics.vector.ImageVector
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
@@ -23,14 +19,6 @@ interface DraftAnswerControlBarState {
     fun stopDraft()
 }
 
-
-enum class DraftKind(
-    val displayName: String,
-    val icon: ImageVector,
-) {
-    ANSWER("Answer", Icons.Outlined.PostAdd),
-    THOUGHT("Thought", Icons.Outlined.TipsAndUpdates),
-}
 
 @JsName("createDraftAnswerControlBarState")
 fun DraftAnswerControlBarState(): DraftAnswerControlBarState = DraftAnswerControlBarStateImpl()

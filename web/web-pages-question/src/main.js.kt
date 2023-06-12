@@ -321,7 +321,6 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
                 modifier = Modifier.fillMaxSize()
                     .ifThen(!isExpanded) { verticalScroll(scrollState) },
                 onClickComment = onClick,
-                onSwitchExpand = onClick,
             )
         },
         right = {

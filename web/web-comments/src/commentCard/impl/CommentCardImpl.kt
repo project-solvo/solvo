@@ -24,6 +24,7 @@ internal val CommentCardShape = RoundedCornerShape(16.dp)
 internal fun CommentCard(
     paddings: CommentCardPaddings,
     modifier: Modifier = Modifier,
+    backgroundColor: Color = commentCardBackgroundColor(),
     authorLine: (@Composable () -> Unit)? = null,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable () -> Unit)? = null,
@@ -31,7 +32,6 @@ internal fun CommentCard(
     contentModifier: Modifier = Modifier,
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
-    val backgroundColor = commentCardBackgroundColor()
     val onClickCard by rememberUpdatedState(onClickCard)
 
     Card(
@@ -80,4 +80,4 @@ internal fun CommentCard(
 
 
 @Composable
-private fun commentCardBackgroundColor() = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)
+internal fun commentCardBackgroundColor() = MaterialTheme.colorScheme.surfaceColorAtElevation(2.dp)

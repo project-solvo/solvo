@@ -46,10 +46,8 @@ fun AnswersList(
     isExpanded: Boolean,
     events: Flow<Event>,
     modifier: Modifier = Modifier,
-    onSwitchExpand: ((index: Int, item: CommentDownstream) -> Unit)? = null,
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
 ) {
-    val onSwitchExpandState by rememberUpdatedState(onSwitchExpand)
     val onClickCommentState by rememberUpdatedState(onClickComment)
 
     Column(modifier) {
@@ -74,16 +72,12 @@ fun AnswersList(
             var isShowingFullAnswer by remember { mutableStateOf(false) } // in list mode
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
+            val draftKind = item.kind.toDraftKind()
 
             ExpandedCommentCard(
                 author = item.author,
                 date = postTimeFormatted ?: "",
-                showExpandButton = false,
                 modifier = Modifier.then(sizeModifier),
-                onClickExpand = {
-                    onSwitchExpandState?.invoke(index, item)
-                },
-                isExpand = isExpanded,
                 subComments = {
                     if (!isExpanded) {
                         ProvideTextStyle(TextStyle(fontSize = AuthorLineDateTextStyle.fontSize)) {
@@ -120,6 +114,7 @@ fun AnswersList(
                         }
                     }
                 },
+                backgroundColor = draftKind.backgroundColor(),
                 actions = {},
             ) { backgroundColor ->
                 CommentCardContent(
