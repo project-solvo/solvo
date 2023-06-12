@@ -1,6 +1,7 @@
 package org.solvo.server.utils.sampleData.builder
 
 import org.intellij.lang.annotations.Language
+import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.QuestionUpstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
@@ -76,12 +77,17 @@ class QuestionPostRequestBuilder(
 
     @SampleDataDslMarker
     inline fun comment(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
-        comments.add(CommentPostRequestBuilder(author, isAnswer = false).apply(builds).build())
+        comments.add(CommentPostRequestBuilder(author, CommentKind.COMMENT).apply(builds).build())
     }
 
     @SampleDataDslMarker
     inline fun answer(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
-        comments.add(CommentPostRequestBuilder(author, isAnswer = true).apply(builds).build())
+        comments.add(CommentPostRequestBuilder(author, CommentKind.ANSWER).apply(builds).build())
+    }
+
+    @SampleDataDslMarker
+    inline fun thought(author: UserRegisterRequest, builds: CommentPostRequestBuilder.() -> Unit) {
+        comments.add(CommentPostRequestBuilder(author, CommentKind.THOUGHT).apply(builds).build())
     }
 
     fun build(): QuestionPostRequest {

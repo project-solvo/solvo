@@ -1,7 +1,9 @@
 package org.solvo.server.utils.sampleData.builder
 
 import org.intellij.lang.annotations.Language
+import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.api.communication.isAnswerOrThought
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.sampleData.SampleDataDslMarker
@@ -14,27 +16,33 @@ class CommentPostRequest(
     val pinned: Boolean,
     val reactions: MutableList<ReactionPostRequest> = mutableListOf(),
     val comments: List<CommentPostRequest> = listOf(),
-    val isAnswer: Boolean = false,
+    val commentKind: CommentKind,
 ) {
     suspend fun submit(
         db: ServerContext.Databases,
         parentId: UUID,
     ) {
         db.contents.apply {
-            val commentId = if (isAnswer) {
-                postAnswer(
-                    answer = CommentUpstream(NonBlankString.fromString(content()), anonymity),
-                    authorId = author.uid,
-                    questionId = parentId
-                )!!
-            } else {
-                postComment(
+            val commentId = when (commentKind) {
+                CommentKind.COMMENT -> postComment(
                     comment = CommentUpstream(NonBlankString.fromString(content()), anonymity),
                     authorId = author.uid,
                     parentId = parentId
                 )!!
+
+                CommentKind.ANSWER -> postAnswer(
+                    answer = CommentUpstream(NonBlankString.fromString(content()), anonymity),
+                    authorId = author.uid,
+                    questionId = parentId
+                )!!
+
+                CommentKind.THOUGHT -> postThought(
+                    answer = CommentUpstream(NonBlankString.fromString(content()), anonymity),
+                    authorId = author.uid,
+                    questionId = parentId
+                )!!
             }
-            if (isAnswer) {
+            if (commentKind.isAnswerOrThought()) {
                 reactions.forEach { reactionRequest -> reactionRequest.submit(db, commentId) }
             }
             // TODO: pin the comment
@@ -46,7 +54,7 @@ class CommentPostRequest(
 @SampleDataDslMarker
 class CommentPostRequestBuilder(
     private val author: UserRegisterRequest,
-    private val isAnswer: Boolean = false,
+    private val commentKind: CommentKind = CommentKind.COMMENT,
 ) {
     private var content: () -> String = { "Default content" }
     private var anonymity: Boolean = false
@@ -93,6 +101,6 @@ class CommentPostRequestBuilder(
     }
 
     fun build(): CommentPostRequest {
-        return CommentPostRequest(author, content, anonymity, pinned, reactions, comments, isAnswer)
+        return CommentPostRequest(author, content, anonymity, pinned, reactions, comments, commentKind)
     }
 }
