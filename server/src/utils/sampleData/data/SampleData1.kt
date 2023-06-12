@@ -6,9 +6,11 @@ import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.sampleData.builder.SampleDataBuilder
 
 fun SampleDataBuilder.sampleData1() {
-    val alex = user("Alex", AuthDigest("alex123"))
-    val bob = user("Bob", AuthDigest("bob456"))
-    val carol = user("Carol", AuthDigest("carol789"))
+    val alex = user("Alex", AuthDigest("alex"))
+    val bob = user("Bob", AuthDigest("bob"))
+    val carol = user("Carol", AuthDigest("carol"))
+    val david = user("David", AuthDigest("david"))
+    val evan = user("Evan", AuthDigest("evan"))
 
     val image1a = image("./test-resources/Algorithm-2022-1a.png", alex, ContentType.Image.PNG)
     val answerImage1 = image("./test-resources/Answer-Image-1.png", alex, ContentType.Image.PNG)
@@ -137,7 +139,8 @@ fun SampleDataBuilder.sampleData1() {
                 content { "![some image](${image1a.url})" }
                 anonymous()
                 answer(alex) {
-                    content("""
+                    content(
+                        """
                         ```
                         bees' :: Array (Int, Int) Int -> Int 
                         bees' hiveArr = table ! (size, size) - hiveArr ! (0,0) 
@@ -152,7 +155,8 @@ fun SampleDataBuilder.sampleData1() {
                             size = snd (bounds hiveArr) 
                         ```
                         -- Complexity: O(mn) where m = height of hive, n = max width of hive. 
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
             question("1b") {
@@ -198,7 +202,261 @@ fun SampleDataBuilder.sampleData1() {
             questions(questionsList)
         }
     }
-    course("50002", "Software Engineering Design")
+    course("50002", "Software Engineering Design") {
+        article("Paper_2022", alex) {
+            termYear("2022")
+            question("2a") {
+                content(
+                    """
+                ## Video Streaming
+                
+                Look at the code under the folder Q2 (attached below), which contains a few different classes forming part of a system for streaming movies, and a couple of simple tests.
+                
+                ### 2a
+                The `MediaLibrary` could be very large if it contains a large index of movie recommendations. Update the code using an appropriate design pattern to prevent more than one instance of this class being created.
+                
+                ```java
+                package ic.doc;
+
+                import static ic.doc.movies.Certification.PARENTAL_GUIDANCE;
+                import static ic.doc.movies.Certification.TWELVE_A;
+                import static java.util.Collections.EMPTY_LIST;
+
+                import ic.doc.awards.Oscar;
+                import ic.doc.movies.Actor;
+                import ic.doc.movies.Genre;
+                import ic.doc.movies.Movie;
+                import java.util.List;
+                import java.util.Set;
+                import java.util.stream.Collectors;
+
+                public class MediaLibrary {
+
+                  // This code is simplified for the purposes of the exam - you can imagine in real life
+                  // this class would be much bigger and more sophisticated, with much more data.
+
+                  private final List<Movie> topMovies;
+
+                  public MediaLibrary() {
+                    topMovies =
+                        List.of(
+                            new Movie(
+                                "Jurassic Park",
+                                "A pragmatic paleontologist touring an almost complete theme park on an "
+                                    + "island in Central America is tasked with protecting a couple of kids after "
+                                    + "a power failure causes the park's cloned dinosaurs to run loose.",
+                                2342384,
+                                List.of(
+                                    new Actor("Richard Attenborough"),
+                                    new Actor("Laura Dern"),
+                                    new Actor("Sam Neill"),
+                                    new Actor("Jeff Goldblum")),
+                                Set.of(Genre.ADVENTURE),
+                                List.of(Oscar.forBest("Visual Effects")),
+                                PARENTAL_GUIDANCE),
+                            new Movie(
+                                "No Time To Die",
+                                "Another installment of the James Bond franchise",
+                                1342365,
+                                List.of(new Actor("Daniel Craig")),
+                                Set.of(Genre.ACTION, Genre.ADVENTURE),
+                                EMPTY_LIST,
+                                TWELVE_A));
+                  }
+
+                  public List<Movie> recommendedMoviesFor(User user) {
+
+                    // A sophisticated ML algorithm runs and then recommends...
+
+                    if (user.isChild()) {
+                      return topMovies.stream().filter(Movie::isSuitableForChildren).collect(Collectors.toList());
+                    } else {
+                      return topMovies;
+                    }
+                  }
+                }
+                ```
+            """.trimIndent()
+                )
+
+                thought(alex) {
+                    content(
+                        """
+                        The class is huge and does not contain shared data, it can therefore be refactored using the `Singleton` pattern. 
+                    """.trimIndent()
+                    )
+                    reaction(carol) {
+                        react(ReactionKind.HEART)
+                        react(ReactionKind.PLUS_ONE)
+                    }
+                    reaction(david) {
+                        react(ReactionKind.PLUS_ONE)
+                    }
+                }
+
+                answer(bob) {
+                    content(
+                        """
+                        I used the Singleton pattern. Note that the static class `InstanceHolder` ensures the instance is initialized once. 
+                        
+                        ```java
+                        package ic.doc;
+
+                        import static ic.doc.movies.Certification.PARENTAL_GUIDANCE;
+                        import static ic.doc.movies.Certification.TWELVE_A;
+                        import static java.util.Collections.EMPTY_LIST;
+
+                        import ic.doc.awards.Oscar;
+                        import ic.doc.movies.Actor;
+                        import ic.doc.movies.Genre;
+                        import ic.doc.movies.Movie;
+                        import java.util.List;
+                        import java.util.Set;
+                        import java.util.stream.Collectors;
+
+                        public final class MediaLibrary {
+
+                          private static final class InstanceHolder {
+                            private static final MediaLibrary instance = new MediaLibrary();
+                          }
+
+                          public static MediaLibrary getInstance() {
+                            return InstanceHolder.instance;
+                          }
+
+                          // This code is simplified for the purposes of the exam - you can imagine in real life
+                          // this class would be much bigger and more sophisticated, with much more data.
+
+                          private final List<Movie> topMovies;
+
+                          private MediaLibrary() {
+                            topMovies =
+                                List.of(
+                                    new Movie(
+                                        "Jurassic Park",
+                                        "A pragmatic paleontologist touring an almost complete theme park on an "
+                                            + "island in Central America is tasked with protecting a couple of kids after "
+                                            + "a power failure causes the park's cloned dinosaurs to run loose.",
+                                        2342384,
+                                        List.of(
+                                            new Actor("Richard Attenborough"),
+                                            new Actor("Laura Dern"),
+                                            new Actor("Sam Neill"),
+                                            new Actor("Jeff Goldblum")),
+                                        Set.of(Genre.ADVENTURE),
+                                        List.of(Oscar.forBest("Visual Effects")),
+                                        PARENTAL_GUIDANCE),
+                                    new Movie(
+                                        "No Time To Die",
+                                        "Another installment of the James Bond franchise",
+                                        1342365,
+                                        List.of(new Actor("Daniel Craig")),
+                                        Set.of(Genre.ACTION, Genre.ADVENTURE),
+                                        EMPTY_LIST,
+                                        TWELVE_A));
+                          }
+
+                          public List<Movie> recommendedMoviesFor(User user) {
+
+                            // A sophisticated ML algorithm runs and then recommends...
+
+                            if (user.isChild()) {
+                              return topMovies.stream().filter(Movie::isSuitableForChildren).collect(Collectors.toList());
+                            } else {
+                              return topMovies;
+                            }
+                          }
+                        }
+                        ```
+                    """.trimIndent()
+                    )
+                    reaction(carol) {
+                        react(ReactionKind.EYES)
+                        react(ReactionKind.THINKING)
+                    }
+                }
+
+                thought(carol) {
+                    content(
+                        """
+                        I think we can also do this. (less code)
+                        
+                        ```java
+                        public final class MediaLibrary {
+                          private static MediaLibrary instance = new MediaLibrary();
+
+                          private MediaLibrary() {
+                            // ...
+                          }
+                        }
+                        ```
+                    """.trimIndent()
+                    )
+                    reaction(carol) {
+                        react(ReactionKind.THINKING)
+                    }
+                    comment(bob) {
+                        content("This works, but the instance is initialized even if it may not be needed.")
+                        reaction(alex) { react(ReactionKind.PLUS_ONE) }
+                    }
+                }
+
+                answer(carol) {
+                    content(
+                        """
+                        Alternative:
+                        
+                        ```java
+                        public final class MediaLibrary {
+                          private static MediaLibrary instance = null;
+                          
+                          public static synchronized MediaLibrary getInstance() {
+                            if (instance == null) {
+                              instance = new MediaLibrary();
+                            }
+                            return instance;
+                          }
+
+                          private MediaLibrary() {
+                            // ...
+                          }
+                        }
+                        ```
+                    """.trimIndent()
+                    )
+                    reaction(carol) {
+                        react(ReactionKind.PLUS_ONE)
+                    }
+                    reaction(bob) {
+                        react(ReactionKind.PLUS_ONE)
+                    }
+                    comment(bob) {
+                        content(
+                            """
+                            Can be improved so that in most times we don't require a monitor (via `synchronized`)
+                            ```java
+                            
+                            private static volatile MediaLibrary instance = null;
+                            public static MediaLibrary getInstance() {
+                              if (instance == null) {
+                                synchronized(MediaLibrary.class) {
+                                  if (instance == null) {
+                                    instance = new MediaLibrary();
+                                  }
+                                }
+                              }
+                              return instance;
+                            }
+                            ```
+                        """.trimIndent()
+                        )
+                        reaction(alex) { react(ReactionKind.THINKING) }
+                    }
+                }
+            }
+
+        }
+    }
     course("50003", "Models of Computation")
     course("50004", "Operating Systems")
     course("50005", "Networks and Communications")
