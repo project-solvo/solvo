@@ -259,7 +259,7 @@ private fun AnswerListControlBar(
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ControlBarButton(
                         icon = { Icon(Icons.Outlined.FolderOff, null, Modifier.fillMaxHeight()) },
-                        text = { Text("Cancel", fontSize = 20.sp, fontWeight = FontWeight.W500) },
+                        text = { Text("Cancel", fontSize = CONTROL_BUTTON_FONT_SIZE, fontWeight = FontWeight.W500) },
                         onClick = {
                             model.stopDraft()
                         },
@@ -269,7 +269,12 @@ private fun AnswerListControlBar(
                     )
                     ControlBarButton(
                         icon = { Icon(draftKind?.icon ?: return@ControlBarButton, null, Modifier.fillMaxHeight()) },
-                        text = { Text(remember(draftKind) { "Post ${draftKind?.displayName}" }) },
+                        text = {
+                            Text(
+                                remember(draftKind) { "Post ${draftKind?.displayName}" },
+                                fontSize = CONTROL_BUTTON_FONT_SIZE
+                            )
+                        },
                         onClick = {
                             val currentDraftKind = draftKind // save before `model.post` clears it
                             client.checkLoggedIn()

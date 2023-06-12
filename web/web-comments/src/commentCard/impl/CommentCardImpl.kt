@@ -32,6 +32,7 @@ internal fun CommentCard(
     showMoreSwitch: (@Composable () -> Unit)? = null,
     subComments: (@Composable ColumnScope.() -> Unit)? = null,
     contentModifier: Modifier = Modifier,
+    preContent: @Composable ColumnScope.(backgroundColor: Color) -> Unit = {},
     content: @Composable ColumnScope.(backgroundColor: Color) -> Unit,
 ) {
     val onClickCard by rememberUpdatedState(onClickCard)
@@ -46,6 +47,8 @@ internal fun CommentCard(
         Row(Modifier.padding(top = paddings.top).padding(paddings.headLinePadding)) {
             authorLine?.invoke()
         }
+
+        preContent(backgroundColor)
 
         // content
         Column(contentModifier.padding(paddings.contentPadding)) {

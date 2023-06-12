@@ -17,13 +17,14 @@ import org.solvo.web.ui.image.RoundedUserAvatar
 @Composable
 fun ExpandedCommentCard(
     author: User?,
-    date: String,
+    date: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
     shape: Shape = CommentCardShape,
     backgroundColor: Color = commentCardBackgroundColor(),
     subComments: @Composable (ColumnScope.() -> Unit)? = null,
     actions: @Composable (() -> Unit)? = null,
+    preContent: @Composable (ColumnScope.(backgroundColor: Color) -> Unit) = {},
     content: @Composable (ColumnScope.(backgroundColor: Color) -> Unit),
 ) {
     CommentCard(
@@ -34,14 +35,12 @@ fun ExpandedCommentCard(
         authorLine = {
             AuthorLine(
                 icon = {
-                    RoundedUserAvatar(author?.avatarUrl, 48.dp)
+                    RoundedUserAvatar(author?.avatarUrl, 40.dp)
                 },
                 authorName = {
                     Text(author?.username?.str ?: "Anonymous")
                 },
-                date = {
-                    Text(date)
-                },
+                date = date,
             ) {
                 actions?.invoke()
 
@@ -56,6 +55,7 @@ fun ExpandedCommentCard(
         showMoreSwitch = null,
         subComments = subComments,
         contentModifier = contentModifier,
+        preContent = preContent,
         content = content,
     )
 }

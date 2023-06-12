@@ -18,13 +18,13 @@ import org.solvo.web.ui.theme.UNICODE_FONT
 @Composable
 fun AuthorLine(
     icon: @Composable BoxScope.() -> Unit,
-    authorName: @Composable () -> Unit,
+    authorName: @Composable RowScope.() -> Unit,
     date: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     actions: @Composable () -> Unit = {},
 ) {
     Row(modifier.height(48.dp), verticalAlignment = Alignment.CenterVertically) {
-        Box(Modifier.size(48.dp)) {
+        Box(Modifier.size(48.dp), contentAlignment = Alignment.Center) {
             icon.invoke(this)
         }
 

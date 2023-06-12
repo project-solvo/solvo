@@ -1,6 +1,5 @@
 package org.solvo.web
 
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -73,16 +72,33 @@ fun AnswersList(
             var isShowingFullAnswer by remember { mutableStateOf(false) } // in list mode
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
-            val draftKind = item.kind.toDraftKind()
 
             ExpandedCommentCard(
                 author = item.author,
-                date = postTimeFormatted ?: "",
-                modifier = Modifier.then(sizeModifier).border(
-                    width = 4.dp,
-                    color = draftKind.highlightColor(),
-                    shape = RoundedCornerShape(16.dp),
-                ),
+                date = {
+                    Row(
+                        Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                    ) {
+                        Text(postTimeFormatted ?: "")
+
+                        if (item.kind.toDraftKind() == DraftKind.THOUGHT) {
+                            Row(
+//                                Modifier.border(1.dp, color = MaterialTheme.colorScheme.outline).fillMaxWidth()
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(DraftKind.THOUGHT.icon, null, Modifier.height(20.dp))
+                                Text(
+                                    "This might not be a complete answer",
+                                    Modifier.padding(start = 8.dp),
+                                    fontWeight = FontWeight.W400
+                                )
+                            }
+                        }
+                    }
+                },
+                modifier = Modifier.widthIn(min = 600.dp).then(sizeModifier),
                 subComments = {
                     if (!isExpanded) {
                         ProvideTextStyle(TextStyle(fontSize = AuthorLineDateTextStyle.fontSize)) {
@@ -113,8 +129,7 @@ fun AnswersList(
 //                        }
                         if (!isExpanded) {
                             AddYourCommentTextField(
-                                onClickCommentState,
-                                item,
+                                { onClickCommentState?.invoke(null, item) },
                             )
                         }
                     }
@@ -163,25 +178,24 @@ fun AnswersList(
 
 @Composable
 private fun AddYourCommentTextField(
-    onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)?,
-    item: CommentDownstream,
+    onClick: (() -> Unit)?,
     modifier: Modifier = Modifier,
 ) {
-    val onClickCommentState by rememberUpdatedState(onClickComment)
-    val itemState by rememberUpdatedState(item)
+    @Suppress("NAME_SHADOWING")
+    val onClick by rememberUpdatedState(onClick)
 
     OutlinedTextField(
         "", {},
         modifier
             .height(48.dp)
-            .clickable(indication = null) { onClickCommentState?.invoke(null, itemState) }
+            .clickable(indication = null) { onClick?.invoke() }
             .padding(top = 6.dp, bottom = 6.dp) // inner
             .fillMaxWidth(),
         readOnly = true,
         placeholder = {
             Text(
                 "Add your comment...",
-                Modifier.clickable(indication = null) { onClickCommentState?.invoke(null, itemState) }
+                Modifier.clickable(indication = null) { onClick?.invoke() }
                     .fillMaxWidth()
             )
         },
