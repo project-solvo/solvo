@@ -17,6 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
@@ -40,6 +43,9 @@ import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
+import org.solvo.web.ui.modifiers.CursorIcon
+import org.solvo.web.ui.modifiers.clickable
+import org.solvo.web.ui.modifiers.cursorHoverIcon
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.viewModel.LoadingUuidItem
 
@@ -222,29 +228,38 @@ private fun AnswerListControlBar(
         } else {
             val isDraftButtonsVisible by model.isDraftButtonsVisible.collectAsState(false)
             val draftKind by model.draftKind.collectAsState(null)
-            for (entry in DraftKind.entries) {
-                AnimatedVisibility(isDraftButtonsVisible) {
-                    ControlBarButton(
-                        icon = {
-                            Icon(entry.icon, null, Modifier.fillMaxHeight())
-                        },
-                        text = { Text(remember(entry) { "Draft ${entry.displayName}" }) },
-                        onClick = {
-                            client.checkLoggedIn()
-                            model.startDraft(entry)
-                        },
-                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
-                        contentPadding = buttonContentPaddings,
-                        shape = buttonShape,
-                    )
-                }
+            AnimatedVisibility(isDraftButtonsVisible) {
+                val entry = DraftKind.ANSWER
+                ControlBarButton(
+                    icon = {
+                        Icon(entry.icon, null, Modifier.fillMaxHeight())
+                    },
+                    text = {
+                        Text(
+                            remember(entry) { "Draft ${entry.displayName}" },
+                            fontSize = CONTROL_BUTTON_FONT_SIZE
+                        )
+                    },
+                    onClick = {
+                        client.checkLoggedIn()
+                        model.startDraft(entry)
+                    },
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
+                    contentPadding = buttonContentPaddings,
+                    shape = buttonShape,
+                )
             }
+
+            AnimatedVisibility(isDraftButtonsVisible) {
+                PostThoughtsButton(model)
+            }
+
             AnimatedVisibility(draftKind != null) {
                 val snackBar by rememberUpdatedState(LocalTopSnackBar.current)
                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
                     ControlBarButton(
                         icon = { Icon(Icons.Outlined.FolderOff, null, Modifier.fillMaxHeight()) },
-                        text = { Text("Cancel") },
+                        text = { Text("Cancel", fontSize = 20.sp, fontWeight = FontWeight.W500) },
                         onClick = {
                             model.stopDraft()
                         },
@@ -288,6 +303,43 @@ private fun AnswerListControlBar(
         }
     }
 }
+
+@Composable
+private fun PostThoughtsButton(model: DraftAnswerControlBarState) {
+    Row(Modifier.fillMaxHeight()) {
+        Text(
+            "Not a complete answer?",
+            Modifier.align(Alignment.CenterVertically),
+            fontSize = CONTROL_BUTTON_FONT_SIZE - 2.sp
+        )
+
+        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.primary) {
+            Row(
+                Modifier.align(Alignment.CenterVertically)
+                    .padding(start = 8.dp)
+                    .cursorHoverIcon(CursorIcon.POINTER)
+                    .clickable(indication = null) {
+                        client.checkLoggedIn()
+                        model.startDraft(DraftKind.THOUGHT)
+                    },
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(DraftKind.THOUGHT.icon, null, Modifier.fillMaxHeight().padding(vertical = 2.dp))
+                Text(
+                    "Post Thoughts", Modifier.padding(start = 6.dp), textDecoration = TextDecoration.Underline,
+                    fontSize = CONTROL_BUTTON_FONT_SIZE
+                )
+            }
+        }
+    }
+}
+
+private operator fun TextUnit.minus(sp: TextUnit): TextUnit {
+    require(this.isSp && sp.isSp)
+    return (this.value - sp.value).sp
+}
+
+val CONTROL_BUTTON_FONT_SIZE = 16.sp
 
 @Composable
 private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAnswerContent(

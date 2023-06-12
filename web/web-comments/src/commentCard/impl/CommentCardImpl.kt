@@ -9,6 +9,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import org.solvo.web.comments.commentCard.CommentCardPaddings
 import org.solvo.web.ui.modifiers.CursorIcon
@@ -25,6 +26,7 @@ internal fun CommentCard(
     paddings: CommentCardPaddings,
     modifier: Modifier = Modifier,
     backgroundColor: Color = commentCardBackgroundColor(),
+    shape: Shape = CommentCardShape,
     authorLine: (@Composable () -> Unit)? = null,
     onClickCard: () -> Unit = {},
     showMoreSwitch: (@Composable () -> Unit)? = null,
@@ -36,7 +38,7 @@ internal fun CommentCard(
 
     Card(
         modifier.clickable(indication = null, onClick = onClickCard),
-        shape = CommentCardShape,
+        shape = shape,
         colors = CardDefaults.cardColors(
             containerColor = backgroundColor
         )

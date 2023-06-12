@@ -15,7 +15,7 @@ import org.solvo.model.api.communication.CommentKind
 enum class DraftKind(
     val displayName: String,
     val icon: ImageVector,
-    val backgroundColor: @Composable () -> Color,
+    val highlightColor: @Composable () -> Color,
 ) {
     ANSWER("Answer", Icons.Outlined.PostAdd, { MaterialTheme.colorScheme.primaryContainer }),
     THOUGHT("Thought", Icons.Outlined.TipsAndUpdates, { MaterialTheme.colorScheme.secondaryContainer }), ;

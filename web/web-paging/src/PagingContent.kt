@@ -123,9 +123,9 @@ fun ControlBar(
 object ControlBarScope {
     val buttonContentPaddings = PaddingValues(
         start = 12.dp,
-        top = 3.dp,
+        top = 1.dp,
         end = 12.dp,
-        bottom = 3.dp
+        bottom = 1.dp
     )
 
     val buttonSpacing = 12.dp

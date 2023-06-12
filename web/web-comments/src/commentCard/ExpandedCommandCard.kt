@@ -5,10 +5,12 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.unit.dp
 import org.solvo.model.api.communication.User
 import org.solvo.web.comments.commentCard.components.AuthorLine
 import org.solvo.web.comments.commentCard.impl.CommentCard
+import org.solvo.web.comments.commentCard.impl.CommentCardShape
 import org.solvo.web.comments.commentCard.impl.commentCardBackgroundColor
 import org.solvo.web.ui.image.RoundedUserAvatar
 
@@ -18,6 +20,7 @@ fun ExpandedCommentCard(
     date: String,
     modifier: Modifier = Modifier,
     contentModifier: Modifier = Modifier,
+    shape: Shape = CommentCardShape,
     backgroundColor: Color = commentCardBackgroundColor(),
     subComments: @Composable (ColumnScope.() -> Unit)? = null,
     actions: @Composable (() -> Unit)? = null,
@@ -26,6 +29,8 @@ fun ExpandedCommentCard(
     CommentCard(
         paddings = CommentCardPaddings.Large,
         modifier = modifier,
+        shape = shape,
+        backgroundColor = backgroundColor,
         authorLine = {
             AuthorLine(
                 icon = {
@@ -51,7 +56,6 @@ fun ExpandedCommentCard(
         showMoreSwitch = null,
         subComments = subComments,
         contentModifier = contentModifier,
-        backgroundColor = backgroundColor,
         content = content,
     )
 }

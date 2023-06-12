@@ -1,5 +1,6 @@
 package org.solvo.web
 
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -77,7 +78,11 @@ fun AnswersList(
             ExpandedCommentCard(
                 author = item.author,
                 date = postTimeFormatted ?: "",
-                modifier = Modifier.then(sizeModifier),
+                modifier = Modifier.then(sizeModifier).border(
+                    width = 4.dp,
+                    color = draftKind.highlightColor(),
+                    shape = RoundedCornerShape(16.dp),
+                ),
                 subComments = {
                     if (!isExpanded) {
                         ProvideTextStyle(TextStyle(fontSize = AuthorLineDateTextStyle.fontSize)) {
@@ -114,7 +119,6 @@ fun AnswersList(
                         }
                     }
                 },
-                backgroundColor = draftKind.backgroundColor(),
                 actions = {},
             ) { backgroundColor ->
                 CommentCardContent(
