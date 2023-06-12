@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.TextUnit
+import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
@@ -198,7 +199,11 @@ private fun QuestionPageContent(
                 )
             }
         }
-    }
+    },
+    leftWidthRange = {
+        val minLeft = maxWidth * 0.3f
+        minLeft..(maxWidth - 300.dp).coerceAtLeast(minLeft)
+    },
 )
 
 @Composable

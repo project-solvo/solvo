@@ -12,6 +12,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.Flow
 import org.solvo.model.api.communication.CommentDownstream
@@ -89,16 +90,21 @@ fun AnswersList(
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
                                 Icon(DraftKind.THOUGHT.icon, null, Modifier.height(20.dp))
-                                Text(
-                                    "This might not be a complete answer",
-                                    Modifier.padding(start = 8.dp),
-                                    fontWeight = FontWeight.W400
-                                )
+                                BoxWithConstraints {
+                                    if (maxWidth >= 580.dp) {
+                                        Text(
+                                            "This might not be a complete answer",
+                                            Modifier.padding(start = 8.dp),
+                                            fontWeight = FontWeight.W400,
+                                            overflow = TextOverflow.Ellipsis
+                                        )
+                                    }
+                                }
                             }
                         }
                     }
                 },
-                modifier = Modifier.widthIn(min = 600.dp).then(sizeModifier),
+                modifier = Modifier.then(sizeModifier),
                 subComments = {
                     if (!isExpanded) {
                         ProvideTextStyle(TextStyle(fontSize = AuthorLineDateTextStyle.fontSize)) {
