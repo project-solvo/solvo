@@ -42,6 +42,11 @@ class Client {
 
 
     fun isLoginIn() = (token != null)
+    fun checkLoggedIn() {
+        if (!isLoginIn()) {
+            History.navigate { auth() }
+        }
+    }
 
     fun invalidateToken() {
         LocalSessionToken.remove()

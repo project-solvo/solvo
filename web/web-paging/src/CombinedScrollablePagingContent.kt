@@ -19,6 +19,9 @@ fun <T> rememberExpandablePagingState(
     return state
 }
 
+fun <T> ExpandablePagingState(initialList: List<T>, pageSlice: Int): ExpandablePagingState<T> =
+    ExpandablePagingStateImpl.create(initialList, pageSlice)
+
 @Stable
 interface ExpandablePagingState<T> : PagingState<T> {
     val isExpanded: State<Boolean>
