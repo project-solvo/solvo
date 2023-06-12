@@ -1,5 +1,6 @@
 package org.solvo.web
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -30,11 +31,13 @@ import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.dummy.Loading
 import org.solvo.web.ui.foundation.OutlinedTextField
 import org.solvo.web.ui.foundation.ifThenElse
+import org.solvo.web.ui.foundation.rememberMutableDebouncedState
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
 import org.solvo.web.viewModel.LoadingUuidItem
+import kotlin.time.Duration.Companion.seconds
 
 @Stable
 private val ANSWER_CONTENT_MAX_HEIGHT = 260.dp
@@ -69,7 +72,7 @@ fun AnswersList(
                 Modifier.requiredSize(0.dp) // `hide` item, but keep rich editor in memory (with size zero)
             }
 
-            var richTextHasVisualOverflow by remember { mutableStateOf(false) }
+            var richTextHasVisualOverflow by rememberMutableDebouncedState(false, 0.1.seconds)
             var isShowingFullAnswer by remember { mutableStateOf(false) } // in list mode
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
@@ -85,13 +88,14 @@ fun AnswersList(
                         Text(postTimeFormatted ?: "")
 
                         if (item.kind.toDraftKind() == DraftKind.THOUGHT) {
-                            Row(
+                            BoxWithConstraints {
+                                val maxWidth = maxWidth
+                                Row(
 //                                Modifier.border(1.dp, color = MaterialTheme.colorScheme.outline).fillMaxWidth()
-                                verticalAlignment = Alignment.CenterVertically,
-                            ) {
-                                Icon(DraftKind.THOUGHT.icon, null, Modifier.height(20.dp))
-                                BoxWithConstraints {
-                                    if (maxWidth >= 580.dp) {
+                                    verticalAlignment = Alignment.CenterVertically,
+                                ) {
+                                    Icon(DraftKind.THOUGHT.icon, null, Modifier.height(20.dp))
+                                    AnimatedVisibility(maxWidth >= 320.dp) {
                                         Text(
                                             "This might not be a complete answer",
                                             Modifier.padding(start = 8.dp),

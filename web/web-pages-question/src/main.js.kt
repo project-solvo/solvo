@@ -202,7 +202,7 @@ private fun QuestionPageContent(
     },
     leftWidthRange = {
         val minLeft = maxWidth * 0.3f
-        minLeft..(maxWidth - 300.dp).coerceAtLeast(minLeft)
+        minLeft..(maxWidth - 350.dp).coerceAtLeast(minLeft)
     },
 )
 
@@ -290,18 +290,21 @@ private fun AnswerListControlBar(
                                     )
                                 }
                             } else {
-                                model.stopDraft()
                                 backgroundScope.launch {
-                                    client.comments.postAnswer(
-                                        question.coid,
-                                        CommentUpstream(
-                                            NonBlankString.fromStringOrNull(
-                                                draftAnswerEditor.contentMarkdown ?: ""
-                                            )
-                                                ?: return@launch
+                                    currentDraftKind?.let {
+                                        client.comments.post(
+                                            question.coid,
+                                            CommentUpstream(
+                                                NonBlankString.fromStringOrNull(
+                                                    draftAnswerEditor.contentMarkdown ?: ""
+                                                )
+                                                    ?: return@launch
+                                            ),
+                                            it.toCommentKind(),
                                         )
-                                    )
+                                    }
                                 }
+                                model.stopDraft()
                             }
                         },
                         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
@@ -316,29 +319,33 @@ private fun AnswerListControlBar(
 
 @Composable
 private fun PostThoughtsButton(model: DraftAnswerControlBarState) {
-    Row(Modifier.fillMaxHeight()) {
-        Text(
-            "Not a complete answer?",
-            Modifier.align(Alignment.CenterVertically),
-            fontSize = CONTROL_BUTTON_FONT_SIZE - 2.sp
-        )
-
-        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.primary) {
-            Row(
-                Modifier.align(Alignment.CenterVertically)
-                    .padding(start = 8.dp)
-                    .cursorHoverIcon(CursorIcon.POINTER)
-                    .clickable(indication = null) {
-                        client.checkLoggedIn()
-                        model.startDraft(DraftKind.THOUGHT)
-                    },
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(DraftKind.THOUGHT.icon, null, Modifier.fillMaxHeight().padding(vertical = 2.dp))
+    BoxWithConstraints {
+        val maxWidth = maxWidth
+        Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
+            AnimatedVisibility(maxWidth >= 330.dp) {
                 Text(
-                    "Post Thoughts", Modifier.padding(start = 6.dp), textDecoration = TextDecoration.Underline,
-                    fontSize = CONTROL_BUTTON_FONT_SIZE
+                    "Not a complete answer?",
+                    fontSize = CONTROL_BUTTON_FONT_SIZE - 2.sp
                 )
+            }
+
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.primary) {
+                Row(
+                    Modifier.align(Alignment.CenterVertically)
+                        .padding(start = 8.dp)
+                        .cursorHoverIcon(CursorIcon.POINTER)
+                        .clickable(indication = null) {
+                            client.checkLoggedIn()
+                            model.startDraft(DraftKind.THOUGHT)
+                        },
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(DraftKind.THOUGHT.icon, null, Modifier.fillMaxHeight().padding(vertical = 2.dp))
+                    Text(
+                        "Post Thoughts", Modifier.padding(start = 6.dp), textDecoration = TextDecoration.Underline,
+                        fontSize = CONTROL_BUTTON_FONT_SIZE
+                    )
+                }
             }
         }
     }
@@ -429,7 +436,7 @@ private fun ControlBarButton(
         colors = colors,
         contentPadding = contentPadding,
     ) {
-        Box(Modifier.fillMaxHeight()) {
+        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
             icon()
         }
 

@@ -3,10 +3,7 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.solvo.model.api.communication.CommentDownstream
-import org.solvo.model.api.communication.CommentUpstream
-import org.solvo.model.api.communication.Reaction
-import org.solvo.model.api.communication.ReactionKind
+import org.solvo.model.api.communication.*
 import org.solvo.model.foundation.Uuid
 
 class CommentRequests(
@@ -17,25 +14,21 @@ class CommentRequests(
         coid: Uuid,
     ): CommentDownstream? = client.http.get(api("comments/$coid")).bodyOrNull()
 
-    suspend fun postComment(
+    suspend fun post(
         parentCoid: Uuid,
         upstream: CommentUpstream,
-    ): Uuid? = postCommentImpl(parentCoid, upstream, isAnswer = false)
-
-    suspend fun postAnswer(
-        parentCoid: Uuid,
-        upstream: CommentUpstream,
-    ): Uuid? = postCommentImpl(parentCoid, upstream, isAnswer = true)
+        kind: CommentKind,
+    ): Uuid? = postCommentImpl(parentCoid, upstream, kind = kind)
 
     private suspend fun postCommentImpl(
         parentCoid: Uuid,
         upstream: CommentUpstream,
-        isAnswer: Boolean,
+        kind: CommentKind,
     ): Uuid? {
-        val url = if (isAnswer) {
-            api("comments/$parentCoid/answer")
-        } else {
-            api("comments/$parentCoid/comment")
+        val url = when (kind) {
+            CommentKind.ANSWER -> api("comments/$parentCoid/answer")
+            CommentKind.THOUGHT -> api("comments/$parentCoid/thought")
+            CommentKind.COMMENT -> api("comments/$parentCoid/comment")
         }
         return client.http.postAuthorized(url) {
             contentType(ContentType.Application.Json)

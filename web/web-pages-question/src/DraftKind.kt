@@ -29,3 +29,9 @@ fun CommentKind.toDraftKind(): DraftKind {
         CommentKind.THOUGHT -> DraftKind.THOUGHT
     }
 }
+
+@Stable
+fun DraftKind.toCommentKind(): CommentKind = when (this) {
+    DraftKind.ANSWER -> CommentKind.ANSWER
+    DraftKind.THOUGHT -> CommentKind.THOUGHT
+}

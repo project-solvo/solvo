@@ -17,6 +17,7 @@ import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.commentCard.DraftCommentCard
@@ -63,7 +64,7 @@ fun DraftCommentSection(
                                         ?: return@let,
                                 )
                                 backgroundScope.launch {
-                                    client.comments.postComment(comment.coid, upstream)
+                                    client.comments.post(comment.coid, upstream, CommentKind.COMMENT)
                                 }
                             }
                         }
