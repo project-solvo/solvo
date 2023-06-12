@@ -189,6 +189,13 @@ fun SampleDataBuilder.sampleData1() {
                     )
                 }
             }
+            question("2b") {
+                content { buildString { repeat(300) { appendLine("Question line $it") } } }
+                anonymous()
+                answer(alex) {
+                    content { buildString { repeat(300) { appendLine("Answer line $it") } } }
+                }
+            }
             comment(bob) {
                 content("I am commenting an article!")
                 anonymous()

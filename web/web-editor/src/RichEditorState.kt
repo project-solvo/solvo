@@ -1,6 +1,7 @@
 package org.solvo.web.editor
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
@@ -33,7 +34,7 @@ fun rememberRichEditorState(
 @Stable
 class RichEditorState internal constructor(
     internal val richEditor: RichEditor
-) {
+) : RememberObserver by richEditor {
     val contentMarkdown get() = richEditor.contentMarkdown
 
     suspend fun setContentMarkdown(value: String) {

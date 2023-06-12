@@ -176,7 +176,7 @@ private fun QuestionPageContent(
                     .focusable(false) // compose bug
             ) {
                 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                if (!org.solvo.web.editor.RichEditorLayoutDebug) {
+                if (!org.solvo.web.editor.RichEditorLayoutSizeDebug) {
                     RichEditor(
                         Modifier.fillMaxWidth().ifThenElse(
                             isEditorVisible,

@@ -47,7 +47,7 @@ object RichEditorEventBridge {
                         skikoView?.onPointerEvent(toSkikoEventAdjusted(event, SkikoPointerEventKind.MOVE))
                     }
                 })
-                htmlEditormdPreview.addEventListener("mousewheel", callback("mousewheel") { event ->
+                htmlEditormdPreview.addEventListener("wheel", callback("wheel") { event ->
                     event as WheelEvent
 //                    onScroll(
 //                        Offset(

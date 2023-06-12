@@ -7,7 +7,7 @@ import androidx.compose.material3.LocalTextStyle
 import androidx.compose.runtime.*
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.isSpecified
 import androidx.compose.ui.layout.*
@@ -22,7 +22,8 @@ import org.solvo.web.ui.LocalSolvoWindow
 import org.solvo.web.ui.foundation.asIntSize
 import org.solvo.web.ui.isInDarkMode
 
-internal const val RichEditorLayoutDebug = false // inline
+internal const val RichEditorLayoutSizeDebug = false // inline
+internal const val RichEditorLayoutBoundsDebug = true // inline
 
 /**
  * @param onEditorLoaded called when editor is loaded, and actual editor size is known.
@@ -85,25 +86,28 @@ fun RichEditor(
     LaunchedEffect(state, density) {
         state.richEditor.actualSizeFlow.collect {
             val size = (it * density.density).asIntSize()
-            if (RichEditorLayoutDebug) {
+            if (RichEditorLayoutSizeDebug) {
                 println("listen actual area change: $size")
             }
             measurePolicy.setActualSize(size)
         }
     }
 
+    val stateUpdated by rememberUpdatedState(state)
+
     Layout(
         modifier
-            .onPlaced {
-                state.updateEditorBounds(it, density)
-            }, measurePolicy
+            .onGloballyPositioned {
+                stateUpdated.updateEditorBounds(it, density)
+            },
+        measurePolicy
     )
 
 
     LaunchedEffect(true) {
         // Editor may not be ready on layout, hence its size may not update. 
         // So we ensure here editor size is updated.
-        with(state.richEditor) {
+        with(stateUpdated.richEditor) {
             onEditorLoaded {
                 setEditorSize(measurePolicy.previousLayoutResult.filterNotNull().first().intrinsicSize, density)
             }
@@ -113,19 +117,35 @@ fun RichEditor(
 
 private fun RichEditorState.updateEditorBounds(
     it: LayoutCoordinates,
-    density: Density
+    density: Density,
 ) {
-    richEditor.setPosition(it.positionInWindow(), density)
-    val parentBounds = it.parentLayoutCoordinates?.boundsInWindow() ?: Rect.Zero
+    richEditor.setPositionInWindow(it.positionInWindow(), density)
+    richEditor.positionInRoot.value = it.positionInRoot()
 
-    richEditor.setEditorBounds(it.boundsInParent().run {
-        copy(
-            left = left + parentBounds.left,
-            top = top + parentBounds.top,
-            right = right + parentBounds.right,
-            bottom = bottom + parentBounds.bottom,
-        )
-    }, density)
+    val boundsInWindow = it.boundsInWindow()
+    val clip = if (boundsInWindow.isEmpty) {
+        richEditor.positionDiv.asDynamic().style.visibility = "hidden"
+        return
+    } else {
+        richEditor.positionDiv.asDynamic().style.visibility = "visible"
+        boundsInWindow
+            .translate(-it.positionInWindow())
+    }
+    if (RichEditorLayoutBoundsDebug) {
+
+//        println(
+//            "$from: stat: \n" +
+//                    "positionInRoot=${it.positionInRoot()}\n" +
+//                    "positionInParent=${it.positionInParent()}\n" +
+//                    "positionInWindow=${it.positionInWindow()}\n" +
+//                    "boundsInRoot=${it.boundsInRoot()}\n" +
+//                    "boundsInParent=${it.boundsInParent()}\n" +
+//                    "boundsInWindow=${it.boundsInWindow()}\n" +
+//                    ""
+//        )
+    }
+//    println("$from: bParent: $bounds")
+    richEditor.setEditorBounds(clip, density, position = Offset.Zero)
 }
 
 internal class RichEditorMeasurePolicy(
@@ -137,7 +157,7 @@ internal class RichEditorMeasurePolicy(
 
     val previousLayoutResult = MutableStateFlow<RichEditorLayoutResult?>(null)
     fun setActualSize(size: IntSize?) {
-        if (RichEditorLayoutDebug) {
+        if (RichEditorLayoutSizeDebug) {
             println("setActualSize: old=$actualSize, new=$size")
         }
 
@@ -150,10 +170,10 @@ internal class RichEditorMeasurePolicy(
         // notify onLayoutState
         if (previousLayoutResult.value?.canReuse(intrinsicSize, layoutSize) == true) {
             // layout did not change
-            if (RichEditorLayoutDebug) println("layout did not change")
+            if (RichEditorLayoutSizeDebug) println("layout did not change")
         } else {
             // new layout
-            if (RichEditorLayoutDebug) println("new layout: layoutSize=$layoutSize, actualSize=$intrinsicSize")
+            if (RichEditorLayoutSizeDebug) println("new layout: layoutSize=$layoutSize, actualSize=$intrinsicSize")
 
             val new = RichEditorLayoutResult(intrinsicSize, layoutSize)
             previousLayoutResult.value = new
@@ -171,7 +191,7 @@ internal class RichEditorMeasurePolicy(
             (currentActualSize?.width ?: 100.dp.toPx().toInt()).coerceIn(constraints.minWidth, constraints.maxWidth)
         val height =
             (currentActualSize?.height ?: 100.dp.toPx().toInt()).coerceIn(constraints.minHeight, constraints.maxHeight)
-        if (RichEditorLayoutDebug) {
+        if (RichEditorLayoutSizeDebug) {
             println(constraints)
             println("Layout: width=$width, height=$height, constraintMaxHeight=${constraints.maxHeight}")
         }
@@ -188,8 +208,8 @@ internal class RichEditorMeasurePolicy(
         coordinates?.let { state.updateEditorBounds(it, density) }
         val actualSize = actualSize
 
-        if (RichEditorLayoutDebug) {
-            println("Place: layoutSize=$layoutSize, actualSize=$actualSize")
+        if (RichEditorLayoutSizeDebug) {
+            println("Place: layoutSize=$layoutSize, actualSize=$actualSize, coordinates=${coordinates != null}")
         }
 
         if (actualSize == null) {

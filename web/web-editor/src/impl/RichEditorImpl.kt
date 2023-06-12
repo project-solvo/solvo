@@ -87,16 +87,17 @@ internal class RichEditor internal constructor(
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
     val displayMode: MutableState<RichEditorDisplayMode> = mutableStateOf(RichEditorDisplayMode.EDIT_PREVIEW)
 
-    private val _positionInRoot = mutableStateOf(Offset.Zero)
-    val positionInRoot: State<Offset> = _positionInRoot
+    private val _positionInWindow = mutableStateOf(Offset.Zero)
+    val positionInWindow: State<Offset> = _positionInWindow
+    val positionInRoot: MutableState<Offset> = mutableStateOf(Offset.Zero)
 
     private val _size = mutableStateOf(IntSize.Zero)
     val size: State<IntSize> = _size
 
     private val _fontSize: MutableState<Float> = mutableStateOf(0f)
 
-    private val _boundsInRoot = mutableStateOf(Rect.Zero)
-    val boundsInRoot: State<Rect> = _boundsInRoot
+    private val _bounds = mutableStateOf(Rect.Zero)
+    val boundsInRoot: State<Rect> = _bounds
 
     internal val editorLoaded = CompletableDeferred<Unit>()
 
@@ -112,7 +113,7 @@ internal class RichEditor internal constructor(
     init {
         init()
         setEditorBounds(Rect.Zero, density = Density(1f))
-        setPosition(Offset.Zero, density = Density(1f))
+        setPositionInWindow(Offset.Zero, density = Density(1f))
     }
 
     @NoLiveLiterals
@@ -246,10 +247,10 @@ internal class RichEditor internal constructor(
     }
 
 
-    fun setPosition(offset: Offset, density: Density) {
-        if (_positionInRoot.value == offset) return
+    fun setPositionInWindow(offset: Offset, density: Density) {
+        if (_positionInWindow.value == offset) return
 
-        _positionInRoot.value = offset
+        _positionInWindow.value = offset
         val marginTop = (offset.y / density.density).toString() + "px"
         val marginLeft = (offset.x / density.density).toString() + "px"
         positionDiv.asDynamic().style.marginTop = marginTop
@@ -341,19 +342,25 @@ internal class RichEditor internal constructor(
         }
     }
 
-    fun setEditorBounds(bounds: Rect, density: Density) {
-        if (_boundsInRoot.value == bounds) return
-        _boundsInRoot.value = bounds
+    fun setEditorBounds(
+        // in the div
+        bounds: Rect,
+        density: Density,
+        position: Offset = positionInWindow.value,
+    ) {
+        if (_bounds.value == bounds) return
+        _bounds.value = bounds
 
-        val topPx = (bounds.top - positionInRoot.value.y) / density.density
-        val leftPx = (bounds.left - positionInRoot.value.x) / density.density
-        val rightPx = bounds.right / density.density + leftPx
-        val bottomPx = bounds.bottom / density.density + topPx
+        val topPx = (bounds.top - position.y) / density.density
+        val leftPx = (bounds.left - position.x) / density.density
+        val rightPx = bounds.right / density.density //+ leftPx
+        val bottomPx = bounds.bottom / density.density //+ topPx
 
 
-        if (bounds.top == 0f && bounds.left == 0f) {
+        if (bounds.top == 0f && bounds.left == 0f || bounds.isEmpty) {
             // out of screen
-            positionDiv.asDynamic().style.clip = "rect(${bottomPx}px, ${rightPx}px, ${bottomPx}px, ${rightPx}px)"
+            positionDiv.asDynamic().style.clip = null
+//            positionDiv.asDynamic().style.clip = "rect(${bottomPx}px, ${rightPx}px, ${bottomPx}px, ${rightPx}px)"
         } else {
             positionDiv.asDynamic().style.clip = "rect(${topPx}px, ${rightPx}px, ${bottomPx}px, ${leftPx}px)"
         }
