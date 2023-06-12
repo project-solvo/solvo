@@ -36,7 +36,7 @@ data class CommentDownstream(
     val allSubCommentIds: List<Uuid>,
 
     val answerCode: Int? = null,
-    val kind: CommentKind = CommentKind.THOUGHT, // TODO: 2023/6/12  
+    val kind: CommentKind,
 ) : CommentableDownstream, ICommentDownstream
 
 @Immutable

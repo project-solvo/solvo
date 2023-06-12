@@ -2,9 +2,7 @@ package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.solvo.model.api.communication.CommentDownstream
-import org.solvo.model.api.communication.CommentUpstream
-import org.solvo.model.api.communication.LightCommentDownstream
+import org.solvo.model.api.communication.*
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.AnswerCodeTable
@@ -13,7 +11,7 @@ import org.solvo.server.database.exposed.CommentedObjectTable
 import java.util.*
 
 interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
-    suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, asAnswer: Boolean = false): UUID?
+    suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, kind: CommentKind): UUID?
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
     override suspend fun view(coid: UUID): CommentDownstream?
@@ -24,18 +22,18 @@ class CommentDBControlImpl(
 ) : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>() {
     override val associatedTable = CommentTable
 
-    override suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, asAnswer: Boolean): UUID? {
+    override suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, kind: CommentKind): UUID? {
         val coid = insertAndGetCOID(content, authorId) ?: return null
 
         dbQuery {
             assert(CommentTable.insert {
                 it[CommentTable.coid] = coid
                 it[CommentTable.parent] = parentID
-                it[CommentTable.asAnswer] = asAnswer
+                it[CommentTable.kind] = kind
             }.resultedValues?.singleOrNull() != null)
         }
 
-        if (asAnswer) dbQuery {
+        if (kind.isAnswerOrThought()) dbQuery {
             val code = AnswerCodeTable
                 .select(AnswerCodeTable.parent eq parentID)
                 .maxOfOrNull { it[AnswerCodeTable.code] }?.inc() ?: 1
@@ -95,12 +93,13 @@ class CommentDBControlImpl(
                     lastCommentTime = it[CommentedObjectTable.lastCommentTime],
                     previewSubComments = previewSubComments,
                     allSubCommentIds = subCommentIds,
-                    answerCode = if (!it[CommentTable.asAnswer]) null else {
+                    answerCode = if (!it[CommentTable.kind].isAnswerOrThought()) null else {
                         AnswerCodeTable
                             .select(AnswerCodeTable.coid eq coid)
                             .map { answerRow -> answerRow[AnswerCodeTable.code] }
                             .singleOrNull()
-                    }
+                    },
+                    kind = it[CommentTable.kind],
                 )
             }.singleOrNull()
     }

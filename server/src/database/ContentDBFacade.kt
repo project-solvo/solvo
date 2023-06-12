@@ -10,6 +10,7 @@ interface ContentDBFacade {
     suspend fun postSharedContent(content: SharedContent): UUID?
     suspend fun postQuestion(question: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
     suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
+    suspend fun postThought(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
     suspend fun allCourses(): List<Course>
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
     suspend fun getArticleId(courseCode: String, code: String): UUID?
@@ -59,11 +60,16 @@ class ContentDBFacadeImpl(
 
     override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID? {
         if (!questions.contains(questionId)) return null
-        return comments.post(answer, authorId, questionId, asAnswer = true)
+        return comments.post(answer, authorId, questionId, CommentKind.ANSWER)
+    }
+
+    override suspend fun postThought(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID? {
+        if (!questions.contains(questionId)) return null
+        return comments.post(answer, authorId, questionId, CommentKind.THOUGHT)
     }
 
     override suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID? {
-        return comments.post(comment, authorId, parentId, asAnswer = false)
+        return comments.post(comment, authorId, parentId, CommentKind.COMMENT)
     }
 
     override suspend fun allCourses(): List<Course> {

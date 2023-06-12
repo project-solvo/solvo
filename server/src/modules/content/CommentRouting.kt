@@ -8,9 +8,7 @@ import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
-import org.solvo.model.api.communication.CommentUpstream
-import org.solvo.model.api.communication.Reaction
-import org.solvo.model.api.communication.ReactionKind
+import org.solvo.model.api.communication.*
 import org.solvo.model.api.events.UpdateCommentEvent
 import org.solvo.model.api.events.UpdateReactionEvent
 import org.solvo.server.database.ContentDBFacade
@@ -31,10 +29,13 @@ fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler)
             }
         }
         postAuthenticated("{parentId}/comment") {
-            processUploadComment(contents, asAnswer = false, events)
+            processUploadComment(contents, CommentKind.COMMENT, events)
         }
         postAuthenticated("{parentId}/answer") {
-            processUploadComment(contents, asAnswer = true, events)
+            processUploadComment(contents, CommentKind.ANSWER, events)
+        }
+        postAuthenticated("{parentId}/thought") {
+            processUploadComment(contents, CommentKind.THOUGHT, events)
         }
         postAuthenticated("{coid}/reactions/new") {
             val uid = getUserId() ?: return@postAuthenticated
@@ -69,22 +70,22 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     contents: ContentDBFacade,
-    asAnswer: Boolean,
+    kind: CommentKind,
     events: EventSessionHandler,
 ) {
     val uid = getUserId() ?: return
     val parentId: UUID = UUID.fromString(call.parameters.getOrFail("parentId"))
     val comment = call.receive<CommentUpstream>()
 
-    val commentId = if (asAnswer) {
-        contents.postAnswer(comment, uid, parentId)
-    } else {
-        contents.postComment(comment, uid, parentId)
+    val commentId = when (kind) {
+        CommentKind.COMMENT -> contents.postComment(comment, uid, parentId)
+        CommentKind.ANSWER -> contents.postAnswer(comment, uid, parentId)
+        CommentKind.THOUGHT -> contents.postThought(comment, uid, parentId)
     }
     if (commentId != null) {
         val commentDownstream = contents.viewComment(commentId)!!
         val questionId: UUID
-        if (asAnswer) {
+        if (kind.isAnswerOrThought()) {
             questionId = parentId
         } else {
             val parent = contents.viewComment(parentId)!!
