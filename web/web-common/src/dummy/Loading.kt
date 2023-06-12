@@ -2,6 +2,7 @@ package org.solvo.web.dummy
 
 import org.solvo.model.annotations.Immutable
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.User
 import org.solvo.model.foundation.randomUuid
 import org.solvo.model.utils.nonBlank
@@ -27,6 +28,7 @@ object Loading {
         lastEditTime = 0,
         lastCommentTime = 0,
         previewSubComments = listOf(),
-        allSubCommentIds = listOf()
+        allSubCommentIds = listOf(),
+        kind = CommentKind.COMMENT,
     )
 }

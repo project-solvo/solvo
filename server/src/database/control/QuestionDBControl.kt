@@ -1,10 +1,9 @@
 package org.solvo.server.database.control
 
-import org.jetbrains.exposed.sql.JoinType
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.and
-import org.jetbrains.exposed.sql.insert
-import org.jetbrains.exposed.sql.select
+import org.jetbrains.exposed.sql.SqlExpressionBuilder.neq
+import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.api.communication.QuestionUpstream
 import org.solvo.model.api.communication.SharedContent
@@ -52,12 +51,12 @@ class QuestionDBControlImpl(
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
         val answers: List<UUID> = QuestionTable
             .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
-            .select((QuestionTable.coid eq coid) and (CommentTable.asAnswer eq true))
+            .select((QuestionTable.coid eq coid) and (CommentTable.kind.isAnswerOrThought()))
             .map { it[CommentTable.coid].value }
 
         val comments: List<UUID> = QuestionTable
             .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
-            .select((QuestionTable.coid eq coid) and (CommentTable.asAnswer eq false))
+            .select((QuestionTable.coid eq coid) and (CommentTable.kind eq CommentKind.COMMENT))
             .map { it[CommentTable.coid].value }
 
         QuestionTable
@@ -87,4 +86,8 @@ class QuestionDBControlImpl(
                 )
             }.singleOrNull()
     }
+}
+
+private fun ExpressionWithColumnType<CommentKind>.isAnswerOrThought(): Op<Boolean> {
+    return this neq CommentKind.COMMENT
 }
