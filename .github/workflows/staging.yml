@@ -14,7 +14,7 @@ jobs:
     runs-on: self-hosted
     env:
       enableLocalPublishingTest: 'false'
-      gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx2048m" "-Dfile.encoding=UTF-8" --no-daemon "-Porg.gradle.parallel=false"
+      gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx2048m" "-Dfile.encoding=UTF-8" --no-daemon "-Porg.gradle.parallel=false" "-Dsolvo.build.type=PRODUCTION"
       isMac: ${{ startsWith(matrix.os, 'macos') }}
       isWindows: ${{ startsWith(matrix.os, 'windows') }}
       isUbuntu: ${{ startsWith(matrix.os, 'ubuntu') }}
