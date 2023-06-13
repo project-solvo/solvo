@@ -103,6 +103,7 @@ class WindowState internal constructor(
 
     val skiaLayer get() = composeWindow.layer.layer
     val skikoView: SkikoView? get() = composeWindow.layer.layer.skikoView
+    val canvas get() = composeWindow.canvas
 
     val size: MutableStateFlow<DpSize> = MutableStateFlow(window.innerSize)
     val preferDarkMode: MutableStateFlow<Boolean?> =

@@ -405,7 +405,7 @@ internal class RichEditor internal constructor(
     // class="editormd editormd-vertical editormd-theme-default"
     private fun getHtmlEditormdDiv() =
         document.querySelector("#${id}")
-            ?: error("Cannot find editor.md preview content")
+            ?: error("Cannot find editor.md div")
 
     // editormd preview container class="editormd-preview editormd-preview-theme-default"
     fun getHtmlEditormdPreview() =
@@ -529,7 +529,11 @@ internal class RichEditor internal constructor(
         }
     }
 
+    @NoLiveLiterals
     suspend fun bindEvents(density: Density) {
+        positionDiv.asDynamic().pointerEvents = "all"
+        editor.pointerEvents = "none"
+        getHtmlEditormdDiv().asDynamic().pointerEvents = "none"
         val list: List<Pair<String, HtmlEventCallback>>
         onEditorLoaded {
             list = listenEvents(density)
@@ -545,6 +549,7 @@ internal class RichEditor internal constructor(
             }
         }
     }
+
 
     override fun onAbandoned() {
         dispose()

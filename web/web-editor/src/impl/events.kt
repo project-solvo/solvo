@@ -1,11 +1,13 @@
 package org.solvo.web.editor.impl
 
 import androidx.compose.ui.unit.Density
+import kotlinx.browser.document
 import org.jetbrains.skiko.*
 import org.solvo.web.ui.WindowState
 import org.w3c.dom.events.Event
 import org.w3c.dom.events.MouseEvent
 import org.w3c.dom.events.WheelEvent
+import org.w3c.dom.events.WheelEventInit
 
 
 typealias HtmlEventCallback = ((Event) -> Unit)?
@@ -22,7 +24,8 @@ object RichEditorEventBridge {
             return block
         }
 
-        val skia = WindowState.current.skiaLayer
+        val windowState = WindowState.current
+        val skia = windowState.skiaLayer
 
         with(skia) {
             val htmlEditormdPreview = getHtmlEditormdDiv()
@@ -55,7 +58,9 @@ object RichEditorEventBridge {
 //                            event.deltaY.toFloat() / density.density,
 //                        )
 //                    )
-                    skikoView?.onPointerEvent(toSkikoScrollEventAdjusted(event))
+
+                    windowState.canvas.dispatchEvent(event.copy())
+//                    skikoView?.onPointerEvent(toSkikoScrollEventAdjusted(event))) // this does not work when rich editor overflows
                 })
             }
         }
@@ -104,4 +109,40 @@ object RichEditorEventBridge {
             }
         }
     }
+
+    private fun WheelEvent.copy() = WheelEvent(
+        type, WheelEventInit(
+            deltaX = deltaX,
+            deltaY = deltaY,
+            deltaZ = deltaZ,
+            deltaMode = deltaMode,
+            screenX = screenX,
+            screenY = screenY,
+            clientX = clientX,
+            clientY = clientY,
+            button = button,
+            buttons = buttons,
+            relatedTarget = document.getElementById("ComposeTarget"),
+            region = region,
+            ctrlKey = ctrlKey,
+            shiftKey = shiftKey,
+            altKey = altKey,
+            metaKey = metaKey,
+            modifierAltGraph = null,
+            modifierCapsLock = null,
+            modifierFn = null,
+            modifierFnLock = null,
+            modifierHyper = null,
+            modifierNumLock = null,
+            modifierScrollLock = null,
+            modifierSuper = null,
+            modifierSymbol = null,
+            modifierSymbolLock = null,
+            view = view,
+            detail = detail,
+            bubbles = bubbles,
+            cancelable = cancelable,
+            composed = composed
+        )
+    )
 }
