@@ -18,13 +18,15 @@ val DEFAULT_RICH_EDITOR_FONT_SIZE = 20.sp
 fun rememberRichEditorState(
     isEditable: Boolean,
     contentPadding: Dp = Dp.Unspecified,
+    showToolbar: Boolean = false,
 ): RichEditorState {
     val density = LocalDensity.current
     val editor: RichEditor = remember {
         RichEditor.create(
             RichEditorIdManager.nextId(), density,
             isEditable,
-            contentPadding
+            showToolbar,
+            contentPadding,
         )
     }
     return remember(editor) { RichEditorState(editor) }

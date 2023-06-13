@@ -23,10 +23,13 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.impl.RichEditorEventBridge.listenEvents
+import org.solvo.web.requests.client
 import org.w3c.dom.Element
 import org.w3c.dom.asList
+import org.w3c.files.File
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
+import kotlin.js.json
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -52,6 +55,39 @@ fun onRichEditorChanged(jsEditor: dynamic) {
     if (RICH_TEXT_DEBUG) console.log("Editor.md $id changed")
     val editor = RichEditorIdManager.getInstanceById(id) ?: return // null if already removed
     editor.notifyChanged()
+}
+
+private val REGEX_IMAGE_FILENAME = Regex("""^(.*)\.(png|jpg|gif|jpeg|ico|webp|bmp)$""")
+
+@JsExport
+@JsName("onUploadImage")
+fun onUploadImage(file: File, callback: dynamic) {
+//    println("onUpload: ${data.name}, onSuccess=$onSuccess, data=$data")
+    println("onUploadImage: filename=${file.name}, size=${file.size}")
+    client.scope.launch {
+        runCatching {
+            client.images.postImage(file)
+        }.onSuccess { image ->
+            callback(
+                json(
+                    "success" to true,
+                    "url" to image.url,
+                    "isImage" to file.name.lowercase().matches(REGEX_IMAGE_FILENAME),
+                    "displayName" to file.name
+                        .replace(Regex("""[\[\]()]"""), "_"),
+                )
+            )
+            Unit
+        }.onFailure {
+            callback(
+                json(
+                    "success" to false,
+                )
+            )
+            Unit
+        }
+        Unit
+    }
 }
 
 internal object RichEditorIdManager {
@@ -83,7 +119,7 @@ internal class RichEditor internal constructor(
     val editor: dynamic, // editor.md object
     val isTextMode: Boolean,
 ) : RememberObserver {
-    private val scope = CoroutineScope(SupervisorJob())
+    internal val scope = CoroutineScope(SupervisorJob())
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
     val displayMode: MutableState<RichEditorDisplayMode> = mutableStateOf(RichEditorDisplayMode.EDIT_PREVIEW)
 
@@ -449,6 +485,7 @@ internal class RichEditor internal constructor(
             id: String,
             density: Density,
             isEditable: Boolean,
+            showToolbar: Boolean,
             contentPadding: Dp = Dp.Unspecified,
         ): RichEditor {
             val positionDiv = document.createElement("div")
@@ -465,6 +502,7 @@ internal class RichEditor internal constructor(
             @Suppress("UNUSED_VARIABLE") // used in js 
             val conf = mapOf(
                 "delay" to if (isEditable) 300 else 0,
+                "showToolbar" to showToolbar
             )
 
             val editor = editormd(
@@ -486,35 +524,31 @@ internal class RichEditor internal constructor(
                         delay: conf.delay,
                         watch : true,                // 关闭实时预览
 //                        htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
-                        toolbar  : false,             //关闭工具栏
+                        toolbar  : conf.showToolbar,             //关闭工具栏
                         previewCodeHighlight : true, // 关闭预览 HTML 的代码块高亮，默认开启
-                        emoji : true,
-                        taskList : true,
+                        emoji : false,
+                        taskList : false,
                         tocm            : true,         // Using [TOCM]
                         tex : true,                   // 开启科学公式TeX语言支持，默认关闭
-                        flowChart : true,             // 开启流程图支持，默认关闭
-                        sequenceDiagram : true,       // 开启时序/序列图支持，默认关闭,
+                        flowChart : false,             // 开启流程图支持，默认关闭
+                        sequenceDiagram : false,       // 开启时序/序列图支持，默认关闭,
                         //dialogLockScreen : false,   // 设置弹出层对话框不锁屏，全局通用，默认为true
                         //dialogShowMask : false,     // 设置弹出层对话框显示透明遮罩层，全局通用，默认为true
                         //dialogDraggable : false,    // 设置弹出层对话框不可拖动，全局通用，默认为true
                         //dialogMaskOpacity : 0.4,    // 设置透明遮罩层的透明度，全局通用，默认值为0.1
                         //dialogMaskBgColor : "#000", // 设置透明遮罩层的背景颜色，全局通用，默认为#fff
-                        imageUpload : true,
-                        imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp"],
-                        imageUploadURL : "./php/upload.php",
+                        imageUpload : false, // use copy-paste
+                        imageFormats : ["jpg", "jpeg", "gif", "png", "bmp", "webp", "ico"],
+                        imageUploadURL : "/api/images/upload",
                         onload : function() {
                             require('./web-editor').org.solvo.web.editor.impl.onRichEditorInitialized(this);
-                            //this.fullscreen();
-                            //this.unwatch();
-                            //this.watch().fullscreen();
-
-                            //this.setMarkdown("#PHP");
-                            //this.width("100%");
-                            //this.height(480);
-                            //this.resize("100%", 640);
+                            initPasteDragImg(this);
                         },
                         onchange : function() {
                             require('./web-editor').org.solvo.web.editor.impl.onRichEditorChanged(this);
+                        },
+                        imageUploadFunction: function(file, onSuccess) {
+                            require('./web-editor').org.solvo.web.editor.impl.onUploadImage(file, onSuccess);
                         }
                     }
     """

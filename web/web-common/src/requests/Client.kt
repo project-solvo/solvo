@@ -21,7 +21,7 @@ import org.solvo.web.utils.byWindowAlert
 val client = Client()
 
 class Client {
-    internal val scope = CoroutineScope(CoroutineExceptionHandler.byWindowAlert())
+    val scope = CoroutineScope(CoroutineExceptionHandler.byWindowAlert())
     val origin = window.location.origin
     val json = DefaultCommonJson
     val http = HttpClient(Js) {
@@ -58,6 +58,7 @@ class Client {
     val articles: ArticleRequests by lazy { ArticleRequests(this) }
     val questions: QuestionRequests by lazy { QuestionRequests(this) }
     val comments: CommentRequests by lazy { CommentRequests(this) }
+    val images: ImageRequests by lazy { ImageRequests(this) }
 }
 
 suspend inline fun <reified T> HttpResponse.bodyOrNull(): T? {

@@ -148,7 +148,7 @@ private fun QuestionPageContent(
             Int.MAX_VALUE,
             allAnswers,
         )
-        val draftAnswerEditor = rememberRichEditorState(true)
+        val draftAnswerEditor = rememberRichEditorState(true, showToolbar = true)
         val draftState = remember { DraftAnswerControlBarState() }
         val isEditorVisible by draftState.isEditorVisible.collectAsState(false)
 
