@@ -17,8 +17,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.font.FontWeight.Companion.W600
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
@@ -41,9 +42,6 @@ import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
-import org.solvo.web.ui.modifiers.CursorIcon
-import org.solvo.web.ui.modifiers.clickable
-import org.solvo.web.ui.modifiers.cursorHoverIcon
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.viewModel.LoadingUuidItem
 
@@ -316,37 +314,41 @@ private fun AnswerListControlBar(
 }
 
 @Composable
-private fun PostThoughtsButton(model: DraftAnswerControlBarState) {
-    BoxWithConstraints {
-        val maxWidth = maxWidth
-        Row(Modifier.fillMaxHeight(), verticalAlignment = Alignment.CenterVertically) {
-            AnimatedVisibility(maxWidth >= 330.dp) {
-                Text(
-                    "Not a complete answer?",
-                    fontSize = CONTROL_BUTTON_FONT_SIZE - 2.sp
-                )
-            }
+private fun ControlBarScope.PostThoughtsButton(model: DraftAnswerControlBarState) {
+    Row(horizontalArrangement = Arrangement.spacedBy(8.dp), verticalAlignment = Alignment.CenterVertically) {
+        Text(
+            "or",
+            fontWeight = W600,
+            fontSize = CONTROL_BUTTON_FONT_SIZE
+        )
 
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.primary) {
-                Row(
-                    Modifier.align(Alignment.CenterVertically)
-                        .padding(start = 8.dp)
-                        .cursorHoverIcon(CursorIcon.POINTER)
-                        .clickable(indication = null) {
-                            client.checkLoggedIn()
-                            model.startDraft(DraftKind.THOUGHT)
-                        },
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(DraftKind.THOUGHT.icon, null, Modifier.fillMaxHeight().padding(vertical = 2.dp))
-                    Text(
-                        "Post Thoughts", Modifier.padding(start = 6.dp), textDecoration = TextDecoration.Underline,
-                        fontSize = CONTROL_BUTTON_FONT_SIZE
-                    )
-                }
-            }
-        }
+        ControlBarButton(
+            { Icon(DraftKind.THOUGHT.icon, null, Modifier.fillMaxHeight()) },
+            {
+                Text(
+                    "Just share your ideas",
+//                        Modifier.padding(start = 6.dp),
+//                        textDecoration = TextDecoration.Underline,
+//                        fontWeight = W500,
+//                        fontSize = CONTROL_BUTTON_FONT_SIZE + 1.sp
+                )
+            },
+            {
+                client.checkLoggedIn()
+                model.startDraft(DraftKind.THOUGHT)
+            },
+            shape = buttonShape,
+            contentPadding = buttonContentPaddings,
+            colors = ButtonDefaults.filledTonalButtonColors(
+                containerColor = MaterialTheme.colorScheme.primary,
+                contentColor = MaterialTheme.colorScheme.onPrimary,
+            )
+        )
     }
+}
+
+private operator fun TextUnit.plus(sp: TextUnit): TextUnit {
+    return (this.value + sp.value).sp
 }
 
 private operator fun TextUnit.minus(sp: TextUnit): TextUnit {
@@ -439,7 +441,9 @@ private fun ControlBarButton(
         }
 
         Box(Modifier.padding(start = 4.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
-            text()
+            ProvideTextStyle(TextStyle(fontSize = CONTROL_BUTTON_FONT_SIZE)) {
+                text()
+            }
         }
     }
 }
