@@ -549,7 +549,103 @@ internal class RichEditor internal constructor(
                         },
                         imageUploadFunction: function(file, onSuccess) {
                             require('./web-editor').org.solvo.web.editor.impl.onUploadImage(file, onSuccess);
-                        }
+                        },
+                        lang : {
+            name        : "en",
+            description : "Open source online Markdown editor.",
+            tocTitle    : "Table of Contents",
+            toolbar     : {
+                undo             : "Undo（Ctrl+Z）",
+                redo             : "Redo（Ctrl+Y）",
+                bold             : "Bold",
+                del              : "Delete",
+                italic           : "Italic",
+                quote            : "Quote",
+                ucwords          : "Convert the first letter to upper case",
+                uppercase        : "Uppercase",
+                lowercase        : "Lowercase",
+                h1               : "Title 1",
+                h2               : "Title 2",
+                h3               : "Title 3",
+                h4               : "Title 4",
+                h5               : "Title 5",
+                h6               : "Title 6",
+                "list-ul"        : "Unordered List",
+                "list-ol"        : "Ordered List",
+                hr               : "Divider Line",
+                link             : "Link",
+                "reference-link" : "Reference Link",
+                image            : "Image",
+                code             : "Inlined Code",
+                "preformatted-text" : "Pre-formatted Code",
+                "code-block"     : "Code Block",
+                table            : "Table",
+                datetime         : "Datetime",
+                emoji            : "Emoji",
+                "html-entities"  : "HTML entities",
+                pagebreak        : "New Page",
+                "goto-line"      : "Goto Line",
+                watch            : "Enable Preview",
+                unwatch          : "Disable Preview",
+                preview          : "Preview HTML in Fullscreen（Press Shift + ESC to cancel）",
+                fullscreen       : "Fullscreen（Press ESC to cancel）",
+                clear            : "Clear",
+                search           : "Search",
+                help             : "Help",
+                info             : "About Editor"
+            },
+            buttons : {
+                enter  : "OK",
+                cancel : "Cancel",
+                close  : "Close"
+            },
+            dialog : {
+                link : {
+                    title    : "Add Link",
+                    url      : "Link Address",
+                    urlTitle : "Link Title",
+                    urlEmpty : "Error: Please enter Link Address。"
+                },
+                referenceLink : {
+                    title    : "Add Reference",
+                    name     : "Reference Name",
+                    url      : "Reference Address",
+                    urlId    : "Reference ID",
+                    urlTitle : "Reference Title",
+                    nameEmpty: "Error: Please enter Reference Name.",
+                    idEmpty  : "Error: PLease enter Reference ID.",
+                    urlEmpty : "Error: Please enter Reference Address."
+                },
+                image : {
+                    title    : "Add Image",
+                    url      : "Image URL",
+                    link     : "Image Link (jump when clicked)",
+                    alt      : "Image Description",
+                    uploadButton     : "Upload from Local",
+                    imageURLEmpty    : "Error: Image Address cannot be blank.",
+                    uploadFileEmpty  : "错误：上传的图片不能为空。",
+                    formatNotAllowed : "错误：只允许上传图片文件，允许上传的图片文件格式有："
+                },
+                preformattedText : {
+                    title             : "Add preformatted text or code blocks", 
+                    emptyAlert        : "Error: Please type code content."
+                },
+                codeBlock : {
+                    title             : "Add Code Block",                    
+                    selectLabel       : "Language: ",
+                    selectDefaultText : "Please select code language",
+                    otherLanguage     : "Other Languages",
+                    unselectedLanguageAlert : "Error: Please select language.",
+                    codeEmptyAlert    : "Error: Please enter code content."
+                },
+                htmlEntities : {
+                    title : "HTML Entities"
+                },
+                help : {
+                    title : "Help"
+                }
+            }
+        }
                     }
     """
                 )
