@@ -12,7 +12,7 @@ object Versions {
     const val slf4j = "2.0.7"
     const val log4j = "2.20.0"
     const val serialization = "1.5.0"
-    const val compose = "1.5.0-dev1063"
+    const val compose = "1.5.0-dev1071"
     const val exposed = "0.41.1"
     const val h2 = "2.1.214"
 }
