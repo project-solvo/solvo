@@ -34,16 +34,16 @@ fun RichText(
     showScrollbar: Boolean = true,
     contentColor: Color = LocalContentColor.current,
 ) {
-    val state = rememberRichEditorState(false, 0.dp)
+    val state = rememberRichEditorState(false, 0.dp, fontSize = fontSize)
     val onTextUpdated by rememberUpdatedState(onTextUpdated)
 
     RichEditor(
         modifier,
         onEditorLoaded = onEditorLoaded,
         onLayout = onLayout,
-        state = state,
         displayMode = RichEditorDisplayMode.PREVIEW_ONLY,
         fontSize = fontSize,
+        state = state,
         isToolbarVisible = false,
         isInDarkTheme = isInDarkTheme,
         backgroundColor = backgroundColor,

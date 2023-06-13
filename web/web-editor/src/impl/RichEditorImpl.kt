@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import org.solvo.web.editor.DEFAULT_RICH_EDITOR_FONT_SIZE
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.impl.RichEditorEventBridge.listenEvents
 import org.solvo.web.requests.client
@@ -30,6 +31,7 @@ import org.w3c.files.File
 import kotlin.contracts.InvocationKind
 import kotlin.contracts.contract
 import kotlin.js.json
+import kotlin.math.roundToInt
 import kotlin.time.Duration.Companion.seconds
 
 
@@ -486,6 +488,7 @@ internal class RichEditor internal constructor(
             density: Density,
             isEditable: Boolean,
             showToolbar: Boolean,
+            fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
             contentPadding: Dp = Dp.Unspecified,
         ): RichEditor {
             val positionDiv = document.createElement("div")
@@ -502,7 +505,8 @@ internal class RichEditor internal constructor(
             @Suppress("UNUSED_VARIABLE") // used in js 
             val conf = mapOf(
                 "delay" to if (isEditable) 300 else 0,
-                "showToolbar" to showToolbar
+                "showToolbar" to showToolbar,
+                "fontSize" to fontSize.value.roundToInt().toString() + "sp",
             )
 
             val editor = editormd(
@@ -516,6 +520,7 @@ internal class RichEditor internal constructor(
                         previewTheme : "default",
                         editorTheme : "default",
                         markdown : "",
+                        placeholder: "Markdown is supported. You can also drag or paste images and files.",
                         codeFold : true,
                         syncScrolling : true,
                         saveHTMLToTextarea : true,    // 保存 HTML 到 Textarea
@@ -525,6 +530,8 @@ internal class RichEditor internal constructor(
                         watch : true,                // 关闭实时预览
 //                        htmlDecode : "style,script,iframe|on*",            // 开启 HTML 标签解析，为了安全性，默认不开启    
                         toolbar  : conf.showToolbar,             //关闭工具栏
+                        fontSize: conf.fontSize,
+                        toolbarIcons: 'solvo',
                         previewCodeHighlight : true, // 关闭预览 HTML 的代码块高亮，默认开启
                         emoji : false,
                         taskList : false,

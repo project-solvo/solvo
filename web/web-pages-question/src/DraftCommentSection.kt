@@ -1,19 +1,13 @@
 package org.solvo.web
 
 import androidx.compose.animation.animateContentSize
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import org.solvo.model.api.communication.CommentDownstream
@@ -22,11 +16,13 @@ import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.commentCard.DraftCommentCard
 import org.solvo.web.document.History
+import org.solvo.web.editor.DEFAULT_RICH_EDITOR_FONT_SIZE
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichEditorDisplayMode
 import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.ifThen
+import org.solvo.web.ui.foundation.ifThenElse
 import org.solvo.web.viewModel.LoadingUuidItem
 
 @Composable
@@ -37,15 +33,19 @@ fun DraftCommentSection(
     pagingState: ExpandablePagingState<LoadingUuidItem<CommentDownstream>>,
 ) {
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
-        val editorHeight by animateDpAsState(if (showEditor) 200.dp else 0.dp)
-
-        val editorState = rememberRichEditorState(isEditable = true)
+        val editorState =
+            rememberRichEditorState(isEditable = true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
         RichEditor(
-            Modifier.fillMaxWidth().height(editorHeight),
-            state = editorState,
+            Modifier.fillMaxWidth()
+                .ifThenElse(
+                    showEditor,
+                    then = { wrapContentHeight().heightIn(min = 300.dp) },
+                    `else` = { height(0.dp) }),
             displayMode = RichEditorDisplayMode.EDIT_ONLY,
-            fontSize = 18.sp,
-            isToolbarVisible = false,
+            fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE,
+            state = editorState,
+            isToolbarVisible = true,
+            showScrollbar = false,
         )
 
         Button(

@@ -36,10 +36,7 @@ import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.comments.subComments.CommentColumnViewModel
 import org.solvo.web.document.History
-import org.solvo.web.editor.RichEditor
-import org.solvo.web.editor.RichEditorState
-import org.solvo.web.editor.RichText
-import org.solvo.web.editor.rememberRichEditorState
+import org.solvo.web.editor.*
 import org.solvo.web.requests.client
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
@@ -148,7 +145,8 @@ private fun QuestionPageContent(
             Int.MAX_VALUE,
             allAnswers,
         )
-        val draftAnswerEditor = rememberRichEditorState(true, showToolbar = true)
+        val draftAnswerEditor =
+            rememberRichEditorState(true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
         val draftState = remember { DraftAnswerControlBarState() }
         val isEditorVisible by draftState.isEditorVisible.collectAsState(false)
 
@@ -176,15 +174,15 @@ private fun QuestionPageContent(
                     .focusable(false) // compose bug
             ) {
                 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
-                if (!org.solvo.web.editor.RichEditorLayoutSizeDebug) {
+                if (!RichEditorLayoutSizeDebug) {
                     RichEditor(
                         Modifier.fillMaxWidth().ifThenElse(
                             isEditorVisible,
                             then = { fillMaxHeight() },
                             `else` = { height(0.dp) }
                         ),
-                        state = draftAnswerEditor,
-                        fontSize = 18.sp
+                        fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE,
+                        state = draftAnswerEditor
                     )
                 }
 
