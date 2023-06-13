@@ -206,7 +206,7 @@ fun SampleDataBuilder.sampleData1() {
             anonymous()
             displayName("Paper 2021")
             termYear("2021")
-            questions(questionsList)
+            defaultQuestions(questionsList)
         }
     }
     course("50002", "Software Engineering Design") {

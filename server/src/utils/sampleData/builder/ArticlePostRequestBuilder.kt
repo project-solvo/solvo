@@ -96,11 +96,11 @@ class ArticlePostRequestBuilder(
         this.termYear = termYear
     }
 
-    fun questions(set: () -> List<String>) {
+    fun defaultQuestions(set: () -> List<String>) {
         questions = set().map { QuestionPostRequest(it, { "Haha" }, true) }.toMutableList()
     }
 
-    fun questions(questions: List<String>) {
+    fun defaultQuestions(questions: List<String>) {
         this.questions = questions.map { QuestionPostRequest(it, { "Haha" }, true) }.toMutableList()
     }
 
