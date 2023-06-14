@@ -6,6 +6,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.filled.Mouse
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -137,6 +138,7 @@ fun AnswersList(
                     }
 
                     val reactionBarState = rememberReactionBarViewModel(item.coid, events)
+                    var showQuestionLine by remember { mutableStateOf(true) }
 
                     Row(Modifier, verticalAlignment = Alignment.CenterVertically) {
                         ReactionsIconButton(reactionBarState, Modifier.offset(x = (-12).dp))
@@ -145,6 +147,29 @@ fun AnswersList(
                             reactionBarState,
                             Modifier.heightIn(max = 42.dp),
                         )
+
+                        if (showQuestionLine) {
+                            Row(
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Icon(DraftKind.Thought.icon, null, Modifier.height(20.dp))
+                                Text(
+                                    "Wanna show your ideas of this question?",
+                                    Modifier.padding(start = 8.dp),
+                                    fontWeight = FontWeight.W400,
+                                    overflow = TextOverflow.Ellipsis
+                                )
+                                Text(
+                                    "Click here!",
+                                    Modifier.clickable {
+                                        showQuestionLine = !showQuestionLine
+                                    }.cursorHoverIcon(CursorIcon.POINTER),
+                                    color = Color(128,0,128)
+                                )
+                            }
+                        }
+
                     }
 
                     Row(Modifier.padding(bottom = 6.dp), verticalAlignment = Alignment.CenterVertically) {
