@@ -1,8 +1,13 @@
 package org.solvo.web.comments.commentCard
 
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -12,6 +17,7 @@ import org.solvo.web.comments.commentCard.components.AuthorLine
 import org.solvo.web.comments.commentCard.impl.CommentCard
 import org.solvo.web.comments.commentCard.impl.CommentCardShape
 import org.solvo.web.comments.commentCard.impl.commentCardBackgroundColor
+import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.image.RoundedUserAvatar
 
 @Composable
@@ -92,3 +98,23 @@ fun ExpandedCommentCard(
 //        }
 //    }
 //}
+
+@Composable
+fun ModifyMenu(
+    contents: @Composable () -> Unit,
+) {
+    var showDropDownMenu by remember { mutableStateOf(false) }
+
+    Row {
+        AnimatedVisibility(showDropDownMenu,
+            enter = slideInHorizontally { it },
+            exit = slideOutHorizontally { it } ) {
+            contents()
+        }
+        IconButton(
+            onClick = {showDropDownMenu = !showDropDownMenu},
+        ) {
+            Icon(Icons.Filled.MoreVert, "Expand Drop Down Menu")
+        }
+    }
+}

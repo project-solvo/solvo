@@ -1,9 +1,11 @@
 package org.solvo.web
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +22,7 @@ import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.model.api.events.Event
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
+import org.solvo.web.comments.commentCard.ModifyMenu
 import org.solvo.web.comments.commentCard.components.AuthorLineDateTextStyle
 import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
 import org.solvo.web.comments.commentCard.components.CommentCardContent
@@ -144,7 +147,25 @@ fun AnswersList(
                         }
                     }
                 },
-                actions = {},
+                actions = {
+                    ModifyMenu {
+                    Row {
+                        Button(
+                            onClick = wrapClearFocus { },
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                        ) {
+                            Text("Edit")
+                        }
+                        Button(
+                            onClick = wrapClearFocus { },
+                            modifier = Modifier.padding(horizontal = 4.dp),
+                            colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
+                        ) {
+                            Text("Delete")
+                        }
+                    }
+                } },
             ) { backgroundColor ->
                 CommentCardContent(
                     item,
