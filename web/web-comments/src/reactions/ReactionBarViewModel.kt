@@ -2,6 +2,8 @@ package org.solvo.web.comments.reactions
 
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.mutableStateOf
+import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import org.solvo.model.api.communication.Reaction
 import org.solvo.model.api.communication.ReactionKind
@@ -11,6 +13,7 @@ import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.ReactionEventHandler
 import org.solvo.web.requests.client
 import org.solvo.web.viewModel.AbstractViewModel
+import kotlin.time.Duration.Companion.seconds
 
 class ReactionBarViewModel(
     subjectCoidFlow: Flow<Uuid>,
@@ -38,6 +41,21 @@ class ReactionBarViewModel(
     val reactionListOpen = mutableStateOf(false)
     val isEmpty = allReactions.map { list -> list.sumOf { it.count } == 0 }.shareInBackground()
 
+    private val activeReacts =
+        MutableSharedFlow<ReactionKind>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    private val showHintLineFlow = activeReacts.flatMapLatest {
+        flow {
+            emit(true)
+            delay(6.seconds)
+            emit(false)
+        }
+    }
+    private val showHintLineOverride =
+        MutableSharedFlow<Boolean>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
+
+    val showHintLine = merge(showHintLineFlow, showHintLineOverride)
+
     @Stable
     fun reaction(kind: ReactionKind): StateFlow<Reaction> {
         val default = Reaction(kind, 0, false)
@@ -47,6 +65,7 @@ class ReactionBarViewModel(
     }
 
     fun switchReactionList() {
+        showHintLineOverride.tryEmit(false)
         reactionListOpen.value = !reactionListOpen.value
     }
 
@@ -61,6 +80,7 @@ class ReactionBarViewModel(
         if (reaction.isSelf) {
             client.comments.removeReaction(subjectCoid, kind)
         } else {
+            activeReacts.emit(kind)
             client.comments.addReaction(subjectCoid, kind)
         }
         closeReactionList()

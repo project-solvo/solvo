@@ -108,7 +108,7 @@ private fun EmojiChip(
         label = {
             if (isLoading) {
                 Box(Modifier.size(16.dp)) {
-                    CircularProgressIndicator()
+                    CircularProgressIndicator(strokeWidth = 2.dp)
                 }
             } else {
                 Text("$count")

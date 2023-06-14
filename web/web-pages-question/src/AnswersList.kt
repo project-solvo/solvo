@@ -1,12 +1,13 @@
 package org.solvo.web
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material.icons.filled.Mouse
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -39,10 +40,7 @@ import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.dummy.Loading
 import org.solvo.web.editor.RichEditorState
 import org.solvo.web.requests.client
-import org.solvo.web.ui.foundation.OutlinedTextField
-import org.solvo.web.ui.foundation.ifThenElse
-import org.solvo.web.ui.foundation.rememberMutableDebouncedState
-import org.solvo.web.ui.foundation.wrapClearFocus
+import org.solvo.web.ui.foundation.*
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
@@ -138,7 +136,6 @@ fun AnswersList(
                     }
 
                     val reactionBarState = rememberReactionBarViewModel(item.coid, events)
-                    var showQuestionLine by remember { mutableStateOf(true) }
 
                     Row(Modifier, verticalAlignment = Alignment.CenterVertically) {
                         ReactionsIconButton(reactionBarState, Modifier.offset(x = (-12).dp))
@@ -148,24 +145,23 @@ fun AnswersList(
                             Modifier.heightIn(max = 42.dp),
                         )
 
-                        if (showQuestionLine) {
+                        val showHint by reactionBarState.showHintLine.collectAsState(false)
+                        AnimatedVisibility(showHint, exit = fadeOut()) {
                             Row(
-                                modifier = Modifier.padding(horizontal = 4.dp),
+                                modifier = Modifier.padding(start = 12.dp),
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Icon(DraftKind.Thought.icon, null, Modifier.height(20.dp))
+                                Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))
                                 Text(
-                                    "Wanna show your ideas of this question?",
+                                    "Have a better idea?",
                                     Modifier.padding(start = 8.dp),
-                                    fontWeight = FontWeight.W400,
-                                    overflow = TextOverflow.Ellipsis
+                                    softWrap = false,
                                 )
-                                Text(
-                                    "Click here!",
-                                    Modifier.clickable {
-                                        showQuestionLine = !showQuestionLine
-                                    }.cursorHoverIcon(CursorIcon.POINTER),
-                                    color = Color(128,0,128)
+                                IconTextButton(
+                                    icon = { Icon(DraftKind.Thought.icon, null) },
+                                    text = { Text("Just share it", softWrap = false) },
+                                    onClick = { controlBarState.startDraft(DraftKind.Thought) },
+                                    Modifier.padding(start = 12.dp)
                                 )
                             }
                         }
