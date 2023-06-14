@@ -4,11 +4,15 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -148,20 +152,8 @@ fun AnswersList(
                 actions = {
                     ModifyMenu {
                         Row {
-                            Button(
-                                onClick = wrapClearFocus { },
-                                modifier = Modifier.padding(horizontal = 4.dp),
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
-                            ) {
-                                Text("Edit")
-                            }
-                            Button(
-                                onClick = wrapClearFocus { },
-                                modifier = Modifier.padding(horizontal = 4.dp),
-                                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
-                            ) {
-                                Text("Delete")
-                            }
+                            ModifyButton(Icons.Filled.Edit, "Edit", false)
+                            ModifyButton(Icons.Filled.Delete, "Delete", true)
                         }
                     } },
             ) { backgroundColor ->
@@ -200,6 +192,31 @@ fun AnswersList(
                 ) {
                     richTextHasVisualOverflow = hasVisualOverflow
                 } // in column card
+            }
+        }
+    }
+}
+
+@Composable
+private fun ModifyButton(
+    imageVector: ImageVector,
+    text: String,
+    isDelete: Boolean,
+    onClick: () -> Unit = {},
+) {
+    val onClickUpdated by rememberUpdatedState(onClick)
+    FilledTonalButton(
+        onClick = wrapClearFocus(onClickUpdated),
+        modifier = Modifier.padding(horizontal = 4.dp),
+        colors = ButtonDefaults.buttonColors(if (!isDelete) MaterialTheme.colorScheme.secondary else Color.Red)
+    ) {
+        Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
+            Icon(imageVector, text)
+        }
+
+        Box(Modifier.padding(start = 4.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
+            ProvideTextStyle(TextStyle(fontSize = CONTROL_BUTTON_FONT_SIZE)) {
+                Text(text)
             }
         }
     }
