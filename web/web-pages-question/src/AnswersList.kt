@@ -156,14 +156,20 @@ fun AnswersList(
                     }
                 },
                 actions = {
-                    ModifyMenu {
+                    var showDropDownMenu by remember { mutableStateOf(false) }
+                    ModifyMenu(
+                        showDropDownMenu,
+                        {showDropDownMenu = !showDropDownMenu}
+                    ) {
                         val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
                         ModifyButton(Icons.Filled.Edit, "Edit", false) {
+                            showDropDownMenu = !showDropDownMenu
                             backgroundScope.launch {
                                 // TODO: 2023/6/14 goto edit 
                             }
                         }
                         ModifyButton(Icons.Filled.Delete, "Delete", true) {
+                            showDropDownMenu = !showDropDownMenu
                             backgroundScope.launch {
                                 val res = snackbar.showSnackbar(
                                     "Are you sure to delete this? Deletion can not be revoked!",

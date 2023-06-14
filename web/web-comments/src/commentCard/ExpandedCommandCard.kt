@@ -103,13 +103,13 @@ fun ExpandedCommentCard(
 
 @Composable
 fun ModifyMenu(
+    isOpen: Boolean,
+    setOpen: () -> Unit,
     contents: @Composable RowScope.() -> Unit,
 ) {
-    var showDropDownMenu by remember { mutableStateOf(false) }
-
     Row {
         AnimatedVisibility(
-            showDropDownMenu,
+            isOpen,
             // enter = slideInHorizontally { it },
             // exit = slideOutHorizontally { it }
         ) {
@@ -118,7 +118,7 @@ fun ModifyMenu(
             }
         }
         IconButton(
-            onClick = { showDropDownMenu = !showDropDownMenu },
+            onClick = {setOpen()},
         ) {
             Icon(Icons.Filled.MoreVert, "Expand Drop Down Menu")
         }
