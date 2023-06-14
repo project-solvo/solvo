@@ -26,6 +26,16 @@ fun <R> wrapClearFocus(block: () -> R): () -> R {
     }
 }
 
+@Composable
+fun wrapClearFocus(block: () -> Unit): () -> Unit {
+    val blockState by rememberUpdatedState(block)
+    val focusManager by rememberUpdatedState(LocalFocusManager.current)
+    return {
+        focusManager.clearFocus(true)
+        blockState()
+    }
+}
+
 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
 @kotlin.internal.LowPriorityInOverloadResolution
 @Composable

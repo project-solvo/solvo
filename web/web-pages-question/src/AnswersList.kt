@@ -19,7 +19,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.launch
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.model.api.events.Event
@@ -34,6 +36,7 @@ import org.solvo.web.comments.reactions.ReactionsIconButton
 import org.solvo.web.comments.reactions.rememberReactionBarViewModel
 import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.dummy.Loading
+import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.OutlinedTextField
 import org.solvo.web.ui.foundation.ifThenElse
 import org.solvo.web.ui.foundation.rememberMutableDebouncedState
@@ -41,6 +44,8 @@ import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
+import org.solvo.web.ui.snackBar.LocalTopSnackBar
+import org.solvo.web.ui.snackBar.SnackbarTheme
 import org.solvo.web.viewModel.LoadingUuidItem
 import kotlin.time.Duration.Companion.seconds
 
@@ -54,6 +59,7 @@ fun AnswersList(
     visibleIndices: IntRange,
     isExpanded: Boolean,
     events: Flow<Event>,
+    backgroundScope: CoroutineScope,
     modifier: Modifier = Modifier,
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
 ) {
@@ -152,10 +158,30 @@ fun AnswersList(
                 actions = {
                     ModifyMenu {
                         Row {
-                            ModifyButton(Icons.Filled.Edit, "Edit", false)
-                            ModifyButton(Icons.Filled.Delete, "Delete", true)
+                            val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
+                            ModifyButton(Icons.Filled.Edit, "Edit", false) {
+                                backgroundScope.launch {
+                                    // TODO: 2023/6/14 goto edit 
+                                }
+                            }
+                            ModifyButton(Icons.Filled.Delete, "Delete", true) {
+                                backgroundScope.launch {
+                                    val res = snackbar.showSnackbar(
+                                        "Are you sure to delete this? Deletion can not be revoked!",
+                                        actionLabel = "Delete",
+                                        withDismissAction = true,
+                                        theme = SnackbarTheme(
+                                            actionColor = Color.Red
+                                        ),
+                                    )
+                                    if (res == SnackbarResult.ActionPerformed) {
+                                        client.comments.deleteComment(item.coid)
+                                    }
+                                }
+                            }
                         }
-                    } },
+                    }
+                },
             ) { backgroundColor ->
                 CommentCardContent(
                     item,
@@ -208,7 +234,7 @@ private fun ModifyButton(
     FilledTonalButton(
         onClick = wrapClearFocus(onClickUpdated),
         modifier = Modifier.padding(horizontal = 4.dp),
-        colors = ButtonDefaults.buttonColors(if (!isDelete) MaterialTheme.colorScheme.secondary else Color.Red)
+        colors = ButtonDefaults.buttonColors(if (!isDelete) MaterialTheme.colorScheme.secondary else Color.Red.copy(0.7f))
     ) {
         Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
             Icon(imageVector, text)

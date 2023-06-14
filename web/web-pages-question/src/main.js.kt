@@ -191,7 +191,6 @@ private fun QuestionPageContent(
                     backgroundScope = backgroundScope,
                     isDraftAnswerEditorOpen = isEditorVisible,
                     events = events,
-                    scope = rememberCoroutineScope(),
                 )
             }
         }
@@ -366,14 +365,14 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
     backgroundScope: CoroutineScope,
     isDraftAnswerEditorOpen: Boolean,
     events: SharedFlow<Event>,
-    scope: CoroutineScope,
 ) {
+    val uiScope = rememberCoroutineScope()
 
     var showAddCommentEditor by remember { mutableStateOf(false) }
     HorizontallyDivided(
         left = {
             val onClick: (comment: Any?, item: CommentDownstream) -> Unit = { comment, item ->
-                scope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
+                uiScope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
                 pagingState.gotoItemOf { it.ready?.coid == item.coid }
                 if (comment == null) {
                     // clicking "Add your comment" or "See all 7 comments"
@@ -387,6 +386,7 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
                 visibleIndices = visibleIndices,
                 isExpanded = isExpanded,
                 events = events,
+                backgroundScope = backgroundScope,
                 modifier = Modifier.fillMaxSize()
                     .ifThen(!isExpanded) { verticalScroll(scrollState) },
                 onClickComment = onClick,

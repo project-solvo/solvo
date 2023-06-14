@@ -14,6 +14,10 @@ class CommentRequests(
         coid: Uuid,
     ): CommentDownstream? = client.http.get(api("comments/$coid")).bodyOrNull()
 
+    suspend fun deleteComment(
+        coid: Uuid,
+    ): Boolean = client.http.delete(api("comments/$coid")).status.isSuccess()
+
     suspend fun post(
         parentCoid: Uuid,
         upstream: CommentUpstream,
