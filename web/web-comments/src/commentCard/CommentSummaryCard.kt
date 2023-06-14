@@ -36,7 +36,7 @@ fun CommentSummaryCard(
             val author by viewModel.author.collectAsState(null)
             AuthorLineThin(
                 icon = {
-                    RoundedUserAvatar(author?.avatarUrl, 20.dp)
+                    RoundedUserAvatar(author?.avatarUrl, author?.username?.str, 20.dp)
                 },
                 authorName = author?.username?.str ?: "",
                 date = postTime?.let { DateFormatter.format(it) } ?: "",

@@ -10,6 +10,8 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
@@ -20,11 +22,12 @@ import androidx.compose.ui.unit.Dp
 @Composable
 fun RoundedUserAvatar(
     avatarUrl: String?,
+    username: String?,
     size: Dp,
     modifier: Modifier = Modifier,
 ) {
     AvatarBox(modifier.size(size)) {
-        UserAvatarImage(avatarUrl, Modifier.matchParentSize())
+        UserAvatarImage(avatarUrl, username, Modifier.matchParentSize())
     }
 }
 
@@ -47,18 +50,28 @@ fun AvatarBox(
 @Composable
 fun UserAvatarImage(
     avatarUrl: String?,
+    username: String?,
     modifier: Modifier = Modifier,
 ) {
+    val url = remember(avatarUrl, username) {
+        avatarUrl?.takeIf { it.isNotEmpty() } ?: username?.let {
+            getFallbackAvatar(username)
+        }
+    }
     Image(
         rememberImagePainter(
-            avatarUrl?.takeIf { it.isNotEmpty() },
+            url,
             default = Icons.Filled.Person,
             error = Icons.Filled.Person,
         ),
         "User Avatar",
-        colorFilter = if (avatarUrl == null) ColorFilter.tint(LocalContentColor.current) else null,
+        colorFilter = if (url == null) ColorFilter.tint(LocalContentColor.current) else null,
         contentScale = ContentScale.FillBounds,
         modifier = modifier
     )
 }
+
+@Stable
+private fun getFallbackAvatar(username: String) =
+    "https://ui-avatars.com/api/?length=2&background=random&name=" + username.replace(' ', '+')
 

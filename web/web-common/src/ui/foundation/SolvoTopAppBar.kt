@@ -128,7 +128,7 @@ private fun RowScope.UserIcons(
         IconButton({
             // TODO: user page
         }) {
-            RoundedUserAvatar(currentUser?.avatarUrl, 32.dp)
+            RoundedUserAvatar(currentUser?.avatarUrl, currentUser?.username?.str, 32.dp)
         }
     }
     AnimatedVisibility(loggedIn == true) {

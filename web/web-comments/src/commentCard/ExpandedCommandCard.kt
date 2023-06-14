@@ -42,7 +42,7 @@ fun ExpandedCommentCard(
         authorLine = {
             AuthorLine(
                 icon = {
-                    RoundedUserAvatar(author?.avatarUrl, 40.dp)
+                    RoundedUserAvatar(author?.avatarUrl, author?.username?.str, 40.dp)
                 },
                 authorName = {
                     Text(author?.username?.str ?: "Anonymous")

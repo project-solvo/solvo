@@ -22,9 +22,9 @@ fun CommentLine(
     CommentLine(
         modifier,
         icon = {
-            RoundedUserAvatar(subComment.author?.avatarUrl, 24.dp)
+            RoundedUserAvatar(subComment.author?.avatarUrl, subComment.author?.username?.str, 24.dp)
         },
-        authorName = { Text(subComment.author?.username?.str ?: "") }, // TODO: 2023/5/29 handle anonymous
+        authorName = { Text(subComment.author?.username?.str ?: "Anonymous") },
     ) {
         Text(subComment.content)
     }
