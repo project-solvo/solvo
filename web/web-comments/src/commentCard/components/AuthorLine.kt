@@ -29,7 +29,7 @@ fun AuthorLine(
         }
 
         Spacer(Modifier.width(12.dp)) // 8.dp
-        Column {
+        Column(Modifier.weight(1f)) {
             Row(Modifier.height(24.dp), verticalAlignment = Alignment.CenterVertically) {
                 ProvideTextStyle(AuthorNameTextStyle) {
                     authorName()
@@ -43,7 +43,7 @@ fun AuthorLine(
         }
 
         Row(
-            Modifier.fillMaxWidth().height(48.dp),
+            Modifier.wrapContentWidth().height(48.dp),
             verticalAlignment = Alignment.Top,
             horizontalArrangement = Arrangement.End
         ) {
