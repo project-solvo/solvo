@@ -12,6 +12,7 @@ import java.util.*
 
 interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
     suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, kind: CommentKind): UUID?
+    suspend fun edit(request: CommentEditRequest, coid: UUID, authorId: UUID): Boolean
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
     override suspend fun view(coid: UUID): CommentDownstream?
@@ -45,6 +46,15 @@ class CommentDBControlImpl(
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
+    }
+
+    override suspend fun edit(request: CommentEditRequest, coid: UUID, authorId: UUID): Boolean = dbQuery {
+        if (getAuthorId(coid) != authorId) return@dbQuery false
+        request.run {
+            anonymity?.let { anonymity -> setAnonymity(coid, anonymity) }
+            content?.let { content -> modifyContent(coid, content.str) }
+        }
+        return@dbQuery true
     }
 
     override suspend fun view(coid: UUID): CommentDownstream? = dbQuery {

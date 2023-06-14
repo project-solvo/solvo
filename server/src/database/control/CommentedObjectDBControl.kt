@@ -17,6 +17,7 @@ interface CommentedObjectDBControl<T : CommentableUpstream> {
     suspend fun contains(coid: UUID): Boolean
     suspend fun modifyContent(coid: UUID, content: String): Boolean
     suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean
+    suspend fun getAuthorId(coid: UUID): UUID?
     suspend fun delete(coid: UUID): Boolean
     suspend fun view(coid: UUID): CommentableDownstream?
 }
@@ -55,6 +56,13 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
         CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
             it[CommentedObjectTable.anonymity] = anonymity
         } > 0
+    }
+
+    override suspend fun getAuthorId(coid: UUID): UUID? = dbQuery {
+        CommentedObjectTable
+            .select(CommentedObjectTable.id eq coid)
+            .map { it[CommentedObjectTable.author].value }
+            .singleOrNull()
     }
 
     override suspend fun delete(coid: UUID): Boolean = dbQuery {
