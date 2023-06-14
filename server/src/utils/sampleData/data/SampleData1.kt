@@ -139,8 +139,7 @@ fun SampleDataBuilder.sampleData1() {
                 content { "![some image](${image1a.url})" }
                 anonymous()
                 answer(alex) {
-                    content(
-                        """
+                    content("""
                         ```
                         bees' :: Array (Int, Int) Int -> Int 
                         bees' hiveArr = table ! (size, size) - hiveArr ! (0,0) 
@@ -155,8 +154,7 @@ fun SampleDataBuilder.sampleData1() {
                             size = snd (bounds hiveArr) 
                         ```
                         -- Complexity: O(mn) where m = height of hive, n = max width of hive. 
-                    """.trimIndent()
-                    )
+                    """.trimIndent())
                 }
             }
             question("1b") {
@@ -187,13 +185,6 @@ fun SampleDataBuilder.sampleData1() {
                         ```
                     """.trimIndent()
                     )
-                }
-            }
-            question("2b") {
-                content { buildString { repeat(300) { appendLine("Question line $it") } } }
-                anonymous()
-                answer(alex) {
-                    content { buildString { repeat(300) { appendLine("Answer line $it") } } }
                 }
             }
             comment(bob) {
@@ -317,7 +308,36 @@ fun SampleDataBuilder.sampleData1() {
         }
     }
     course("50003", "Models of Computation")
-    course("50004", "Operating Systems")
+    course("50004", "Operating Systems") {
+        article("Paper_2022", alex) {
+            content("2022")
+            anonymous()
+            displayName("Paper 2022")
+            termYear("2022")
+            question("1a i)") {
+                content(
+                    """
+                    1a An operating system (OS) supports kernel-level threads with preemptive scheduling. User programs can use a mutual exclusion lock (mutex) m of type struct pthread mutex t with the following three functions:
+                    
+                    pthread_mutex_init (& m )
+                    pthread_mutex_lock (& m )
+                    pthread_mutex_unlock (& m )
+                    
+                    i) Briefly explain the purpose of synchronisation primitives in operating systems and give three examples of synchronisation primitives.
+                """.trimIndent()
+                )
+                answer(bob) {
+                    content(
+                        """
+                        I think synchronisation primitives are designed to save memory.
+                        Example: RAID 3
+                    """.trimIndent()
+                    )
+                }
+            }
+        }
+    }
+
     course("50005", "Networks and Communications")
     course("50006", "Compilers")
     course("50008", "Probability and Statistics")
