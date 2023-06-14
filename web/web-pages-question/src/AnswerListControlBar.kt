@@ -18,13 +18,12 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
-import org.solvo.model.api.communication.CommentDownstream
-import org.solvo.model.api.communication.CommentUpstream
-import org.solvo.model.api.communication.QuestionDownstream
+import org.solvo.model.api.communication.*
 import org.solvo.model.utils.NonBlankString
 import org.solvo.web.editor.RichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.wrapClearFocus
+import org.solvo.web.ui.foundation.wrapClearFocus1
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
@@ -59,7 +58,7 @@ fun AnswerListControlBar(
             val isDraftButtonsVisible by model.isDraftButtonsVisible.collectAsState(false)
             val draftKind by model.draftKind.collectAsState(null)
             AnimatedVisibility(isDraftButtonsVisible) {
-                val entry = DraftKind.ANSWER
+                val entry = DraftKind.Answer
                 ControlBarButton(
                     icon = {
                         Icon(entry.icon, null, Modifier.fillMaxHeight())
@@ -85,7 +84,6 @@ fun AnswerListControlBar(
             }
 
             AnimatedVisibility(draftKind != null) {
-                val snackBar by rememberUpdatedState(LocalTopSnackBar.current)
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically
@@ -100,48 +98,20 @@ fun AnswerListControlBar(
                         contentPadding = buttonContentPaddings,
                         shape = buttonShape,
                     )
-                    ControlBarButton(
-                        icon = { Icon(draftKind?.icon ?: return@ControlBarButton, null, Modifier.fillMaxHeight()) },
-                        text = {
-                            Text(
-                                remember(draftKind) { "Post ${draftKind?.displayName}" },
-                                fontSize = CONTROL_BUTTON_FONT_SIZE
-                            )
-                        },
-                        onClick = {
-                            val currentDraftKind = draftKind // save before `model.post` clears it
-                            client.checkLoggedIn()
-                            if (draftAnswerEditor.contentMarkdown == "") {
-                                backgroundScope.launch {
-                                    snackBar.showSnackbar(
-                                        "${currentDraftKind?.displayName} can not be empty", withDismissAction = true
-                                    )
-                                }
-                            } else {
-                                backgroundScope.launch {
-                                    currentDraftKind?.let {
-                                        client.comments.post(
-                                            question.coid,
-                                            CommentUpstream(
-                                                NonBlankString.fromStringOrNull(
-                                                    draftAnswerEditor.contentMarkdown ?: ""
-                                                )
-                                                    ?: return@launch
-                                            ),
-                                            it.toCommentKind(),
-                                        )
-                                    }
-                                }
-                                model.stopDraft()
-                            }
-                        },
-                        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-                        contentPadding = buttonContentPaddings,
-                        shape = buttonShape,
-                    )
 
-                    if (draftKind != null) {
-                        DraftKindDescription(draftKind, model)
+                    PostButton(draftAnswerEditor, backgroundScope, question, model)
+
+                    (draftKind as? DraftKind.New)?.let { DraftKindDescription(it, model) }
+
+                    (draftKind as? DraftKind.Edit)?.let {
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Text("Anonymous: ")
+                            Switch(
+                                model.isAnonymousNew.value,
+                                wrapClearFocus1 { model.setAnonymous(it) },
+                                Modifier.padding(start = 6.dp)
+                            )
+                        }
                     }
                 }
             }
@@ -150,13 +120,89 @@ fun AnswerListControlBar(
 }
 
 @Composable
-private fun DraftKindDescription(draftKind: DraftKind?, model: DraftAnswerControlBarState) {
+private fun ControlBarScope.PostButton(
+    draftAnswerEditor: RichEditorState,
+    backgroundScope: CoroutineScope,
+    question: QuestionDownstream,
+    model: DraftAnswerControlBarState
+) {
+    val draftKind by model.draftKind.collectAsState(null)
+    val snackBar by rememberUpdatedState(LocalTopSnackBar.current)
+    ControlBarButton(
+        icon = { Icon(draftKind?.icon ?: return@ControlBarButton, null, Modifier.fillMaxHeight()) },
+        text = {
+            Text(
+                draftKind?.displayNameInPostButton ?: "",
+                fontSize = CONTROL_BUTTON_FONT_SIZE
+            )
+        },
+        onClick = {
+            val currentDraftKind = draftKind // save before `model.post` clears it
+            client.checkLoggedIn()
+            if (draftAnswerEditor.contentMarkdown == "") {
+                backgroundScope.launch {
+                    snackBar.showSnackbar(
+                        "${currentDraftKind?.displayName} can not be empty", withDismissAction = true
+                    )
+                }
+            } else {
+                backgroundScope.launch {
+                    currentDraftKind?.let { kind ->
+                        handlePost(kind, question, draftAnswerEditor, model)
+                    }
+                }
+                model.stopDraft()
+            }
+        },
+        colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
+        contentPadding = buttonContentPaddings,
+        shape = buttonShape,
+    )
+}
+
+private suspend fun handlePost(
+    kind: DraftKind,
+    question: QuestionDownstream,
+    draftAnswerEditor: RichEditorState,
+    model: DraftAnswerControlBarState,
+) {
+    if (kind is DraftKind.Edit) {
+        val original = kind.comment
+        val request = CommentEditRequest(
+            content = createNewContent(draftAnswerEditor.contentMarkdown, original.content),
+            anonymity = model.isAnonymousNew.value.takeIf { it != original.anonymity },
+        )
+        if (request.isEmpty()) {
+            return // nothing to change
+        }
+        client.comments.edit(original.coid, request)
+        draftAnswerEditor.clearContent()
+    } else {
+        val request = CommentUpstream(
+            NonBlankString.fromStringOrNull(
+                draftAnswerEditor.contentMarkdown ?: ""
+            ) ?: return // nothing to post
+        )
+        client.comments.post(question.coid, request, kind.toCommentKind()!!)
+        draftAnswerEditor.clearContent()
+    }
+}
+
+private fun createNewContent(
+    newContent: String?,
+    originalContent: String,
+): NonBlankString? {
+    return NonBlankString.fromStringOrNull(newContent ?: "").takeIf { it?.str != originalContent }
+}
+
+@Composable
+private fun DraftKindDescription(draftKind: DraftKind.New, model: DraftAnswerControlBarState) {
     Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))
-    if (draftKind == DraftKind.THOUGHT) {
+    if (draftKind == DraftKind.Thought) {
         Text("You can add partial answers, thinking, and any ideas. ")
         Text(
             "Convert to answer", Modifier.cursorHoverIcon(CursorIcon.POINTER).clickable {
-                model.startDraft(DraftKind.ANSWER)
+                model.startDraft(DraftKind.Answer)
             },
             color = MaterialTheme.colorScheme.primary,
             textDecoration = TextDecoration.Underline
@@ -166,7 +212,7 @@ private fun DraftKindDescription(draftKind: DraftKind?, model: DraftAnswerContro
             Text("You are adding an answer. ")
             Text(
                 "Convert to thought", Modifier.cursorHoverIcon(CursorIcon.POINTER).clickable {
-                    model.startDraft(DraftKind.THOUGHT)
+                    model.startDraft(DraftKind.Thought)
                 },
                 color = MaterialTheme.colorScheme.primary,
                 textDecoration = TextDecoration.Underline
@@ -215,7 +261,7 @@ private fun ControlBarScope.PostThoughtsButton(model: DraftAnswerControlBarState
         )
 
         ControlBarButton(
-            { Icon(DraftKind.THOUGHT.icon, null, Modifier.fillMaxHeight()) },
+            { Icon(DraftKind.Thought.icon, null, Modifier.fillMaxHeight()) },
             {
                 Text(
                     "Just share your ideas",
@@ -227,7 +273,7 @@ private fun ControlBarScope.PostThoughtsButton(model: DraftAnswerControlBarState
             },
             {
                 client.checkLoggedIn()
-                model.startDraft(DraftKind.THOUGHT)
+                model.startDraft(DraftKind.Thought)
             },
             shape = buttonShape,
             contentPadding = buttonContentPaddings,

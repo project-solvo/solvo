@@ -24,6 +24,10 @@ class CommentEditRequest(
     val anonymity: Boolean? = null,
 )
 
+fun CommentEditRequest.isEmpty(): Boolean {
+    return content == null && anonymity == null
+}
+
 @Immutable
 @Serializable
 data class CommentDownstream(

@@ -87,6 +87,16 @@ abstract class Requests {
             }
         }
 
+        suspend fun HttpClient.patchAuthorized(
+            urlString: String,
+            block: HttpRequestBuilder.() -> Unit = {}
+        ): HttpResponse {
+            return authorized(urlString) {
+                method = HttpMethod.Patch
+                block()
+            }
+        }
+
         suspend fun HttpClient.getAuthorized(
             urlString: String,
             block: HttpRequestBuilder.() -> Unit = {}

@@ -46,6 +46,10 @@ class RichEditorState internal constructor(
         richEditor.setContentMarkdown(value)
     }
 
+    suspend fun clearContent() {
+        return setContentMarkdown("")
+    }
+
     suspend fun setPreviewMarkdownAndClip(value: String, onClip: (size: DpSize) -> Unit) {
         richEditor.onEditorLoaded {
             richEditor.expectEditorChange {

@@ -36,6 +36,7 @@ import org.solvo.web.comments.reactions.ReactionsIconButton
 import org.solvo.web.comments.reactions.rememberReactionBarViewModel
 import org.solvo.web.comments.subComments.SubComments
 import org.solvo.web.dummy.Loading
+import org.solvo.web.editor.RichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.OutlinedTextField
 import org.solvo.web.ui.foundation.ifThenElse
@@ -59,6 +60,8 @@ fun AnswersList(
     visibleIndices: IntRange,
     isExpanded: Boolean,
     events: Flow<Event>,
+    draftEditorState: RichEditorState,
+    controlBarState: DraftAnswerControlBarState,
     backgroundScope: CoroutineScope,
     modifier: Modifier = Modifier,
     onClickComment: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
@@ -98,14 +101,14 @@ fun AnswersList(
                     ) {
                         Text(postTimeFormatted ?: "")
 
-                        if (item.kind.toDraftKind() == DraftKind.THOUGHT) {
+                        if (item.kind.toDraftKind() == DraftKind.Thought) {
                             BoxWithConstraints {
                                 val maxWidth = maxWidth
                                 Row(
 //                                Modifier.border(1.dp, color = MaterialTheme.colorScheme.outline).fillMaxWidth()
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Icon(DraftKind.THOUGHT.icon, null, Modifier.height(20.dp))
+                                    Icon(DraftKind.Thought.icon, null, Modifier.height(20.dp))
                                     AnimatedVisibility(maxWidth >= 320.dp) {
                                         Text(
                                             "This might not be a complete answer",
@@ -157,30 +160,33 @@ fun AnswersList(
                 },
                 actions = {
                     var showDropDownMenu by remember { mutableStateOf(false) }
-                    ModifyMenu(
-                        showDropDownMenu,
-                        {showDropDownMenu = !showDropDownMenu}
-                    ) {
-                        val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
-                        ModifyButton(Icons.Filled.Edit, "Edit", false) {
-                            showDropDownMenu = !showDropDownMenu
-                            backgroundScope.launch {
-                                // TODO: 2023/6/14 goto edit 
+                    if (item.isSelf) {
+                        ModifyMenu(
+                            showDropDownMenu,
+                            wrapClearFocus { showDropDownMenu = !showDropDownMenu }
+                        ) {
+                            val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
+                            ModifyButton(Icons.Filled.Edit, "Edit", false) {
+                                showDropDownMenu = !showDropDownMenu
+                                backgroundScope.launch {
+                                    draftEditorState.setContentMarkdown(item.content)
+                                    controlBarState.startDraft(DraftKind.Edit(item))
+                                }
                             }
-                        }
-                        ModifyButton(Icons.Filled.Delete, "Delete", true) {
-                            showDropDownMenu = !showDropDownMenu
-                            backgroundScope.launch {
-                                val res = snackbar.showSnackbar(
-                                    "Are you sure to delete this? Deletion can not be revoked!",
-                                    actionLabel = "Delete",
-                                    withDismissAction = true,
-                                    theme = SnackbarTheme(
-                                        actionColor = Color.Red
-                                    ),
-                                )
-                                if (res == SnackbarResult.ActionPerformed) {
-                                    client.comments.deleteComment(item.coid)
+                            ModifyButton(Icons.Filled.Delete, "Delete", true) {
+                                showDropDownMenu = !showDropDownMenu
+                                backgroundScope.launch {
+                                    val res = snackbar.showSnackbar(
+                                        "Are you sure to delete this? Deletion can not be revoked!",
+                                        actionLabel = "Delete",
+                                        withDismissAction = true,
+                                        theme = SnackbarTheme(
+                                            actionColor = Color.Red
+                                        ),
+                                    )
+                                    if (res == SnackbarResult.ActionPerformed) {
+                                        client.comments.deleteComment(item.coid)
+                                    }
                                 }
                             }
                         }

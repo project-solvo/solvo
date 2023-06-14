@@ -137,15 +137,15 @@ private fun QuestionPageContent(
         )
         val draftAnswerEditor =
             rememberRichEditorState(true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
-        val draftState = remember { DraftAnswerControlBarState() }
-        val isEditorVisible by draftState.isEditorVisible.collectAsState(false)
+        val controlBarState = remember { DraftAnswerControlBarState() }
+        val isEditorVisible by controlBarState.isEditorVisible.collectAsState(false)
 
         PagingContent(
             pagingState,
             controlBar = {
                 AnswerListControlBar(
                     pagingState = pagingState,
-                    model = draftState,
+                    model = controlBarState,
                     draftAnswerEditor = draftAnswerEditor,
                     question = question,
                     backgroundScope = backgroundScope
@@ -180,7 +180,9 @@ private fun QuestionPageContent(
                     pagingState = pagingState,
                     allAnswers = allAnswers,
                     isExpanded = isExpanded,
+                    controlBarState = controlBarState,
                     backgroundScope = backgroundScope,
+                    draftEditorState = draftAnswerEditor,
                     isDraftAnswerEditorOpen = isEditorVisible,
                     events = events,
                 )
@@ -210,6 +212,8 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
     allAnswers: List<LoadingUuidItem<CommentDownstream>>,
     isExpanded: Boolean,
     backgroundScope: CoroutineScope,
+    draftEditorState: RichEditorState,
+    controlBarState: DraftAnswerControlBarState,
     isDraftAnswerEditorOpen: Boolean,
     events: SharedFlow<Event>,
 ) {
@@ -234,6 +238,8 @@ private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAns
                 isExpanded = isExpanded,
                 events = events,
                 backgroundScope = backgroundScope,
+                draftEditorState = draftEditorState,
+                controlBarState = controlBarState,
                 modifier = Modifier.fillMaxSize()
                     .ifThen(!isExpanded) { verticalScroll(scrollState) },
                 onClickComment = onClick,

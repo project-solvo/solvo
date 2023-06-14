@@ -12,17 +12,29 @@ class CommentRequests(
 
     suspend fun getComment(
         coid: Uuid,
-    ): CommentDownstream? = client.http.get(api("comments/$coid")).bodyOrNull()
+    ): CommentDownstream? = client.http.get(api("comments/$coid")) {
+        accountAuthorization()
+    }.bodyOrNull()
 
     suspend fun deleteComment(
         coid: Uuid,
-    ): Boolean = client.http.delete(api("comments/$coid")).status.isSuccess()
+    ): Boolean = client.http.deleteAuthorized(api("comments/$coid")).status.isSuccess()
 
     suspend fun post(
         parentCoid: Uuid,
         upstream: CommentUpstream,
         kind: CommentKind,
     ): Uuid? = postCommentImpl(parentCoid, upstream, kind = kind)
+
+    suspend fun edit(
+        id: Uuid,
+        upstream: CommentEditRequest,
+    ) {
+        client.http.patchAuthorized(api("comments/$id")) {
+            contentType(ContentType.Application.Json)
+            setBody(upstream)
+        }
+    }
 
     private suspend fun postCommentImpl(
         parentCoid: Uuid,
