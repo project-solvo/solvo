@@ -132,7 +132,11 @@ private suspend fun EventSessionHandler.announceCommentEventHelper(
     }
     announce {
         if (isRemove) {
-            RemoveCommentEvent(contents.viewComment(commentId, this.userId)!!, questionId)
+            RemoveCommentEvent(
+                parentCoid = parentId,
+                commentCoid = commentId,
+                questionCoid = questionId
+            )
         } else {
             UpdateCommentEvent(contents.viewComment(commentId, this.userId)!!, questionId)
         }

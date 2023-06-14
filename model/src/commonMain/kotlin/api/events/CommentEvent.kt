@@ -2,7 +2,6 @@
 
 package org.solvo.model.api.events
 
-import kotlinx.serialization.Contextual
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.UseSerializers
 import org.solvo.model.api.communication.CommentDownstream
@@ -25,9 +24,8 @@ data class UpdateCommentEvent(
 
 @Serializable
 data class RemoveCommentEvent(
-    val commentDownstream: CommentDownstream,
-    override val questionCoid: @Contextual Uuid,
+    override val parentCoid: Uuid,
+    override val commentCoid: Uuid,
+    override val questionCoid: Uuid,
 ) : CommentEvent {
-    override val parentCoid: Uuid get() = commentDownstream.parent
-    override val commentCoid: Uuid get() = commentDownstream.coid
 }
