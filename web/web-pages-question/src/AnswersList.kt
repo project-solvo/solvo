@@ -20,6 +20,7 @@ import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.LightCommentDownstream
 import org.solvo.model.api.events.Event
 import org.solvo.web.comments.commentCard.ExpandedCommentCard
+import org.solvo.web.comments.commentCard.ModifyMenu
 import org.solvo.web.comments.commentCard.components.AuthorLineDateTextStyle
 import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
 import org.solvo.web.comments.commentCard.components.CommentCardContent
@@ -144,7 +145,25 @@ fun AnswersList(
                         }
                     }
                 },
-                actions = {},
+                actions = {
+                    ModifyMenu {
+                        Row {
+                            Button(
+                                onClick = wrapClearFocus { },
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondary)
+                            ) {
+                                Text("Edit")
+                            }
+                            Button(
+                                onClick = wrapClearFocus { },
+                                modifier = Modifier.padding(horizontal = 4.dp),
+                                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary)
+                            ) {
+                                Text("Delete")
+                            }
+                        }
+                    } },
             ) { backgroundColor ->
                 CommentCardContent(
                     item,
