@@ -14,7 +14,7 @@ interface DraftAnswerControlBarState {
     val isHideEditorVisible: Flow<Boolean>
 
 
-    fun startDraft(kind: DraftKind)
+    fun startDraft(kind: DraftKind) // can start multiple times
 
     fun stopDraft()
 }
