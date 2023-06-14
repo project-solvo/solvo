@@ -110,8 +110,9 @@ fun ModifyMenu(
 
     Row {
         AnimatedVisibility(showDropDownMenu,
-            enter = slideInHorizontally { it },
-            exit = slideOutHorizontally { it } ) {
+            // enter = slideInHorizontally { it },
+            // exit = slideOutHorizontally { it }
+            ) {
             contents()
         }
         IconButton(
