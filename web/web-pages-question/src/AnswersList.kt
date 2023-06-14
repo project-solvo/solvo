@@ -233,14 +233,15 @@ private fun ModifyButton(
     val onClickUpdated by rememberUpdatedState(onClick)
     FilledTonalButton(
         onClick = wrapClearFocus(onClickUpdated),
-        modifier = Modifier.padding(horizontal = 4.dp),
-        colors = ButtonDefaults.buttonColors(if (!isDelete) MaterialTheme.colorScheme.secondary else Color.Red.copy(0.7f))
+        modifier = Modifier.padding(horizontal = 4.dp, vertical = 6.dp),
+        colors = ButtonDefaults.buttonColors(if (!isDelete) MaterialTheme.colorScheme.secondary else Color.Red.copy(0.7f)),
+        contentPadding = PaddingValues(horizontal = 12.dp)
     ) {
         Box(Modifier.fillMaxHeight(), contentAlignment = Alignment.Center) {
             Icon(imageVector, text)
         }
 
-        Box(Modifier.padding(start = 4.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
+        Box(Modifier.padding(start = 2.dp).fillMaxHeight(), contentAlignment = Alignment.Center) {
             ProvideTextStyle(TextStyle(fontSize = CONTROL_BUTTON_FONT_SIZE)) {
                 Text(text)
             }
