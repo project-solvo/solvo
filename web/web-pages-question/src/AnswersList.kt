@@ -157,26 +157,24 @@ fun AnswersList(
                 },
                 actions = {
                     ModifyMenu {
-                        Row {
-                            val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
-                            ModifyButton(Icons.Filled.Edit, "Edit", false) {
-                                backgroundScope.launch {
-                                    // TODO: 2023/6/14 goto edit 
-                                }
+                        val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
+                        ModifyButton(Icons.Filled.Edit, "Edit", false) {
+                            backgroundScope.launch {
+                                // TODO: 2023/6/14 goto edit 
                             }
-                            ModifyButton(Icons.Filled.Delete, "Delete", true) {
-                                backgroundScope.launch {
-                                    val res = snackbar.showSnackbar(
-                                        "Are you sure to delete this? Deletion can not be revoked!",
-                                        actionLabel = "Delete",
-                                        withDismissAction = true,
-                                        theme = SnackbarTheme(
-                                            actionColor = Color.Red
-                                        ),
-                                    )
-                                    if (res == SnackbarResult.ActionPerformed) {
-                                        client.comments.deleteComment(item.coid)
-                                    }
+                        }
+                        ModifyButton(Icons.Filled.Delete, "Delete", true) {
+                            backgroundScope.launch {
+                                val res = snackbar.showSnackbar(
+                                    "Are you sure to delete this? Deletion can not be revoked!",
+                                    actionLabel = "Delete",
+                                    withDismissAction = true,
+                                    theme = SnackbarTheme(
+                                        actionColor = Color.Red
+                                    ),
+                                )
+                                if (res == SnackbarResult.ActionPerformed) {
+                                    client.comments.deleteComment(item.coid)
                                 }
                             }
                         }

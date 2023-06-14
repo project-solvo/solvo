@@ -18,6 +18,8 @@ import kotlinx.browser.window
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.skiko.SkikoView
 import org.solvo.web.document.Cookies
+import org.solvo.web.session.LocalUserViewModel
+import org.solvo.web.session.UserViewModel
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.ui.snackBar.SolvoSnackbar
 import org.solvo.web.ui.theme.AppTheme
@@ -39,37 +41,33 @@ fun SolvoWindow(
                 CompositionLocalProvider(
                     LocalSolvoWindow provides windowState,
                     LocalTopSnackBar provides snackbarHostState,
+                    LocalContentColor provides MaterialTheme.colorScheme.contentColorFor(
+                        MaterialTheme.colorScheme.background
+                    ),
+                    LocalUserViewModel provides remember { UserViewModel() },
                 ) {
-                    Column(modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
-                        CompositionLocalProvider(
-                            LocalContentColor provides MaterialTheme.colorScheme.contentColorFor(
-                                MaterialTheme.colorScheme.background
-                            )
-                        ) {
-                            Box(Modifier.fillMaxSize()) {
-                                Column(Modifier.fillMaxSize()) {
-                                    content()
-                                }
-                                SnackbarHost(
-                                    snackbarHostState.snackbarHostState,
-                                    Modifier.padding(top = 8.dp).align(Alignment.TopCenter)
-                                ) { data ->
-                                    val theme = snackbarHostState.currentSnackbarTheme
-                                    if (theme == null) {
-                                        Snackbar(data)
-                                    } else {
-                                        Snackbar(
-                                            data,
-                                            actionOnNewLine = theme.actionOnNewLine,
-                                            shape = theme.shape ?: SnackbarDefaults.shape,
-                                            containerColor = theme.containerColor.takeOrElse { SnackbarDefaults.color },
-                                            contentColor = theme.contentColor.takeOrElse { SnackbarDefaults.contentColor },
-                                            actionColor = theme.actionColor.takeOrElse { SnackbarDefaults.actionColor },
-                                            actionContentColor = theme.actionContentColor.takeOrElse { SnackbarDefaults.actionContentColor },
-                                            dismissActionContentColor = theme.dismissActionContentColor.takeOrElse { SnackbarDefaults.dismissActionContentColor },
-                                        )
-                                    }
-                                }
+                    Box(modifier.size(currentSize).background(MaterialTheme.colorScheme.background)) {
+                        Column(Modifier.fillMaxSize()) {
+                            content()
+                        }
+                        SnackbarHost(
+                            snackbarHostState.snackbarHostState,
+                            Modifier.padding(top = 8.dp).align(Alignment.TopCenter)
+                        ) { data ->
+                            val theme = snackbarHostState.currentSnackbarTheme
+                            if (theme == null) {
+                                Snackbar(data)
+                            } else {
+                                Snackbar(
+                                    data,
+                                    actionOnNewLine = theme.actionOnNewLine,
+                                    shape = theme.shape ?: SnackbarDefaults.shape,
+                                    containerColor = theme.containerColor.takeOrElse { SnackbarDefaults.color },
+                                    contentColor = theme.contentColor.takeOrElse { SnackbarDefaults.contentColor },
+                                    actionColor = theme.actionColor.takeOrElse { SnackbarDefaults.actionColor },
+                                    actionContentColor = theme.actionContentColor.takeOrElse { SnackbarDefaults.actionContentColor },
+                                    dismissActionContentColor = theme.dismissActionContentColor.takeOrElse { SnackbarDefaults.dismissActionContentColor },
+                                )
                             }
                         }
                     }
