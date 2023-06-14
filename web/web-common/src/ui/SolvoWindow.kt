@@ -8,6 +8,7 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.takeOrElse
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.DpSize
@@ -18,6 +19,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.jetbrains.skiko.SkikoView
 import org.solvo.web.document.Cookies
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
+import org.solvo.web.ui.snackBar.SolvoSnackbar
 import org.solvo.web.ui.theme.AppTheme
 import org.w3c.dom.Window
 
@@ -33,7 +35,7 @@ fun SolvoWindow(
             val isInDarkMode by windowState.preferDarkMode.collectAsState()
             AppTheme(useDarkTheme = isInDarkMode ?: isBrowserInDarkTheme()) {
                 val currentSize by windowState.size.collectAsState()
-                val snackbarHostState = remember { SnackbarHostState() }
+                val snackbarHostState = remember { SolvoSnackbar(SnackbarHostState()) }
                 CompositionLocalProvider(
                     LocalSolvoWindow provides windowState,
                     LocalTopSnackBar provides snackbarHostState,
@@ -49,10 +51,24 @@ fun SolvoWindow(
                                     content()
                                 }
                                 SnackbarHost(
-                                    snackbarHostState,
+                                    snackbarHostState.snackbarHostState,
                                     Modifier.padding(top = 8.dp).align(Alignment.TopCenter)
-                                ) {
-                                    Snackbar(it)
+                                ) { data ->
+                                    val theme = snackbarHostState.currentSnackbarTheme
+                                    if (theme == null) {
+                                        Snackbar(data)
+                                    } else {
+                                        Snackbar(
+                                            data,
+                                            actionOnNewLine = theme.actionOnNewLine,
+                                            shape = theme.shape ?: SnackbarDefaults.shape,
+                                            containerColor = theme.containerColor.takeOrElse { SnackbarDefaults.color },
+                                            contentColor = theme.contentColor.takeOrElse { SnackbarDefaults.contentColor },
+                                            actionColor = theme.actionColor.takeOrElse { SnackbarDefaults.actionColor },
+                                            actionContentColor = theme.actionContentColor.takeOrElse { SnackbarDefaults.actionContentColor },
+                                            dismissActionContentColor = theme.dismissActionContentColor.takeOrElse { SnackbarDefaults.dismissActionContentColor },
+                                        )
+                                    }
                                 }
                             }
                         }
