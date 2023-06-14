@@ -19,7 +19,8 @@ interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
 
 class CommentDBControlImpl(
     private val accountDB: AccountDBControl,
-) : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>() {
+    private val textDB: TextDBControl,
+) : CommentDBControl, CommentedObjectDBControlImpl<CommentUpstream>(textDB) {
     override val associatedTable = CommentTable
 
     override suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, kind: CommentKind): UUID? {
@@ -65,7 +66,9 @@ class CommentDBControlImpl(
                     } else {
                         accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
                     },
-                    content = it[CommentedObjectTable.content],
+                    content = it[CommentedObjectTable.content].value.let { textId ->
+                        textDB.view(textId) ?: error("text not found with id $textId")
+                    },
                 )
             }
 
@@ -82,7 +85,9 @@ class CommentDBControlImpl(
                     } else {
                         accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
                     },
-                    content = it[CommentedObjectTable.content],
+                    content = it[CommentedObjectTable.content].value.let { textId ->
+                        textDB.view(textId) ?: error("text not found with id $textId")
+                    },
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
                     dislikes = it[CommentedObjectTable.dislikes],

@@ -34,17 +34,17 @@ object ServerContext {
 
         private val _courses: CourseDBControl = CourseDBControlImpl()
         private val _terms: TermDBControl = TermDBControlImpl()
-        private val _sharedContents: SharedContentDBControl = SharedContentDBControlImpl()
+        private val _texts: TextDBControl = TextDBControlImpl()
         private val _reactions: ReactionDBControl = ReactionDBControlImpl()
-        private val _comments: CommentDBControl = CommentDBControlImpl(_accounts)
-        private val _questions: QuestionDBControl = QuestionDBControlImpl(_comments, _accounts, _sharedContents)
-        private val _articles: ArticleDBControl = ArticleDBControlImpl(_courses, _terms, _accounts)
+        private val _comments: CommentDBControl = CommentDBControlImpl(_accounts, _texts)
+        private val _questions: QuestionDBControl = QuestionDBControlImpl(_comments, _accounts, _texts)
+        private val _articles: ArticleDBControl = ArticleDBControlImpl(_courses, _terms, _accounts, _texts)
 
         private val config: ConfigFacade = ConfigFacadeImpl()
 
         val accounts: AccountDBFacade = AccountDBFacadeImpl(_accounts, _tokens, _resources)
         val contents: ContentDBFacade =
-            ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _sharedContents, _reactions)
+            ContentDBFacadeImpl(_courses, _articles, _questions, _comments, _texts, _reactions)
         val resources: ResourceDBFacade = ResourceDBFacadeImpl(_accounts, _resources)
 
         fun init() {

@@ -23,8 +23,8 @@ interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
 class QuestionDBControlImpl(
     private val commentDB: CommentDBControl,
     private val accountDB: AccountDBControl,
-    private val sharedContentDB: SharedContentDBControl,
-) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>() {
+    private val textDB: TextDBControl,
+) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>(textDB) {
     override val associatedTable = QuestionTable
 
     override suspend fun getId(articleId: UUID, code: String): UUID? = dbQuery {
@@ -36,6 +36,7 @@ class QuestionDBControlImpl(
 
     override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID? {
         if (code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
+        if (content.sharedContent?.let { textDB.contains(it) } == false) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         dbQuery {
             assert(QuestionTable.insert {
@@ -64,8 +65,8 @@ class QuestionDBControlImpl(
             .select(QuestionTable.coid eq coid)
             .map {
                 val sharedContent = it[QuestionTable.sharedContent]?.value?.let { contentId ->
-                    sharedContentDB.view(contentId)
-                } ?: SharedContent.nullContent
+                    textDB.view(contentId)
+                }
 
                 QuestionDownstream(
                     coid = it[QuestionTable.coid].value,
@@ -74,11 +75,15 @@ class QuestionDBControlImpl(
                     } else {
                         accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
                     },
-                    content = it[CommentedObjectTable.content],
+                    content = it[CommentedObjectTable.content].value.let { textId ->
+                        textDB.view(textId) ?: error("text not found with id $textId")
+                    },
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
                     dislikes = it[CommentedObjectTable.dislikes],
-                    sharedContent = sharedContent,
+                    sharedContent = sharedContent?.let { text ->
+                        SharedContent(text)
+                    } ?: SharedContent.nullContent,
                     code = it[QuestionTable.code],
                     article = it[QuestionTable.article].value,
                     answers = answers,

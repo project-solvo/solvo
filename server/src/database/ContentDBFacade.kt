@@ -32,7 +32,7 @@ class ContentDBFacadeImpl(
     private val articles: ArticleDBControl,
     private val questions: QuestionDBControl,
     private val comments: CommentDBControl,
-    private val sharedContents: SharedContentDBControl,
+    private val texts: TextDBControl,
     private val reactions: ReactionDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
@@ -45,7 +45,7 @@ class ContentDBFacadeImpl(
     }
 
     override suspend fun postSharedContent(content: SharedContent): UUID? {
-        return sharedContents.post(content)
+        return texts.post(content.content)
     }
 
     override suspend fun postQuestion(

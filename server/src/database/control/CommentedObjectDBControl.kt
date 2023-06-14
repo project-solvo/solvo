@@ -19,31 +19,36 @@ interface CommentedObjectDBControl<T : CommentableUpstream> {
     suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean
     suspend fun delete(coid: UUID): Boolean
     suspend fun view(coid: UUID): CommentableDownstream?
-    suspend fun like(uid: UUID, coid: UUID): Boolean
-    suspend fun dislike(uid: UUID, coid: UUID): Boolean
-    suspend fun unLike(uid: UUID, coid: UUID): Boolean
 }
 
-abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : CommentedObjectDBControl<T> {
+abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
+    private val textDB: TextDBControl,
+) : CommentedObjectDBControl<T> {
     abstract val associatedTable: COIDTable
 
-    protected suspend fun insertAndGetCOID(content: T, authorId: UUID): UUID? = dbQuery {
-        CommentedObjectTable.insertIgnoreAndGetId {
-            it[CommentedObjectTable.author] = authorId
-            it[CommentedObjectTable.content] = content.content.str
-            it[CommentedObjectTable.anonymity] = content.anonymity
-        }?.value
+    protected suspend fun insertAndGetCOID(content: T, authorId: UUID): UUID? {
+        val contentId = textDB.post(content.content.str) ?: return null
+        return dbQuery {
+            CommentedObjectTable.insertIgnoreAndGetId {
+                it[CommentedObjectTable.author] = authorId
+                it[CommentedObjectTable.content] = contentId
+                it[CommentedObjectTable.anonymity] = content.anonymity
+            }?.value
+        }
     }
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
         !associatedTable.select(associatedTable.coid eq coid).empty()
     }
 
-    override suspend fun modifyContent(coid: UUID, content: String): Boolean = dbQuery {
-        CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
-            it[CommentedObjectTable.content] = content
-            it[CommentedObjectTable.lastEditTime] = ServerContext.localtime.now()
-        } > 0
+    override suspend fun modifyContent(coid: UUID, content: String): Boolean {
+        val newContentId = textDB.post(content) ?: return false
+        return dbQuery {
+            CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
+                it[CommentedObjectTable.content] = newContentId
+                it[CommentedObjectTable.lastEditTime] = ServerContext.localtime.now()
+            } > 0
+        }
     }
 
     override suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean = dbQuery {
@@ -61,17 +66,4 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream> : Commented
     }
 
     abstract override suspend fun view(coid: UUID): CommentableDownstream?
-
-    override suspend fun like(uid: UUID, coid: UUID): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun dislike(uid: UUID, coid: UUID): Boolean {
-        TODO("Not yet implemented")
-    }
-
-    override suspend fun unLike(uid: UUID, coid: UUID): Boolean {
-        TODO("Not yet implemented")
-    }
-
 }

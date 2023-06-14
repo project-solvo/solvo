@@ -25,7 +25,8 @@ class ArticleDBControlImpl(
     private val courseDB: CourseDBControl,
     private val termDB: TermDBControl,
     private val accountDB: AccountDBControl,
-) : ArticleDBControl, CommentedObjectDBControlImpl<ArticleUpstream>() {
+    private val textDB: TextDBControl,
+) : ArticleDBControl, CommentedObjectDBControlImpl<ArticleUpstream>(textDB) {
     override val associatedTable = ArticleTable
 
     override suspend fun getId(courseCode: String, code: String): UUID? = dbQuery {
@@ -90,7 +91,9 @@ class ArticleDBControlImpl(
                     } else {
                         accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
                     },
-                    content = it[CommentedObjectTable.content],
+                    content = it[CommentedObjectTable.content].value.let { textId ->
+                        textDB.view(textId) ?: error("text not found with id $textId")
+                    },
                     anonymity = it[CommentedObjectTable.anonymity],
                     likes = it[CommentedObjectTable.likes],
                     dislikes = it[CommentedObjectTable.dislikes],

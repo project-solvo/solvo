@@ -6,7 +6,7 @@ import org.solvo.server.ServerContext
 
 object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
     val author = reference("userId", UserTable)
-    val content = largeText("content")
+    val content = reference("contentId", TextTable.id)
 
     val anonymity = bool("anonymity").default(false)
     val likes = uinteger("likesCount").default(0u)
@@ -16,6 +16,10 @@ object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
     val postTime = long("postTime").default(ServerContext.localtime.now())
     val lastEditTime = long("lastEditTime").default(ServerContext.localtime.now())
     val lastCommentTime = long("lastCommentTime").default(ServerContext.localtime.now())
+
+    init {
+        index("postTimeIndex", isUnique = false, postTime)
+    }
 }
 
 abstract class COIDTable(
