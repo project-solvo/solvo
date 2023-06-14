@@ -20,8 +20,8 @@ class CommentUpstream(
 @Immutable
 @Serializable
 class CommentEditRequest(
-    val coid: Uuid,
-    val comment: CommentUpstream,
+    val content: NonBlankString? = null,
+    val anonymity: Boolean? = null,
 )
 
 @Immutable

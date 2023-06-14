@@ -21,6 +21,12 @@ fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler)
         get("{coid}") {
             processGetComment(contents)
         }
+        postAuthenticated("{coid}") {
+            processEditComment(contents)
+        }
+        deleteAuthenticated("{coid}") {
+            processDeleteComment(contents)
+        }
         authenticate("authBearer", optional = true) {
             get("{coid}/reactions") {
                 val coid = UUID.fromString(call.parameters.getOrFail("coid"))
@@ -67,6 +73,20 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
     val content = contents.viewComment(coid)
     respondContentOrNotFound(content)
 }
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.processEditComment(
+    contents: ContentDBFacade,
+) {
+    val uid = getUserId() ?: return
+    val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+    val request = call.receive<CommentEditRequest>()
+
+    contents.editComment(request, uid)
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.processDeleteComment(
+    contents: ContentDBFacade,
+) {}
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     contents: ContentDBFacade,
