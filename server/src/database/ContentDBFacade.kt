@@ -21,7 +21,8 @@ interface ContentDBFacade {
     suspend fun getCourseName(courseCode: String): String?
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
     suspend fun editComment(request: CommentEditRequest, commentId: UUID, authorId: UUID): Boolean
-    suspend fun viewComment(commentId: UUID): CommentDownstream?
+    suspend fun viewComment(commentId: UUID, uid: UUID? = null): CommentDownstream?
+    suspend fun getCommentParentId(coid: UUID): UUID?
     suspend fun viewAllReactions(targetId: UUID, userId: UUID?): List<Reaction>
     suspend fun viewUsersOfReaction(targetId: UUID, kind: ReactionKind): List<UUID>
     suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
@@ -107,8 +108,12 @@ class ContentDBFacadeImpl(
         return questions.view(questionId)
     }
 
-    override suspend fun viewComment(commentId: UUID): CommentDownstream? {
-        return comments.view(commentId)
+    override suspend fun viewComment(commentId: UUID, uid: UUID?): CommentDownstream? {
+        return comments.view(commentId, uid)
+    }
+
+    override suspend fun getCommentParentId(coid: UUID): UUID? {
+        return comments.getParentId(coid)
     }
 
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {

@@ -58,7 +58,7 @@ class ReactionBarViewModel(
         val subjectCoid = subjectCoid.value ?: return
         val reactions = allReactions.value
         val reaction = reactions.find { it.kind == kind } ?: Reaction(kind, 0, false)
-        if (reaction.self) {
+        if (reaction.isSelf) {
             client.comments.removeReaction(subjectCoid, kind)
         } else {
             client.comments.addReaction(subjectCoid, kind)

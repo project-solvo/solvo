@@ -13,9 +13,10 @@ import java.util.*
 interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
     suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, kind: CommentKind): UUID?
     suspend fun edit(request: CommentEditRequest, coid: UUID, authorId: UUID): Boolean
+    suspend fun getParentId(coid: UUID): UUID?
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
-    override suspend fun view(coid: UUID): CommentDownstream?
+    suspend fun view(coid: UUID, uid: UUID?): CommentDownstream?
 }
 
 class CommentDBControlImpl(
@@ -49,6 +50,7 @@ class CommentDBControlImpl(
     }
 
     override suspend fun edit(request: CommentEditRequest, coid: UUID, authorId: UUID): Boolean = dbQuery {
+        if (!contains(coid)) return@dbQuery false
         if (getAuthorId(coid) != authorId) return@dbQuery false
         request.run {
             anonymity?.let { anonymity -> setAnonymity(coid, anonymity) }
@@ -57,7 +59,8 @@ class CommentDBControlImpl(
         return@dbQuery true
     }
 
-    override suspend fun view(coid: UUID): CommentDownstream? = dbQuery {
+    override suspend fun view(coid: UUID, uid: UUID?): CommentDownstream? = dbQuery {
+        if (!contains(coid)) return@dbQuery null
         val subCommentTable = CommentTable.alias("SubComments")
         val query = CommentTable
             .join(subCommentTable, JoinType.INNER, CommentTable.coid, subCommentTable[CommentTable.parent])
@@ -88,13 +91,10 @@ class CommentDBControlImpl(
             .join(CommentedObjectTable, JoinType.INNER, CommentTable.coid, CommentedObjectTable.id)
             .select(CommentTable.coid eq coid)
             .map {
+                val author = accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
                 CommentDownstream(
                     coid = it[CommentTable.coid].value,
-                    author = if (it[CommentedObjectTable.anonymity]) {
-                        null
-                    } else {
-                        accountDB.getUserInfo(it[CommentedObjectTable.author].value)!!
-                    },
+                    author = if (it[CommentedObjectTable.anonymity]) null else author,
                     content = it[CommentedObjectTable.content].value.let { textId ->
                         textDB.view(textId) ?: error("text not found with id $textId")
                     },
@@ -115,8 +115,16 @@ class CommentDBControlImpl(
                             .singleOrNull()
                     },
                     kind = it[CommentTable.kind],
+                    isSelf = uid != null && author.id == uid,
                 )
             }.singleOrNull()
+    }
+
+    override suspend fun getParentId(coid: UUID): UUID? = dbQuery {
+        CommentTable
+            .select(CommentTable.coid eq coid)
+            .map { it[CommentTable.parent].value }
+            .singleOrNull()
     }
 
     override suspend fun pin(uid: UUID, coid: UUID): Boolean {

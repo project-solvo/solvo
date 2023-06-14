@@ -17,7 +17,7 @@ import java.util.*
 interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
     suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
     suspend fun getId(articleId: UUID, code: String): UUID?
-    override suspend fun view(coid: UUID): QuestionDownstream?
+    suspend fun view(coid: UUID): QuestionDownstream?
 }
 
 class QuestionDBControlImpl(

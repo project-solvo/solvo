@@ -44,6 +44,7 @@ data class CommentDownstream(
 
     val answerCode: Int? = null,
     val kind: CommentKind,
+    val isSelf: Boolean,
 ) : CommentableDownstream, ICommentDownstream
 
 @Immutable

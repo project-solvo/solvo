@@ -66,7 +66,7 @@ private fun RowScope.ReactionButtonItem(
     val alwaysOpen by viewModel.reactionListOpen
 
     val count = reaction.count
-    val isSelf = reaction.self
+    val isSelf = reaction.isSelf
     val onClickUpdated by rememberUpdatedState(onClick)
     AnimatedVisibility(alwaysOpen || count != 0) {
         val isProcessing = remember { mutableStateOf(false) }

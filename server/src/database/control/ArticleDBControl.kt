@@ -18,7 +18,7 @@ interface ArticleDBControl : CommentedObjectDBControl<ArticleUpstream> {
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
     suspend fun viewAll(courseId: Int): List<ArticleDownstream>
-    override suspend fun view(coid: UUID): ArticleDownstream?
+    suspend fun view(coid: UUID): ArticleDownstream?
 }
 
 class ArticleDBControlImpl(

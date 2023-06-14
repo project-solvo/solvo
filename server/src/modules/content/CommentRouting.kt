@@ -18,21 +18,19 @@ import java.util.*
 
 fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler) {
     route("/comments") {
-        get("{coid}") {
+        getOptionallyAuthenticated("{coid}") {
             processGetComment(contents)
         }
-        postAuthenticated("{coid}") {
-            processEditComment(contents)
+        patchAuthenticated("{coid}") {
+            processEditComment(contents, events)
         }
         deleteAuthenticated("{coid}") {
-            processDeleteComment(contents)
+            processDeleteComment(contents, events)
         }
-        authenticate("authBearer", optional = true) {
-            get("{coid}/reactions") {
-                val coid = UUID.fromString(call.parameters.getOrFail("coid"))
-                val userId = call.principal<UserIdPrincipal>()?.let { UUID.fromString(it.name) }
-                call.respond(contents.viewAllReactions(coid, userId))
-            }
+        getOptionallyAuthenticated("{coid}/reactions") {
+            val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+            val userId = call.principal<UserIdPrincipal>()?.let { UUID.fromString(it.name) }
+            call.respond(contents.viewAllReactions(coid, userId))
         }
         postAuthenticated("{parentId}/comment") {
             processUploadComment(contents, CommentKind.COMMENT, events)
@@ -49,7 +47,7 @@ fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler)
             val kind = call.receive<ReactionKind>()
 
             respondOKOrBadRequest(contents.postReaction(coid, uid, kind)) {
-                announceUpdateReaction(events, contents, coid, kind)
+                events.announceUpdateReaction(contents, coid, kind)
             }
         }
         deleteAuthenticated("{coid}/reactions/{kind}") {
@@ -60,7 +58,7 @@ fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler)
             ) ?: throw BadRequestException("invalid kind")
 
             respondOKOrBadRequest(contents.deleteReaction(coid, uid, kind)) {
-                announceUpdateReaction(events, contents, coid, kind)
+                events.announceUpdateReaction(contents, coid, kind)
             }
         }
     }
@@ -69,23 +67,32 @@ fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler)
 private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
     contents: ContentDBFacade,
 ) {
+    val uid = call.principal<UserIdPrincipal>()?.let { UUID.fromString(it.name) }
     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
-    val content = contents.viewComment(coid)
+    val content = contents.viewComment(coid, uid)
     respondContentOrNotFound(content)
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processEditComment(
     contents: ContentDBFacade,
+    events: EventSessionHandler,
 ) {
     val uid = getUserId() ?: return
     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
     val request = call.receive<CommentEditRequest>()
-    respondOKOrBadRequest(contents.editComment(request, coid, uid))
+
+    val comment = contents.viewComment(coid) ?: throw NotFoundException("coid not found")
+
+    respondOKOrBadRequest(contents.editComment(request, coid, uid)) {
+        announceUpdateComment(coid, comment.kind, comment.parent, contents, events)
+    }
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processDeleteComment(
     contents: ContentDBFacade,
-) {}
+    events: EventSessionHandler,
+) {
+}
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     contents: ContentDBFacade,
@@ -101,35 +108,46 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
         CommentKind.ANSWER -> contents.postAnswer(comment, uid, parentId)
         CommentKind.THOUGHT -> contents.postThought(comment, uid, parentId)
     }
+    announceUpdateComment(commentId, kind, parentId, contents, events)
+}
+
+private suspend fun PipelineContext<Unit, ApplicationCall>.announceUpdateComment(
+    commentId: UUID?,
+    kind: CommentKind,
+    parentId: UUID,
+    contents: ContentDBFacade,
+    events: EventSessionHandler
+) {
     if (commentId != null) {
-        val commentDownstream = contents.viewComment(commentId)!!
         val questionId: UUID
         if (kind.isAnswerOrThought()) {
             questionId = parentId
         } else {
-            val parent = contents.viewComment(parentId)!!
-            questionId = parent.parent
-            events.announce(UpdateCommentEvent(parent, questionId)) // also announce its parent (answer)
+            questionId = contents.getCommentParentId(parentId)!!
+            events.announce {
+                UpdateCommentEvent(contents.viewComment(parentId, this.userId)!!, questionId)
+            } // also announce its parent (answer)
         }
-        events.announce(UpdateCommentEvent(commentDownstream, questionId))
+        events.announce {
+            UpdateCommentEvent(contents.viewComment(commentId, this.userId)!!, questionId)
+        }
     }
     respondContentOrBadRequest(commentId)
 }
 
-private suspend fun announceUpdateReaction(
-    events: EventSessionHandler,
+private suspend fun EventSessionHandler.announceUpdateReaction(
     contents: ContentDBFacade,
     coid: UUID,
     kind: ReactionKind
 ) {
     val userIds = contents.viewUsersOfReaction(coid, kind)
     val questionId = contents.viewComment(coid)!!.parent
-    events.announce {
+    announce {
         UpdateReactionEvent(
             reaction = Reaction(
                 kind = kind,
                 count = userIds.size,
-                self = userIds.contains(userId),
+                isSelf = userIds.contains(userId),
             ),
             parentCoid = coid,
             questionCoid = questionId,

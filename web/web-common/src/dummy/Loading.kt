@@ -30,5 +30,6 @@ object Loading {
         previewSubComments = listOf(),
         allSubCommentIds = listOf(),
         kind = CommentKind.COMMENT,
+        isSelf = false,
     )
 }

@@ -43,7 +43,7 @@ class ReactionDBControlImpl : ReactionDBControl {
                 Reaction(
                     kind = reaction,
                     count = it[ReactionTable.user.count()].toInt(),
-                    self = userId?.let { contains(userId, targetId, reaction) } ?: false
+                    isSelf = userId?.let { contains(userId, targetId, reaction) } ?: false
                 )
             }
     }

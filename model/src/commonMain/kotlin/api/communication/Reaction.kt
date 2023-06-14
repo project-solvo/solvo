@@ -8,7 +8,7 @@ import org.solvo.model.annotations.Immutable
 data class Reaction(
     val kind: ReactionKind,
     val count: Int,
-    val self: Boolean,
+    val isSelf: Boolean,
 )
 
 @Serializable

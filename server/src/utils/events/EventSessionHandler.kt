@@ -7,7 +7,7 @@ interface EventSessionHandler {
     fun register(userId: UUID? = null): UserSession
     fun destroy(session: UserSession)
     suspend fun announce(event: Event)
-    suspend fun announce(getEvent: UserSession.() -> Event)
+    suspend fun announce(getEvent: suspend UserSession.() -> Event)
 }
 
 class EventSessionHandlerImpl: EventSessionHandler {
@@ -26,7 +26,7 @@ class EventSessionHandlerImpl: EventSessionHandler {
         }
     }
 
-    override suspend fun announce(getEvent: UserSession.() -> Event) {
+    override suspend fun announce(getEvent: suspend UserSession.() -> Event) {
         for (session in sessions) {
             session.events.emit(session.getEvent())
         }

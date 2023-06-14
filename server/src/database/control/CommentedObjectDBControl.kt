@@ -5,7 +5,6 @@ import org.jetbrains.exposed.sql.deleteWhere
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
-import org.solvo.model.api.communication.CommentableDownstream
 import org.solvo.model.api.communication.CommentableUpstream
 import org.solvo.server.ServerContext
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -19,7 +18,6 @@ interface CommentedObjectDBControl<T : CommentableUpstream> {
     suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean
     suspend fun getAuthorId(coid: UUID): UUID?
     suspend fun delete(coid: UUID): Boolean
-    suspend fun view(coid: UUID): CommentableDownstream?
 }
 
 abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
@@ -72,6 +70,4 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
         }
         success
     }
-
-    abstract override suspend fun view(coid: UUID): CommentableDownstream?
 }

@@ -31,12 +31,14 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
 }
 
 suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
-    content: T?
+    content: T?,
+    processIfSucceed: PipelineContext<Unit, ApplicationCall>.() -> Unit = {},
 ) {
     if (content == null) {
         call.respond(HttpStatusCode.BadRequest)
     } else {
         call.respond(content)
+        processIfSucceed()
     }
 }
 
@@ -53,20 +55,34 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.respondOKOrBadRequest(
 }
 
 suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
-    content: T?
+    content: T?,
+    processIfSucceed: PipelineContext<Unit, ApplicationCall>.() -> Unit = {},
 ) {
     if (content == null) {
         call.respond(HttpStatusCode.NotFound)
     } else {
         call.respond(content)
+        processIfSucceed()
     }
 }
+
+@KtorDsl
+fun Route.getOptionallyAuthenticated(
+    path: String,
+    body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
+): Route = authenticate("authBearer", optional = true) { get(path, body) }
 
 @KtorDsl
 fun Route.postAuthenticated(
     path: String,
     body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
 ): Route = authenticate("authBearer") { post(path, body) }
+
+@KtorDsl
+fun Route.patchAuthenticated(
+    path: String,
+    body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
+): Route = authenticate("authBearer") { patch(path, body) }
 
 @KtorDsl
 fun Route.deleteAuthenticated(
