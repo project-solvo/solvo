@@ -30,6 +30,7 @@ class QuestionDBControlImpl(
     override suspend fun getId(articleId: UUID, code: String): UUID? = dbQuery {
         QuestionTable
             .select((QuestionTable.article eq articleId) and (QuestionTable.code eq code))
+            .filter { it[QuestionTable.visible] }
             .map { it[QuestionTable.coid].value }
             .singleOrNull()
     }
@@ -50,14 +51,18 @@ class QuestionDBControlImpl(
     }
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
+        if (!contains(coid)) return@dbQuery null
+
         val answers: List<UUID> = QuestionTable
             .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
             .select((QuestionTable.coid eq coid) and (CommentTable.kind.isAnswerOrThought()))
+            .filter { it[CommentTable.visible] }
             .map { it[CommentTable.coid].value }
 
         val comments: List<UUID> = QuestionTable
             .join(CommentTable, JoinType.INNER, QuestionTable.coid, CommentTable.parent)
             .select((QuestionTable.coid eq coid) and (CommentTable.kind eq CommentKind.COMMENT))
+            .filter { it[CommentTable.visible] }
             .map { it[CommentTable.coid].value }
 
         QuestionTable

@@ -12,7 +12,7 @@ import java.util.*
 
 interface CommentDBControl : CommentedObjectDBControl<CommentUpstream> {
     suspend fun post(content: CommentUpstream, authorId: UUID, parentID: UUID, kind: CommentKind): UUID?
-    suspend fun edit(request: CommentEditRequest, coid: UUID, authorId: UUID): Boolean
+    suspend fun edit(request: CommentEditRequest, coid: UUID): Boolean
     suspend fun getParentId(coid: UUID): UUID?
     suspend fun pin(uid: UUID, coid: UUID): Boolean
     suspend fun unpin(uid: UUID, coid: UUID): Boolean
@@ -49,9 +49,8 @@ class CommentDBControlImpl(
         return coid
     }
 
-    override suspend fun edit(request: CommentEditRequest, coid: UUID, authorId: UUID): Boolean = dbQuery {
+    override suspend fun edit(request: CommentEditRequest, coid: UUID): Boolean = dbQuery {
         if (!contains(coid)) return@dbQuery false
-        if (getAuthorId(coid) != authorId) return@dbQuery false
         request.run {
             anonymity?.let { anonymity -> setAnonymity(coid, anonymity) }
             content?.let { content -> modifyContent(coid, content.str) }
@@ -68,8 +67,9 @@ class CommentDBControlImpl(
             .select(CommentTable.coid eq coid)
             .orderBy(
                 // TODO: better strategy
-                Pair(CommentedObjectTable.likes, SortOrder.DESC), Pair(CommentedObjectTable.postTime, SortOrder.DESC)
+                Pair(CommentedObjectTable.postTime, SortOrder.DESC)
             )
+            .filter { it[subCommentTable[CommentTable.visible]] }
         val previewSubComments: List<LightCommentDownstream> = query
             .take(ModelConstraints.LIGHT_SUB_COMMENTS_AMOUNT)
             .map {
@@ -123,6 +123,7 @@ class CommentDBControlImpl(
     override suspend fun getParentId(coid: UUID): UUID? = dbQuery {
         CommentTable
             .select(CommentTable.coid eq coid)
+            .filter { it[CommentTable.visible] }
             .map { it[CommentTable.parent].value }
             .singleOrNull()
     }

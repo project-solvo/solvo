@@ -9,6 +9,7 @@ import io.ktor.server.routing.*
 import io.ktor.server.util.*
 import io.ktor.util.pipeline.*
 import org.solvo.model.api.communication.*
+import org.solvo.model.api.events.RemoveCommentEvent
 import org.solvo.model.api.events.UpdateCommentEvent
 import org.solvo.model.api.events.UpdateReactionEvent
 import org.solvo.server.database.ContentDBFacade
@@ -19,13 +20,29 @@ import java.util.*
 fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler) {
     route("/comments") {
         getOptionallyAuthenticated("{coid}") {
-            processGetComment(contents)
+            val uid = call.principal<UserIdPrincipal>()?.let { UUID.fromString(it.name) }
+            val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+            val content = contents.viewComment(coid, uid)
+            respondContentOrNotFound(content)
         }
         patchAuthenticated("{coid}") {
-            processEditComment(contents, events)
+            val uid = getUserId() ?: return@patchAuthenticated
+            val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+            val request = call.receive<CommentEditRequest>()
+
+            val comment = contents.viewComment(coid) ?: throw NotFoundException("coid not found")
+            respondOKOrBadRequest(contents.editComment(request, coid, uid)) {
+                events.announceUpdateComment(coid, comment.kind, comment.parent, contents)
+            }
         }
         deleteAuthenticated("{coid}") {
-            processDeleteComment(contents, events)
+            val uid = getUserId() ?: return@deleteAuthenticated
+            val coid = UUID.fromString(call.parameters.getOrFail("coid"))
+
+            val comment = contents.viewComment(coid) ?: throw NotFoundException("coid not found")
+            respondOKOrBadRequest(contents.deleteComment(coid, uid)) {
+                events.announceRemoveComment(coid, comment.kind, comment.parent, contents)
+            }
         }
         getOptionallyAuthenticated("{coid}/reactions") {
             val coid = UUID.fromString(call.parameters.getOrFail("coid"))
@@ -64,36 +81,6 @@ fun Route.commentRouting(contents: ContentDBFacade, events: EventSessionHandler)
     }
 }
 
-private suspend fun PipelineContext<Unit, ApplicationCall>.processGetComment(
-    contents: ContentDBFacade,
-) {
-    val uid = call.principal<UserIdPrincipal>()?.let { UUID.fromString(it.name) }
-    val coid = UUID.fromString(call.parameters.getOrFail("coid"))
-    val content = contents.viewComment(coid, uid)
-    respondContentOrNotFound(content)
-}
-
-private suspend fun PipelineContext<Unit, ApplicationCall>.processEditComment(
-    contents: ContentDBFacade,
-    events: EventSessionHandler,
-) {
-    val uid = getUserId() ?: return
-    val coid = UUID.fromString(call.parameters.getOrFail("coid"))
-    val request = call.receive<CommentEditRequest>()
-
-    val comment = contents.viewComment(coid) ?: throw NotFoundException("coid not found")
-
-    respondOKOrBadRequest(contents.editComment(request, coid, uid)) {
-        announceUpdateComment(coid, comment.kind, comment.parent, contents, events)
-    }
-}
-
-private suspend fun PipelineContext<Unit, ApplicationCall>.processDeleteComment(
-    contents: ContentDBFacade,
-    events: EventSessionHandler,
-) {
-}
-
 private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
     contents: ContentDBFacade,
     kind: CommentKind,
@@ -108,31 +95,48 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processUploadComment(
         CommentKind.ANSWER -> contents.postAnswer(comment, uid, parentId)
         CommentKind.THOUGHT -> contents.postThought(comment, uid, parentId)
     }
-    announceUpdateComment(commentId, kind, parentId, contents, events)
+    respondContentOrBadRequest(commentId) {
+        events.announceUpdateComment(commentId!!, kind, parentId, contents)
+    }
 }
 
-private suspend fun PipelineContext<Unit, ApplicationCall>.announceUpdateComment(
-    commentId: UUID?,
+private suspend fun EventSessionHandler.announceUpdateComment(
+    commentId: UUID,
     kind: CommentKind,
     parentId: UUID,
     contents: ContentDBFacade,
-    events: EventSessionHandler
+) = announceCommentEventHelper(kind, parentId, contents, commentId, isRemove = false)
+
+private suspend fun EventSessionHandler.announceRemoveComment(
+    commentId: UUID,
+    kind: CommentKind,
+    parentId: UUID,
+    contents: ContentDBFacade,
+) = announceCommentEventHelper(kind, parentId, contents, commentId, isRemove = true)
+
+private suspend fun EventSessionHandler.announceCommentEventHelper(
+    kind: CommentKind,
+    parentId: UUID,
+    contents: ContentDBFacade,
+    commentId: UUID,
+    isRemove: Boolean,
 ) {
-    if (commentId != null) {
-        val questionId: UUID
-        if (kind.isAnswerOrThought()) {
-            questionId = parentId
+    val questionId: UUID
+    if (kind.isAnswerOrThought()) {
+        questionId = parentId
+    } else {
+        questionId = contents.getCommentParentId(parentId)!!
+        announce {
+            UpdateCommentEvent(contents.viewComment(parentId, this.userId)!!, questionId)
+        } // also announce its parent (answer)
+    }
+    announce {
+        if (isRemove) {
+            RemoveCommentEvent(contents.viewComment(commentId, this.userId)!!, questionId)
         } else {
-            questionId = contents.getCommentParentId(parentId)!!
-            events.announce {
-                UpdateCommentEvent(contents.viewComment(parentId, this.userId)!!, questionId)
-            } // also announce its parent (answer)
-        }
-        events.announce {
             UpdateCommentEvent(contents.viewComment(commentId, this.userId)!!, questionId)
         }
     }
-    respondContentOrBadRequest(commentId)
 }
 
 private suspend fun EventSessionHandler.announceUpdateReaction(

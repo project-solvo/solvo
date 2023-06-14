@@ -20,13 +20,14 @@ interface ContentDBFacade {
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
     suspend fun getCourseName(courseCode: String): String?
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
-    suspend fun editComment(request: CommentEditRequest, commentId: UUID, authorId: UUID): Boolean
+    suspend fun editComment(request: CommentEditRequest, commentId: UUID, userId: UUID): Boolean
     suspend fun viewComment(commentId: UUID, uid: UUID? = null): CommentDownstream?
     suspend fun getCommentParentId(coid: UUID): UUID?
     suspend fun viewAllReactions(targetId: UUID, userId: UUID?): List<Reaction>
     suspend fun viewUsersOfReaction(targetId: UUID, kind: ReactionKind): List<UUID>
     suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
     suspend fun deleteReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
+    suspend fun deleteComment(commentId: UUID, userId: UUID): Boolean
 }
 
 class ContentDBFacadeImpl(
@@ -74,8 +75,12 @@ class ContentDBFacadeImpl(
         return comments.post(comment, authorId, parentId, CommentKind.COMMENT)
     }
 
-    override suspend fun editComment(request: CommentEditRequest, commentId: UUID, authorId: UUID): Boolean {
-        return comments.edit(request, commentId, authorId)
+    override suspend fun editComment(request: CommentEditRequest, commentId: UUID, userId: UUID): Boolean {
+        return comments.getAuthorId(commentId) == userId && comments.edit(request, commentId)
+    }
+
+    override suspend fun deleteComment(commentId: UUID, userId: UUID): Boolean {
+        return comments.getAuthorId(commentId) == userId && comments.delete(commentId)
     }
 
     override suspend fun allCourses(): List<Course> {

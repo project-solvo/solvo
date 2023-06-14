@@ -1,7 +1,7 @@
 package org.solvo.server.database.control
 
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.deleteWhere
+import org.jetbrains.exposed.sql.and
 import org.jetbrains.exposed.sql.insertIgnoreAndGetId
 import org.jetbrains.exposed.sql.select
 import org.jetbrains.exposed.sql.update
@@ -37,13 +37,15 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
     }
 
     override suspend fun contains(coid: UUID): Boolean = dbQuery {
-        !associatedTable.select(associatedTable.coid eq coid).empty()
+        associatedTable.select(associatedTable.coid eq coid).any { it[associatedTable.visible] }
     }
 
     override suspend fun modifyContent(coid: UUID, content: String): Boolean {
         val newContentId = textDB.post(content) ?: return false
         return dbQuery {
-            CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
+            CommentedObjectTable.update({
+                (CommentedObjectTable.id eq coid) and (CommentedObjectTable.visible eq true)
+            }) {
                 it[CommentedObjectTable.content] = newContentId
                 it[CommentedObjectTable.lastEditTime] = ServerContext.localtime.now()
             } > 0
@@ -51,7 +53,9 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
     }
 
     override suspend fun setAnonymity(coid: UUID, anonymity: Boolean): Boolean = dbQuery {
-        CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
+        CommentedObjectTable.update({
+            (CommentedObjectTable.id eq coid) and (CommentedObjectTable.visible eq true)
+        }) {
             it[CommentedObjectTable.anonymity] = anonymity
         } > 0
     }
@@ -59,14 +63,19 @@ abstract class CommentedObjectDBControlImpl<T : CommentableUpstream>(
     override suspend fun getAuthorId(coid: UUID): UUID? = dbQuery {
         CommentedObjectTable
             .select(CommentedObjectTable.id eq coid)
+            .filter { it[CommentedObjectTable.visible] }
             .map { it[CommentedObjectTable.author].value }
             .singleOrNull()
     }
 
     override suspend fun delete(coid: UUID): Boolean = dbQuery {
-        val success = CommentedObjectTable.deleteWhere { CommentedObjectTable.id eq coid } > 0
+        val success = CommentedObjectTable.update({ CommentedObjectTable.id eq coid }) {
+            it[CommentedObjectTable.visible] = false
+        } > 0
         if (success) {
-            assert(associatedTable.deleteWhere { associatedTable.coid eq coid } > 0)
+            assert(associatedTable.update({ associatedTable.coid eq coid }) {
+                it[associatedTable.visible] = false
+            } > 0)
         }
         success
     }

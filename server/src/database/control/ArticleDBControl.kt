@@ -33,15 +33,10 @@ class ArticleDBControlImpl(
         val courseId = courseDB.getId(courseCode) ?: return@dbQuery null
 
         ArticleTable
-            .select(
-                (ArticleTable.course eq courseId)
-                        and (ArticleTable.code eq code)
-            ).map { it[ArticleTable.coid].value }
+            .select((ArticleTable.course eq courseId) and (ArticleTable.code eq code))
+            .filter { it[ArticleTable.visible] }
+            .map { it[ArticleTable.coid].value }
             .singleOrNull()
-    }
-
-    override suspend fun contains(coid: UUID): Boolean = dbQuery {
-        !ArticleTable.select(ArticleTable.coid eq coid).empty()
     }
 
     override suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
@@ -65,7 +60,11 @@ class ArticleDBControlImpl(
     }
 
     override suspend fun view(coid: UUID): ArticleDownstream? = dbQuery {
-        val curViews = ArticleTable.select { ArticleTable.coid eq coid }.map { it[ArticleTable.views] }.singleOrNull()
+        val curViews = ArticleTable
+            .select { ArticleTable.coid eq coid }
+            .filter { it[ArticleTable.visible] }
+            .map { it[ArticleTable.views] }
+            .singleOrNull()
             ?: return@dbQuery null
         ArticleTable.update({ ArticleTable.coid eq coid }) { it[views] = curViews + 1u }
 
@@ -73,11 +72,13 @@ class ArticleDBControlImpl(
             .join(QuestionTable, JoinType.INNER, ArticleTable.coid, QuestionTable.article)
             .select(ArticleTable.coid eq coid)
             .orderBy(QuestionTable.code, SortOrder.ASC)
+            .filter { it[QuestionTable.visible] }
             .map { it[QuestionTable.code] }
 
         val comments: List<UUID> = ArticleTable
             .join(CommentTable, JoinType.INNER, ArticleTable.coid, CommentTable.parent)
             .select(ArticleTable.coid eq coid)
+            .filter { it[CommentTable.visible] }
             .map { it[CommentTable.coid].value }
 
         ArticleTable
@@ -112,6 +113,7 @@ class ArticleDBControlImpl(
     override suspend fun viewAll(courseId: Int): List<ArticleDownstream> = dbQuery {
         ArticleTable
             .select { ArticleTable.course eq courseId }
+            .filter { it[ArticleTable.visible] }
             .mapNotNull { view(it[ArticleTable.coid].value) }
     }
 

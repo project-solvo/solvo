@@ -17,6 +17,8 @@ object CommentedObjectTable: UUIDTable("CommentedObjects", "COID") {
     val lastEditTime = long("lastEditTime").default(ServerContext.localtime.now())
     val lastCommentTime = long("lastCommentTime").default(ServerContext.localtime.now())
 
+    val visible = bool("visibility").default(true)
+
     init {
         index("postTimeIndex", isUnique = false, postTime)
     }
@@ -26,5 +28,7 @@ abstract class COIDTable(
     name: String
 ): Table(name) {
     val coid = reference("COID", CommentedObjectTable).uniqueIndex()
+    val visible = bool("visibility").default(true)
+
     override val primaryKey = PrimaryKey(this.coid)
 }
