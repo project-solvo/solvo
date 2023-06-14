@@ -95,7 +95,6 @@ fun HorizontallyDivided(
         var leftWidth by remember(initialLeftWeight) { mutableStateOf(maxWidth * initialLeftWeight) }
         Row(modifier) {
             val range by rememberUpdatedState(leftWidthRange(constrains))
-            println("range=$range")
             AnimatedVisibility(
                 isLeftVisible,
                 enter = slideInHorizontally { -it },
