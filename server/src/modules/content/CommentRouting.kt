@@ -80,8 +80,6 @@ private suspend fun PipelineContext<Unit, ApplicationCall>.processEditComment(
     val uid = getUserId() ?: return
     val coid = UUID.fromString(call.parameters.getOrFail("coid"))
     val request = call.receive<CommentEditRequest>()
-
-    contents.editComment(request, uid)
 }
 
 private suspend fun PipelineContext<Unit, ApplicationCall>.processDeleteComment(
