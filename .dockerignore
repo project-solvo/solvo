@@ -1,0 +1,12 @@
+*
+!/server/build/install/server
+!/server/test-sandbox/test-resources
+
+#.github
+#.gradle
+#build/
+#.idea/
+#.run/
+#node_modules/
+#**/build/*
+#**/**/build/*
