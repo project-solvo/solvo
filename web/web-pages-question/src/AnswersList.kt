@@ -86,7 +86,9 @@ fun AnswersList(
             }
 
             var richTextHasVisualOverflow by rememberMutableDebouncedState(false, 0.1.seconds)
-            var isShowingFullAnswer by remember { mutableStateOf(false) } // in list mode
+            var isShowingFullAnswerControl by remember { mutableStateOf(false) } // in list mode
+            val singleItem = allItems.size == 1
+            val isShowingFullAnswer = isShowingFullAnswerControl || singleItem // in list mode
 
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState(null)
 
@@ -229,12 +231,13 @@ fun AnswersList(
                             if (!richTextHasVisualOverflow && !isShowingFullAnswer) {
                                 return@showFullAnswer // text is short, no need to display "see more" 
                             }
+                            if (singleItem) return@showFullAnswer // single item, always expand
 
                             Row {
                                 Text(
                                     if (isShowingFullAnswer) "see less" else "...see more",
                                     Modifier.clickable(indication = null, onClick = wrapClearFocus {
-                                        isShowingFullAnswer = !isShowingFullAnswer
+                                        isShowingFullAnswerControl = !isShowingFullAnswerControl
                                     }).cursorHoverIcon(CursorIcon.POINTER).fillMaxWidth(),
                                     fontWeight = FontWeight.W600,
                                     fontSize = AuthorNameTextStyle.fontSize,
