@@ -2,6 +2,7 @@ package org.solvo.server.utils.events
 
 import org.solvo.model.api.events.Event
 import java.util.*
+import java.util.concurrent.ConcurrentLinkedQueue
 
 interface EventSessionHandler {
     fun register(userId: UUID? = null): UserSession
@@ -10,8 +11,8 @@ interface EventSessionHandler {
     suspend fun announce(getEvent: suspend UserSession.() -> Event)
 }
 
-class EventSessionHandlerImpl: EventSessionHandler {
-    private val sessions: MutableSet<UserSession> = mutableSetOf()
+class EventSessionHandlerImpl : EventSessionHandler {
+    private val sessions: ConcurrentLinkedQueue<UserSession> = ConcurrentLinkedQueue()
     override fun register(userId: UUID?): UserSession {
         return UserSession(userId).also { sessions.add(it) }
     }
