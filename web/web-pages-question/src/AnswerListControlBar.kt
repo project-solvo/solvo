@@ -16,10 +16,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.launch
-import org.solvo.model.api.communication.*
+import org.solvo.model.api.communication.CommentEditRequest
+import org.solvo.model.api.communication.CommentUpstream
+import org.solvo.model.api.communication.QuestionDownstream
+import org.solvo.model.api.communication.isEmpty
 import org.solvo.model.utils.NonBlankString
+import org.solvo.web.comments.commentCard.components.CONTROL_BUTTON_FONT_SIZE
 import org.solvo.web.editor.RichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.wrapClearFocus
@@ -28,25 +31,23 @@ import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
-import org.solvo.web.viewModel.LoadingUuidItem
 
 @Composable
 fun AnswerListControlBar(
-    pagingState: ExpandablePagingState<LoadingUuidItem<CommentDownstream>>,
-    model: DraftAnswerControlBarState,
+    model: QuestionPageViewModel,
     draftAnswerEditor: RichEditorState,
     question: QuestionDownstream,
     backgroundScope: CoroutineScope,
 ) {
-    val pagingStateUpdated by rememberUpdatedState(pagingState)
-    val uiScope = rememberCoroutineScope()
+    val controlBar = model.controlBarState
 
     ControlBar(Modifier.fillMaxWidth()) {
-        if (pagingStateUpdated.isExpanded.value) {
+        val isExpanded by model.isExpanded.collectAsState()
+        if (isExpanded) {
             ControlBarButton(
                 icon = { Icon(Icons.Outlined.ArrowBack, null) },
                 text = { Text("Go Back") },
-                onClick = { uiScope.launch(start = CoroutineStart.UNDISPATCHED) { pagingStateUpdated.switchExpanded() } },
+                onClick = { model.collapse() },
                 shape = buttonShape,
                 contentPadding = buttonContentPaddings,
                 colors = ButtonDefaults.filledTonalButtonColors(
@@ -55,8 +56,8 @@ fun AnswerListControlBar(
                 ),
             )
         } else {
-            val isDraftButtonsVisible by model.isDraftButtonsVisible.collectAsState(false)
-            val draftKind by model.draftKind.collectAsState(null)
+            val isDraftButtonsVisible by controlBar.isDraftButtonsVisible.collectAsState(false)
+            val draftKind by controlBar.draftKind.collectAsState(null)
             AnimatedVisibility(isDraftButtonsVisible) {
                 val entry = DraftKind.Answer
                 ControlBarButton(
@@ -66,12 +67,11 @@ fun AnswerListControlBar(
                     text = {
                         Text(
                             remember(entry) { "Draft ${entry.displayName}" },
-                            fontSize = CONTROL_BUTTON_FONT_SIZE
                         )
                     },
                     onClick = {
                         client.checkLoggedIn()
-                        model.startDraft(entry)
+                        controlBar.startDraft(entry)
                     },
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
                     contentPadding = buttonContentPaddings,
@@ -80,7 +80,7 @@ fun AnswerListControlBar(
             }
 
             AnimatedVisibility(isDraftButtonsVisible) {
-                PostThoughtsButton(model)
+                PostThoughtsButton(controlBar)
             }
 
             AnimatedVisibility(draftKind != null) {
@@ -91,24 +91,22 @@ fun AnswerListControlBar(
                     ControlBarButton(
                         icon = { Icon(Icons.Outlined.FolderOff, null, Modifier.fillMaxHeight()) },
                         text = { Text("Cancel", fontSize = CONTROL_BUTTON_FONT_SIZE, fontWeight = FontWeight.W500) },
-                        onClick = {
-                            model.stopDraft()
-                        },
+                        onClick = { controlBar.stopDraft() },
                         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
                         contentPadding = buttonContentPaddings,
                         shape = buttonShape,
                     )
 
-                    PostButton(draftAnswerEditor, backgroundScope, question, model)
+                    PostButton(draftAnswerEditor, backgroundScope, question, controlBar)
 
-                    (draftKind as? DraftKind.New)?.let { DraftKindDescription(it, model) }
+                    (draftKind as? DraftKind.New)?.let { DraftKindDescription(it, controlBar) }
 
                     (draftKind as? DraftKind.Edit)?.let {
                         Row(verticalAlignment = Alignment.CenterVertically) {
                             Text("Anonymous: ")
                             Switch(
-                                model.isAnonymousNew.value,
-                                wrapClearFocus1 { model.setAnonymous(it) },
+                                controlBar.isAnonymousNew.value,
+                                wrapClearFocus1 { controlBar.setAnonymous(it) },
                                 Modifier.padding(start = 6.dp)
                             )
                         }
@@ -148,7 +146,7 @@ private fun ControlBarScope.PostButton(
             } else {
                 backgroundScope.launch {
                     currentDraftKind?.let { kind ->
-                        handlePost(kind, question, draftAnswerEditor, model)
+                        handlePost(kind, question, draftAnswerEditor, model.isAnonymousNew.value)
                     }
                 }
                 model.stopDraft()
@@ -164,13 +162,13 @@ private suspend fun handlePost(
     kind: DraftKind,
     question: QuestionDownstream,
     draftAnswerEditor: RichEditorState,
-    model: DraftAnswerControlBarState,
+    isAnonymousNew: Boolean,
 ) {
     if (kind is DraftKind.Edit) {
         val original = kind.comment
         val request = CommentEditRequest(
             content = createNewContent(draftAnswerEditor.contentMarkdown, original.content),
-            anonymity = model.isAnonymousNew.value.takeIf { it != original.anonymity },
+            anonymity = isAnonymousNew.takeIf { it != original.anonymity },
         )
         if (request.isEmpty()) {
             return // nothing to change

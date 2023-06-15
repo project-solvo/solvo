@@ -12,21 +12,15 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
-import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.CoroutineStart
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.api.communication.ArticleDownstream
-import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.QuestionDownstream
-import org.solvo.model.api.events.Event
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.comments.subComments.CommentColumnViewModel
@@ -35,13 +29,13 @@ import org.solvo.web.editor.*
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
-import org.solvo.web.viewModel.LoadingUuidItem
 
 
 fun main() {
     onWasmReady {
         SolvoWindow {
-            val model = remember { QuestionPageViewModel() }
+            val editor = rememberRichEditorState(true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
+            val model = remember { QuestionPageViewModel(editor) }
 
             val course by model.course.collectAsState(null)
             val article by model.article.collectAsState(null)
@@ -52,14 +46,11 @@ fun main() {
             Box {
                 LoadableContent(course == null || article == null || question == null, Modifier.fillMaxSize()) {
                     Row(Modifier.fillMaxSize()) {
-                        val allAnswers by model.allAnswers.collectAsState(emptyList())
                         QuestionPageContent(
-                            model.backgroundScope,
+                            model,
                             course = course ?: return@LoadableContent,
                             article = article ?: return@LoadableContent,
                             question = question ?: return@LoadableContent,
-                            allAnswers = allAnswers,
-                            events = model.questionEvents,
                         )
                     }
                 }
@@ -80,12 +71,10 @@ fun main() {
 
 @Composable
 private fun QuestionPageContent(
-    backgroundScope: CoroutineScope,
+    model: QuestionPageViewModel,
     course: Course,
     article: ArticleDownstream,
     question: QuestionDownstream,
-    allAnswers: List<LoadingUuidItem<CommentDownstream>>,
-    events: SharedFlow<Event>,
 ): Unit = HorizontallyDivided(
     left = {
         PaperView(
@@ -125,28 +114,16 @@ private fun QuestionPageContent(
         }
     },
     right = {
-        val pagingState = rememberExpandablePagingState(
-            Int.MAX_VALUE,
-            allAnswers,
-        )
-        val draftAnswerEditor =
-            rememberRichEditorState(true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
-        val controlBarState = remember { DraftAnswerControlBarState() }
-        val isEditorVisible by controlBarState.isEditorVisible.collectAsState(false)
+        val isEditorVisible by model.controlBarState.isEditorVisible.collectAsState(false)
 
-        PagingContent(
-            pagingState,
-            controlBar = {
-                AnswerListControlBar(
-                    pagingState = pagingState,
-                    model = controlBarState,
-                    draftAnswerEditor = draftAnswerEditor,
-                    question = question,
-                    backgroundScope = backgroundScope
-                )
-            }
-        ) {
-            val isExpanded by pagingState.isExpanded
+        Column {
+            AnswerListControlBar(
+                model,
+                draftAnswerEditor = model.draftEditorState,
+                question = question,
+                backgroundScope = model.backgroundScope
+            )
+
             Box(
                 Modifier
                     .padding(top = 12.dp)
@@ -157,29 +134,43 @@ private fun QuestionPageContent(
                     }
                     .focusable(false) // compose bug
             ) {
+                val isExpanded by model.isExpanded.collectAsState(false)
+
+                var isAddCommentEditorVisible by remember { mutableStateOf(false) }
+
+                AllAnswersList(
+                    model,
+                    modifier = Modifier.then(
+                        when {
+                            isEditorVisible || isExpanded -> Modifier.width(0.dp)
+                            else -> Modifier.fillMaxSize()
+                        }
+                    ).verticalScroll(rememberScrollState()),
+                    onClickAddYourComment = { model.expandAnswer(it) },
+                    onExpandAnswer = { _, item ->
+                        model.expandAnswer(item)
+                    }
+                )
+
+                ExpandedAnswerContent(
+                    model,
+                    isAddCommentEditorVisible = isAddCommentEditorVisible,
+                    setAddCommentEditorVisible = { isAddCommentEditorVisible = it },
+                    modifier = Modifier.padding(bottom = 12.dp).ifThen(isEditorVisible || !isExpanded) { width(0.dp) },
+                )
+
                 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
                 if (!RichEditorLayoutSizeDebug) {
                     RichEditor(
-                        Modifier.fillMaxWidth().ifThenElse(
+                        Modifier.padding(bottom = 12.dp).fillMaxHeight().ifThenElse(
                             isEditorVisible,
-                            then = { fillMaxHeight() },
-                            `else` = { height(0.dp) }
+                            then = { fillMaxWidth() },
+                            `else` = { width(0.dp) }
                         ),
                         fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE,
-                        state = draftAnswerEditor
+                        state = model.draftEditorState
                     )
                 }
-
-                ExpandedAnswerContent(
-                    pagingState = pagingState,
-                    allAnswers = allAnswers,
-                    isExpanded = isExpanded,
-                    controlBarState = controlBarState,
-                    backgroundScope = backgroundScope,
-                    draftEditorState = draftAnswerEditor,
-                    isDraftAnswerEditorOpen = isEditorVisible,
-                    events = events,
-                )
             }
         }
     },
@@ -189,78 +180,43 @@ private fun QuestionPageContent(
     },
 )
 
-private operator fun TextUnit.plus(sp: TextUnit): TextUnit {
-    return (this.value + sp.value).sp
-}
-
-private operator fun TextUnit.minus(sp: TextUnit): TextUnit {
-    require(this.isSp && sp.isSp)
-    return (this.value - sp.value).sp
-}
-
-val CONTROL_BUTTON_FONT_SIZE = 16.sp
-
 @Composable
-private fun PagingContentContext<LoadingUuidItem<CommentDownstream>>.ExpandedAnswerContent(
-    pagingState: ExpandablePagingState<LoadingUuidItem<CommentDownstream>>,
-    allAnswers: List<LoadingUuidItem<CommentDownstream>>,
-    isExpanded: Boolean,
-    backgroundScope: CoroutineScope,
-    draftEditorState: RichEditorState,
-    controlBarState: DraftAnswerControlBarState,
-    isDraftAnswerEditorOpen: Boolean,
-    events: SharedFlow<Event>,
+private fun ExpandedAnswerContent(
+    model: QuestionPageViewModel,
+    isAddCommentEditorVisible: Boolean,
+    setAddCommentEditorVisible: (Boolean) -> Unit,
+    modifier: Modifier = Modifier,
 ) {
-    val uiScope = rememberCoroutineScope()
-
-    var showAddCommentEditor by remember { mutableStateOf(false) }
+    val addCommentEditorVisibleUpdated by rememberUpdatedState(setAddCommentEditorVisible)
     HorizontallyDivided(
         left = {
-            val onClick: (comment: Any?, item: CommentDownstream) -> Unit = { comment, item ->
-                uiScope.launch(start = CoroutineStart.UNDISPATCHED) { pagingState.switchExpanded() }
-                pagingState.gotoItemOf { it.ready?.coid == item.coid }
-                if (comment == null) {
-                    // clicking "Add your comment" or "See all 7 comments"
-                    showAddCommentEditor = true
-                }
-            }
-
-            val visibleIndices by visibleIndices
-            AnswersList(
-                allItems = allAnswers,
-                visibleIndices = visibleIndices,
-                isExpanded = isExpanded,
-                events = events,
-                backgroundScope = backgroundScope,
-                draftEditorState = draftEditorState,
-                controlBarState = controlBarState,
-                modifier = Modifier.fillMaxSize()
-                    .ifThen(!isExpanded) { verticalScroll(scrollState) },
-                onClickComment = onClick,
+            ExpandedAnswer(
+                model,
+                model.expandedAnswerReady.collectAsState().value ?: return@HorizontallyDivided,
             )
         },
         right = {
             Column(Modifier.verticalScroll(rememberScrollState())) {
-                val visibleItems by visibleItems
-                val firstItemLoading by remember { derivedStateOf { visibleItems.firstOrNull()?.asFlow() } }
-                val firstItem by firstItemLoading?.collectAsState(null) ?: return@Column
-                val model =
-                    remember { CommentColumnViewModel(snapshotFlow { firstItem }, events.filterIsInstance()) }
+                val item by model.expandedAnswerReady.collectAsState()
+
+                val commentColumnModel =
+                    remember { CommentColumnViewModel(snapshotFlow { item }, model.events.filterIsInstance()) }
 
                 DraftCommentSection(
-                    showEditor = showAddCommentEditor,
-                    onShowEditorChange = { showAddCommentEditor = it },
-                    backgroundScope = backgroundScope,
-                    pagingState = pagingState,
-                )
+                    isEditorVisible = isAddCommentEditorVisible,
+                    showEditor = { addCommentEditorVisibleUpdated(true) }
+                ) { newContent ->
+                    val upstream = CommentUpstream(content = newContent)
+                    model.submitComment(upstream)
+                    addCommentEditorVisibleUpdated(false)
+                }
 
-                val allSubCommentsFlow by model.allSubComments.collectAsState(emptyList())
+                val allSubCommentsFlow by commentColumnModel.allSubComments.collectAsState(emptyList())
                 CommentColumn(allSubCommentsFlow)
             }
         },
         initialLeftWeight = 0.618f,
-        isRightVisible = isExpanded,
-        modifier = Modifier.ifThen(isDraftAnswerEditorOpen) { width(0.dp) },
+        modifier = modifier,
         dividerModifier = Modifier.padding(horizontal = 8.dp),
     )
 }

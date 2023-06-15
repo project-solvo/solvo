@@ -35,17 +35,25 @@ abstract class AbstractViewModel : RememberObserver {
 //        }
     }
 
+    private var referenceCount = 0
+
     final override fun onForgotten() {
-        console.log("${this::class.simpleName} onForgotten")
-        dispose()
+        referenceCount--
+        console.log("${this::class.simpleName} onForgotten, remaining refCount=$referenceCount")
+        if (referenceCount == 0) {
+            dispose()
+        }
     }
 
     final override fun onRemembered() {
-        console.log("${this::class.simpleName} onRemembered")
+        referenceCount++
+        console.log("${this::class.simpleName} onRemembered, refCount=$referenceCount")
         if (!_backgroundScope.isActive) {
             _backgroundScope = createBackgroundScope()
         }
-        this.init()
+        if (referenceCount == 1) {
+            this.init() // first remember
+        }
     }
 
     private fun createBackgroundScope(): CoroutineScope {

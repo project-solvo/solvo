@@ -6,8 +6,8 @@ import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.ArticleDownstream
@@ -56,13 +56,13 @@ fun PathParameters.question(): Flow<QuestionDownstream?> {
 }
 
 @Stable
-fun PathParameters.questionEvents(scope: CoroutineScope): Flow<SharedFlow<Event>> {
+fun PathParameters.questionEvents(scope: CoroutineScope): Flow<Event> {
     return combine(
         argument(WebPagePathPatterns.VAR_COURSE_CODE),
         argument(WebPagePathPatterns.VAR_ARTICLE_CODE),
         argument(WebPagePathPatterns.VAR_QUESTION_CODE),
     ) { courseCode, articleCode, questionCode ->
         client.questions.subscribeEvents(scope, courseCode, articleCode, questionCode)
-    }
+    }.flatMapLatest { it }
 }
 

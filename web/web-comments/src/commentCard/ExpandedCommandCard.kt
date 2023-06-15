@@ -9,7 +9,7 @@ import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
@@ -19,10 +19,12 @@ import org.solvo.web.comments.commentCard.components.AuthorLine
 import org.solvo.web.comments.commentCard.impl.CommentCard
 import org.solvo.web.comments.commentCard.impl.CommentCardShape
 import org.solvo.web.comments.commentCard.impl.commentCardBackgroundColor
+import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.image.RoundedUserAvatar
 
+
 @Composable
-fun ExpandedCommentCard(
+fun AnswerCard(
     author: User?,
     date: @Composable () -> Unit,
     modifier: Modifier = Modifier,
@@ -102,11 +104,10 @@ fun ExpandedCommentCard(
 
 
 @Composable
-fun ModifyMenu(
-    isOpen: Boolean,
-    setOpen: () -> Unit,
-    contents: @Composable RowScope.() -> Unit,
+fun HorizontalExpandMenu(
+    contents: @Composable HorizontalExpandMenuScope.() -> Unit,
 ) {
+    var isOpen by remember { mutableStateOf(false) }
     Row {
         AnimatedVisibility(
             isOpen,
@@ -114,13 +115,27 @@ fun ModifyMenu(
             // exit = slideOutHorizontally { it }
         ) {
             Row {
-                contents()
+                val scope = remember(this) {
+                    HorizontalExpandMenuScope(this) {
+                        isOpen = false
+                    }
+                }
+                contents(scope)
             }
         }
         IconButton(
-            onClick = setOpen,
+            onClick = wrapClearFocus { isOpen = !isOpen },
         ) {
             Icon(Icons.Filled.MoreVert, "Expand Drop Down Menu")
         }
+    }
+}
+
+class HorizontalExpandMenuScope(
+    private val delegate: RowScope,
+    private val closeMenu: () -> Unit,
+) : RowScope by delegate {
+    fun closeMenu() {
+        this.closeMenu.invoke()
     }
 }

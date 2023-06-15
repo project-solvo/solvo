@@ -5,14 +5,11 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
-import org.solvo.model.api.communication.CommentDownstream
-import org.solvo.model.api.communication.CommentKind
-import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.web.comments.commentCard.DraftCommentCard
 import org.solvo.web.document.History
@@ -23,22 +20,23 @@ import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.ifThen
 import org.solvo.web.ui.foundation.ifThenElse
-import org.solvo.web.viewModel.LoadingUuidItem
 
 @Composable
 fun DraftCommentSection(
-    showEditor: Boolean,
-    onShowEditorChange: (Boolean) -> Unit,
-    backgroundScope: CoroutineScope,
-    pagingState: ExpandablePagingState<LoadingUuidItem<CommentDownstream>>,
+    isEditorVisible: Boolean,
+    showEditor: () -> Unit,
+    onSubmitComment: (NonBlankString) -> Unit,
 ) {
+    val onSubmitCommentUpdated by rememberUpdatedState(onSubmitComment)
+    val showEditorUpdated by rememberUpdatedState(showEditor)
+
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
         val editorState =
             rememberRichEditorState(isEditable = true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
         RichEditor(
             Modifier.fillMaxWidth()
                 .ifThenElse(
-                    showEditor,
+                    isEditorVisible,
                     then = { wrapContentHeight().heightIn(min = 300.dp) },
                     `else` = { height(0.dp) }),
             displayMode = RichEditorDisplayMode.EDIT_ONLY,
@@ -51,31 +49,23 @@ fun DraftCommentSection(
         Button(
             {
                 val contentMarkdown = editorState.contentMarkdown
-                if (showEditor) {
+                if (isEditorVisible) {
                     if (!client.isLoginIn()) {
                         History.navigate {
                             auth()
                         }
                     } else {
                         if (!contentMarkdown.isNullOrBlank()) {
-                            pagingState.currentContent.value.firstOrNull()?.let { comment ->
-                                val upstream = CommentUpstream(
-                                    content = NonBlankString.fromStringOrNull(contentMarkdown)
-                                        ?: return@let,
-                                )
-                                backgroundScope.launch {
-                                    client.comments.post(comment.coid, upstream, CommentKind.COMMENT)
-                                }
-                            }
+                            NonBlankString.fromStringOrNull(contentMarkdown)?.let(onSubmitCommentUpdated)
                         }
                     }
+                } else {
+                    showEditorUpdated()
                 }
-                if (!contentMarkdown.isNullOrBlank()) {
-                    onShowEditorChange(!showEditor)
-                }
-            }, Modifier.align(Alignment.End).animateContentSize()
-                .ifThen(!showEditor) { fillMaxWidth() }
-                .ifThen(showEditor) { padding(top = 12.dp).wrapContentSize() }
+            },
+            Modifier.align(Alignment.End).animateContentSize()
+                .ifThen(!isEditorVisible) { fillMaxWidth() }
+                .ifThen(isEditorVisible) { padding(top = 12.dp).wrapContentSize() }
         ) {
             Text("Add Comment")
         }

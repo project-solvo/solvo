@@ -2,14 +2,13 @@ package org.solvo.web
 
 import androidx.compose.foundation.ScrollState
 import androidx.compose.runtime.*
-import androidx.compose.runtime.snapshots.SnapshotStateList
 
 
 @Stable
 interface PagingState<T> {
     val pageSlice: State<Int>
 
-    val items: MutableList<T>
+    val items: List<T>
     val pageCount: State<Int>
     val currentPage: State<Int>
     val currentContent: State<List<T>>
@@ -50,7 +49,7 @@ internal open class PagingStateImpl<T> protected constructor(
     pageSlice: Int,
 ) : PagingState<T> {
     // inputs
-    override val items: MutableList<T> = SnapshotStateList<T>().apply { addAll(initialList) }
+    override val items: MutableList<T> = initialList.toMutableList()
     override val pageSlice: State<Int> = mutableStateOf(pageSlice)
 
     // outputs

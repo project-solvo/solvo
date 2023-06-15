@@ -5,10 +5,7 @@ import androidx.compose.runtime.RememberObserver
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.DpSize
-import androidx.compose.ui.unit.TextUnit
-import androidx.compose.ui.unit.sp
+import androidx.compose.ui.unit.*
 import org.solvo.web.editor.impl.RichEditor
 import org.solvo.web.editor.impl.RichEditorIdManager
 import org.solvo.web.editor.impl.onEditorLoaded
@@ -23,16 +20,27 @@ fun rememberRichEditorState(
     fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
 ): RichEditorState {
     val density = LocalDensity.current
-    val editor: RichEditor = remember {
+    return remember { RichEditorState(isEditable, density, contentPadding, showToolbar, fontSize) }
+}
+
+@JsName("createRichEditorState")
+fun RichEditorState(
+    isEditable: Boolean,
+    density: Density,
+    contentPadding: Dp = Dp.Unspecified,
+    showToolbar: Boolean = false,
+    fontSize: TextUnit = DEFAULT_RICH_EDITOR_FONT_SIZE,
+): RichEditorState {
+    return RichEditorState(
         RichEditor.create(
-            RichEditorIdManager.nextId(), density,
+            RichEditorIdManager.nextId(),
+            density,
             isEditable,
             showToolbar,
             fontSize,
             contentPadding,
         )
-    }
-    return remember(editor) { RichEditorState(editor) }
+    )
 }
 
 
