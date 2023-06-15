@@ -27,9 +27,9 @@ fun Application.accountModule() {
                 post("/newAvatar") {
                     val uid = getUserId() ?: return@post
                     val contentType = call.request.contentType()
-                    val input = call.receiveStream()
-
-                    val path = resources.uploadNewAvatar(uid, input, contentType)
+                    val path = call.receiveStream().use { input ->
+                        resources.uploadNewAvatar(uid, input, contentType)
+                    }
                     call.respond(ImageUrlExchange(path))
                 }
             }

@@ -6,9 +6,9 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.*
+import androidx.compose.material3.InputChip
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.focusProperties
@@ -46,13 +46,7 @@ fun main() {
             val course by model.course.collectAsState(null)
             val article by model.article.collectAsState(null)
             val question by model.question.collectAsState(null)
-            SolvoTopAppBar(
-                navigationIcon = {
-                    IconButton(onClick = wrapClearFocus { model.menuState.switchMenuOpen() }) {
-                        Icon(Icons.Filled.Menu, null)
-                    }
-                }
-            ) {
+            SolvoTopAppBar {
                 course?.let { article?.let { it1 -> PaperTitle(it, it1.code) } }
             }
             Box {

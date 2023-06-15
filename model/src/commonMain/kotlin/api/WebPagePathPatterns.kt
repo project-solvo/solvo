@@ -20,6 +20,7 @@ object WebPagePathPatterns {
 
     val home = relative("/")
     val auth = relative("/auth/$VAR_AUTH_METHOD")
+    val me = relative("/me")
     val courses = relative("/courses/")
     val course = relative("/courses/$VAR_COURSE_CODE")
 

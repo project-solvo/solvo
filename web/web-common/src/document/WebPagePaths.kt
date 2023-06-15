@@ -31,6 +31,10 @@ abstract class WebPagePaths {
         )
     }
 
+    fun user(): String {
+        return patterns.me
+    }
+
     fun courses() = patterns.courses
     fun course(code: String) = patterns.course
         .replace(VAR_COURSE_CODE, code)

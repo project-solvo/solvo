@@ -15,6 +15,11 @@ fun isLoggedIn(): Boolean {
     return LocalUserViewModel.current.isLoggedIn.collectAsState().value ?: false
 }
 
+@Composable
+fun isLoggedInOrNull(): Boolean? {
+    return LocalUserViewModel.current.isLoggedIn.collectAsState().value
+}
+
 val currentUser: User?
     @Composable
     get() {

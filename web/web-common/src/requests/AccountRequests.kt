@@ -3,11 +3,9 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
-import org.solvo.model.api.communication.AuthRequest
-import org.solvo.model.api.communication.AuthResponse
-import org.solvo.model.api.communication.User
-import org.solvo.model.api.communication.UsernameValidityResponse
+import org.solvo.model.api.communication.*
 import org.solvo.model.utils.NonBlankString
+import org.w3c.files.File
 
 class AccountRequests(
     override val client: Client,
@@ -48,5 +46,12 @@ class AccountRequests(
             contentType(ContentType.Application.Json)
         }.body<UsernameValidityResponse>()
         return resp
+    }
+
+    suspend fun uploadAvatar(data: File): ImageUrlExchange {
+        return http.postAuthorized(api("account/newAvatar")) {
+            contentType(ContentType.Image.Any)
+            setBodyFile(data)
+        }.body<ImageUrlExchange>()
     }
 }

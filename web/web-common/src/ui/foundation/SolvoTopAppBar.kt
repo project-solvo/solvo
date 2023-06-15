@@ -21,7 +21,6 @@ import org.solvo.web.ui.image.RoundedUserAvatar
 @Composable
 fun SolvoTopAppBar(
     userViewModel: UserViewModel = LocalUserViewModel.current,
-    navigationIcon: @Composable () -> Unit = {},
     title: @Composable () -> Unit = {}
 ) {
     var notifyMenu1 by remember { mutableStateOf(false) }
@@ -125,11 +124,19 @@ private fun RowScope.UserIcons(
     AnimatedVisibility(loggedIn == true) {
         // logged in, show avatar + name
         val currentUser by userViewModel.user.collectAsState()
-        IconButton({
-            // TODO: user page
+//        var showDropdown by remember { mutableStateOf(false) }
+        IconButton(wrapClearFocus {
+            History.navigate { user() }
         }) {
             RoundedUserAvatar(currentUser?.avatarUrl, currentUser?.username?.str, 32.dp)
         }
+//        DropdownMenu(showDropdown, { showDropdown = false }) {
+//            DropdownMenuItem(
+//                { Text("Upload Avatar") },
+//                {},
+//                leadingIcon = { Icon(Icons.Outlined.PersonOutline, null) }
+//            )
+//        }
     }
     AnimatedVisibility(loggedIn == true) {
         IconButton(onClick = wrapClearFocus {

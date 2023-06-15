@@ -21,12 +21,16 @@ class ImageRequests(
     ): ImageUrlExchange = client.http.post(api("/images/upload")) {
         accountAuthorization()
         contentType(ContentType.Image.Any)
-        setBody(object : OutgoingContent.WriteChannelContent() {
-            override suspend fun writeTo(channel: ByteWriteChannel) {
-                channel.writeFully(file.readAsMemory())
-            }
-        })
+        setBodyFile(file)
     }.body<ImageUrlExchange>()
+}
+
+fun HttpRequestBuilder.setBodyFile(file: File) {
+    setBody(object : OutgoingContent.WriteChannelContent() {
+        override suspend fun writeTo(channel: ByteWriteChannel) {
+            channel.writeFully(file.readAsMemory())
+        }
+    })
 }
 
 suspend fun ByteWriteChannel.writeFully(src: Memory) {
