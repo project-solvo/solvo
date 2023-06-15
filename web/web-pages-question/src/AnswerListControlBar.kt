@@ -147,6 +147,7 @@ private fun ControlBarScope.PostButton(
                 backgroundScope.launch {
                     currentDraftKind?.let { kind ->
                         handlePost(kind, question, draftAnswerEditor, model.isAnonymousNew.value)
+                        draftAnswerEditor.clearContent()
                     }
                 }
                 model.stopDraft()
