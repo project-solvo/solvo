@@ -162,10 +162,10 @@ private fun QuestionPageContent(
                 @Suppress("INVISIBLE_MEMBER", "INVISIBLE_REFERENCE")
                 if (!RichEditorLayoutSizeDebug) {
                     RichEditor(
-                        Modifier.padding(bottom = 12.dp).fillMaxHeight().ifThenElse(
+                        Modifier.padding(bottom = 12.dp).fillMaxWidth().ifThenElse(
                             isEditorVisible,
-                            then = { fillMaxWidth() },
-                            `else` = { width(0.dp) }
+                            then = { fillMaxHeight() },
+                            `else` = { height(0.dp) }
                         ),
                         fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE,
                         state = model.draftEditorState
