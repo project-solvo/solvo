@@ -489,5 +489,4 @@ fun SampleDataBuilder.sampleData1() {
     course("50005", "Networks and Communications")
     course("50006", "Compilers")
     course("50008", "Probability and Statistics")
-    course("50009", "Symbolic Reasoning")
 }

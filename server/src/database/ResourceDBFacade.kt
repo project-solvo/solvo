@@ -15,6 +15,7 @@ interface ResourceDBFacade {
     suspend fun tryDeleteImage(resourceId: UUID): Boolean
     suspend fun getContentType(file: File): ContentType
     suspend fun uploadNewAvatar(uid: UUID, input: InputStream, contentType: ContentType): String
+    suspend fun changeAvatar(uid: UUID, iamgeId: UUID, contentType: ContentType): String
 }
 
 class ResourceDBFacadeImpl(
@@ -46,9 +47,17 @@ class ResourceDBFacadeImpl(
         input: InputStream,
         contentType: ContentType,
     ): String {
-        val oldAvatarId = accounts.getAvatar(uid)
         val newAvatarId = postImage(uid, input, StaticResourcePurpose.USER_AVATAR, contentType)
-        accounts.modifyAvatar(uid, newAvatarId)
+        return changeAvatar(uid, newAvatarId, contentType)
+    }
+
+    override suspend fun changeAvatar(
+        uid: UUID,
+        iamgeId: UUID,
+        contentType: ContentType,
+    ): String {
+        val oldAvatarId = accounts.getAvatar(uid)
+        accounts.modifyAvatar(uid, iamgeId)
 
         if (oldAvatarId != null) {
             if (tryDeleteImage(oldAvatarId)) {
@@ -61,7 +70,7 @@ class ResourceDBFacadeImpl(
         }
 
         return ServerContext.paths.resolveRelativeResourcePath(
-            newAvatarId,
+            iamgeId,
             StaticResourcePurpose.USER_AVATAR,
         )
     }

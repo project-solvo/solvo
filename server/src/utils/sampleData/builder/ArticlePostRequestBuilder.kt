@@ -52,7 +52,7 @@ class ArticlePostRequestBuilder(
     private var content: () -> String = { "Default content" }
     private var anonymity: Boolean = false
     private var displayName: String = code
-    private var termYear: String = ""
+    private var termYear: String = "Default term year"
 
     @PublishedApi
     internal var questions: MutableList<QuestionPostRequest> = mutableListOf()

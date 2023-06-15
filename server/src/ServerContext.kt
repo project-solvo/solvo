@@ -14,6 +14,7 @@ import org.solvo.server.utils.events.EventSessionHandler
 import org.solvo.server.utils.events.EventSessionHandlerImpl
 import org.solvo.server.utils.sampleData.builder.incorporateSampleData
 import org.solvo.server.utils.sampleData.data.sampleData1
+import org.solvo.server.utils.sampleData.data.sampleData2
 
 object ServerContext {
     val localtime: ServerLocalTime = ServerLocalTimeImpl()
@@ -52,6 +53,7 @@ object ServerContext {
                 if (config.containsConfig("initialized")) return@runBlocking
                 incorporateSampleData {
                     sampleData1()
+                    sampleData2()
                 }
                 config.setConfig("initialized")
             }

@@ -15,8 +15,12 @@ class SampleDataBuilder {
     internal val courses: MutableList<CoursePostRequest> = mutableListOf()
 
     @SampleDataDslMarker
-    fun user(username: String, password: ByteArray): UserRegisterRequest {
-        return UserRegisterRequest(username, password).also { users.add(it) }
+    fun user(
+        username: String,
+        password: ByteArray,
+        builds: UserDataBuilder.() -> Unit = {},
+    ): UserRegisterRequest {
+        return UserDataBuilder(username, password).apply(builds).build().also { users.add(it) }
     }
 
     @SampleDataDslMarker

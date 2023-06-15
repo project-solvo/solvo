@@ -4,6 +4,7 @@ import io.ktor.http.*
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.StaticResourcePurpose
 import java.io.File
+import java.util.*
 
 class ImagePostRequest(
     val path: String,
@@ -14,14 +15,17 @@ class ImagePostRequest(
     lateinit var url: String
         private set
 
+    lateinit var id: UUID
+        private set
+
     suspend fun submit(
         db: ServerContext.Databases,
     ) {
         db.resources.apply {
             val uid = user.uid
             val input = File(path).inputStream()
-            val imageId = postImage(uid, input, purpose, contentType)
-            url = ServerContext.paths.resolveRelativeResourcePath(imageId, purpose)
+            id = postImage(uid, input, purpose, contentType)
+            url = ServerContext.paths.resolveRelativeResourcePath(id, purpose)
         }
     }
 }
