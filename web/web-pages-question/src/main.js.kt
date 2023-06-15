@@ -207,7 +207,7 @@ private fun ExpandedAnswerContent(
                     showEditor = { addCommentEditorVisibleUpdated(true) }
                 ) { newContent ->
                     val upstream = CommentUpstream(content = newContent)
-                    model.submitComment(upstream)
+                    model.submitComment(upstream, item?.coid ?: return@DraftCommentSection)
                     addCommentEditorVisibleUpdated(false)
                 }
 

@@ -15,8 +15,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.LightCommentDownstream
-import org.solvo.web.answer.AddYourCommentFakeTextField
+import org.solvo.web.answer.AddYourCommentTextField
 import org.solvo.web.answer.AnswerCardDate
 import org.solvo.web.answer.AnswerCardPreviewComments
 import org.solvo.web.answer.AnswerCardReactions
@@ -107,7 +108,9 @@ fun AllAnswersList(
                 subComments = {
                     AnswerCardPreviewComments(item, onExpandAnswerUpdated)
                     AnswerCardReactions(item, model.controlBarState, model.events)
-                    AddYourCommentFakeTextField(onClick = { onClickAddYourCommentUpdated?.invoke(item) })
+                    AddYourCommentTextField(onSend = {
+                        model.submitComment(CommentUpstream(it), item.coid)
+                    })
                     Spacer(Modifier.height(6.dp))
                 },
                 actions = {

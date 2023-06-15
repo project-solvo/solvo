@@ -10,6 +10,7 @@ import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.*
 import org.solvo.model.api.events.CommentEvent
 import org.solvo.model.api.events.Event
+import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentEventHandler
 import org.solvo.web.comments.CourseMenuState
 import org.solvo.web.document.parameters.*
@@ -49,7 +50,7 @@ interface QuestionPageViewModel {
     fun startEditingAnswer(item: CommentDownstream)
     fun askDeleteAnswer(item: CommentDownstream, snackbar: SolvoSnackbar)
 
-    fun submitComment(newComment: CommentUpstream)
+    fun submitComment(newComment: CommentUpstream, target: Uuid)
     fun collapse()
 }
 
@@ -146,10 +147,9 @@ class QuestionPageViewModelImpl internal constructor(
         }
     }
 
-    override fun submitComment(newComment: CommentUpstream) {
-        val comment = expandedAnswerReady.value ?: return
+    override fun submitComment(newComment: CommentUpstream, target: Uuid) {
         backgroundScope.launch {
-            client.comments.post(comment.coid, newComment, CommentKind.COMMENT)
+            client.comments.post(target, newComment, CommentKind.COMMENT)
         }
     }
 
