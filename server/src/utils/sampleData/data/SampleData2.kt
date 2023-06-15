@@ -6,7 +6,7 @@ import org.solvo.server.utils.sampleData.builder.SampleDataBuilder
 
 fun SampleDataBuilder.sampleData2() {
     val xi = user("Xi", AuthDigest("china")) {
-        avatar("./test-resources/secret_avatar.jpg", ContentType.Image.JPEG)
+        avatar("./test-resources/secret_avatar", ContentType.Image.JPEG)
     }
     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
     course("50009", "Symbolic Reasoning") {
