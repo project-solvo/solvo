@@ -36,7 +36,7 @@ jobs:
         run: chmod -R +x *
 
       - name: Check
-        run: ./gradlew clean check ${{ env.gradleArgs }}
+        run: ./gradlew check ${{ env.gradleArgs }}
 
       - name: Install
         run: ./gradlew installDist ${{ env.gradleArgs }}
