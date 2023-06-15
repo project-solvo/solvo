@@ -2,3 +2,4 @@
 build/
 .idea/
 !net/mamoe/weapons/build/
+node_modules
