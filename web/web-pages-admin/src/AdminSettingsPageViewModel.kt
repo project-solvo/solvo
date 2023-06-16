@@ -104,7 +104,7 @@ private class OperatorsViewModelImpl(
         localSearchResult.tryEmit(null)  // explicitly clear results, so that the View shows a progress indicator
     }
 
-    override fun setOperator(userId: Uuid) {
+    override fun setOperator(userId: Uuid) { // must in search
         val target = searchResult.value?.find { it.user.id == userId } ?: return
         if (target.isOperator.value) return
 
@@ -120,10 +120,11 @@ private class OperatorsViewModelImpl(
     }
 
     override fun removeOperator(userId: Uuid) {
-        val target = searchResult.value?.find { it.user.id == userId } ?: return
-        if (!target.isOperator.value) return
+        // update search
+        searchResult.value?.find { it.user.id == userId }?.let {
+            it.isOperator.value = false
+        }
 
-        target.isOperator.value = false
         launchInBackground {
             client.settings.removeOperator(userId)
         }
