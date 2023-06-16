@@ -124,6 +124,7 @@ internal class RichEditor internal constructor(
     internal val scope = CoroutineScope(SupervisorJob())
     val isVisible: MutableState<Boolean> = mutableStateOf(false)
     val displayMode: MutableState<RichEditorDisplayMode> = mutableStateOf(RichEditorDisplayMode.EDIT_PREVIEW)
+    val toolbarVisible: MutableState<Boolean?> = mutableStateOf(null)
 
     private val _positionInWindow = mutableStateOf(Offset.Zero)
     val positionInWindow: State<Offset> = _positionInWindow
@@ -229,6 +230,7 @@ internal class RichEditor internal constructor(
     }
 
     suspend fun setToolbarVisible(value: Boolean) {
+        toolbarVisible.value = value
         onEditorLoaded {
             if (value) {
                 editor.showToolbar()
@@ -239,6 +241,9 @@ internal class RichEditor internal constructor(
     }
 
     suspend fun setDisplayMode(value: RichEditorDisplayMode, density: Density) {
+        if (displayMode.value == value) {
+            return
+        }
         onEditorLoaded {
             displayMode.value = value
             when (value) {
@@ -259,6 +264,7 @@ internal class RichEditor internal constructor(
                 }
             }
             setEditorSize(size.value, density)
+            toolbarVisible.value?.let { setToolbarVisible(it) }
         }
     }
 

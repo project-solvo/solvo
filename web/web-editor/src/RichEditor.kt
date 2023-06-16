@@ -52,6 +52,7 @@ fun RichEditor(
         state.richEditor.setDisplayMode(displayMode, density)
     }
     LaunchedEffect(isToolbarVisible, state) {
+        // update toolbar when density changed
         state.richEditor.setToolbarVisible(isToolbarVisible)
     }
     LaunchedEffect(fontSize, state, density) {
