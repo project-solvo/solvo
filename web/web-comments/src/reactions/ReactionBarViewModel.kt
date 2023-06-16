@@ -47,7 +47,7 @@ class ReactionBarViewModel(
     private val showHintLineFlow = activeReacts.flatMapLatest {
         flow {
             emit(true)
-            delay(6.seconds)
+            delay(8.seconds)
             emit(false)
         }
     }
