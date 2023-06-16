@@ -26,6 +26,10 @@ class AccountRequests(
         }
     }
 
+    suspend fun searchUsers(username: String): List<User> {
+        return http.get(api("account/search?name=$username")).body<List<User>>()
+    }
+
     suspend fun authenticate(username: String, password: String, isRegister: Boolean): AuthResponse {
         val path = if (isRegister) "${apiUrl}/register" else "${apiUrl}/login"
         val resp = http.post(path) {

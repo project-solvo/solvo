@@ -33,6 +33,11 @@ fun Application.accountModule() {
                     call.respond(ImageUrlExchange(path))
                 }
             }
+            get("search") {
+                val name: String = call.parameters.getOrFail("name") // currently required
+                val userInfo = accounts.searchUsers(name)
+                call.respond(userInfo)
+            }
             get("/{uid}/avatar") {
                 val uid = UUID.fromString(call.parameters.getOrFail("uid"))
                 val (avatar, contentType) = accounts.getUserAvatar(uid) ?: kotlin.run {

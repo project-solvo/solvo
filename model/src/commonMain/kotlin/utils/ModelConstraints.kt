@@ -19,7 +19,7 @@ class ModelConstraints {
     }
 }
 
-enum class UserPermission: Comparable<UserPermission> {
+enum class UserPermission : Comparable<UserPermission> {
     DEFAULT,
     OPERATOR,
     ROOT,

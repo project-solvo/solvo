@@ -66,3 +66,12 @@ fun PathParameters.questionEvents(scope: CoroutineScope): Flow<Event> {
     }.flatMapLatest { it }
 }
 
+
+@Stable
+inline fun <reified E : Enum<E>> PathParameters.settingGroup(): Flow<E?> {
+    val values = enumValues<E>()
+    return argument(WebPagePathPatterns.VAR_SETTING_GROUP).map { settingGroup ->
+        values.find { it.name.equals(settingGroup, ignoreCase = true) }
+    }
+}
+

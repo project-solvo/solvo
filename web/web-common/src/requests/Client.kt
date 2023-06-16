@@ -13,6 +13,7 @@ import io.ktor.util.reflect.*
 import kotlinx.browser.window
 import kotlinx.coroutines.CoroutineExceptionHandler
 import kotlinx.coroutines.CoroutineScope
+import org.solvo.model.api.communication.User
 import org.solvo.model.utils.DefaultCommonJson
 import org.solvo.web.document.History
 import org.solvo.web.session.LocalSessionToken
@@ -40,6 +41,8 @@ class Client {
     }
     val token: String? get() = LocalSessionToken.value
 
+    var self: User? = null // ready deferred
+
 
     fun isLoginIn() = (token != null)
     fun checkLoggedIn() {
@@ -54,6 +57,7 @@ class Client {
     }
 
     val accounts: AccountRequests by lazy { AccountRequests(this) }
+    val settings: SettingsRequests by lazy { SettingsRequests(this) }
     val courses: CourseRequests by lazy { CourseRequests(this) }
     val articles: ArticleRequests by lazy { ArticleRequests(this) }
     val questions: QuestionRequests by lazy { QuestionRequests(this) }

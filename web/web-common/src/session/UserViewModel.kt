@@ -25,6 +25,7 @@ class UserViewModel : AbstractViewModel() {
             if (self == null) {
                 LocalSessionToken.remove() // invalidate token
             }
+            client.self = self
             user.value = self
             isLoggedIn.value = self != null
         }

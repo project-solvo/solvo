@@ -20,6 +20,10 @@ interface AccountDBFacade {
     suspend fun login(username: String, hash: ByteArray): AuthResponse
     suspend fun getUserAvatar(uid: UUID): Pair<File, ContentType>?
     suspend fun getUserInfo(uid: UUID): User?
+    suspend fun searchUsers(username: String): List<User>
+    suspend fun getOperators(): List<User>
+    suspend fun setOperator(uid: UUID): Boolean
+    suspend fun removeOperator(uid: UUID): Boolean
     suspend fun isOp(uid: UUID): Boolean
     suspend fun addToken(uid: UUID, token: String): Boolean
     suspend fun matchToken(token: String): UUID?
@@ -69,6 +73,22 @@ class AccountDBFacadeImpl(
 
     override suspend fun getUserInfo(uid: UUID): User? {
         return accounts.getUserInfo(uid)
+    }
+
+    override suspend fun searchUsers(username: String): List<User> {
+        return accounts.searchUsers(username)
+    }
+
+    override suspend fun getOperators(): List<User> {
+        return accounts.getOperators()
+    }
+
+    override suspend fun setOperator(uid: UUID): Boolean {
+        return accounts.setOperator(uid)
+    }
+
+    override suspend fun removeOperator(uid: UUID): Boolean {
+        return accounts.removeOperator(uid)
     }
 
     override suspend fun isOp(uid: UUID): Boolean {

@@ -14,6 +14,7 @@ import org.solvo.model.utils.DefaultCommonJson
 import org.solvo.server.modules.accountModule
 import org.solvo.server.modules.authenticateModule
 import org.solvo.server.modules.content.contentModule
+import org.solvo.server.modules.settingsModule
 import org.solvo.server.modules.webPageModule
 import java.time.Duration
 
@@ -34,6 +35,7 @@ fun Application.solvoModules() {
     webPageModule()
     authenticateModule()
     accountModule()
+    settingsModule()
     contentModule()
 }
 

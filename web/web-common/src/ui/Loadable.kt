@@ -15,7 +15,7 @@ fun LoadableContent(
     isLoading: Boolean,
     modifier: Modifier = Modifier,
     loadingContent: @Composable () -> Unit = { CircularProgressIndicator() },
-    content: @Composable () -> Unit,
+    content: @Composable BoxScope.() -> Unit,
 ) {
     Box(modifier = modifier) {
         if (LOADABLE_CONTENT_ANIMATION) {

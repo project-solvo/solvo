@@ -15,11 +15,14 @@ object WebPagePathPatterns {
     const val VAR_AUTH_METHOD_REGISTER = "register"
     const val VAR_AUTH_METHOD_LOGIN = "login"
 
+    const val VAR_SETTING_GROUP = "{group}"
+
     private fun relative(path: String): String =
         if (path.startsWith('/') && !path.endsWith('/')) path else "/${path.removeSurrounding("/")}"
 
     val home = relative("/")
     val auth = relative("/auth/$VAR_AUTH_METHOD")
+    val settingsAdmin = relative("/settings/admin/$VAR_SETTING_GROUP")
     val me = relative("/me")
     val courses = relative("/courses/")
     val course = relative("/courses/$VAR_COURSE_CODE")

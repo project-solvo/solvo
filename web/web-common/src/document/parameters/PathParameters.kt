@@ -33,6 +33,9 @@ interface PathParameters : RememberObserver {
  */
 operator fun PathParameters.get(name: String): String? = allParameters.value[name]
 
+/**
+ * @see WebPagePathPatterns
+ */
 @JsName("createPathParameters")
 fun PathParameters(
     pattern: String,

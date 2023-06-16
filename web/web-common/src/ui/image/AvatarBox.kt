@@ -18,6 +18,16 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.Dp
+import org.solvo.model.api.communication.User
+
+@Composable
+fun RoundedUserAvatar(
+    user: User?,
+    size: Dp,
+    modifier: Modifier = Modifier,
+) {
+    RoundedUserAvatar(user?.avatarUrl, user?.username?.str, size, modifier)
+}
 
 @Composable
 fun RoundedUserAvatar(

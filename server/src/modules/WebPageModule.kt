@@ -36,6 +36,7 @@ fun Application.webPageModule() {
             routeWebPage(home, "/index")
             routeWebPage(auth.replace(VAR_AUTH_METHOD, VAR_AUTH_METHOD_REGISTER), "/auth")
             routeWebPage(auth.replace(VAR_AUTH_METHOD, VAR_AUTH_METHOD_LOGIN), "/auth")
+            routeWebPage(settingsAdmin, "/admin")
             routeWebPage(me, "/user")
             routeWebPage(course, "/course")
             routeWebPage(article, "/article")

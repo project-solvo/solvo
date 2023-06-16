@@ -33,6 +33,10 @@ interface AccountDBControl {
     suspend fun getAvatar(uid: UUID): UUID?
     suspend fun getUsername(uid: UUID): String?
     suspend fun getUserInfo(uid: UUID): User?
+    suspend fun getOperators(): List<User>
+    suspend fun setOperator(uid: UUID): Boolean
+    suspend fun removeOperator(uid: UUID): Boolean
+    suspend fun searchUsers(username: String): List<User>
 }
 
 class AccountDBControlImpl : AccountDBControl {
@@ -63,6 +67,7 @@ class AccountDBControlImpl : AccountDBControl {
         }
         userId
     }
+
     override suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean = dbQuery {
         UserTable.update({ UserTable.id eq uid }) {
             it[UserTable.avatar] = resourceId
@@ -164,17 +169,40 @@ class AccountDBControlImpl : AccountDBControl {
         UserTable
             .select(UserTable.id eq uid)
             .map {
-                User(
-                    uid,
-                    NonBlankString.fromString(it[UserTable.username]),
-                    it[UserTable.avatar]?.value?.let { avatarId ->
-                        ServerContext.paths.resolveRelativeResourcePath(
-                            avatarId,
-                            StaticResourcePurpose.USER_AVATAR,
-                        )
-                    }
-                )
+                it.toUser()
             }
             .singleOrNull()
+    }
+
+    private fun ResultRow.toUser() = User(
+        this[UserTable.id].value,
+        NonBlankString.fromString(this[UserTable.username]),
+        this[UserTable.avatar]?.value?.let { avatarId ->
+            ServerContext.paths.resolveRelativeResourcePath(
+                avatarId,
+                StaticResourcePurpose.USER_AVATAR,
+            )
+        },
+        this[UserTable.permission],
+    )
+
+    override suspend fun getOperators(): List<User> = dbQuery {
+        UserTable.select(UserTable.permission eq UserPermission.OPERATOR).map { it.toUser() }
+    }
+
+    override suspend fun setOperator(uid: UUID): Boolean = dbQuery {
+        UserTable.update({ UserTable.id eq uid }, limit = 1) {
+            it[permission] = UserPermission.OPERATOR
+        } == 1
+    }
+
+    override suspend fun removeOperator(uid: UUID): Boolean = dbQuery {
+        UserTable.update({ UserTable.id eq uid }, limit = 1) {
+            it[permission] = UserPermission.DEFAULT
+        } == 1
+    }
+
+    override suspend fun searchUsers(username: String): List<User> = dbQuery {
+        UserTable.select { UserTable.username.lowerCase() regexp username.lowercase() }.map { it.toUser() }
     }
 }

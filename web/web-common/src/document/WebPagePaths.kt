@@ -9,6 +9,7 @@ import org.solvo.model.api.WebPagePathPatterns.VAR_AUTH_METHOD_LOGIN
 import org.solvo.model.api.WebPagePathPatterns.VAR_AUTH_METHOD_REGISTER
 import org.solvo.model.api.WebPagePathPatterns.VAR_COURSE_CODE
 import org.solvo.model.api.WebPagePathPatterns.VAR_QUESTION_CODE
+import org.solvo.model.api.WebPagePathPatterns.VAR_SETTING_GROUP
 import org.solvo.web.session.item
 
 abstract class WebPagePaths {
@@ -35,6 +36,10 @@ abstract class WebPagePaths {
         return patterns.me
     }
 
+    fun settingsAdmin(group: String?): String {
+        return patterns.settingsAdmin.replaceNotNull(VAR_SETTING_GROUP, group)
+    }
+
     fun courses() = patterns.courses
     fun course(code: String) = patterns.course
         .replace(VAR_COURSE_CODE, code)
@@ -52,3 +57,6 @@ abstract class WebPagePaths {
 }
 
 internal val LocalRefer = localStorage.item("authReturnPath")
+
+private fun String.replaceNotNull(oldValue: String, newValue: String?, default: String = this): String =
+    newValue?.let { replace(oldValue, it) } ?: default

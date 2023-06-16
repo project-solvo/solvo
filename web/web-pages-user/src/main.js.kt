@@ -50,7 +50,7 @@ fun main() {
             val user = currentUser
             LoadableContent(isLoading = user == null, Modifier.fillMaxSize()) {
                 Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
-                    Column(Modifier.widthIn(max = 800.dp)) {
+                    Column(Modifier.widthIn(min = 600.dp, max = 800.dp)) {
                         UserPageContent(user ?: return@LoadableContent)
                     }
                 }

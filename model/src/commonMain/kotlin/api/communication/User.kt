@@ -5,6 +5,7 @@ import org.solvo.model.annotations.Immutable
 import org.solvo.model.foundation.Uuid
 import org.solvo.model.foundation.UuidAsStringSerializer
 import org.solvo.model.utils.NonBlankString
+import org.solvo.model.utils.UserPermission
 
 @Immutable
 @Serializable
@@ -12,4 +13,5 @@ data class User(
     val id: @Serializable(UuidAsStringSerializer::class) Uuid,
     val username: NonBlankString,
     val avatarUrl: String?,
+    val permission: UserPermission,
 )

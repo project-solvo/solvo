@@ -5,6 +5,7 @@ import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.User
 import org.solvo.model.foundation.randomUuid
+import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.nonBlank
 
 @Immutable
@@ -13,6 +14,7 @@ object Loading {
         id = randomUuid(),
         username = "Loading...".nonBlank,
         avatarUrl = null,
+        permission = UserPermission.DEFAULT
     )
 
     val CommentDownstream = CommentDownstream(
