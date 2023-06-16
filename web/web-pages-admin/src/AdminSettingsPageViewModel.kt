@@ -72,7 +72,8 @@ private class OperatorsViewModelImpl(
     private val parent: AdminSettingsPageViewModel
 ) : AbstractViewModel(), OperatorsViewModel, AdminSettingsPageViewModel by parent {
 
-    private val localOperators = MutableStateFlow<List<User>>(emptyList())
+    private val localOperators =
+        MutableSharedFlow<List<User>>(extraBufferCapacity = 1, onBufferOverflow = BufferOverflow.DROP_OLDEST)
     private val remoteOperators: SharedFlow<List<User>> =
         settings.filterNotNull().map { it.operators }.shareInBackground(started = SharingStarted.Lazily)
 
@@ -113,9 +114,11 @@ private class OperatorsViewModelImpl(
             client.settings.setOperator(userId)
         }
 
-        localOperators.value = operators.value.replacedOrPrepend(
-            { it.id == userId },
-            target.user.copy(permission = UserPermission.OPERATOR)
+        localOperators.tryEmit(
+            operators.value.replacedOrPrepend(
+                { it.id == userId },
+                target.user.copy(permission = UserPermission.OPERATOR)
+            )
         )
     }
 
@@ -129,7 +132,7 @@ private class OperatorsViewModelImpl(
             client.settings.removeOperator(userId)
         }
 
-        localOperators.value = operators.value.filterNot { it.id == userId }
+        localOperators.tryEmit(operators.value.filterNot { it.id == userId })
     }
 }
 
