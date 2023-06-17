@@ -7,6 +7,7 @@ import org.solvo.model.utils.UserPermission
 object UserTable: UUIDTable("UserInfo", "userId") {
     val username = varchar("username", ModelConstraints.USERNAME_MAX_LENGTH).uniqueIndex()
 
+    val displayName = varchar("displayName", ModelConstraints.USERNAME_MAX_LENGTH)
     val avatar = reference("avatar", StaticResourceTable).nullable()
     val permission = enumeration<UserPermission>("permissionLevel").default(UserPermission.DEFAULT)
 

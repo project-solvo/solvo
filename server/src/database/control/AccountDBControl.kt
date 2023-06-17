@@ -14,7 +14,7 @@ import org.solvo.server.utils.StaticResourcePurpose
 import java.util.*
 
 interface AccountDBControl {
-    suspend fun getId(username: String): UUID?
+    suspend fun getId(displayName: String): UUID?
 
     suspend fun matchHash(uid: UUID, hash: ByteArray): Boolean
     suspend fun modifyUsername(uid: UUID, username: String): Boolean
@@ -39,9 +39,9 @@ interface AccountDBControl {
 }
 
 class AccountDBControlImpl : AccountDBControl {
-    override suspend fun getId(username: String): UUID? = dbQuery {
+    override suspend fun getId(displayName: String): UUID? = dbQuery {
         UserTable
-            .select(UserTable.username eq username)
+            .select(UserTable.username eq displayName.lowercase())
             .map { it[UserTable.id].value }
             .singleOrNull()
     }
@@ -56,7 +56,8 @@ class AccountDBControlImpl : AccountDBControl {
     override suspend fun addAccount(username: String, hash: ByteArray): UUID? = dbQuery {
         if (username.length > ModelConstraints.USERNAME_MAX_LENGTH) return@dbQuery null
         val userId = UserTable.insertIgnoreAndGetId {
-            it[UserTable.username] = username
+            it[UserTable.username] = username.lowercase()
+            it[UserTable.displayName] = username
         }?.value
         if (userId != null) {
             AuthTable.insert {
@@ -76,7 +77,8 @@ class AccountDBControlImpl : AccountDBControl {
     override suspend fun modifyUsername(uid: UUID, username: String): Boolean = dbQuery {
         if (username.length > ModelConstraints.USERNAME_MAX_LENGTH) return@dbQuery false
         UserTable.update({ UserTable.id eq uid }) {
-            it[UserTable.username] = username
+            it[UserTable.username] = username.lowercase()
+            it[UserTable.displayName] = username
         } > 0
     }
 
@@ -138,7 +140,7 @@ class AccountDBControlImpl : AccountDBControl {
     override suspend fun getUsername(uid: UUID): String? = dbQuery {
         UserTable
             .select(UserTable.id eq uid)
-            .map { it[UserTable.username] }
+            .map { it[UserTable.displayName] }
             .singleOrNull()
     }
 
@@ -153,7 +155,7 @@ class AccountDBControlImpl : AccountDBControl {
 
     private fun ResultRow.toUser() = User(
         this[UserTable.id].value,
-        NonBlankString.fromString(this[UserTable.username]),
+        NonBlankString.fromString(this[UserTable.displayName]),
         this[UserTable.avatar]?.value?.let { avatarId ->
             ServerContext.paths.resolveRelativeResourcePath(
                 avatarId,
@@ -186,6 +188,6 @@ class AccountDBControlImpl : AccountDBControl {
     }
 
     override suspend fun searchUsers(username: String): List<User> = dbQuery {
-        UserTable.select { UserTable.username.lowerCase() regexp username.lowercase() }.map { it.toUser() }
+        UserTable.select { UserTable.username regexp username.lowercase() }.map { it.toUser() }
     }
 }
