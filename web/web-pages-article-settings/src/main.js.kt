@@ -18,6 +18,8 @@ import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.canManageArticle
 import org.solvo.web.document.History
+import org.solvo.web.pages.article.settings.groups.ArticleSettingGroup
+import org.solvo.web.pages.article.settings.groups.QuestionSettingGroup
 import org.solvo.web.session.currentUser
 import org.solvo.web.session.isLoggedInOrNull
 import org.solvo.web.settings.SettingsPage
@@ -86,7 +88,7 @@ fun main() {
 fun Page(
     model: PageViewModel,
 ) {
-    val questionGroups by model.settingGroups.collectAsState(null)
+    val settingGroups by model.settingGroups.collectAsState(null)
     val selected by model.selectedSettingGroup.collectAsState(null)
     SettingsPage(
         pageTitle = null,
@@ -97,6 +99,14 @@ fun Page(
                     .clip(shape = RoundedCornerShape(12.dp))
                     .fillMaxHeight()
             ) {
+                val (questionGroups, otherGroups) = remember(settingGroups) {
+                    settingGroups.orEmpty().partition { it is QuestionSettingGroup }
+                }
+
+                for (entry in otherGroups) {
+                    Item(model, selected, entry)
+                }
+
                 Text(
                     "Questions",
                     Modifier.padding(start = 12.dp, top = 12.dp, bottom = 4.dp),
@@ -104,26 +114,9 @@ fun Page(
                     fontWeight = FontWeight.W600,
                     fontSize = 18.sp,
                 )
-                for (entry in questionGroups.orEmpty()) {
-                    ListItem(
-                        leadingContent = {
-                            entry.NavigationIcon()
-                        },
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(8.dp))
-                            .clickable {
-                                if (!entry.requestExit()) return@clickable
-                                History.pushState {
-                                    articleSettings(
-                                        model.courseCode.value,
-                                        model.articleCode.value,
-                                        entry.pathName,
-                                    )
-                                }
-                            }.width(200.dp),
-                        tonalElevation = if (selected == entry) 2.dp else 0.dp,
-                        headlineText = { Text(entry.pathName, overflow = TextOverflow.Ellipsis) },
-                    )
+
+                for (entry in questionGroups) {
+                    Item(model, selected, entry)
                 }
             }
         },
@@ -133,4 +126,31 @@ fun Page(
             PageContent(model)
         }
     }
+}
+
+@Composable
+private fun Item(
+    model: PageViewModel,
+    selected: ArticleSettingGroup?,
+    entry: ArticleSettingGroup,
+) {
+    ListItem(
+        leadingContent = {
+            entry.NavigationIcon()
+        },
+        modifier = Modifier
+            .clip(RoundedCornerShape(8.dp))
+            .clickable {
+                if (!entry.requestExit()) return@clickable
+                History.pushState {
+                    articleSettings(
+                        model.courseCode.value,
+                        model.articleCode.value,
+                        entry.pathName,
+                    )
+                }
+            }.width(200.dp),
+        tonalElevation = if (selected == entry) 2.dp else 0.dp,
+        headlineText = { Text(entry.pathName, overflow = TextOverflow.Ellipsis) },
+    )
 }

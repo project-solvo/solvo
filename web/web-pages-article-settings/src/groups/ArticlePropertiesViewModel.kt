@@ -1,44 +1,49 @@
 package org.solvo.web.pages.article.settings.groups
 
-import kotlinx.coroutines.flow.*
-import org.solvo.web.pages.article.settings.PageViewModel
+import kotlinx.coroutines.flow.StateFlow
+import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.web.requests.client
+import org.solvo.web.settings.components.AutoCheckProperty
 import org.solvo.web.viewModel.AbstractViewModel
-import kotlin.time.Duration.Companion.seconds
 
-interface ArticlePropertiesViewModel : PageViewModel {
-    val newCode: StateFlow<String>
-    fun setNewCode(value: String)
-    val isNewCodeAvailable: StateFlow<Boolean?> // null: loading
-    val newCodeError: StateFlow<String?>
+interface ArticlePropertiesViewModel {
+    val newCode: AutoCheckProperty<String, String>
+    val newDisplayName: AutoCheckProperty<String, String>
 }
 
 @JsName("createArticlePropertiesViewModel")
-fun ArticlePropertiesViewModel(viewModel: PageViewModel): ArticlePropertiesViewModel =
-    ArticlePropertiesViewModelImpl(viewModel)
+fun ArticlePropertiesViewModel(
+    courseCode: StateFlow<String>,
+    originalArticle: StateFlow<ArticleDownstream?>,
+): ArticlePropertiesViewModel =
+    ArticlePropertiesViewModelImpl(courseCode, originalArticle)
 
 class ArticlePropertiesViewModelImpl(
-    private val page: PageViewModel
-) : ArticlePropertiesViewModel, PageViewModel by page, AbstractViewModel() {
-    override val newCode: MutableStateFlow<String> = MutableStateFlow("")
-    override fun setNewCode(value: String) {
-        newCode.value = value.trim()
-    }
-
-    override val isNewCodeAvailable: StateFlow<Boolean?> = newCode.debounce(1.seconds).flatMapLatest { code ->
-        if (code == articleCode.value) flowOf(true)
-        else {
-            deferFlowInBackground {
-                !client.articles.isArticleExist(courseCode.value, articleCode.value)
-            }
-        }
-    }.stateInBackground(true)
-
-    override val newCodeError: StateFlow<String?> = combine(isNewCodeAvailable) { (isNewCodeAvailable) ->
+    private val courseCode: StateFlow<String>,
+    private val originalArticle: StateFlow<ArticleDownstream?>,
+) : ArticlePropertiesViewModel, AbstractViewModel() {
+    override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
+        "",
+        transformValue = { it.trim() }
+    ) { code ->
         when {
-            isNewCodeAvailable == false -> "Article code already exist"
+            code == originalArticle.value?.code -> null
+            !client.articles.isArticleExist(
+                courseCode.value,
+                code
+            ) -> "Article code already exist"
+
             else -> null
         }
-    }.stateInBackground()
+    }
 
+    override val newDisplayName: AutoCheckProperty<String, String> = AutoCheckProperty(
+        "",
+        transformValue = { it.trim() }
+    ) { code ->
+        when {
+            code == originalArticle.value?.displayName -> null
+            else -> null
+        }
+    }
 }

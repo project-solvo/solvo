@@ -14,6 +14,7 @@ fun <T> LoadingUuidItem(uuid: Uuid, ready: StateFlow<T?>): LoadingUuidItem<T> =
 
 abstract class LoadingUuidItem<T> : HasCoid {
     abstract val ready: T?
+    abstract override val coid: Uuid
 
     @Stable
     abstract fun asFlow(): Flow<T>
@@ -26,7 +27,11 @@ abstract class LoadingUuidItem<T> : HasCoid {
         return other.coid == this.coid && this.ready == other.ready
     }
 
-    override fun hashCode(): Int = coid.hashCode()
+    override fun hashCode(): Int {
+        var result = ready?.hashCode() ?: 0
+        result = 31 * result + coid.hashCode()
+        return result
+    }
 }
 
 @Stable

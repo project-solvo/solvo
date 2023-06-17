@@ -17,7 +17,7 @@ interface PageViewModel {
     val courseCode: StateFlow<String>
     val articleCode: StateFlow<String>
     val questionCode: StateFlow<String?>
-    val article: SharedFlow<ArticleDownstream>
+    val article: StateFlow<ArticleDownstream?>
 
     val settingGroups: StateFlow<List<ArticleSettingGroup>?>
     val selectedSettingGroup: StateFlow<ArticleSettingGroup?>
@@ -33,11 +33,11 @@ private class PageViewModelImpl : AbstractViewModel(), PageViewModel {
     override val courseCode: StateFlow<String> = pathParameters.argument(WebPagePathPatterns.VAR_COURSE_CODE)
     override val articleCode: StateFlow<String> = pathParameters.argument(WebPagePathPatterns.VAR_ARTICLE_CODE)
     override val questionCode: StateFlow<String?> =
-        pathParameters.argumentNullable(WebPagePathPatterns.VAR_QUESTION_CODE)
+        pathParameters.argumentNullable(WebPagePathPatterns.VAR_SETTING_GROUP)
 
-    override val article = pathParameters.article().filterNotNull().shareInBackground()
+    override val article = pathParameters.article().stateInBackground()
 
-    val questionsIndexes = article.map { it.questionIndexes }.stateInBackground(emptyList())
+    val questionsIndexes = article.filterNotNull().map { it.questionIndexes }.stateInBackground(emptyList())
 
     override val settingGroups = questionsIndexes.mapLatest { list ->
         ArticleSettingGroup.articleSettingGroups + list.map { QuestionSettingGroup(it) }

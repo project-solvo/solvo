@@ -1,7 +1,9 @@
 package org.solvo.web.pages.article.settings.groups
 
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.filterNotNull
 import org.solvo.model.annotations.Stable
+import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.api.communication.QuestionEditRequest
 import org.solvo.model.api.communication.isEmpty
@@ -10,21 +12,17 @@ import org.solvo.web.document.History
 import org.solvo.web.document.parameters.question
 import org.solvo.web.pages.article.settings.PageViewModel
 import org.solvo.web.requests.client
+import org.solvo.web.settings.components.AutoCheckProperty
 import org.solvo.web.ui.snackBar.SolvoSnackbar
 import org.solvo.web.viewModel.AbstractViewModel
 import org.solvo.web.viewModel.launchInBackground
-import kotlin.time.Duration.Companion.seconds
 
 
 @Stable
 interface QuestionSettingsViewModel : PageViewModel {
     val question: StateFlow<QuestionDownstream?>
 
-    val newCode: StateFlow<String>
-    fun setNewCode(value: String)
-
-    val isNewCodeAvailable: StateFlow<Boolean?> // null: loading
-    val newCodeError: StateFlow<String?>
+    val newCode: AutoCheckProperty<String, String>
 
 //    val content: StateFlow<String>
 
@@ -57,35 +55,30 @@ class QuestionSettingsSettingsViewModelImpl(
     private val page: PageViewModel,
 ) : QuestionSettingsViewModel, PageViewModel by page, AbstractViewModel() {
     override val question: StateFlow<QuestionDownstream?> =
-        page.pathParameters.question().filterNotNull().stateInBackground()
+        page.pathParameters.question(WebPagePathPatterns.VAR_SETTING_GROUP).filterNotNull().stateInBackground()
 
-    override val newCode: MutableStateFlow<String> = MutableStateFlow("")
-    override fun setNewCode(value: String) {
-        newCode.value = value.trim()
-    }
-
-    override val isNewCodeAvailable: StateFlow<Boolean?> = newCode.debounce(1.seconds).flatMapLatest { code ->
-        if (code == question.value?.code) flowOf(true)
-        else {
-            deferFlowInBackground {
-                !client.questions.isQuestionExist(courseCode.value, articleCode.value, code)
-            }
-        }
-    }.stateInBackground(true)
-
-    override val newCodeError: StateFlow<String?> = combine(isNewCodeAvailable) { (isNewCodeAvailable) ->
+    override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
+        "",
+        transformValue = { it.trim() }
+    ) { code ->
         when {
-            isNewCodeAvailable == false -> "Question code already exist"
+            code == articleCode.value -> null
+            !client.questions.isQuestionExist(
+                courseCode.value,
+                articleCode.value,
+                code
+            ) -> "Question code '$code' is already taken"
+
             else -> null
         }
-    }.stateInBackground()
+    }
 
     override fun submitBasicChanges(snackbar: SolvoSnackbar) {
         launchInBackground {
             submitChange(
                 snackbar,
                 QuestionEditRequest(
-                    code = newCode.value.nonBlankOrNull,
+                    code = newCode.valueFlow.value.nonBlankOrNull,
                 )
             )
         }
@@ -108,7 +101,7 @@ class QuestionSettingsSettingsViewModelImpl(
     override fun init() {
         launchInBackground {
             question.filterNotNull().collect {
-                newCode.value = it.code
+                newCode.setValue(it.code)
             }
         }
     }

@@ -139,3 +139,12 @@ fun <V : AbstractViewModel> V.launchInBackgroundAnimated(
         isLoadingState.value = false
     }
 }
+
+
+fun <T> CoroutineScope.deferFlow(value: suspend () -> T): MutableStateFlow<T?> {
+    val flow = MutableStateFlow<T?>(null)
+    launch {
+        flow.value = value()
+    }
+    return flow
+}

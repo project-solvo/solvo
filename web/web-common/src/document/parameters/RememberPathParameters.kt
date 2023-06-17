@@ -49,11 +49,11 @@ fun PathParameters.article(): Flow<ArticleDownstream?> {
 }
 
 @Stable
-fun PathParameters.question(): Flow<QuestionDownstream?> {
+fun PathParameters.question(paramName: String = WebPagePathPatterns.VAR_QUESTION_CODE): Flow<QuestionDownstream?> {
     return combine(
         argument(WebPagePathPatterns.VAR_COURSE_CODE),
         argument(WebPagePathPatterns.VAR_ARTICLE_CODE),
-        argument(WebPagePathPatterns.VAR_QUESTION_CODE),
+        argument(paramName),
     ) { courseCode, articleCode, questionCode ->
         client.questions.getQuestion(courseCode, articleCode, questionCode)
     }

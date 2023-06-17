@@ -1,11 +1,13 @@
 package org.solvo.web.pages.article.settings.groups
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Quiz
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Icon
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -15,6 +17,7 @@ import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.pages.article.settings.PageViewModel
 import org.solvo.web.settings.Section
+import org.solvo.web.settings.components.AutoCheckPropertyTextField
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.ui.snackBar.SolvoSnackbar
@@ -62,29 +65,19 @@ class QuestionSettingGroup(
             }
         }
 
-        val newCode by model.newCode.collectAsState()
         Section(header = {
             HeaderWithActions("Basics") {
                 SaveChangesButton { model.submitBasicChanges(it) }
             }
         }) {
-            val newCodeError by model.newCodeError.collectAsState()
-            OutlinedTextField(
-                newCode,
-                { model.setNewCode(it) },
+            AutoCheckPropertyTextField(
+                model.newCode,
                 Modifier.fillMaxWidth(),
                 placeholder = { Text("Example: ia.iii") },
-                singleLine = true,
-                shape = RoundedCornerShape(8.dp),
                 label = { Text("Question Code") },
                 supportingText = {
-                    Text(newCodeError ?: "Each question should have an unique code. ")
+                    Text("Each question should have an unique code. ")
                 },
-                trailingIcon = {
-                    val isNewCodeAvailable by model.isNewCodeAvailable.collectAsState()
-                    AvailabilityIndicator(isNewCodeAvailable)
-                },
-                isError = newCodeError != null,
             )
         }
 
