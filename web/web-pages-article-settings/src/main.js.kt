@@ -15,6 +15,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.canManageArticle
 import org.solvo.web.document.History
@@ -28,6 +29,9 @@ import org.solvo.web.settings.components.VerticalNavigationListScope
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
+import org.solvo.web.ui.modifiers.CursorIcon
+import org.solvo.web.ui.modifiers.clickable
+import org.solvo.web.ui.modifiers.cursorHoverIcon
 
 fun main() {
     onWasmReady {
@@ -39,18 +43,7 @@ fun main() {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         val courseCode by model.courseCode.collectAsState(null)
                         val article by model.article.collectAsState(null)
-                        OutlinedCard(shape = RoundedCornerShape(8.dp)) {
-                            Row(
-                                Modifier.padding(horizontal = 8.dp).padding(top = 2.dp, bottom = 4.dp),
-                                verticalAlignment = Alignment.CenterVertically
-                            ) {
-                                ProvideTextStyle(TextStyle(fontSize = 16.sp)) {
-                                    Text(courseCode ?: "")
-                                    Text(" / ")
-                                    Text(article?.code ?: "")
-                                }
-                            }
-                        }
+                        CourseArticleCodeLabel(courseCode, article)
                         Text(
                             article?.displayName ?: "", Modifier.padding(start = 12.dp),
                             fontWeight = FontWeight.W600,
@@ -80,6 +73,32 @@ fun main() {
                         Page(model)
                     }
                 }
+            }
+        }
+    }
+}
+
+@Composable
+private fun CourseArticleCodeLabel(courseCode: String?, article: ArticleDownstream?) {
+    OutlinedCard(shape = RoundedCornerShape(8.dp)) {
+        Row(
+            Modifier.padding(horizontal = 8.dp).padding(top = 2.dp, bottom = 4.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            ProvideTextStyle(TextStyle(fontSize = 16.sp)) {
+                Text(
+                    courseCode ?: "",
+                    Modifier.cursorHoverIcon(CursorIcon.POINTER)
+                        .clickable(indication = null) {
+                            History.navigate {
+                                course(
+                                    courseCode ?: ""
+                                )
+                            }
+                        }
+                )
+                Text(" / ")
+                Text(article?.code ?: "")
             }
         }
     }
@@ -124,9 +143,9 @@ private fun VerticalNavigationListScope.Item(
     entry: ArticleSettingGroup,
     model: PageViewModel
 ) {
-    Item(selected, entry) {
-        if (entry == selected) return@Item
-        if (!entry.requestExit()) return@Item
+    Item(selected, entry) onClick@{
+        if (entry == selected) return@onClick
+        if (!entry.requestExit()) return@onClick
         History.pushState {
             articleSettings(
                 model.courseCode.value,
