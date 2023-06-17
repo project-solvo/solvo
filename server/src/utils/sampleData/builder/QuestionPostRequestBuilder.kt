@@ -31,7 +31,7 @@ class QuestionPostRequest(
 
             editQuestion(
                 request = QuestionEditRequest(
-                    NonBlankString.fromString(content()), anonymity, sharedContentId
+                    NonBlankString.fromString(content()), anonymity
                 ),
                 userId = author.uid,
                 questionId = questionId

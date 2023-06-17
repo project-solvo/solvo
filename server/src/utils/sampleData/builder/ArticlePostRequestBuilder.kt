@@ -31,7 +31,6 @@ class ArticlePostRequest(
                     content = NonBlankString.fromString(content()),
                     anonymity = anonymity,
                     displayName = NonBlankString.fromString(displayName),
-                    termYear = NonBlankString.fromString(termYear),
                 ),
                 userId = author.uid,
                 articleId = articleId,
