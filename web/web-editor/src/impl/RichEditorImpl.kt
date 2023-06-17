@@ -521,7 +521,7 @@ internal class RichEditor internal constructor(
         {
                         width: "100%",
                         height: "100%",
-                        path : '/editor.md/lib/',
+                        path : '/static/editor.md/lib/',
                         theme : "default",
                         previewTheme : "default",
                         editorTheme : "default",

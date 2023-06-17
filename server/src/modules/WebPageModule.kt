@@ -17,18 +17,18 @@ import org.solvo.server.ServerMain
 fun Application.webPageModule() {
     routing {
         // STATIC RESOURCES
-        staticResources("/", "static", index = null) {
+        routeStatic("/static/skiko.js", "/skiko.js") {
+            call.response.cacheControl(CacheControl.MaxAge(maxAgeSeconds = 64000))
+        }
+        routeStatic("/static/skiko.wasm", "/skiko.wasm") {
+            call.response.cacheControl(CacheControl.MaxAge(maxAgeSeconds = 64000))
+        }
+        staticResources("/static/", "static", index = null) {
             preCompressed(CompressedFileType.GZIP, CompressedFileType.BROTLI)
             enableAutoHeadResponse()
             cacheControl {
                 listOf(CacheControl.MaxAge(maxAgeSeconds = 64000))
             }
-        }
-        routeStatic("/skiko.js", "/skiko.js") {
-            call.response.cacheControl(CacheControl.MaxAge(maxAgeSeconds = 64000))
-        }
-        routeStatic("/skiko.wasm", "/skiko.wasm") {
-            call.response.cacheControl(CacheControl.MaxAge(maxAgeSeconds = 64000))
         }
 
         // WEB PAGES

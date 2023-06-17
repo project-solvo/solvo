@@ -27,7 +27,7 @@ fun AppTheme(
         try {
             UNICODE_FONT = FontFamily(
 //                Typeface(org.jetbrains.skia.Typeface.makeFromName("FangZhengHeiTiSC", FontStyle.NORMAL)),
-                Font("FangZhengHeiTiSC", resource("fonts/FangZhengHeiTiSC.ttf").readBytes()),
+                Font("FangZhengHeiTiSC", resource("static/fonts/FangZhengHeiTiSC.ttf").readBytes()),
 //            Font("FangZhengHeiTiTC", resource("fonts/FangZhengHeiTiTC.ttf").readBytes()),
             )
         } catch (e: Throwable) {
@@ -36,7 +36,7 @@ fun AppTheme(
         }
         try {
             EMOJI_FONT = FontFamily(
-                Font("NotoColorEmoji", resource("fonts/NotoColorEmoji-Regular.ttf").readBytes())
+                Font("NotoColorEmoji", resource("static/fonts/NotoColorEmoji-Regular.ttf").readBytes())
             )
         } catch (e: Throwable) {
             console.error("Failed to load font")
