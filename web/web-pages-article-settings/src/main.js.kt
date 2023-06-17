@@ -4,12 +4,12 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -29,7 +29,33 @@ import org.solvo.web.ui.modifiers.clickable
 fun main() {
     onWasmReady {
         SolvoWindow {
-            SolvoTopAppBar()
+            val model: PageViewModel = remember { PageViewModel() }
+
+            SolvoTopAppBar(
+                title = {
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        val courseCode by model.courseCode.collectAsState(null)
+                        val article by model.article.collectAsState(null)
+                        OutlinedCard(shape = RoundedCornerShape(8.dp)) {
+                            Row(
+                                Modifier.padding(horizontal = 8.dp).padding(top = 2.dp, bottom = 4.dp),
+                                verticalAlignment = Alignment.CenterVertically
+                            ) {
+                                ProvideTextStyle(TextStyle(fontSize = 16.sp)) {
+                                    Text(courseCode ?: "")
+                                    Text(" / ")
+                                    Text(article?.code ?: "")
+                                }
+                            }
+                        }
+                        Text(
+                            article?.displayName ?: "", Modifier.padding(start = 12.dp),
+                            fontWeight = FontWeight.W600,
+                            fontSize = 24.sp
+                        )
+                    }
+                }
+            )
 
             if (isLoggedInOrNull() == false) {
                 SideEffect {
@@ -44,8 +70,6 @@ fun main() {
                     History.navigate { home() }
                 }
             }
-
-            val model: PageViewModel = remember { PageViewModel() }
 
             LoadableContent(isLoading = user?.permission != UserPermission.ROOT, Modifier.fillMaxSize()) {
                 Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
@@ -64,9 +88,8 @@ fun Page(
 ) {
     val questionGroups by model.questionGroups.collectAsState(null)
     val selected by model.selectedQuestionGroup.collectAsState(null)
-    val article by model.article.collectAsState(null)
     SettingsPage(
-        pageTitle = { Text(article?.displayName ?: "") },
+        pageTitle = null,
         navigationRail = {
             Column(
                 Modifier

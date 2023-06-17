@@ -12,16 +12,18 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun SettingsPage(
-    pageTitle: @Composable () -> Unit,
+    pageTitle: @Composable (() -> Unit)? = null,
     navigationRail: @Composable () -> Unit,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ProvideTextStyle(MaterialTheme.typography.headlineLarge) {
-        pageTitle()
+        pageTitle?.invoke()
     }
 
-    Spacer(Modifier.height(40.dp))
+    if (pageTitle != null) {
+        Spacer(Modifier.height(40.dp))
+    }
 
     Row {
         Box(Modifier.fillMaxHeight()) {

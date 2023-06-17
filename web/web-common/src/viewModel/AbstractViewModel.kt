@@ -87,6 +87,14 @@ abstract class AbstractViewModel : RememberObserver {
         }
     }
 
+    fun <T> deferFlowInBackground(value: suspend () -> T): MutableStateFlow<T?> {
+        val flow = MutableStateFlow<T?>(null)
+        launchInBackground {
+            flow.value = value()
+        }
+        return flow
+    }
+
     inline fun <T> CoroutineScope.load(uuid: Uuid, crossinline calc: suspend () -> T?): LoadingUuidItem<T> {
         val flow = MutableStateFlow<T?>(null)
         launch {

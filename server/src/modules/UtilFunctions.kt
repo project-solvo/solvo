@@ -90,7 +90,7 @@ fun Route.postAuthenticated(
 
 @KtorDsl
 fun Route.patchAuthenticated(
-    path: String,
+    path: String = "",
     body: suspend PipelineContext<Unit, ApplicationCall>.(Unit) -> Unit
 ): Route = authenticate("authBearer") { patch(path, body) }
 

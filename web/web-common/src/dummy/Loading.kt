@@ -6,13 +6,13 @@ import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.User
 import org.solvo.model.foundation.randomUuid
 import org.solvo.model.utils.UserPermission
-import org.solvo.model.utils.nonBlank
+import org.solvo.model.utils.nonBlankOrFail
 
 @Immutable
 object Loading {
     val User = User(
         id = randomUuid(),
-        username = "Loading...".nonBlank,
+        username = "Loading...".nonBlankOrFail,
         avatarUrl = null,
         permission = UserPermission.DEFAULT
     )

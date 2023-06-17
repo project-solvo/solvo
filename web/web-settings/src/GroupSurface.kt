@@ -17,20 +17,22 @@ import androidx.compose.ui.unit.dp
  */
 @Composable
 fun Section(
-    header: @Composable RowScope.() -> Unit,
+    header: @Composable (RowScope.() -> Unit)? = null,
     modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit
 ) {
     val shape = RoundedCornerShape(12.dp)
     Surface(modifier.padding(vertical = 16.dp).clip(shape), shape = shape, tonalElevation = 1.dp) {
         Column {
-            Surface(Modifier.height(64.dp).fillMaxWidth(), tonalElevation = 8.dp) {
-                ProvideTextStyle(MaterialTheme.typography.titleLarge) {
-                    Row(
-                        Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        header()
+            if (header != null) {
+                Surface(Modifier.height(64.dp).fillMaxWidth(), tonalElevation = 8.dp) {
+                    ProvideTextStyle(MaterialTheme.typography.titleLarge) {
+                        Row(
+                            Modifier.padding(horizontal = 16.dp).fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            header()
+                        }
                     }
                 }
             }

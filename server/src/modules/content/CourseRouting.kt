@@ -64,7 +64,7 @@ fun Route.courseRouting(
                 val articleId = getArticleIdFromContext() ?: return@delete
                 respondOKOrBadRequest(contents.deleteArticle(articleId))
             }
-            patchAuthenticated("/{articleCode}/edit") {
+            patchAuthenticated("/{articleCode}") {
                 val uid = getUserIdAndCheckOp(accounts) ?: return@patchAuthenticated
                 val articleId = getArticleIdFromContext() ?: return@patchAuthenticated
                 val article = call.receive<ArticleEditRequest>()
@@ -89,7 +89,7 @@ fun Route.courseRouting(
                     val questionId = contents.createQuestion(questionCode, articleId, uid)
                     respondContentOrBadRequest(questionId)
                 }
-                patchAuthenticated("/edit") {
+                patchAuthenticated {
                     val uid = getUserIdAndCheckOp(accounts) ?: return@patchAuthenticated
                     val questionId = contents.getQuestionId(
                         articleId = getArticleIdFromContext() ?: return@patchAuthenticated,

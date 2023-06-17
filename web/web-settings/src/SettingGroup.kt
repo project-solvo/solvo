@@ -2,14 +2,17 @@ package org.solvo.web.settings
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.parameters.PathVariable
+import org.solvo.web.ui.theme.UNICODE_FONT
 
 /**
  * @param VM view model
@@ -53,6 +56,17 @@ abstract class SettingGroup<VM : Any>(
                 Modifier.padding(vertical = 16.dp).fillMaxWidth(),
                 thickness = 1.dp,
                 color = MaterialTheme.colorScheme.outline.copy(0.5f)
+            )
+        }
+
+        @Composable
+        protected fun HintText(text: String) {
+            Text(
+                text,
+                style = TextStyle(
+                    color = LocalContentColor.current.copy(0.8f),
+                    fontFamily = UNICODE_FONT,
+                )
             )
         }
     }

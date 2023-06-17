@@ -32,7 +32,7 @@ value class NonBlankString private constructor(
     }
 }
 
-inline val String.nonBlank: NonBlankString
+inline val String.nonBlankOrFail: NonBlankString
     get() = NonBlankString.fromString(this)
 inline val String.nonBlankOrNull: NonBlankString?
     get() = NonBlankString.fromStringOrNull(this)
