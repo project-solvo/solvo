@@ -56,7 +56,7 @@ fun HomePageContent(
     SettingsPage(
         pageTitle = { Text("My Courses") },
         navigationRail = {
-            VerticalNavigationList {
+            VerticalNavigationList(Modifier.padding(end = 40.dp)) {
                 GroupingHeader("Courses")
 
                 courses?.forEach {
