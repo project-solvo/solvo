@@ -19,6 +19,9 @@ class ModelConstraints {
         const val LIGHT_SUB_COMMENTS_AMOUNT = 3
 
         const val CONTENT_TYPE_MAXIMUM_LENGTH = 256
+
+        const val USERNAME_REGEX = "^[a-zA-Z0-9_-]+$"
+        const val CODE_REGEX = "^[^\\/:space:]+$"
     }
 }
 
