@@ -23,8 +23,6 @@ interface AccountDBControl {
     suspend fun addAccount(username: String, hash: ByteArray): UUID?
     suspend fun deleteAccount(uid: UUID): Boolean
     suspend fun modifyAvatar(uid: UUID, resourceId: UUID): Boolean
-    suspend fun op(operatorId: UUID, uid: UUID): Boolean
-    suspend fun deOp(operatorId: UUID, uid: UUID): Boolean
     suspend fun banUntil(operatorId: UUID, uid: UUID, time: Long): Boolean
 
     suspend fun getPermission(uid: UUID): UserPermission?
@@ -35,6 +33,7 @@ interface AccountDBControl {
     suspend fun getUserInfo(uid: UUID): User?
     suspend fun getOperators(): List<User>
     suspend fun setOperator(uid: UUID): Boolean
+    suspend fun setRoot(uid: UUID): Boolean
     suspend fun removeOperator(uid: UUID): Boolean
     suspend fun searchUsers(username: String): List<User>
 }
@@ -90,28 +89,6 @@ class AccountDBControlImpl : AccountDBControl {
     override suspend fun deleteAccount(uid: UUID): Boolean = dbQuery {
         if (UserTable.deleteWhere { UserTable.id eq uid } == 0) return@dbQuery false
         AuthTable.deleteWhere { AuthTable.userId eq uid } > 0
-    }
-
-    override suspend fun op(operatorId: UUID, uid: UUID): Boolean = dbQuery {
-        val operatorPermission = getPermission(operatorId)
-        val userPermission = getPermission(uid)
-
-        if (operatorPermission == UserPermission.ROOT && userPermission == UserPermission.DEFAULT) {
-            UserTable.update({ UserTable.id eq uid }) {
-                it[UserTable.permission] = UserPermission.OPERATOR
-            } > 0
-        } else false
-    }
-
-    override suspend fun deOp(operatorId: UUID, uid: UUID): Boolean = dbQuery {
-        val operatorPermission = getPermission(operatorId)
-        val userPermission = getPermission(uid)
-
-        if (operatorPermission != UserPermission.ROOT && userPermission != UserPermission.OPERATOR) {
-            UserTable.update({ UserTable.id eq uid }) {
-                it[UserTable.permission] = UserPermission.DEFAULT
-            } > 0
-        } else false
     }
 
     override suspend fun banUntil(operatorId: UUID, uid: UUID, time: Long): Boolean = dbQuery {
@@ -193,6 +170,12 @@ class AccountDBControlImpl : AccountDBControl {
     override suspend fun setOperator(uid: UUID): Boolean = dbQuery {
         UserTable.update({ UserTable.id eq uid }, limit = 1) {
             it[permission] = UserPermission.OPERATOR
+        } == 1
+    }
+
+    override suspend fun setRoot(uid: UUID): Boolean = dbQuery {
+        UserTable.update({ UserTable.id eq uid }, limit = 1) {
+            it[permission] = UserPermission.ROOT
         } == 1
     }
 

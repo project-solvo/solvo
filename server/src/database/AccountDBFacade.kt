@@ -25,6 +25,7 @@ interface AccountDBFacade {
     suspend fun setOperator(uid: UUID): Boolean
     suspend fun removeOperator(uid: UUID): Boolean
     suspend fun isOp(uid: UUID): Boolean
+    suspend fun setRoot(uid: UUID): Boolean
     suspend fun addToken(uid: UUID, token: String): Boolean
     suspend fun matchToken(token: String): UUID?
     suspend fun removeAllTokens(uid: UUID): Boolean
@@ -93,6 +94,10 @@ class AccountDBFacadeImpl(
 
     override suspend fun isOp(uid: UUID): Boolean {
         return accounts.getPermission(uid)?.let { it >= UserPermission.OPERATOR } == true
+    }
+
+    override suspend fun setRoot(uid: UUID): Boolean {
+        return accounts.setRoot(uid)
     }
 
     override suspend fun addToken(uid: UUID, token: String): Boolean {

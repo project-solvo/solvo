@@ -2,11 +2,19 @@ package org.solvo.server.utils.sampleData.data
 
 import io.ktor.http.*
 import org.solvo.model.api.communication.ReactionKind
+import org.solvo.model.utils.UserPermission
 import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.sampleData.builder.SampleDataBuilder
 
 fun SampleDataBuilder.sampleData1() {
-    val alex = user("Alex", AuthDigest("alex"))
+    val admin = user("Admin", AuthDigest("admin")) {
+        permit(UserPermission.ROOT)
+    }
+
+    val alex = user("Alex", AuthDigest("alex")) {
+        permit(UserPermission.OPERATOR)
+        avatar("./test-resources/avatar1.png", ContentType.Image.PNG)
+    }
     val bob = user("Bob", AuthDigest("bob"))
     val carol = user("Carol", AuthDigest("carol"))
     val david = user("David", AuthDigest("david"))
@@ -139,7 +147,8 @@ fun SampleDataBuilder.sampleData1() {
                 content { "![some image](${image1a.url})" }
                 anonymous()
                 answer(alex) {
-                    content("""
+                    content(
+                        """
                         ```
                         bees' :: Array (Int, Int) Int -> Int 
                         bees' hiveArr = table ! (size, size) - hiveArr ! (0,0) 
@@ -154,7 +163,8 @@ fun SampleDataBuilder.sampleData1() {
                             size = snd (bounds hiveArr) 
                         ```
                         -- Complexity: O(mn) where m = height of hive, n = max width of hive. 
-                    """.trimIndent())
+                    """.trimIndent()
+                    )
                 }
             }
             question("1b") {
