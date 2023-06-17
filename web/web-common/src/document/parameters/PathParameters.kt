@@ -110,7 +110,7 @@ internal class PathParametersImpl internal constructor(
 
     override fun argumentNullable(name: String): StateFlow<String?> {
         return observedParams.getOrPut(name) {
-            MutableStateFlow(null)
+            MutableStateFlow(get(name))
         }
     }
 
