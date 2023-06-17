@@ -12,11 +12,20 @@ import org.solvo.model.utils.NonBlankString
 @Immutable
 @Serializable
 class QuestionUpstream(
-    override val content: NonBlankString,
+    override val content: NonBlankString = NonBlankString.default,
     override val anonymity: Boolean = true,
 
     val sharedContent: Uuid? = null,
 ) : CommentableUpstream
+
+@Immutable
+@Serializable
+class QuestionEditRequest(
+    override val content: NonBlankString? = null,
+    override val anonymity: Boolean? = null,
+
+    val sharedContent: Uuid? = null,
+) : CommentableEditRequest
 
 @Immutable
 @Serializable

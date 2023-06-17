@@ -3,11 +3,9 @@ package org.solvo.server.database.control
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.neq
-import org.solvo.model.api.communication.CommentKind
-import org.solvo.model.api.communication.QuestionDownstream
-import org.solvo.model.api.communication.QuestionUpstream
-import org.solvo.model.api.communication.SharedContent
+import org.solvo.model.api.communication.*
 import org.solvo.model.utils.ModelConstraints
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
@@ -15,13 +13,14 @@ import org.solvo.server.database.exposed.QuestionTable
 import java.util.*
 
 interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
-    suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
+    suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: NonBlankString): UUID?
+    suspend fun create(authorId: UUID, articleId: UUID, code: NonBlankString): UUID?
+    suspend fun edit(request: QuestionEditRequest, userId: UUID, questionId: UUID): Boolean
     suspend fun getId(articleId: UUID, code: String): UUID?
     suspend fun view(coid: UUID): QuestionDownstream?
 }
 
 class QuestionDBControlImpl(
-    private val commentDB: CommentDBControl,
     private val accountDB: AccountDBControl,
     private val textDB: TextDBControl,
 ) : QuestionDBControl, CommentedObjectDBControlImpl<QuestionUpstream>(textDB) {
@@ -35,8 +34,8 @@ class QuestionDBControlImpl(
             .singleOrNull()
     }
 
-    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID? {
-        if (code.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
+    override suspend fun post(content: QuestionUpstream, authorId: UUID, articleId: UUID, code: NonBlankString): UUID? {
+        if (code.str.length > ModelConstraints.QUESTION_CODE_MAX_LENGTH) return null
         if (content.sharedContent?.let { textDB.contains(it) } == false) return null
         val coid = insertAndGetCOID(content, authorId) ?: return null
         dbQuery {
@@ -44,10 +43,24 @@ class QuestionDBControlImpl(
                 it[QuestionTable.coid] = coid
                 it[QuestionTable.sharedContent] = content.sharedContent
                 it[QuestionTable.article] = articleId
-                it[QuestionTable.code] = code
+                it[QuestionTable.code] = code.str
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
+    }
+
+    override suspend fun create(authorId: UUID, articleId: UUID, code: NonBlankString): UUID? {
+        return post(QuestionUpstream(), authorId, articleId, code)
+    }
+
+    override suspend fun edit(request: QuestionEditRequest, userId: UUID, questionId: UUID): Boolean = dbQuery {
+        if (!contains(questionId)) return@dbQuery false
+
+        request.run {
+            anonymity?.let { anonymity -> setAnonymity(questionId, anonymity) }
+            content?.let { content -> modifyContent(questionId, content.str) }
+        }
+        return@dbQuery true
     }
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {

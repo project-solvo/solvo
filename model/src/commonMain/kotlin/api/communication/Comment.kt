@@ -20,9 +20,9 @@ class CommentUpstream(
 @Immutable
 @Serializable
 class CommentEditRequest(
-    val content: NonBlankString? = null,
-    val anonymity: Boolean? = null,
-)
+    override val content: NonBlankString? = null,
+    override val anonymity: Boolean? = null,
+): CommentableEditRequest
 
 fun CommentEditRequest.isEmpty(): Boolean {
     return content == null && anonymity == null

@@ -38,7 +38,7 @@ object ServerContext {
         private val _texts: TextDBControl = TextDBControlImpl()
         private val _reactions: ReactionDBControl = ReactionDBControlImpl()
         private val _comments: CommentDBControl = CommentDBControlImpl(_accounts, _texts)
-        private val _questions: QuestionDBControl = QuestionDBControlImpl(_comments, _accounts, _texts)
+        private val _questions: QuestionDBControl = QuestionDBControlImpl(_accounts, _texts)
         private val _articles: ArticleDBControl = ArticleDBControlImpl(_courses, _terms, _accounts, _texts)
 
         private val config: ConfigFacade = ConfigFacadeImpl()

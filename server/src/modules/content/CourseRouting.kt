@@ -2,13 +2,15 @@ package org.solvo.server.modules.content
 
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.plugins.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import io.ktor.server.util.*
-import org.solvo.model.api.communication.ArticleUpstream
+import org.solvo.model.api.communication.ArticleEditRequest
 import org.solvo.model.api.communication.Course
-import org.solvo.model.api.communication.QuestionUpstream
+import org.solvo.model.api.communication.QuestionEditRequest
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.database.AccountDBFacade
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.modules.*
@@ -22,11 +24,7 @@ fun Route.courseRouting(
             call.respond(contents.allCourses())
         }
         postAuthenticated("/new") {
-            val uid = getUserId() ?: return@postAuthenticated
-            if (!accounts.isOp(uid)) {
-                call.respond(HttpStatusCode.Forbidden)
-                return@postAuthenticated
-            }
+            getUserIdAndCheckOp(accounts) ?: return@postAuthenticated
             val course = call.receive<Course>()
 
             val courseId = contents.newCourse(course)
@@ -47,33 +45,69 @@ fun Route.courseRouting(
                 val articles = contents.allArticlesOfCourse(courseCode)
                 respondContentOrNotFound(articles)
             }
-            postAuthenticated("/upload") {
-                val uid = getUserId() ?: return@postAuthenticated
-                val courseCode = call.parameters.getOrFail("courseCode")
-                val article = call.receive<ArticleUpstream>()
-
-                val articleId = contents.postArticle(article, uid, courseCode)
-                respondContentOrBadRequest(articleId)
-            }
             get("/{articleCode}") {
                 val articleId = getArticleIdFromContext() ?: return@get
                 call.respond(contents.viewArticle(articleId)!!)
             }
-            get("/{articleCode}/questions/{questionCode}") {
-                val articleId = getArticleIdFromContext() ?: return@get
-                val questionCode = call.parameters.getOrFail("questionCode")
+            postAuthenticated("/{articleCode}/create") {
+                val uid = getUserIdAndCheckOp(accounts) ?: return@postAuthenticated
+                val courseCode = call.parameters.getOrFail("courseCode")
+                val articleCode = NonBlankString.fromStringOrNull(
+                    call.parameters.getOrFail("articleCode")
+                ) ?: throw BadRequestException("empty article code")
 
-                val question = contents.viewQuestion(articleId, questionCode)
-                respondContentOrNotFound(question)
+                val articleId = contents.createArticle(articleCode, uid, courseCode)
+                respondContentOrBadRequest(articleId)
             }
-            postAuthenticated("/{articleCode}/questions/{questionCode}/upload") {
-                val uid = getUserId() ?: return@postAuthenticated
-                val articleId = getArticleIdFromContext() ?: return@postAuthenticated
-                val questionCode = call.parameters.getOrFail("questionCode")
-                val question = call.receive<QuestionUpstream>()
+            delete {
+                getUserIdAndCheckOp(accounts) ?: return@delete
+                val articleId = getArticleIdFromContext() ?: return@delete
+                respondOKOrBadRequest(contents.deleteArticle(articleId))
+            }
+            patchAuthenticated("/{articleCode}/edit") {
+                val uid = getUserIdAndCheckOp(accounts) ?: return@patchAuthenticated
+                val articleId = getArticleIdFromContext() ?: return@patchAuthenticated
+                val article = call.receive<ArticleEditRequest>()
 
-                val questionId = contents.postQuestion(question, uid, articleId, questionCode)
-                respondContentOrBadRequest(questionId)
+                respondOKOrBadRequest(contents.editArticle(article, uid, articleId))
+            }
+            route("/{articleCode}/questions/{questionCode}") {
+                get {
+                    val articleId = getArticleIdFromContext() ?: return@get
+                    val questionCode = call.parameters.getOrFail("questionCode")
+
+                    val question = contents.viewQuestion(articleId, questionCode)
+                    respondContentOrNotFound(question)
+                }
+                postAuthenticated("/create") {
+                    val uid = getUserIdAndCheckOp(accounts) ?: return@postAuthenticated
+                    val articleId = getArticleIdFromContext() ?: return@postAuthenticated
+                    val questionCode = NonBlankString.fromStringOrNull(
+                        call.parameters.getOrFail("questionCode")
+                    ) ?: throw BadRequestException("empty question code")
+
+                    val questionId = contents.createQuestion(questionCode, articleId, uid)
+                    respondContentOrBadRequest(questionId)
+                }
+                patchAuthenticated("/edit") {
+                    val uid = getUserIdAndCheckOp(accounts) ?: return@patchAuthenticated
+                    val questionId = contents.getQuestionId(
+                        articleId = getArticleIdFromContext() ?: return@patchAuthenticated,
+                        code = call.parameters.getOrFail("questionCode")
+                    ) ?: throw NotFoundException("question not found")
+                    val question = call.receive<QuestionEditRequest>()
+
+                    respondOKOrBadRequest(contents.editQuestion(question, uid, questionId))
+                }
+                delete {
+                    getUserIdAndCheckOp(accounts) ?: return@delete
+                    val questionId = contents.getQuestionId(
+                        articleId = getArticleIdFromContext() ?: return@delete,
+                        code = call.parameters.getOrFail("questionCode")
+                    ) ?: throw NotFoundException("question not found")
+
+                    respondOKOrBadRequest(contents.deleteQuestion(questionId))
+                }
             }
         }
     }

@@ -1,33 +1,42 @@
 package org.solvo.server.database
 
 import org.solvo.model.api.communication.*
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.database.control.*
 import java.util.*
 
 interface ContentDBFacade {
     suspend fun newCourse(course: Course): Int?
-    suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID?
-    suspend fun postSharedContent(content: SharedContent): UUID?
-    suspend fun postQuestion(question: QuestionUpstream, authorId: UUID, articleId: UUID, code: String): UUID?
-    suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
-    suspend fun postThought(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
     suspend fun allCourses(): List<Course>
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
+    suspend fun getCourseName(courseCode: String): String?
+
+    suspend fun createArticle(articleCode: NonBlankString, authorId: UUID, courseCode: String): UUID?
+    suspend fun editArticle(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean
     suspend fun getArticleId(courseCode: String, code: String): UUID?
     suspend fun viewArticle(articleId: UUID): ArticleDownstream?
+    suspend fun deleteArticle(articleId: UUID): Boolean
+
+    suspend fun postSharedContent(content: SharedContent): UUID?
+    suspend fun createQuestion(questionCode: NonBlankString, articleId: UUID, authorId: UUID): UUID?
+    suspend fun editQuestion(request: QuestionEditRequest, userId: UUID, questionId: UUID): Boolean
     suspend fun getQuestionId(articleId: UUID, code: String): UUID?
     suspend fun viewQuestion(questionId: UUID): QuestionDownstream?
     suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream?
-    suspend fun getCourseName(courseCode: String): String?
+    suspend fun deleteQuestion(questionId: UUID): Boolean
+
+    suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
     suspend fun postComment(comment: CommentUpstream, authorId: UUID, parentId: UUID): UUID?
+    suspend fun postThought(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID?
     suspend fun editComment(request: CommentEditRequest, commentId: UUID, userId: UUID): Boolean
     suspend fun viewComment(commentId: UUID, uid: UUID? = null): CommentDownstream?
     suspend fun getCommentParentId(coid: UUID): UUID?
+    suspend fun deleteComment(commentId: UUID, userId: UUID): Boolean
+
     suspend fun viewAllReactions(targetId: UUID, userId: UUID?): List<Reaction>
     suspend fun viewUsersOfReaction(targetId: UUID, kind: ReactionKind): List<UUID>
     suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
     suspend fun deleteReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean
-    suspend fun deleteComment(commentId: UUID, userId: UUID): Boolean
 }
 
 class ContentDBFacadeImpl(
@@ -43,22 +52,25 @@ class ContentDBFacadeImpl(
         return courses.insert(course)
     }
 
-    override suspend fun postArticle(article: ArticleUpstream, authorId: UUID, courseCode: String): UUID? {
-        return articles.post(article, authorId, courseCode)
+    override suspend fun createArticle(articleCode: NonBlankString, authorId: UUID, courseCode: String): UUID? {
+        return articles.create(articleCode, authorId, courseCode)
+    }
+
+    override suspend fun editArticle(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean {
+        return articles.edit(request, userId, articleId)
     }
 
     override suspend fun postSharedContent(content: SharedContent): UUID? {
         return texts.post(content.content)
     }
 
-    override suspend fun postQuestion(
-        question: QuestionUpstream,
-        authorId: UUID,
-        articleId: UUID,
-        code: String
-    ): UUID? {
+    override suspend fun createQuestion(questionCode: NonBlankString, articleId: UUID, authorId: UUID): UUID? {
         if (!articles.contains(articleId)) return null
-        return questions.post(question, authorId, articleId, code)
+        return questions.create(authorId, articleId, questionCode)
+    }
+
+    override suspend fun editQuestion(request: QuestionEditRequest, userId: UUID, questionId: UUID): Boolean {
+        return questions.edit(request, userId, questionId)
     }
 
     override suspend fun postAnswer(answer: CommentUpstream, authorId: UUID, questionId: UUID): UUID? {
@@ -105,6 +117,10 @@ class ContentDBFacadeImpl(
         return articles.view(articleId)
     }
 
+    override suspend fun deleteArticle(articleId: UUID): Boolean {
+        return articles.delete(articleId)
+    }
+
     override suspend fun getQuestionId(articleId: UUID, code: String): UUID? {
         return questions.getId(articleId, code)
     }
@@ -124,6 +140,10 @@ class ContentDBFacadeImpl(
     override suspend fun viewQuestion(articleId: UUID, index: String): QuestionDownstream? {
         val questionId = questions.getId(articleId, index) ?: return null
         return questions.view(questionId)
+    }
+
+    override suspend fun deleteQuestion(questionId: UUID): Boolean {
+        return questions.delete(questionId)
     }
 
     override suspend fun postReaction(targetId: UUID, userId: UUID, reaction: ReactionKind): Boolean {

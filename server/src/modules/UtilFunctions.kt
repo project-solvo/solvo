@@ -9,6 +9,7 @@ import io.ktor.server.util.*
 import io.ktor.util.*
 import io.ktor.util.pipeline.*
 import org.solvo.server.ServerContext
+import org.solvo.server.database.AccountDBFacade
 import java.util.*
 
 
@@ -19,6 +20,15 @@ suspend fun PipelineContext<Unit, ApplicationCall>.getUserId(): UUID? {
         return null
     }
     return UUID.fromString(uidStr)
+}
+
+suspend fun PipelineContext<Unit, ApplicationCall>.getUserIdAndCheckOp(accounts: AccountDBFacade): UUID? {
+    val uid = getUserId() ?: return null
+    if (!accounts.isOp(uid)) {
+        call.respond(HttpStatusCode.Forbidden)
+        return null
+    }
+    return uid
 }
 
 suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: String?): UUID? {

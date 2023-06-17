@@ -12,13 +12,24 @@ import org.solvo.model.utils.NonBlankString
 @Immutable
 @Serializable
 class ArticleUpstream(
-    override val content: NonBlankString,
+    override val content: NonBlankString = NonBlankString.default,
     override val anonymity: Boolean = true,
 
     val code: NonBlankString,
-    val displayName: NonBlankString,
+    val displayName: NonBlankString = NonBlankString.default,
     val termYear: NonBlankString = NonBlankString.default,
 ) : CommentableUpstream
+
+@Immutable
+@Serializable
+class ArticleEditRequest(
+    override val content: NonBlankString? = null,
+    override val anonymity: Boolean? = null,
+
+    val code: NonBlankString? = null,
+    val displayName: NonBlankString? = null,
+    val termYear: NonBlankString? = null,
+) : CommentableEditRequest
 
 @Immutable
 @Serializable

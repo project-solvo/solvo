@@ -1,7 +1,7 @@
 package org.solvo.server.utils.sampleData.builder
 
 import org.intellij.lang.annotations.Language
-import org.solvo.model.api.communication.ArticleUpstream
+import org.solvo.model.api.communication.ArticleEditRequest
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.sampleData.SampleDataDslMarker
@@ -21,17 +21,21 @@ class ArticlePostRequest(
         courseCode: String
     ) {
         db.contents.apply {
-            val articleId = postArticle(
-                article = ArticleUpstream(
-                    content = NonBlankString.fromString(content()),
-                    anonymity = anonymity,
-                    code = NonBlankString.fromString(code),
-                    displayName = NonBlankString.fromString(displayName),
-                    termYear = NonBlankString.fromString(termYear),
-                ),
+            val articleId = createArticle(
+                articleCode = NonBlankString.fromString(code),
                 authorId = author.uid,
                 courseCode = courseCode,
             )!!
+            editArticle(
+                request = ArticleEditRequest(
+                    content = NonBlankString.fromString(content()),
+                    anonymity = anonymity,
+                    displayName = NonBlankString.fromString(displayName),
+                    termYear = NonBlankString.fromString(termYear),
+                ),
+                userId = author.uid,
+                articleId = articleId,
+            )
             questions.map { questionRequest ->
                 questionRequest.submit(
                     db,

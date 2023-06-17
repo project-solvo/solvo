@@ -9,6 +9,11 @@ interface CommentableUpstream {
     val anonymity: Boolean
 }
 
+interface CommentableEditRequest {
+    val content: NonBlankString?
+    val anonymity: Boolean?
+}
+
 interface CommentableDownstream : HasCoid {
     override val coid: Uuid
     val author: User?

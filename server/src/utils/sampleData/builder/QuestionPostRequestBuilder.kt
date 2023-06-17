@@ -2,7 +2,7 @@ package org.solvo.server.utils.sampleData.builder
 
 import org.intellij.lang.annotations.Language
 import org.solvo.model.api.communication.CommentKind
-import org.solvo.model.api.communication.QuestionUpstream
+import org.solvo.model.api.communication.QuestionEditRequest
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext
 import org.solvo.server.utils.sampleData.SampleDataDslMarker
@@ -23,14 +23,19 @@ class QuestionPostRequest(
         val sharedContentId = sharedContent?.id
 
         db.contents.apply {
-            val questionId = postQuestion(
-                question = QuestionUpstream(
+            val questionId = createQuestion(
+                questionCode = NonBlankString.fromString(code),
+                articleId = articleId,
+                authorId = author.uid
+            )!!
+
+            editQuestion(
+                request = QuestionEditRequest(
                     NonBlankString.fromString(content()), anonymity, sharedContentId
                 ),
-                authorId = author.uid,
-                articleId = articleId,
-                code = code,
-            )!!
+                userId = author.uid,
+                questionId = questionId
+            )
             comments.map { commentRequest -> commentRequest.submit(db, questionId) }
         }
     }

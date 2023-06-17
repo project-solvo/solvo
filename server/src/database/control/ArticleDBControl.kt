@@ -3,8 +3,10 @@ package org.solvo.server.database.control
 import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
 import org.solvo.model.api.communication.ArticleDownstream
+import org.solvo.model.api.communication.ArticleEditRequest
 import org.solvo.model.api.communication.ArticleUpstream
 import org.solvo.model.utils.ModelConstraints
+import org.solvo.model.utils.NonBlankString
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.ArticleTable
 import org.solvo.server.database.exposed.CommentTable
@@ -14,6 +16,9 @@ import java.util.*
 
 interface ArticleDBControl : CommentedObjectDBControl<ArticleUpstream> {
     suspend fun post(content: ArticleUpstream, authorId: UUID, courseCode: String): UUID?
+
+    suspend fun create(articleCode: NonBlankString, authorId: UUID, courseCode: String): UUID?
+    suspend fun edit(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean
     suspend fun getId(courseCode: String, code: String): UUID?
     suspend fun star(uid: UUID, coid: UUID): Boolean
     suspend fun unStar(uid: UUID, coid: UUID): Boolean
@@ -57,6 +62,27 @@ class ArticleDBControlImpl(
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
+    }
+
+    override suspend fun create(articleCode: NonBlankString, authorId: UUID, courseCode: String): UUID? {
+        return post(ArticleUpstream(code = articleCode), authorId, courseCode)
+    }
+
+    override suspend fun edit(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean = dbQuery {
+        if (!contains(articleId)) return@dbQuery false
+        if (request.termYear?.let { it.str.length > ModelConstraints.TERM_TIME_MAX_LENGTH } == true
+            || request.code?.let { it.str.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH } == true
+        ) return@dbQuery false
+
+        request.run {
+            anonymity?.let { anonymity -> setAnonymity(articleId, anonymity) }
+            content?.let { content -> modifyContent(articleId, content.str) }
+            ArticleTable
+                .update({ ArticleTable.coid eq articleId }) {
+                    request.code?.let { code -> it[ArticleTable.code] = code.str }
+                    request.displayName?.let { displayName -> it[ArticleTable.displayName] = displayName.str }
+                } > 0
+        }
     }
 
     override suspend fun view(coid: UUID): ArticleDownstream? = dbQuery {
