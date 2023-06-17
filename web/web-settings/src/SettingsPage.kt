@@ -38,7 +38,7 @@ fun <T : SettingGroup<*>> SettingsNavigationRail(
     entries: Collection<T>,
     selected: T?,
     icon: @Composable (T) -> Unit = { it.NavigationIcon() },
-    label: @Composable (T) -> Unit = { Text(it.displayName) },
+    label: @Composable (T) -> Unit = { Text(it.pathName) },
     minWidth: Dp = 100.dp,
     onClick: (T) -> Unit,
 ) {
