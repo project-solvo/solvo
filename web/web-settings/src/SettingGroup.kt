@@ -18,20 +18,9 @@ import org.solvo.web.document.parameters.PathVariable
 @Immutable
 abstract class SettingGroup<VM : Any>(
     override val pathName: String,
-    val displayName: String,
 ) : PathVariable {
     @Composable
     abstract fun NavigationIcon()
-
-    @Composable
-    open fun ColumnScope.Header(viewModel: VM) {
-        Text(displayName, style = MaterialTheme.typography.headlineMedium)
-        Divider(
-            Modifier.padding(vertical = 16.dp).fillMaxWidth(),
-            thickness = 1.dp,
-            color = MaterialTheme.colorScheme.outline.copy(0.5f)
-        )
-    }
 
     @Composable
     abstract fun ColumnScope.PageContent(viewModel: VM)

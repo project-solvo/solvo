@@ -5,8 +5,8 @@ import org.solvo.web.settings.SettingGroup
 
 sealed class AdminSettingGroup(
     pathName: String,
-    displayName: String
-) : SettingGroup<AdminSettingsPageViewModel>(pathName, displayName) {
+    val displayName: String
+) : SettingGroup<AdminSettingsPageViewModel>(pathName) {
     companion object {
         val entries: List<AdminSettingGroup> = listOf(
             OperatorsSettingGroup,

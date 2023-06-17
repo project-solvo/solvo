@@ -67,7 +67,6 @@ fun AdminPage(
         }
     ) {
         selectedSettingGroup?.run {
-            Header(model)
             PageContent(model)
         }
     }

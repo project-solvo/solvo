@@ -50,6 +50,7 @@ data object OperatorsSettingGroup : AdminSettingGroup(
 
     @Composable
     override fun ColumnScope.PageContent(viewModel: AdminSettingsPageViewModel) {
+        SimpleHeader(displayName)
         Text(
             "Operators can manage courses and questions",
             style = TextStyle(

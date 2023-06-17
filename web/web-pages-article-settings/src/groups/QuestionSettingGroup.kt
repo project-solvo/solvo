@@ -11,17 +11,14 @@ import org.solvo.web.pages.article.settings.QuestionViewModel
 
 class QuestionSettingGroup(
     val questionCode: String,
-) : ArticleSettingGroup(questionCode, "") {
+) : ArticleSettingGroup(questionCode) {
     @Composable
     override fun NavigationIcon() {
     }
 
     @Composable
-    override fun ColumnScope.Header(viewModel: PageViewModel) {
-    }
-
-    @Composable
     override fun ColumnScope.PageContent(viewModel: PageViewModel) {
+        SimpleHeader(questionCode)
         val model = remember(viewModel) { QuestionViewModel(viewModel) }
         val question by model.question.collectAsState(null)
         SimpleHeader(questionCode)

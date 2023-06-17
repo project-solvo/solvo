@@ -76,7 +76,7 @@ fun Page(
                     "Questions",
                     Modifier.padding(start = 12.dp, top = 12.dp, bottom = 4.dp),
                     style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.W500,
+                    fontWeight = FontWeight.W600,
                     fontSize = 18.sp,
                 )
                 for (entry in questionGroups.orEmpty()) {
@@ -103,7 +103,6 @@ fun Page(
         }
     ) {
         selected?.run {
-            Header(model)
             PageContent(model)
         }
     }
