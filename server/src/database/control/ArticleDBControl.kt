@@ -76,12 +76,15 @@ class ArticleDBControlImpl(
         request.run {
             anonymity?.let { anonymity -> setAnonymity(articleId, anonymity) }
             content?.let { content -> modifyContent(articleId, content.str) }
-            ArticleTable
-                .update({ ArticleTable.coid eq articleId }) {
+            if (request.code != null || request.displayName != null) {
+                ArticleTable.update({ ArticleTable.coid eq articleId }) {
                     request.code?.let { code -> it[ArticleTable.code] = code.str }
                     request.displayName?.let { displayName -> it[ArticleTable.displayName] = displayName.str }
-                } > 0
+                }
+            }
         }
+
+        return@dbQuery true
     }
 
     override suspend fun view(coid: UUID): ArticleDownstream? = dbQuery {

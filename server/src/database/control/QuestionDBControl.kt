@@ -59,10 +59,14 @@ class QuestionDBControlImpl(
         request.run {
             anonymity?.let { anonymity -> setAnonymity(questionId, anonymity) }
             content?.let { content -> modifyContent(questionId, content.str) }
-            QuestionTable.update({ QuestionTable.coid eq questionId }) {
-                request.code?.let { code -> it[QuestionTable.code] = code.str }
-            } > 0
+            request.code?.let { code ->
+                QuestionTable.update({ QuestionTable.coid eq questionId }) {
+                    it[QuestionTable.code] = code.str
+                }
+            }
         }
+
+        return@dbQuery true
     }
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {
