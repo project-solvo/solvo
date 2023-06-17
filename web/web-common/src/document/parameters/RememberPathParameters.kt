@@ -32,6 +32,13 @@ fun PathParameters.course(): Flow<Course?> {
 }
 
 @Stable
+fun PathParameters.courseNullable(): Flow<Course?> {
+    return argumentNullable(WebPagePathPatterns.VAR_COURSE_CODE).filterNotNull().map {
+        client.courses.getCourse(it)
+    }
+}
+
+@Stable
 fun PathParameters.article(): Flow<ArticleDownstream?> {
     return combine(
         argument(WebPagePathPatterns.VAR_COURSE_CODE),
