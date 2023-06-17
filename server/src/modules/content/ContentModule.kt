@@ -26,7 +26,7 @@ fun Application.contentModule() {
 
     routeApi {
         imageRouting(resources)
-        courseRouting(contents, accounts)
+        courseRouting(contents, accounts, events)
         sharedContentRouting(contents)
         commentRouting(contents, events)
         eventRouting(contents, events)

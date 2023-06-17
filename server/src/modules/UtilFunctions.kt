@@ -42,13 +42,13 @@ suspend fun PipelineContext<Unit, ApplicationCall>.matchUserId(matchUidStr: Stri
 
 suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrBadRequest(
     content: T?,
-    processIfSucceed: PipelineContext<Unit, ApplicationCall>.() -> Unit = {},
+    processIfSucceed: PipelineContext<Unit, ApplicationCall>.(content: T) -> Unit = {},
 ) {
     if (content == null) {
         call.respond(HttpStatusCode.BadRequest)
     } else {
         call.respond(content)
-        processIfSucceed()
+        processIfSucceed(content)
     }
 }
 
@@ -66,13 +66,13 @@ suspend inline fun PipelineContext<Unit, ApplicationCall>.respondOKOrBadRequest(
 
 suspend inline fun <reified T : Any> PipelineContext<Unit, ApplicationCall>.respondContentOrNotFound(
     content: T?,
-    processIfSucceed: PipelineContext<Unit, ApplicationCall>.() -> Unit = {},
+    processIfSucceed: PipelineContext<Unit, ApplicationCall>.(content: T) -> Unit = {},
 ) {
     if (content == null) {
         call.respond(HttpStatusCode.NotFound)
     } else {
         call.respond(content)
-        processIfSucceed()
+        processIfSucceed(content)
     }
 }
 

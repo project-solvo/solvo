@@ -9,11 +9,14 @@ import io.ktor.websocket.*
 import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
+import org.solvo.model.api.events.ArticleSettingPageEvent
 import org.solvo.model.api.events.QuestionPageEvent
 import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.utils.LogManagerKt
 import org.solvo.server.utils.events.EventSessionHandler
+import org.solvo.server.utils.events.UserSession
+import java.util.*
 import kotlin.coroutines.cancellation.CancellationException
 
 private object EventRouting
@@ -26,47 +29,86 @@ fun Route.eventRouting(
     events: EventSessionHandler,
 ) {
     authenticate("authBearer", optional = true) {
-        webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
+        webSocket("/courses/{courseCode}/articles/{articleCode}") {
             val path = call.request.path()
-            val token = call.parameters.getOrFail("token")
-            val uid = ServerContext.tokens.matchToken(token)
-            // val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
-            val session = events.register(uid)
-            logger.info { "Connection on $path established" + (uid?.let { "with user $it" } ?: "") }
+            val uid = connectAndGetUid(path)
 
-            val courseCode = call.parameters.getOrFail("courseCode")
-            val articleCode = call.parameters.getOrFail("articleCode")
-            val questionCode = call.parameters.getOrFail("questionCode")
-
-            val questionId = contents.getArticleId(courseCode, articleCode)?.let { articleId ->
-                contents.getQuestionId(articleId, questionCode)
-            } ?: run {
-                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "QuestionId does not exist"))
+            val articleId = contents.getArticleId(
+                courseCode = call.parameters.getOrFail("courseCode"),
+                code = call.parameters.getOrFail("articleCode")
+            ) ?: run {
+                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Article does not exist"))
                 logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
-                events.destroy(session)
                 return@webSocket
             }
 
-            try {
-                while (isActive) {
-                    session.events
-                        .filter { it is QuestionPageEvent && it.questionCoid == questionId }
-                        .collect { event ->
-                            sendSerialized(event)
-                            logger.info { "Sent QuestionPageEvent $event" }
-                        }
-                }
-            } catch (e: Throwable) {
-                if (e is CancellationException || e is ClosedReceiveChannelException) {
-                    logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
-                    return@webSocket
-                }
-
-                logger.info { "Connection on $path closed erroneously with reason ${closeReason.await()}" }
-                e.printStackTrace()
-            } finally {
-                events.destroy(session)
+            handleUserSession(events, uid, path) { session ->
+                session.events
+                    .filter { it is ArticleSettingPageEvent && it.articleCoid == articleId }
+                    .collect { event ->
+                        sendSerialized(event)
+                        logger.info { "Sent ArticleSettingPageEvent $event" }
+                    }
             }
         }
+        webSocket("/courses/{courseCode}/articles/{articleCode}/questions/{questionCode}/events") {
+            val path = call.request.path()
+            val uid = connectAndGetUid(path)
+
+            val questionId = contents.getArticleId(
+                courseCode = call.parameters.getOrFail("courseCode"),
+                code = call.parameters.getOrFail("articleCode")
+            )?.let { articleId ->
+                contents.getQuestionId(
+                    articleId = articleId,
+                    code = call.parameters.getOrFail("questionCode")
+                )
+            } ?: run {
+                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Question does not exist"))
+                logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
+                return@webSocket
+            }
+
+            handleUserSession(events, uid, path) { session ->
+                session.events
+                    .filter { it is QuestionPageEvent && it.questionCoid == questionId }
+                    .collect { event ->
+                        sendSerialized(event)
+                        logger.info { "Sent QuestionPageEvent $event" }
+                    }
+            }
+        }
+    }
+}
+
+private suspend fun DefaultWebSocketServerSession.connectAndGetUid(path: String): UUID? {
+    val token = call.parameters.getOrFail("token")
+    val uid = ServerContext.tokens.matchToken(token)
+    // val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
+    logger.info { "Connection on $path established" + (uid?.let { "with user $it" } ?: "") }
+    return uid
+}
+
+private suspend inline fun DefaultWebSocketServerSession.handleUserSession(
+    events: EventSessionHandler,
+    uid: UUID?,
+    path: String,
+    action: DefaultWebSocketServerSession.(session: UserSession) -> Unit,
+) {
+    val session = events.register(uid)
+    try {
+        while (isActive) {
+            action(session)
+        }
+    } catch (e: Throwable) {
+        if (e is CancellationException || e is ClosedReceiveChannelException) {
+            logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
+            return
+        }
+
+        logger.info { "Connection on $path closed erroneously with reason ${closeReason.await()}" }
+        e.printStackTrace()
+    } finally {
+        events.destroy(session)
     }
 }

@@ -13,6 +13,7 @@ interface EventSessionHandler {
 
 class EventSessionHandlerImpl : EventSessionHandler {
     private val sessions: ConcurrentLinkedQueue<UserSession> = ConcurrentLinkedQueue()
+
     override fun register(userId: UUID?): UserSession {
         return UserSession(userId).also { sessions.add(it) }
     }
