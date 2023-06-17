@@ -10,6 +10,7 @@ import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
 import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import org.solvo.server.database.exposed.QuestionTable
+import org.solvo.server.database.updateIfNotEmpty
 import java.util.*
 
 interface QuestionDBControl : CommentedObjectDBControl<QuestionUpstream> {
@@ -59,14 +60,12 @@ class QuestionDBControlImpl(
         request.run {
             anonymity?.let { anonymity -> setAnonymity(questionId, anonymity) }
             content?.let { content -> modifyContent(questionId, content.str) }
-            request.code?.let { code ->
-                QuestionTable.update({ QuestionTable.coid eq questionId }) {
-                    it[QuestionTable.code] = code.str
-                }
+            QuestionTable.updateIfNotEmpty({ QuestionTable.coid eq questionId }) {
+                request.code?.let { code -> it[QuestionTable.code] = code.str }
             }
-        }
 
-        return@dbQuery true
+            return@dbQuery true
+        }
     }
 
     override suspend fun view(coid: UUID): QuestionDownstream? = dbQuery {

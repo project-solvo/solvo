@@ -12,6 +12,7 @@ import org.solvo.server.database.exposed.ArticleTable
 import org.solvo.server.database.exposed.CommentTable
 import org.solvo.server.database.exposed.CommentedObjectTable
 import org.solvo.server.database.exposed.QuestionTable
+import org.solvo.server.database.updateIfNotEmpty
 import java.util.*
 
 interface ArticleDBControl : CommentedObjectDBControl<ArticleUpstream> {
@@ -76,11 +77,9 @@ class ArticleDBControlImpl(
         request.run {
             anonymity?.let { anonymity -> setAnonymity(articleId, anonymity) }
             content?.let { content -> modifyContent(articleId, content.str) }
-            if (request.code != null || request.displayName != null) {
-                ArticleTable.update({ ArticleTable.coid eq articleId }) {
-                    request.code?.let { code -> it[ArticleTable.code] = code.str }
-                    request.displayName?.let { displayName -> it[ArticleTable.displayName] = displayName.str }
-                }
+            ArticleTable.updateIfNotEmpty({ ArticleTable.coid eq articleId }) {
+                request.code?.let { code -> it[ArticleTable.code] = code.str }
+                request.displayName?.let { displayName -> it[ArticleTable.displayName] = displayName.str }
             }
         }
 
