@@ -1,7 +1,7 @@
 package org.solvo.server.database
 
 import io.ktor.http.*
-import org.solvo.model.api.AccountChecker
+import org.solvo.model.api.LiteralChecker
 import org.solvo.model.api.communication.AuthResponse
 import org.solvo.model.api.communication.AuthStatus
 import org.solvo.model.api.communication.User
@@ -16,7 +16,7 @@ import java.util.*
 
 interface AccountDBFacade {
     suspend fun register(username: String, hash: ByteArray): AuthResponse
-    suspend fun getUsernameValidity(username: String): Boolean
+    suspend fun isUsernameNotTaken(username: String): Boolean
     suspend fun login(username: String, hash: ByteArray): AuthResponse
     suspend fun getUserAvatar(uid: UUID): Pair<File, ContentType>?
     suspend fun getUserInfo(uid: UUID): User?
@@ -41,7 +41,7 @@ class AccountDBFacadeImpl(
             return AuthResponse(AuthStatus.DUPLICATED_USERNAME)
         }
 
-        val status = AccountChecker.checkUserNameValidity(username)
+        val status = LiteralChecker.checkUsername(username)
         if (status == AuthStatus.SUCCESS) {
             accounts.addAccount(username, hash)
         }
@@ -58,7 +58,7 @@ class AccountDBFacadeImpl(
         }
     }
 
-    override suspend fun getUsernameValidity(username: String): Boolean {
+    override suspend fun isUsernameNotTaken(username: String): Boolean {
         return accounts.getId(username) == null
     }
 

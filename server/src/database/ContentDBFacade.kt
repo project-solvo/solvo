@@ -1,5 +1,6 @@
 package org.solvo.server.database
 
+import org.solvo.model.api.LiteralChecker
 import org.solvo.model.api.communication.*
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.database.control.*
@@ -48,15 +49,18 @@ class ContentDBFacadeImpl(
     private val reactions: ReactionDBControl,
 ) : ContentDBFacade {
     override suspend fun newCourse(course: Course): Int? {
-        if (courses.getId(course.code.toString()) != null) return null
+        if (!LiteralChecker.checkCourseCode(course.code.str)) return null
+        if (courses.getId(course.code.str) != null) return null
         return courses.insert(course)
     }
 
     override suspend fun createArticle(articleCode: NonBlankString, authorId: UUID, courseCode: String): UUID? {
+        if (!LiteralChecker.checkArticleCode(articleCode.str)) return null
         return articles.create(articleCode, authorId, courseCode)
     }
 
     override suspend fun editArticle(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean {
+        request.code?.let { if (!LiteralChecker.checkArticleCode(it.str)) return false }
         return articles.edit(request, userId, articleId)
     }
 
@@ -65,11 +69,13 @@ class ContentDBFacadeImpl(
     }
 
     override suspend fun createQuestion(questionCode: NonBlankString, articleId: UUID, authorId: UUID): UUID? {
+        if (!LiteralChecker.checkQuestionCode(questionCode.str)) return null
         if (!articles.contains(articleId)) return null
         return questions.create(authorId, articleId, questionCode)
     }
 
     override suspend fun editQuestion(request: QuestionEditRequest, userId: UUID, questionId: UUID): Boolean {
+        request.code?.let { if (!LiteralChecker.checkQuestionCode(it.str)) return false }
         return questions.edit(request, userId, questionId)
     }
 

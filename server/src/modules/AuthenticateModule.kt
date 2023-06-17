@@ -45,7 +45,7 @@ fun Application.authenticateModule() {
         get("/register/{username}") {
             val username = call.parameters.getOrFail("username")
 
-            val validity = accounts.getUsernameValidity(username)
+            val validity = accounts.isUsernameNotTaken(username)
             call.respond(UsernameValidityResponse(validity))
         }
 
