@@ -1,6 +1,8 @@
 package org.solvo.web.pages.admin
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
@@ -39,7 +41,7 @@ fun main() {
             val model: AdminSettingsPageViewModel = remember { AdminSettingsPageViewModel() }
 
             LoadableContent(isLoading = user?.permission != UserPermission.ROOT, Modifier.fillMaxSize()) {
-                Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
+                Row(Modifier.padding(end = 24.dp).fillMaxSize(), horizontalArrangement = Arrangement.Center) {
                     Column(Modifier.widthIn(min = 600.dp, max = 1000.dp)) {
                         AdminPage(model)
                     }
@@ -64,7 +66,8 @@ fun AdminPage(
                     History.pushState { settingsAdmin(it.pathName) }
                 }
             )
-        }
+        },
+        modifier = Modifier.verticalScroll(rememberScrollState())
     ) {
         selectedSettingGroup?.run {
             PageContent(model)

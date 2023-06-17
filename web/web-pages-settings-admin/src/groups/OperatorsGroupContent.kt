@@ -140,8 +140,8 @@ data object OperatorsSettingGroup : AdminSettingGroup(
         if (operators.isEmpty()) {
             CenteredTipText("There are no operators")
         } else {
-            LazyColumn(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
-                items(operators) { user ->
+            Column(modifier, verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                for (user in operators) {
                     UserLine(user) {
                         Button(
                             { model.removeOperator(user.id) },
@@ -175,7 +175,7 @@ data object OperatorsSettingGroup : AdminSettingGroup(
 
             val currentUser by rememberUpdatedState(currentUser)
             LazyColumn(
-                Modifier.padding(top = 8.dp).fillMaxWidth(),
+                Modifier.padding(top = 8.dp).heightIn(max = 800.dp).fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 items(result) { (user, isOperator) ->
