@@ -13,9 +13,9 @@ import org.solvo.model.utils.NonBlankString
 @Serializable
 class QuestionUpstream(
     override val content: NonBlankString,
-    override val anonymity: Boolean,
+    override val anonymity: Boolean = true,
 
-    val sharedContent: Uuid?,
+    val sharedContent: Uuid? = null,
 ) : CommentableUpstream
 
 @Immutable

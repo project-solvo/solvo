@@ -27,6 +27,8 @@ value class NonBlankString private constructor(
         fun fromString(str: String): NonBlankString = fromStringOrNull(str) ?: throw IllegalArgumentException(
             "Blank string passed to NonBlankString.fromString()"
         )
+
+        val default = fromString("default")
     }
 }
 

@@ -13,11 +13,11 @@ import org.solvo.model.utils.NonBlankString
 @Serializable
 class ArticleUpstream(
     override val content: NonBlankString,
-    override val anonymity: Boolean,
+    override val anonymity: Boolean = true,
 
     val code: NonBlankString,
     val displayName: NonBlankString,
-    val termYear: NonBlankString,
+    val termYear: NonBlankString = NonBlankString.default,
 ) : CommentableUpstream
 
 @Immutable
