@@ -377,11 +377,11 @@ internal class RichEditor internal constructor(
 
     private fun EditorLoaded.updateDisplaySpacing(widthPx: Float, heightPx: Float) {
         if (!isTextMode) { // fix spacing bug
-            getHtmlPreviewMarkdownBody().let { element ->
+            getHtmlEditormdPreview().let { element ->
                 element.asDynamic().style.width = (widthPx / 2).toInt().toString() + "px"
-                element.asDynamic().style.height = (heightPx / 2).toInt().toString() + "px"
+//                element.asDynamic().style.height = (heightPx / 2).toInt().toString() + "px"
 
-                element.asDynamic().style.marginLeft = (widthPx / 2).toInt().toString() + "px"
+//                element.asDynamic().style.marginLeft = (widthPx / 2).toInt().toString() + "px"
             }
         }
     }
