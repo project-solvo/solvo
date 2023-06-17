@@ -30,6 +30,10 @@ class ArticleEditRequest(
     val displayName: NonBlankString? = null,
 ) : CommentableEditRequest
 
+fun ArticleEditRequest.isEmpty(): Boolean {
+    return content == null && anonymity == null && code == null && displayName == null
+}
+
 @Immutable
 @Serializable
 class ArticleDownstream(

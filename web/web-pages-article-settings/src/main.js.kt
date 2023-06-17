@@ -4,14 +4,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.OutlinedCard
+import androidx.compose.material3.ProvideTextStyle
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.jetbrains.skiko.wasm.onWasmReady
@@ -23,10 +23,11 @@ import org.solvo.web.pages.article.settings.groups.QuestionSettingGroup
 import org.solvo.web.session.currentUser
 import org.solvo.web.session.isLoggedInOrNull
 import org.solvo.web.settings.SettingsPage
+import org.solvo.web.settings.components.VerticalNavigationList
+import org.solvo.web.settings.components.VerticalNavigationListScope
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
-import org.solvo.web.ui.modifiers.clickable
 
 fun main() {
     onWasmReady {
@@ -93,30 +94,19 @@ fun Page(
     SettingsPage(
         pageTitle = null,
         navigationRail = {
-            Column(
-                Modifier
-                    .padding(end = 48.dp)
-                    .clip(shape = RoundedCornerShape(12.dp))
-                    .fillMaxHeight()
-            ) {
+            VerticalNavigationList(Modifier.padding(end = 48.dp)) {
                 val (questionGroups, otherGroups) = remember(settingGroups) {
                     settingGroups.orEmpty().partition { it is QuestionSettingGroup }
                 }
 
                 for (entry in otherGroups) {
-                    Item(model, selected, entry)
+                    Item(selected, entry, model)
                 }
 
-                Text(
-                    "Questions",
-                    Modifier.padding(start = 12.dp, top = 12.dp, bottom = 4.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.W600,
-                    fontSize = 18.sp,
-                )
+                GroupingHeader("Questions")
 
                 for (entry in questionGroups) {
-                    Item(model, selected, entry)
+                    Item(selected, entry, model)
                 }
             }
         },
@@ -129,28 +119,21 @@ fun Page(
 }
 
 @Composable
-private fun Item(
-    model: PageViewModel,
+private fun VerticalNavigationListScope.Item(
     selected: ArticleSettingGroup?,
     entry: ArticleSettingGroup,
+    model: PageViewModel
 ) {
-    ListItem(
-        leadingContent = {
-            entry.NavigationIcon()
-        },
-        modifier = Modifier
-            .clip(RoundedCornerShape(8.dp))
-            .clickable {
-                if (!entry.requestExit()) return@clickable
-                History.pushState {
-                    articleSettings(
-                        model.courseCode.value,
-                        model.articleCode.value,
-                        entry.pathName,
-                    )
-                }
-            }.width(200.dp),
-        tonalElevation = if (selected == entry) 2.dp else 0.dp,
-        headlineText = { Text(entry.pathName, overflow = TextOverflow.Ellipsis) },
-    )
+    Item(selected, entry) {
+        if (entry == selected) return@Item
+        if (!entry.requestExit()) return@Item
+        History.pushState {
+            articleSettings(
+                model.courseCode.value,
+                model.articleCode.value,
+                entry.pathName,
+            )
+        }
+    }
 }
+

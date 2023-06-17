@@ -4,23 +4,22 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Quiz
-import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.pages.article.settings.PageViewModel
+import org.solvo.web.settings.HeaderWithActions
+import org.solvo.web.settings.SaveChangesButton
 import org.solvo.web.settings.Section
+import org.solvo.web.settings.SimpleHeader
 import org.solvo.web.settings.components.AutoCheckPropertyTextField
 import org.solvo.web.ui.foundation.wrapClearFocus
-import org.solvo.web.ui.snackBar.LocalTopSnackBar
-import org.solvo.web.ui.snackBar.SolvoSnackbar
 
 class QuestionSettingGroup(
     questionCode: String,
@@ -66,7 +65,7 @@ class QuestionSettingGroup(
         }
 
         Section(header = {
-            HeaderWithActions("Basics") {
+            HeaderWithActions("Question Information") {
                 SaveChangesButton { model.submitBasicChanges(it) }
             }
         }) {
@@ -99,28 +98,6 @@ class QuestionSettingGroup(
             LaunchedEffect(question) {
                 question?.content?.let { editor.setContentMarkdown(it) }
             }
-        }
-    }
-
-    @Composable
-    private fun HeaderWithActions(
-        title: String,
-        actions: @Composable RowScope.() -> Unit = {},
-    ) {
-        Box(Modifier.fillMaxWidth()) {
-            Text(title, Modifier.align(Alignment.CenterStart))
-            Row(Modifier.align(Alignment.CenterEnd)) {
-                actions()
-            }
-        }
-    }
-
-    @Composable
-    private fun SaveChangesButton(onClick: (SolvoSnackbar) -> Unit) {
-        val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
-        val onClickUpdated by rememberUpdatedState(onClick)
-        Button(wrapClearFocus { onClickUpdated(snackbar) }) {
-            Text("Save Changes")
         }
     }
 }

@@ -58,12 +58,12 @@ class QuestionSettingsSettingsViewModelImpl(
         page.pathParameters.question(WebPagePathPatterns.VAR_SETTING_GROUP).filterNotNull().stateInBackground()
 
     override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
-        "",
+        questionCode.filterNotNull().stateInBackground(""),
         transformValue = { it.trim() }
     ) { code ->
         when {
-            code == articleCode.value -> null
-            !client.questions.isQuestionExist(
+            code == questionCode.value -> null
+            client.questions.isQuestionExist(
                 courseCode.value,
                 articleCode.value,
                 code
@@ -108,12 +108,15 @@ class QuestionSettingsSettingsViewModelImpl(
 
     override fun submitContentChanges(snackbar: SolvoSnackbar, editorContent: String?) {
         launchInBackground {
-            submitChange(
-                snackbar,
-                QuestionEditRequest(
-                    content = editorContent?.nonBlankOrNull,
-                ),
+            val request = QuestionEditRequest(
+                content = editorContent?.nonBlankOrNull?.takeIf { it.str != question.value?.content },
             )
+            if (!request.isEmpty()) {
+                submitChange(
+                    snackbar,
+                    request,
+                )
+            }
         }
     }
 }

@@ -22,8 +22,12 @@ class QuestionRequests(
         courseCode: String,
         articleCode: String,
         questionCode: String,
-    ): Boolean =
-        http.head("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode").status.isSuccess()
+    ): Boolean {
+        if (questionCode.isEmpty()) {
+            return false
+        }
+        return http.head("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode").status.isSuccess()
+    }
 
     suspend fun updateQuestion(
         courseCode: String,
