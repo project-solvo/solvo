@@ -58,6 +58,8 @@ class AutoCheckPropertyImpl<T, E>(
 
     override fun setValue(value: T) {
         this.localValueFlow.value = transformValue(value)
+        error.value = null
+        isChecking.value = true
     }
 
     private var currentErrorChecker: Job? = null
@@ -67,8 +69,10 @@ class AutoCheckPropertyImpl<T, E>(
         .map { item ->
             currentErrorChecker?.cancel()
             scope.async {
+                isChecking.value = true
                 checkError(item).also {
                     error.emit(it)
+                    isChecking.value = false
                 }
             }.also {
                 currentErrorChecker = it
@@ -78,12 +82,10 @@ class AutoCheckPropertyImpl<T, E>(
 
     override val error: MutableStateFlow<E?> = MutableStateFlow(null)
 
-    override val isChecking: StateFlow<Boolean> = checker.map {
-        it != null && it.isActive
-    }.stateIn(scope, started = SharingStarted.Eagerly, false)
+    override val isChecking: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
-    override val hasError: StateFlow<Boolean?> = error.map {
-        it != null
+    override val hasError: StateFlow<Boolean?> = combine(isChecking, error) { isChecking, error ->
+        if (isChecking) null else error != null
     }.stateIn(scope, started = SharingStarted.Eagerly, null)
 
     private fun <T> Flow<T>.stateInScope(
