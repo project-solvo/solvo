@@ -68,10 +68,18 @@ fun PathParameters.questionEvents(scope: CoroutineScope): Flow<Event> {
 
 
 @Stable
-inline fun <reified E : Enum<E>> PathParameters.settingGroup(): Flow<E?> {
-    val values = enumValues<E>()
+inline fun <reified E> PathParameters.settingGroup(): Flow<E?> where E : Enum<E>, E : PathVariable =
+    settingGroup(enumValues<E>().asList())
+
+@Stable
+fun <E : PathVariable> PathParameters.settingGroup(entries: Collection<E>): Flow<E?> {
+    return settingGroup(entries) { it.pathName }
+}
+
+@Stable
+fun <E> PathParameters.settingGroup(entries: Collection<E>, getPathName: (E) -> String): Flow<E?> {
     return argument(WebPagePathPatterns.VAR_SETTING_GROUP).map { settingGroup ->
-        values.find { it.name.equals(settingGroup, ignoreCase = true) }
+        entries.find { getPathName(it).equals(settingGroup, ignoreCase = true) }
     }
 }
 

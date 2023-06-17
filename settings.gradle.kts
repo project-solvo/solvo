@@ -40,6 +40,7 @@ includeProject(":web:web-course-menu")
 includeProject(":web:web-comments")
 includeProject(":web:web-paging")
 includeProject(":web:web-comment-column")
+includeProject(":web:web-settings")
 
 // WEB PAGES
 
@@ -48,4 +49,4 @@ includeProject(":web:web-pages-question")
 includeProject(":web:web-pages-home")
 includeProject(":web:web-pages-course")
 includeProject(":web:web-pages-user")
-includeProject(":web:web-pages-admin")
+includeProject(":web:web-pages-settings-admin")

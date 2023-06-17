@@ -1,4 +1,4 @@
-package org.solvo.web.groups
+package org.solvo.web.pages.admin.groups
 
 import androidx.compose.animation.*
 import androidx.compose.foundation.BorderStroke
@@ -11,6 +11,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.AdminPanelSettings
 import androidx.compose.material.icons.outlined.Clear
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.*
@@ -24,8 +25,13 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.api.communication.User
-import org.solvo.web.*
+import org.solvo.web.pages.admin.AdminSettingsPageViewModel
+import org.solvo.web.pages.admin.OperatorsViewModel
+import org.solvo.web.pages.admin.UserWithNewPermission
+import org.solvo.web.pages.admin.setOperator
 import org.solvo.web.session.currentUser
+import org.solvo.web.settings.CenteredTipText
+import org.solvo.web.settings.Section
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.foundation.CheckThumbSwitch
 import org.solvo.web.ui.foundation.wrapClearFocus
@@ -33,12 +39,17 @@ import org.solvo.web.ui.foundation.wrapClearFocus1
 import org.solvo.web.ui.image.RoundedUserAvatar
 import org.solvo.web.ui.theme.UNICODE_FONT
 
-object OperatorsGroupContent : SettingGroupContent {
-    override val settingGroup: AdminSettingGroup
-        get() = AdminSettingGroup.OPERATORS
+data object OperatorsSettingGroup : AdminSettingGroup(
+    "operators",
+    "Operators"
+) {
+    @Composable
+    override fun NavigationIcon() {
+        Icon(Icons.Outlined.AdminPanelSettings, null)
+    }
 
     @Composable
-    override fun ColumnScope.PageContent(pageViewModel: AdminSettingsPageViewModel) {
+    override fun ColumnScope.PageContent(viewModel: AdminSettingsPageViewModel) {
         Text(
             "Operators can manage courses and questions",
             style = TextStyle(
@@ -47,10 +58,10 @@ object OperatorsGroupContent : SettingGroupContent {
             )
         )
 
-        val model = remember(pageViewModel) { OperatorsViewModel(pageViewModel) }
+        val model = remember(viewModel) { OperatorsViewModel(viewModel) }
 
         val result by model.searchResult.collectAsState()
-        GroupSurface(
+        Section(
             { Text("Add Operator") },
             Modifier.wrapContentSize()
         ) {
@@ -102,7 +113,7 @@ object OperatorsGroupContent : SettingGroupContent {
         }
 
         val operators by model.operators.collectAsState(null)
-        GroupSurface({ Text("All Operators") }, Modifier.heightIn(min = 600.dp)) {
+        Section({ Text("All Operators") }, Modifier.heightIn(min = 600.dp)) {
             Spacer(Modifier.height(12.dp))
 
             LoadableContent(

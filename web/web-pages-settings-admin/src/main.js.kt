@@ -1,15 +1,18 @@
-package org.solvo.web
+package org.solvo.web.pages.admin
 
 import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.utils.UserPermission
 import org.solvo.web.document.History
+import org.solvo.web.pages.admin.groups.AdminSettingGroup
 import org.solvo.web.session.currentUser
 import org.solvo.web.session.isLoggedInOrNull
+import org.solvo.web.settings.SettingsNavigationRail
+import org.solvo.web.settings.SettingsPage
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
@@ -50,34 +53,22 @@ fun main() {
 fun AdminPage(
     model: AdminSettingsPageViewModel,
 ) {
-    Text("Administration Settings", style = MaterialTheme.typography.headlineLarge)
-
-    Spacer(Modifier.height(40.dp))
-
-    Row {
-        val selectedSettingGroup by model.settingGroup.collectAsState(null)
-
-        NavigationRail(Modifier.fillMaxHeight()) {
-            for (settingGroup in AdminSettingGroup.entries) {
-                NavigationRailItem(
-                    selected = selectedSettingGroup == settingGroup,
-                    icon = {
-                        Icon(settingGroup.icon, null)
-                    },
-                    onClick = { History.pushState { settingsAdmin(settingGroup.pathName) } },
-                    modifier = Modifier.widthIn(min = 100.dp),
-                    label = { Text(settingGroup.displayName) },
-                    alwaysShowLabel = true,
-                )
-            }
+    val selectedSettingGroup by model.settingGroup.collectAsState(null)
+    SettingsPage(
+        pageTitle = { Text("Administration Settings") },
+        navigationRail = {
+            SettingsNavigationRail(
+                AdminSettingGroup.entries,
+                selectedSettingGroup,
+                onClick = {
+                    History.pushState { settingsAdmin(it.pathName) }
+                }
+            )
         }
-
-        Column(Modifier.fillMaxSize()) {
-            selectedSettingGroup?.content?.run {
-                Header(model)
-                PageContent(model)
-            }
+    ) {
+        selectedSettingGroup?.run {
+            Header(model)
+            PageContent(model)
         }
     }
 }
-

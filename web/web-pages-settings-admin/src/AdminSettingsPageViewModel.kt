@@ -1,4 +1,4 @@
-package org.solvo.web
+package org.solvo.web.pages.admin
 
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
@@ -12,6 +12,7 @@ import org.solvo.model.foundation.Uuid
 import org.solvo.model.utils.UserPermission
 import org.solvo.web.document.parameters.PathParameters
 import org.solvo.web.document.parameters.settingGroup
+import org.solvo.web.pages.admin.groups.AdminSettingGroup
 import org.solvo.web.requests.client
 import org.solvo.web.utils.replacedOrPrepend
 import org.solvo.web.viewModel.AbstractViewModel
@@ -31,7 +32,9 @@ fun AdminSettingsPageViewModel(): AdminSettingsPageViewModel = AdminSettingsPage
 @Stable
 private class AdminSettingsPageViewModelImpl : AbstractViewModel(), AdminSettingsPageViewModel {
     override val pathParameters: PathParameters = PathParameters(WebPagePathPatterns.settingsAdmin)
-    override val settingGroup = pathParameters.settingGroup<AdminSettingGroup>().filterNotNull().shareInBackground()
+    override val settingGroup =
+        pathParameters.settingGroup(AdminSettingGroup.entries)
+            .filterNotNull().shareInBackground()
 
     override val settings: MutableStateFlow<AdminSettings?> = MutableStateFlow(null)
 

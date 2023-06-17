@@ -41,7 +41,7 @@ val pages: Map<String, String> by projectLevelCache {
         project(":web").projectDir.resolve("web-pages.properties").bufferedReader().use {
             load(it)
         }
-    }.mapKeys { it.key.toString().trim() }
+    }.mapKeys { it.key.toString().trim().replace("/", "-") }
         .mapValues { it.value.toString().trim() }
 }
 
