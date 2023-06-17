@@ -21,7 +21,7 @@ class HomePageViewModel : AbstractViewModel() {
     val articles: SharedFlow<List<ArticleDownstream>> =
         course.mapNotNull { client.courses.getAllArticles(it.code.str) }.shareInBackground()
 
-    val courseCode: SharedFlow<String> = course.map { it.code.str }.shareInBackground()
+    val courseCode: StateFlow<String> = course.map { it.code.str }.stateInBackground("")
 
     private suspend fun refreshCourses() {
         val courses = client.courses.getAllCourses()
