@@ -141,18 +141,24 @@ fun Page(
 private fun VerticalNavigationListScope.Item(
     selected: ArticleSettingGroup?,
     entry: ArticleSettingGroup,
-    model: PageViewModel
+    model: PageViewModel,
+    modifier: Modifier = Modifier,
 ) {
-    Item(selected, entry) onClick@{
-        if (entry == selected) return@onClick
-        if (!entry.requestExit()) return@onClick
-        History.pushState {
-            articleSettings(
-                model.courseCode.value,
-                model.articleCode.value,
-                entry.pathName,
-            )
-        }
-    }
+    Item(
+        selected = selected,
+        entry = entry,
+        onClick = onClick@{
+            if (entry == selected) return@onClick
+            if (!entry.requestExit()) return@onClick
+            History.pushState {
+                articleSettings(
+                    model.courseCode.value,
+                    model.articleCode.value,
+                    entry.pathName,
+                )
+            }
+        },
+        modifier = modifier
+    )
 }
 
