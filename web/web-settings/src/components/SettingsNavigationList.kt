@@ -60,23 +60,41 @@ class VerticalNavigationListScope(
         selected: T?,
         entry: T,
         onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+    ) {
+        Item(
+            entry.pathName.replaceFirstChar { it.titlecaseChar() },
+            isSelected = selected == entry,
+            onClick = onClick,
+            modifier = modifier,
+        ) {
+            entry.NavigationIcon()
+        }
+    }
+
+    @Composable
+    fun Item(
+        title: String,
+        isSelected: Boolean,
+        onClick: () -> Unit,
+        modifier: Modifier = Modifier,
+        icon: @Composable (() -> Unit)? = null,
     ) {
         val interactions = remember { MutableInteractionSource() }
         val isHovered by interactions.collectIsHoveredAsState()
 
         ListItem(
-            leadingContent = {
-                entry.NavigationIcon()
-            },
-            modifier = Modifier
+            leadingContent = icon,
+            modifier = modifier
                 .padding(vertical = 2.dp)
                 .clip(RoundedCornerShape(8.dp))
                 .hoverable(interactions)
-                .clickable(indication = rememberRipple(), onClick = wrapClearFocus(onClick)).width(200.dp),
-            tonalElevation = if (selected == entry || isHovered) 2.dp else 0.dp,
+                .clickable(indication = rememberRipple(), onClick = wrapClearFocus(onClick))
+                .width(200.dp),
+            tonalElevation = if (isSelected || isHovered) 2.dp else 0.dp,
             headlineText = {
                 Text(
-                    entry.pathName.replaceFirstChar { it.titlecaseChar() },
+                    title,
                     overflow = TextOverflow.Ellipsis
                 )
             },

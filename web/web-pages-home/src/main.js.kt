@@ -1,20 +1,18 @@
 package org.solvo.web
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.web.document.History
@@ -22,6 +20,7 @@ import org.solvo.web.pages.article.settings.groups.ArticlePropertiesViewModel
 import org.solvo.web.settings.Section
 import org.solvo.web.settings.SettingsPage
 import org.solvo.web.settings.components.AutoCheckPropertyTextField
+import org.solvo.web.settings.components.VerticalNavigationList
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.SolvoTopAppBar
@@ -52,45 +51,25 @@ fun HomePageContent(
     model: HomePageViewModel,
 ) {
     val courses by model.courses.collectAsState(null)
-    val currentCourse  by model.course.collectAsState(null)
+    val currentCourse by model.course.collectAsState(null)
     val currentArticles by model.articles.collectAsState(null)
     SettingsPage(
         pageTitle = { Text("My Courses") },
         navigationRail = {
-            Column(
-                Modifier
-                    .padding(end = 48.dp)
-                    .clip(shape = RoundedCornerShape(12.dp))
-                    .fillMaxHeight()
-            ) {
-                Text(
-                    "Courses",
-                    Modifier.padding(start = 12.dp, top = 12.dp, bottom = 4.dp),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.W600,
-                    fontSize = 18.sp,
-                )
-                courses?.forEach{
-                    ListItem(
-                        leadingContent = {},
-                        modifier = Modifier
-                            .clip(RoundedCornerShape(12.dp))
-                            .clickable {
-                                History.pushState { course(it.code.str) }
-                            }.width(200.dp).padding(vertical = 4.dp),
-                        tonalElevation = if (it == currentCourse) 2.dp else 0.dp,
-                        headlineText = { Text(it.name.str) },
+            VerticalNavigationList {
+                GroupingHeader("Courses")
+
+                courses?.forEach {
+                    Item(
+                        title = it.name.str,
+                        isSelected = it == currentCourse,
+                        onClick = { History.pushState { course(it.code.str) } },
                     )
-//                    NavigationRailItem(
-//                        selected = it == currentCourse,
-//                        icon = {},
-//                        onClick = { onClickUpdated()},
-//                        modifier = Modifier.widthIn(min = 100.dp),
-//                        label = { Text(it.name.str) },
-//                        alwaysShowLabel = true,
-//                    )
                 }
-                FilledTonalButton(
+
+                GroupingHeader("Management")
+
+                TextButton(
                     onClick = {},
                     modifier = Modifier.width(200.dp).padding(vertical = 4.dp).height(40.dp),
                     shape = RoundedCornerShape(12.dp),
@@ -103,7 +82,7 @@ fun HomePageContent(
         Modifier.verticalScroll(rememberScrollState())
     ) {
         Section(
-            header = { Text("Article")},
+            header = { Text("Article") },
         ) {
             FlowRow {
                 currentArticles?.forEach {
@@ -112,7 +91,7 @@ fun HomePageContent(
             }
         }
         Section(
-            header = { Text("Add new article")},
+            header = { Text("Add new article") },
         ) {
             Column(
                 Modifier.align(Alignment.CenterHorizontally)
@@ -149,7 +128,7 @@ private fun AddPaperContent(
         supportingText = { Text("Name for the article") },
     )
 
-    Row{
+    Row {
         FilledTonalButton(
             onClick = {},
             modifier = Modifier.width(160.dp).padding(vertical = 4.dp).height(40.dp).align(Alignment.CenterVertically),
