@@ -7,7 +7,12 @@ kotlin {
         jsMain {
             dependencies {
                 api(project(":web:web-settings"))
+                api(project(":web:web-editor"))
             }
         }
     }
+}
+
+webResources {
+    richTextEditor()
 }

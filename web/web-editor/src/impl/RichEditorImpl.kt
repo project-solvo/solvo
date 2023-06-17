@@ -270,7 +270,7 @@ internal class RichEditor internal constructor(
 
     suspend fun setShowScrollBar(show: Boolean) {
         onEditorLoaded {
-            getHtmlEditormdPreview().asDynamic().style.overflow = if (show) null else "hidden"
+            getHtmlEditormdPreview().asDynamic().style.overflowY = if (show) null else "hidden"
             getHtmlPreviewMarkdownBody().asDynamic().style.overflow = if (show) null else "hidden"
         }
     }

@@ -1,7 +1,9 @@
 package org.solvo.web.pages.article.settings
 
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -87,6 +89,7 @@ fun Page(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .clickable {
+                                if (!entry.requestExit()) return@clickable
                                 History.pushState {
                                     articleSettings(
                                         model.courseCode.value,
@@ -100,7 +103,8 @@ fun Page(
                     )
                 }
             }
-        }
+        },
+        Modifier.verticalScroll(rememberScrollState())
     ) {
         selected?.run {
             PageContent(model)

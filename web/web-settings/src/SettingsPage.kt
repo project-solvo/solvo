@@ -14,6 +14,7 @@ import androidx.compose.ui.unit.dp
 fun SettingsPage(
     pageTitle: @Composable () -> Unit,
     navigationRail: @Composable () -> Unit,
+    modifier: Modifier = Modifier,
     content: @Composable ColumnScope.() -> Unit,
 ) {
     ProvideTextStyle(MaterialTheme.typography.headlineLarge) {
@@ -27,7 +28,7 @@ fun SettingsPage(
             navigationRail()
         }
 
-        Column(Modifier.fillMaxSize()) {
+        Column(modifier.fillMaxSize()) {
             content()
         }
     }

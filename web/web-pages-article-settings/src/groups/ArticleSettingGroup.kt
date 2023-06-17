@@ -5,4 +5,5 @@ import org.solvo.web.settings.SettingGroup
 
 sealed class ArticleSettingGroup(
     pathName: String,
-) : SettingGroup<PageViewModel>(pathName)
+) : SettingGroup<PageViewModel>(pathName) {
+}

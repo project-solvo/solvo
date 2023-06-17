@@ -28,7 +28,8 @@ interface PageViewModel {
 fun PageViewModel(): PageViewModel = PageViewModelImpl()
 
 @Stable
-private class PageViewModelImpl : AbstractViewModel(), PageViewModel {
+private class PageViewModelImpl(
+) : AbstractViewModel(), PageViewModel {
     override val pathParameters: PathParameters = PathParameters(WebPagePathPatterns.articleSettingsQuestion)
 
     override val courseCode: StateFlow<String> = pathParameters.argument(WebPagePathPatterns.VAR_COURSE_CODE)
@@ -72,9 +73,4 @@ class QuestionViewModelImpl(
 ) : QuestionViewModel, PageViewModel by page, AbstractViewModel() {
     override val question: SharedFlow<QuestionDownstream> =
         page.pathParameters.question().filterNotNull().shareInBackground()
-
-
-    private val remoteContent = question.map {
-
-    }
 }

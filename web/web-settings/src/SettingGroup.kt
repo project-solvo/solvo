@@ -1,13 +1,12 @@
 package org.solvo.web.settings
 
-import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.Stable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.solvo.web.document.parameters.PathVariable
@@ -15,10 +14,19 @@ import org.solvo.web.document.parameters.PathVariable
 /**
  * @param VM view model
  */
-@Immutable
+@Stable
 abstract class SettingGroup<VM : Any>(
     override val pathName: String,
 ) : PathVariable {
+    private var exitConfirmation: (() -> Boolean)? = null
+    protected fun registerExitConfirmation(
+        block: (() -> Boolean)?
+    ) {
+        exitConfirmation = block
+    }
+
+    fun requestExit(): Boolean = exitConfirmation?.invoke() ?: true
+
     @Composable
     abstract fun NavigationIcon()
 
@@ -27,8 +35,20 @@ abstract class SettingGroup<VM : Any>(
 
     companion object {
         @Composable
-        protected fun SimpleHeader(displayName: String) {
-            Text(displayName, style = MaterialTheme.typography.headlineMedium)
+        protected fun SimpleHeader(
+            displayName: String,
+            actions: @Composable RowScope.() -> Unit = {},
+        ) {
+            Box(Modifier.fillMaxWidth()) {
+                Text(
+                    displayName,
+                    Modifier.align(Alignment.CenterStart),
+                    style = MaterialTheme.typography.headlineMedium
+                )
+                Row(Modifier.align(Alignment.CenterEnd)) {
+                    actions()
+                }
+            }
             Divider(
                 Modifier.padding(vertical = 16.dp).fillMaxWidth(),
                 thickness = 1.dp,
