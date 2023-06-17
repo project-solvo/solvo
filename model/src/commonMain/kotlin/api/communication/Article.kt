@@ -28,7 +28,6 @@ class ArticleEditRequest(
 
     val code: NonBlankString? = null,
     val displayName: NonBlankString? = null,
-    val termYear: NonBlankString? = null,
 ) : CommentableEditRequest
 
 @Immutable
