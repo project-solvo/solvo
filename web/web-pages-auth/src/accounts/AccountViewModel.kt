@@ -7,7 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
-import org.solvo.model.api.AccountChecker
+import org.solvo.model.api.LiteralChecker
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.AuthStatus
 import org.solvo.model.utils.ModelConstraints
@@ -50,7 +50,7 @@ class AuthenticationViewModel : AbstractViewModel() {
     fun setUsername(username: String) {
         flushErrors()
         _username.value = username.trim()
-        val validity = AccountChecker.checkUserNameValidity(username)
+        val validity = LiteralChecker.checkUsername(username)
         usernameError.value = validity.render()
     }
 

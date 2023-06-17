@@ -33,8 +33,7 @@ fun SampleDataBuilder.sampleData1() {
             content("My content")
             anonymous()
             displayName("Paper 2022")
-            termYear("2022")
-            question("1a.i)") {
+            question("1a.i") {
                 content { "![some image](${image1a.url})" }
                 anonymous()
                 answer(alex) {
@@ -97,7 +96,7 @@ fun SampleDataBuilder.sampleData1() {
                     }
                 }
             }
-            question("1a.ii)") {
+            question("1a.ii") {
                 content { "![some image](${image1a.url})" }
                 anonymous()
                 answer(alex) {
@@ -143,7 +142,7 @@ fun SampleDataBuilder.sampleData1() {
                     )
                 }
             }
-            question("1a.iii)") {
+            question("1a.iii") {
                 content { "![some image](${image1a.url})" }
                 anonymous()
                 answer(alex) {
@@ -472,7 +471,7 @@ fun SampleDataBuilder.sampleData1() {
             anonymous()
             displayName("Paper 2022")
             termYear("2022")
-            question("1a i)") {
+            question("1a.i") {
                 content(
                     """
                     1a An operating system (OS) supports kernel-level threads with preemptive scheduling. User programs can use a mutual exclusion lock (mutex) m of type struct pthread mutex t with the following three functions:

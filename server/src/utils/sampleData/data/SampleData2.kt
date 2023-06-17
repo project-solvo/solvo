@@ -4,7 +4,7 @@ import org.solvo.server.modules.AuthDigest
 import org.solvo.server.utils.sampleData.builder.SampleDataBuilder
 
 fun SampleDataBuilder.sampleData2() {
-    val charles = user("charles", AuthDigest("charles")) {}
+    val charles = user("HiddenCharacter", AuthDigest("boo")) {}
     val questionsList = listOf("1a", "1b", "1c", "1d", "2a", "2b", "2c")
     course("50009", "Symbolic Reasoning") {
         article("Paper_2022", charles) {
