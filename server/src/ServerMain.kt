@@ -5,6 +5,7 @@ import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
+import io.ktor.server.plugins.autohead.*
 import io.ktor.server.plugins.callloging.*
 import io.ktor.server.plugins.contentnegotiation.*
 import io.ktor.server.request.*
@@ -31,7 +32,7 @@ object ServerMain {
 }
 
 fun Application.solvoModules() {
-    basicModule()
+    installations()
     webPageModule()
     authenticateModule()
     accountModule()
@@ -39,7 +40,7 @@ fun Application.solvoModules() {
     contentModule()
 }
 
-fun Application.basicModule() {
+fun Application.installations() {
     install(CallLogging) {
         level = Level.INFO
         filter { call -> call.request.path().startsWith("/") }
@@ -54,4 +55,5 @@ fun Application.basicModule() {
         masking = false
         contentConverter = KotlinxWebsocketSerializationConverter(DefaultCommonJson)
     }
+    install(AutoHeadResponse)
 }

@@ -15,12 +15,14 @@ dependencies {
     implementation(`exposed-jdbc`)
     implementation(h2)
     implementation(`kotlinx-serialization-json`)
+    implementation(`ktor-server-auto-head-response-jvm`)
     implementation(`ktor-server-core`)
     implementation(`ktor-server-netty`)
     implementation(`ktor-server-call-logging`)
     implementation(`ktor-server-auth-jvm`)
     implementation(`ktor-server-core-jvm`)
     implementation(`ktor-server-websockets`)
+    implementation(`ktor-server-websockets-jvm`)
     implementation(`ktor-server-content-negotiation`)
     implementation(`ktor-server-caching-headers`)
     implementation(`ktor-serialization-kotlinx-json`)
@@ -28,8 +30,6 @@ dependencies {
     implementation(`log4j2-slf4j-impl`)
     implementation(`log4j-api-kotlin`)
     implementation(project(mapOf("path" to ":model")))
-    implementation("io.ktor:ktor-server-core-jvm:2.3.0")
-    implementation("io.ktor:ktor-server-websockets-jvm:2.3.0")
 }
 
 application {
