@@ -31,7 +31,7 @@ class QuestionSettingGroup(
 
     @Composable
     override fun ColumnScope.PageContent(viewModel: PageViewModel) {
-        val model = remember(viewModel) { QuestionSettingsViewModel(viewModel) }
+        val model = remember(viewModel) { QuestionSettingsViewModel(viewModel, viewModel.question) }
         val question by model.question.collectAsState(null)
         val editor = rememberRichEditorState(true, showToolbar = true)
 
@@ -69,15 +69,7 @@ class QuestionSettingGroup(
                 SaveChangesButton { model.submitBasicChanges(it) }
             }
         }) {
-            AutoCheckPropertyTextField(
-                model.newCode,
-                Modifier.fillMaxWidth(),
-                placeholder = { Text("Example: ia.iii") },
-                label = { Text("Question Code") },
-                supportingText = {
-                    Text("Each question should have an unique code. ")
-                },
-            )
+            QuestionCodeTextField(model)
         }
 
         Section(header = {
@@ -98,6 +90,21 @@ class QuestionSettingGroup(
             LaunchedEffect(question) {
                 question?.content?.let { editor.setContentMarkdown(it) }
             }
+        }
+    }
+
+    companion object {
+        @Composable
+        fun QuestionCodeTextField(model: QuestionSettingsViewModel) {
+            AutoCheckPropertyTextField(
+                model.newCode,
+                Modifier.fillMaxWidth(),
+                placeholder = { Text("Example: ia.iii") },
+                label = { Text("Question Code") },
+                supportingText = {
+                    Text("Each question should have an unique code. ")
+                },
+            )
         }
     }
 }

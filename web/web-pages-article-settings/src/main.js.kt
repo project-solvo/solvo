@@ -19,6 +19,7 @@ import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.canManageArticle
 import org.solvo.web.document.History
+import org.solvo.web.pages.article.settings.groups.AddQuestionSettingGroup
 import org.solvo.web.pages.article.settings.groups.ArticleSettingGroup
 import org.solvo.web.pages.article.settings.groups.QuestionSettingGroup
 import org.solvo.web.session.currentUser
@@ -114,11 +115,11 @@ fun Page(
         pageTitle = null,
         navigationRail = {
             VerticalNavigationList(Modifier.padding(end = 48.dp)) {
-                val (questionGroups, otherGroups) = remember(settingGroups) {
-                    settingGroups.orEmpty().partition { it is QuestionSettingGroup }
+                val questionGroups = remember(settingGroups) {
+                    settingGroups.orEmpty().filterIsInstance<QuestionSettingGroup>()
                 }
 
-                for (entry in otherGroups) {
+                for (entry in ArticleSettingGroup.articleSettingGroups) {
                     Item(selected, entry, model)
                 }
 
@@ -126,6 +127,12 @@ fun Page(
 
                 for (entry in questionGroups) {
                     Item(selected, entry, model)
+                }
+
+                if (currentUser?.permission?.canManageArticle() == true) {
+                    GroupingHeader("Management")
+
+                    Item(selected, AddQuestionSettingGroup, model, title = { "Add Question" })
                 }
             }
         },
@@ -143,6 +150,7 @@ private fun VerticalNavigationListScope.Item(
     entry: ArticleSettingGroup,
     model: PageViewModel,
     modifier: Modifier = Modifier,
+    title: @Composable () -> String = { entry.pathName.replaceFirstChar { it.titlecaseChar() } },
 ) {
     Item(
         selected = selected,
@@ -158,7 +166,8 @@ private fun VerticalNavigationListScope.Item(
                 )
             }
         },
-        modifier = modifier
+        modifier = modifier,
+        title = title,
     )
 }
 

@@ -41,6 +41,14 @@ class QuestionRequests(
         }
     }
 
+    suspend fun addQuestion(
+        courseCode: String,
+        articleCode: String,
+        questionCode: String,
+    ) {
+        http.postAuthorized("${apiUrl}/courses/$courseCode/articles/$articleCode/questions/$questionCode")
+    }
+
     fun subscribeEvents(
         scope: CoroutineScope,
         courseCode: String,

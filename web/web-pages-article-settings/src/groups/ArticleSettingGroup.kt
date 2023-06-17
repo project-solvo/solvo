@@ -8,7 +8,11 @@ sealed class ArticleSettingGroup(
 ) : SettingGroup<PageViewModel>(pathName) {
     companion object {
         val articleSettingGroups = listOf(
-            ArticlePropertiesSettingGroup
+            ArticlePropertiesSettingGroup,
+        )
+
+        val managementGroups = listOf(
+            AddQuestionSettingGroup,
         )
 
     }

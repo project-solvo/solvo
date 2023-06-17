@@ -55,7 +55,7 @@ fun Route.courseRouting(
                 val articleId = getArticleIdFromContext() ?: return@get
                 call.respond(contents.viewArticle(articleId)!!)
             }
-            postAuthenticated("/{articleCode}/create") {
+            postAuthenticated("/{articleCode}") {
                 val uid = getUserIdAndCheckOp(accounts) ?: return@postAuthenticated
                 val courseCode = call.parameters.getOrFail("courseCode")
                 val articleCode = NonBlankString.fromStringOrNull(
@@ -91,7 +91,7 @@ fun Route.courseRouting(
                     val question = contents.viewQuestion(articleId, questionCode)
                     respondContentOrNotFound(question)
                 }
-                postAuthenticated("/create") {
+                postAuthenticated("") {
                     val uid = getUserIdAndCheckOp(accounts) ?: return@postAuthenticated
                     val articleId = getArticleIdFromContext() ?: return@postAuthenticated
                     val questionCode = NonBlankString.fromStringOrNull(

@@ -28,6 +28,11 @@ data object ArticlePropertiesSettingGroup : ArticleSettingGroup("properties") {
     override fun ColumnScope.PageContent(viewModel: PageViewModel) {
         val model = remember(viewModel) { ArticlePropertiesViewModel(viewModel.courseCode, viewModel.article) }
 
+        ArticleInformationSection(model)
+    }
+
+    @Composable
+    private fun ArticleInformationSection(model: ArticlePropertiesViewModel) {
         Section({
             HeaderWithActions("Article Information") {
                 SaveChangesButton { model.submitBasicChanges(it) }

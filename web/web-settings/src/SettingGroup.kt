@@ -86,11 +86,16 @@ fun HintText(text: String) {
 }
 
 @Composable
-fun SaveChangesButton(onClick: (SolvoSnackbar) -> Unit) {
+fun SaveChangesButton(
+    text: @Composable () -> Unit = {
+        Text("Save Changes")
+    },
+    onClick: (SolvoSnackbar) -> Unit,
+) {
     val snackbar by rememberUpdatedState(LocalTopSnackBar.current)
     val onClickUpdated by rememberUpdatedState(onClick)
     Button(wrapClearFocus { onClickUpdated(snackbar) }) {
-        Text("Save Changes")
+        text()
     }
 }
 

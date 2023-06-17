@@ -61,9 +61,10 @@ class VerticalNavigationListScope(
         entry: T,
         onClick: () -> Unit,
         modifier: Modifier = Modifier,
+        title: @Composable () -> String = { entry.pathName.replaceFirstChar { it.titlecaseChar() } },
     ) {
         Item(
-            entry.pathName.replaceFirstChar { it.titlecaseChar() },
+            title(),
             isSelected = selected == entry,
             onClick = onClick,
             modifier = modifier,
