@@ -40,7 +40,7 @@ fun Application.webPageModule() {
             routeWebPage(settingsAdminGroup, "/settings-admin")
             routeWebPage(me, "/user")
             routeWebPage(course, "/index")
-            routeWebPage(articleSettingsQuestion, "/article-settings")
+            routeWebPage(articleSettingsGroup, "/article-settings")
             routeWebPage(articleSettings, "/article-settings")
             routeWebPage(article, "/article")
             routeWebPage(question, "/question")

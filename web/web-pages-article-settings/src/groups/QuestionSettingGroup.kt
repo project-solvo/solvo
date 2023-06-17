@@ -3,8 +3,8 @@ package org.solvo.web.pages.article.settings.groups
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -14,22 +14,22 @@ import kotlinx.browser.window
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.rememberRichEditorState
 import org.solvo.web.pages.article.settings.PageViewModel
-import org.solvo.web.pages.article.settings.QuestionViewModel
 import org.solvo.web.settings.Section
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.ui.snackBar.SolvoSnackbar
 
 class QuestionSettingGroup(
-    val questionCode: String,
+    questionCode: String,
 ) : ArticleSettingGroup(questionCode) {
     @Composable
     override fun NavigationIcon() {
+        Icon(Icons.Outlined.Quiz, null)
     }
 
     @Composable
     override fun ColumnScope.PageContent(viewModel: PageViewModel) {
-        val model = remember(viewModel) { QuestionViewModel(viewModel) }
+        val model = remember(viewModel) { QuestionSettingsViewModel(viewModel) }
         val question by model.question.collectAsState(null)
         val editor = rememberRichEditorState(true, showToolbar = true)
 
@@ -81,7 +81,8 @@ class QuestionSettingGroup(
                     Text(newCodeError ?: "Each question should have an unique code. ")
                 },
                 trailingIcon = {
-                    NewCodeAvailabilityIndicator(model)
+                    val isNewCodeAvailable by model.isNewCodeAvailable.collectAsState()
+                    AvailabilityIndicator(isNewCodeAvailable)
                 },
                 isError = newCodeError != null,
             )
@@ -105,31 +106,6 @@ class QuestionSettingGroup(
             LaunchedEffect(question) {
                 question?.content?.let { editor.setContentMarkdown(it) }
             }
-        }
-    }
-
-    @Composable
-    private fun NewCodeAvailabilityIndicator(model: QuestionViewModel) {
-        val isNewCodeAvailable by model.isNewCodeAvailable.collectAsState()
-        when (isNewCodeAvailable) {
-            null -> {
-                CircularProgressIndicator(Modifier.size(16.dp), strokeWidth = 2.dp)
-            }
-
-            true -> {
-                Row(verticalAlignment = Alignment.CenterVertically) {
-                    CompositionLocalProvider(
-                        LocalContentColor provides MaterialTheme.colorScheme.primary.copy(
-                            0.7f
-                        )
-                    ) {
-                        Icon(Icons.Outlined.Check, null)
-                        Text("Available", Modifier.padding(start = 6.dp, end = 12.dp))
-                    }
-                }
-            }
-
-            else -> {}
         }
     }
 

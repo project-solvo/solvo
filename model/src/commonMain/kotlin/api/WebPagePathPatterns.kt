@@ -30,7 +30,7 @@ object WebPagePathPatterns {
 
     val article = "$course/$VAR_ARTICLE_CODE"
     val articleSettings = "$article/settings"
-    val articleSettingsQuestion = "$article/settings/$VAR_QUESTION_CODE"
+    val articleSettingsGroup = "$article/settings/$VAR_SETTING_GROUP"
 
     val question = "$article/$VAR_QUESTION_CODE"
 }

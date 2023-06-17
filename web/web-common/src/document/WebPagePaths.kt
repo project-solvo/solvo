@@ -54,11 +54,11 @@ abstract class WebPagePaths {
         .replace(VAR_QUESTION_CODE, questionCode)
 
 
-    fun articleSettings(courseCode: String, articleCode: String, questionCode: String?) =
-        patterns.articleSettingsQuestion
+    fun articleSettings(courseCode: String, articleCode: String, group: String?) =
+        patterns.articleSettingsGroup
             .replace(VAR_COURSE_CODE, courseCode)
             .replace(VAR_ARTICLE_CODE, articleCode)
-            .replaceNotNull(VAR_QUESTION_CODE, questionCode)
+            .replaceNotNull(VAR_SETTING_GROUP, group)
 
 
 }

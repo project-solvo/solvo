@@ -86,8 +86,8 @@ fun main() {
 fun Page(
     model: PageViewModel,
 ) {
-    val questionGroups by model.questionGroups.collectAsState(null)
-    val selected by model.selectedQuestionGroup.collectAsState(null)
+    val questionGroups by model.settingGroups.collectAsState(null)
+    val selected by model.selectedSettingGroup.collectAsState(null)
     SettingsPage(
         pageTitle = null,
         navigationRail = {
@@ -117,12 +117,12 @@ fun Page(
                                     articleSettings(
                                         model.courseCode.value,
                                         model.articleCode.value,
-                                        entry.questionCode,
+                                        entry.pathName,
                                     )
                                 }
                             }.width(200.dp),
                         tonalElevation = if (selected == entry) 2.dp else 0.dp,
-                        headlineText = { Text(entry.questionCode, overflow = TextOverflow.Ellipsis) },
+                        headlineText = { Text(entry.pathName, overflow = TextOverflow.Ellipsis) },
                     )
                 }
             }
