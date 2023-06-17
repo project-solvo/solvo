@@ -23,6 +23,8 @@ class QuestionUpstream(
 class QuestionEditRequest(
     override val content: NonBlankString? = null,
     override val anonymity: Boolean? = null,
+
+    val code: NonBlankString? = null,
 ) : CommentableEditRequest
 
 @Immutable

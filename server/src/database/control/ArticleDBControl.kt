@@ -70,9 +70,8 @@ class ArticleDBControlImpl(
 
     override suspend fun edit(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean = dbQuery {
         if (!contains(articleId)) return@dbQuery false
-        if (request.termYear?.let { it.str.length > ModelConstraints.TERM_TIME_MAX_LENGTH } == true
-            || request.code?.let { it.str.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH } == true
-        ) return@dbQuery false
+        if (request.code?.let { it.str.length > ModelConstraints.ARTICLE_NAME_MAX_LENGTH } == true)
+            return@dbQuery false
 
         request.run {
             anonymity?.let { anonymity -> setAnonymity(articleId, anonymity) }
