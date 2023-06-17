@@ -31,7 +31,7 @@ fun AdminSettingsPageViewModel(): AdminSettingsPageViewModel = AdminSettingsPage
 
 @Stable
 private class AdminSettingsPageViewModelImpl : AbstractViewModel(), AdminSettingsPageViewModel {
-    override val pathParameters: PathParameters = PathParameters(WebPagePathPatterns.settingsAdmin)
+    override val pathParameters: PathParameters = PathParameters(WebPagePathPatterns.settingsAdminGroup)
     override val settingGroup =
         pathParameters.settingGroup(AdminSettingGroup.entries)
             .filterNotNull().shareInBackground()

@@ -22,11 +22,15 @@ object WebPagePathPatterns {
 
     val home = relative("/")
     val auth = relative("/auth/$VAR_AUTH_METHOD")
-    val settingsAdmin = relative("/settings/admin/$VAR_SETTING_GROUP")
+    val settingsAdmin = relative("/settings/admin")
+    val settingsAdminGroup = relative("/settings/admin/$VAR_SETTING_GROUP")
     val me = relative("/me")
     val courses = relative("/")
     val course = relative("/$VAR_COURSE_CODE")
 
     val article = "$course/$VAR_ARTICLE_CODE"
+    val articleSettings = "$article/settings"
+    val articleSettingsQuestion = "$article/settings/$VAR_QUESTION_CODE"
+
     val question = "$article/$VAR_QUESTION_CODE"
 }

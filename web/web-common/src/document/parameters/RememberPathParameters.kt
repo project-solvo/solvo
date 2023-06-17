@@ -5,10 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.remember
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.solvo.model.api.WebPagePathPatterns
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.Course
@@ -53,6 +50,11 @@ fun PathParameters.question(): Flow<QuestionDownstream?> {
     ) { courseCode, articleCode, questionCode ->
         client.questions.getQuestion(courseCode, articleCode, questionCode)
     }
+}
+
+@Stable
+fun PathParameters.questionCode(): StateFlow<String?> {
+    return argumentNullable(WebPagePathPatterns.VAR_QUESTION_CODE)
 }
 
 @Stable

@@ -35,4 +35,16 @@ abstract class SettingGroup<VM : Any>(
 
     @Composable
     abstract fun ColumnScope.PageContent(viewModel: VM)
+
+    companion object {
+        @Composable
+        protected fun SimpleHeader(displayName: String) {
+            Text(displayName, style = MaterialTheme.typography.headlineMedium)
+            Divider(
+                Modifier.padding(vertical = 16.dp).fillMaxWidth(),
+                thickness = 1.dp,
+                color = MaterialTheme.colorScheme.outline.copy(0.5f)
+            )
+        }
+    }
 }

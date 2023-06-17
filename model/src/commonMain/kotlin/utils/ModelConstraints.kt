@@ -1,5 +1,8 @@
 package org.solvo.model.utils
 
+import org.solvo.model.annotations.Immutable
+import org.solvo.model.annotations.Stable
+
 class ModelConstraints {
     companion object {
         const val USERNAME_MAX_LENGTH = 16
@@ -19,8 +22,12 @@ class ModelConstraints {
     }
 }
 
+@Immutable
 enum class UserPermission : Comparable<UserPermission> {
     DEFAULT,
     OPERATOR,
     ROOT,
 }
+
+@Stable
+fun UserPermission.canManageArticle(): Boolean = this >= UserPermission.OPERATOR

@@ -37,7 +37,7 @@ abstract class WebPagePaths {
     }
 
     fun settingsAdmin(group: String?): String {
-        return patterns.settingsAdmin.replaceNotNull(VAR_SETTING_GROUP, group)
+        return patterns.settingsAdminGroup.replaceNotNull(VAR_SETTING_GROUP, group)
     }
 
     fun courses() = patterns.courses
@@ -52,6 +52,13 @@ abstract class WebPagePaths {
         .replace(VAR_COURSE_CODE, courseCode)
         .replace(VAR_ARTICLE_CODE, articleCode)
         .replace(VAR_QUESTION_CODE, questionCode)
+
+
+    fun articleSettings(courseCode: String, articleCode: String, questionCode: String?) =
+        patterns.articleSettingsQuestion
+            .replace(VAR_COURSE_CODE, courseCode)
+            .replace(VAR_ARTICLE_CODE, articleCode)
+            .replaceNotNull(VAR_QUESTION_CODE, questionCode)
 
 
 }
