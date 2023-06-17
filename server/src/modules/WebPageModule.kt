@@ -62,11 +62,11 @@ private inline fun Routing.routeStatic(
  * Route `.html` and `.js`
  */
 @KtorDsl
-private fun Routing.routeWebPage(path: String, webPagePath: String) {
-    routeStatic(path, "$webPagePath.html") {
+private fun Routing.routeWebPage(path: String, localPath: String) {
+    routeStatic(path, "$localPath.html") {
         call.response.cacheControl(CacheControl.MaxAge(30, mustRevalidate = true, proxyRevalidate = true))
     }
-    routeStatic("$webPagePath.js", "$webPagePath.js") {
+    routeStatic("$localPath.js", "$localPath.js") {
         call.response.cacheControl(CacheControl.MaxAge(30, mustRevalidate = true, proxyRevalidate = true))
     }
 }
