@@ -10,18 +10,25 @@ import org.solvo.model.api.events.RemoveQuestionEvent
 import org.solvo.model.api.events.UpdateQuestionEvent
 
 
-fun StateFlow<QuestionDownstream?>.withEvents(events: Flow<QuestionEvent>): Flow<QuestionDownstream?> {
+fun StateFlow<QuestionDownstream?>.withEvents(
+    events: Flow<QuestionEvent>,
+    deleted: Deleted
+): Flow<QuestionDownstream?> {
     val eventMapped = events.map { event ->
-        handleEvent(event)
+        handleEvent(event, deleted)
     }
     return merge(this, eventMapped)
 }
 
-private fun StateFlow<QuestionDownstream?>.handleEvent(event: QuestionEvent): QuestionDownstream? {
+private fun StateFlow<QuestionDownstream?>.handleEvent(
+    event: QuestionEvent,
+    deleted: Deleted,
+): QuestionDownstream? {
     when (event) {
         is RemoveQuestionEvent -> {
             val current = value ?: return null
             if (current.coid == event.questionCoid) {
+                deleted.setDeleted()
                 return null
             }
             return current

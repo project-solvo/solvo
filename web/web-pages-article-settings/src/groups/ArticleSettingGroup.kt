@@ -7,6 +7,7 @@ sealed class ArticleSettingGroup(
     pathName: String,
 ) : SettingGroup<PageViewModel>(pathName) {
     companion object {
+        // must not be empty
         val articleSettingGroups = listOf(
             ArticlePropertiesSettingGroup,
         )

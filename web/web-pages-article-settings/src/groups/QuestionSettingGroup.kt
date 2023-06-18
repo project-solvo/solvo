@@ -15,6 +15,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.browser.window
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.rememberRichEditorState
+import org.solvo.web.event.DeletedMessage
 import org.solvo.web.pages.article.settings.PageViewModel
 import org.solvo.web.settings.HeaderWithActions
 import org.solvo.web.settings.SaveChangesButton
@@ -46,6 +47,10 @@ class QuestionSettingGroup(
                 }
                 true
             }
+        }
+
+        if (DeletedMessage(model.originalQuestionDeleted, "Question")) {
+            return
         }
 
 //        androidx.compose.material3.ListItem(

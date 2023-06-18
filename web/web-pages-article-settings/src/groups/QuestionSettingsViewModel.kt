@@ -7,7 +7,9 @@ import org.solvo.model.api.communication.QuestionEditRequest
 import org.solvo.model.api.communication.isEmpty
 import org.solvo.model.utils.nonBlankOrNull
 import org.solvo.web.document.History
+import org.solvo.web.event.Deleted
 import org.solvo.web.event.withEvents
+import org.solvo.web.event.wrapNotFound
 import org.solvo.web.pages.article.settings.PageViewModel
 import org.solvo.web.requests.client
 import org.solvo.web.settings.components.AutoCheckProperty
@@ -21,6 +23,7 @@ interface QuestionSettingsViewModel : PageViewModel {
     val originalQuestion: StateFlow<QuestionDownstream?>
 
     val newCode: AutoCheckProperty<String, String>
+    val originalQuestionDeleted: Deleted
 
 //    val content: StateFlow<String>
 
@@ -65,11 +68,14 @@ class QuestionSettingsSettingsViewModelImpl(
     private val page: PageViewModel,
     originalQuestionCode: StateFlow<String?>,
 ) : QuestionSettingsViewModel, PageViewModel by page, AbstractViewModel() {
+    override val originalQuestionDeleted: Deleted = Deleted()
     override val originalQuestion: StateFlow<QuestionDownstream?> =
-        combine(courseCode, articleCode, originalQuestionCode.filterNotNull()) { q, a, c ->
-            client.questions.getQuestion(c, a, q)
+        combine(courseCode, articleCode, originalQuestionCode.filterNotNull()) { c, a, q ->
+            originalQuestionDeleted.wrapNotFound {
+                client.questions.getQuestion(c, a, q)
+            }
         }.stateInBackground()
-            .withEvents(articlePageEvents.filterIsInstance())
+            .withEvents(articlePageEvents.filterIsInstance(), originalQuestionDeleted)
             .filterNotNull()
             .stateInBackground()
 

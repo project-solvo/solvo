@@ -30,10 +30,10 @@ import org.solvo.web.pages.admin.OperatorsViewModel
 import org.solvo.web.pages.admin.UserWithNewPermission
 import org.solvo.web.pages.admin.setOperator
 import org.solvo.web.session.currentUser
-import org.solvo.web.settings.CenteredTipText
 import org.solvo.web.settings.Section
 import org.solvo.web.settings.SimpleHeader
 import org.solvo.web.ui.LoadableContent
+import org.solvo.web.ui.foundation.CenteredTipText
 import org.solvo.web.ui.foundation.CheckThumbSwitch
 import org.solvo.web.ui.foundation.wrapClearFocus
 import org.solvo.web.ui.foundation.wrapClearFocus1

@@ -1,4 +1,4 @@
-package org.solvo.web.settings
+package org.solvo.web.ui.foundation
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme

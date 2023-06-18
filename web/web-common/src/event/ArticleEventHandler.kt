@@ -9,13 +9,17 @@ import org.solvo.model.api.events.ArticleEvent
 import org.solvo.model.api.events.RemoveArticleEvent
 import org.solvo.model.api.events.UpdateArticleEvent
 
-fun StateFlow<ArticleDownstream?>.withEvents(events: Flow<ArticleEvent>): Flow<ArticleDownstream?> {
-    val handler = ArticleEventHandler { this.value }
+fun StateFlow<ArticleDownstream?>.withEvents(
+    events: Flow<ArticleEvent>,
+    deleted: Deleted,
+): Flow<ArticleDownstream?> {
+    val handler = ArticleEventHandler(deleted) { this.value }
     val eventMapped = events.map { handler.handleEvent(it) }
     return merge(this, eventMapped)
 }
 
 class ArticleEventHandler(
+    private val deleted: Deleted,
     private val getCurrentArticle: () -> ArticleDownstream?,
 ) {
     fun handleEvent(event: ArticleEvent): ArticleDownstream? {
@@ -23,6 +27,7 @@ class ArticleEventHandler(
             is RemoveArticleEvent -> {
                 val current = getCurrentArticle() ?: return null
                 if (current.coid == event.articleCoid) {
+                    deleted.setDeleted()
                     return null
                 }
                 return current

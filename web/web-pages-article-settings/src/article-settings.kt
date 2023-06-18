@@ -19,6 +19,7 @@ import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.canManageArticle
 import org.solvo.web.document.History
+import org.solvo.web.event.WithDeletedMessage
 import org.solvo.web.pages.article.settings.groups.AddQuestionSettingGroup
 import org.solvo.web.pages.article.settings.groups.ArticleSettingGroup
 import org.solvo.web.pages.article.settings.groups.QuestionSettingGroup
@@ -29,6 +30,7 @@ import org.solvo.web.settings.components.VerticalNavigationList
 import org.solvo.web.settings.components.VerticalNavigationListScope
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
+import org.solvo.web.ui.foundation.CenteredTipText
 import org.solvo.web.ui.foundation.SolvoTopAppBar
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
@@ -70,18 +72,23 @@ fun main() {
 
             val isFullscreen by model.isFullscreen.collectAsState()
             LoadableContent(isLoading = user?.permission != UserPermission.ROOT, Modifier.fillMaxSize()) {
-                Row(
-                    Modifier.padding(end = 24.dp).fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    val modifier = if (isFullscreen) {
-                        Modifier.fillMaxWidth()
-                    } else {
-                        Modifier.widthIn(min = 600.dp, max = 1000.dp)
-                    }
+                WithDeletedMessage(model.courseDeleted, "Course") {
+                    WithDeletedMessage(model.articleDeleted, "Article") {
+                        Row(
+                            Modifier.padding(end = 24.dp).fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center
+                        ) {
+                            val modifier = if (isFullscreen) {
+                                Modifier.fillMaxWidth()
+                            } else {
+                                Modifier.widthIn(min = 600.dp, max = 1000.dp)
+                            }
 
-                    Column(modifier) {
-                        Page(model)
+                            Column(modifier) {
+                                Page(model)
+                            }
+                        }
+
                     }
                 }
             }
@@ -148,8 +155,14 @@ fun Page(
         },
         Modifier.verticalScroll(rememberScrollState())
     ) {
-        selected?.run {
-            PageContent(model)
+        if (selected == null) {
+            val name by model.settingGroupName.collectAsState()
+            CenteredTipText(remember { derivedStateOf { "$name not found" } }.value)
+            CenteredTipText(remember { derivedStateOf { "Please select a question from the list" } }.value)
+        } else {
+            selected?.run {
+                PageContent(model)
+            }
         }
     }
 }
