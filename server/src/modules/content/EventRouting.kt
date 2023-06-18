@@ -106,7 +106,7 @@ private suspend fun DefaultWebSocketServerSession.connectAndGetUid(path: String)
     val token = call.parameters.getOrFail("token")
     val uid = ServerContext.tokens.matchToken(token)
     // val uid = call.principal<UserIdPrincipal>()?.name?.let { UUID.fromString(it) }
-    logger.info { "Connection on $path established" + (uid?.let { "with user $it" } ?: "") }
+    logger.info { "Connection on $path established" + (uid?.let { " with user $it" } ?: "") }
     return uid
 }
 

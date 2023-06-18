@@ -36,7 +36,7 @@ private fun StateFlow<QuestionDownstream?>.handleEvent(
 
         is UpdateQuestionEvent -> {
             val current = value ?: return null
-            if (current.coid == event.articleCoid) return event.questionDownstream
+            if (current.coid == event.articleCoid) return event.question
             return current
         }
     }
