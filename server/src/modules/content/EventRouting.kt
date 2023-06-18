@@ -29,7 +29,7 @@ fun Route.eventRouting(
     events: EventSessionHandler,
 ) {
     authenticate("authBearer", optional = true) {
-        webSocket("/courses/{courseCode}/articles/{articleCode}") {
+        webSocket("/courses/{courseCode}/articles/{articleCode}/events") {
             val path = call.request.path()
             val uid = connectAndGetUid(path)
 

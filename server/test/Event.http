@@ -1,0 +1,12 @@
+POST http://localhost:80/api/login
+Content-Type: application/json
+
+{
+    "username": "admin",
+    "password": "admin"
+}
+
+
+### 
+POST http://localhost:80/api/courses/50001/articles/2022/questions/c
+Authorization: Bearer fXfTLJZV94iYXTiTPgHW2eOs86o07u3Q

@@ -33,8 +33,8 @@ class QuestionSettingGroup(
 
     @Composable
     override fun ColumnScope.PageContent(viewModel: PageViewModel) {
-        val model = remember(viewModel) { QuestionSettingsViewModel(viewModel, viewModel.question) }
-        val question by model.question.collectAsState(null)
+        val model = remember(viewModel) { QuestionSettingsViewModel(viewModel, viewModel.settingGroupName) }
+        val question by model.originalQuestion.collectAsState(null)
         val editor = rememberRichEditorState(true, showToolbar = true)
 
         SideEffect {

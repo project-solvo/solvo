@@ -3,7 +3,7 @@ package org.solvo.model.api.events
 import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.foundation.Uuid
 
-interface QuestionEvent : ArticleSettingPageEvent, QuestionPageEvent
+sealed interface QuestionEvent : ArticleSettingPageEvent, QuestionPageEvent
 
 class UpdateQuestionEvent(
     val questionDownstream: QuestionDownstream

@@ -2,8 +2,12 @@ package org.solvo.web.requests
 
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterIsInstance
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.ArticleEditRequest
+import org.solvo.model.api.events.ArticleSettingPageEvent
 
 class ArticleRequests(
     override val client: Client
@@ -42,4 +46,14 @@ class ArticleRequests(
         }
     }
 
+    fun subscribeEvents(
+        scope: CoroutineScope,
+        courseCode: String,
+        articleCode: String,
+    ): Flow<ArticleSettingPageEvent> {
+        return connectEvents(
+            scope,
+            "${apiUrl}/courses/$courseCode/articles/$articleCode/events"
+        ).filterIsInstance()
+    }
 }

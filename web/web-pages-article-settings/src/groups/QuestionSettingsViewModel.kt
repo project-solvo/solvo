@@ -1,14 +1,13 @@
 package org.solvo.web.pages.article.settings.groups
 
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.filterNotNull
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.*
 import org.solvo.model.annotations.Stable
 import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.api.communication.QuestionEditRequest
 import org.solvo.model.api.communication.isEmpty
 import org.solvo.model.utils.nonBlankOrNull
 import org.solvo.web.document.History
+import org.solvo.web.event.withEvents
 import org.solvo.web.pages.article.settings.PageViewModel
 import org.solvo.web.requests.client
 import org.solvo.web.settings.components.AutoCheckProperty
@@ -19,7 +18,7 @@ import org.solvo.web.viewModel.launchInBackground
 
 @Stable
 interface QuestionSettingsViewModel : PageViewModel {
-    override val question: StateFlow<QuestionDownstream?>
+    val originalQuestion: StateFlow<QuestionDownstream?>
 
     val newCode: AutoCheckProperty<String, String>
 
@@ -47,24 +46,32 @@ interface QuestionSettingsViewModel : PageViewModel {
         snackbar: SolvoSnackbar,
         editorContent: String?
     )
+
+    fun clear()
 }
 
 
 @JsName("createQuestionSettingsViewModel")
 fun QuestionSettingsViewModel(
     page: PageViewModel,
-    originalQuestion: StateFlow<QuestionDownstream?>,
+    originalQuestionCode: StateFlow<String?>,
 ): QuestionSettingsViewModel = QuestionSettingsSettingsViewModelImpl(
     page,
-    originalQuestion,
+    originalQuestionCode,
 )
 
 @Stable
 class QuestionSettingsSettingsViewModelImpl(
     private val page: PageViewModel,
-    originalQuestion: StateFlow<QuestionDownstream?>,
+    originalQuestionCode: StateFlow<String?>,
 ) : QuestionSettingsViewModel, PageViewModel by page, AbstractViewModel() {
-    override val question: StateFlow<QuestionDownstream?> = originalQuestion
+    override val originalQuestion: StateFlow<QuestionDownstream?> =
+        combine(courseCode, articleCode, originalQuestionCode.filterNotNull()) { q, a, c ->
+            client.questions.getQuestion(c, a, q)
+        }.stateInBackground()
+            .withEvents(articlePageEvents.filterIsInstance())
+            .filterNotNull()
+            .stateInBackground()
 
     override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
         originalQuestion.filterNotNull().map { it.code }.stateInBackground(""),
@@ -98,7 +105,7 @@ class QuestionSettingsSettingsViewModelImpl(
             snackbar.showSnackbar("Already up-to-date")
             return
         }
-        var targetCode = question.value?.code
+        var targetCode = originalQuestion.value?.code
         if (targetCode == null) {
             client.questions.addQuestion(courseCode.value, articleCode.value, newCode.value)
             targetCode = newCode.value
@@ -110,7 +117,7 @@ class QuestionSettingsSettingsViewModelImpl(
 
     override fun init() {
         launchInBackground {
-            question.filterNotNull().collect {
+            originalQuestion.filterNotNull().collect {
                 newCode.setValue(it.code)
             }
         }
@@ -119,7 +126,7 @@ class QuestionSettingsSettingsViewModelImpl(
     override fun submitContentChanges(snackbar: SolvoSnackbar, editorContent: String?) {
         launchInBackground {
             val request = QuestionEditRequest(
-                content = editorContent?.nonBlankOrNull?.takeIf { it.str != question.value?.content },
+                content = editorContent?.nonBlankOrNull?.takeIf { it.str != originalQuestion.value?.content },
             )
             if (!request.isEmpty()) {
                 submitChange(
@@ -128,5 +135,9 @@ class QuestionSettingsSettingsViewModelImpl(
                 )
             }
         }
+    }
+
+    override fun clear() {
+        newCode.setValue("")
     }
 }

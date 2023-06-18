@@ -8,7 +8,7 @@ import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.foundation.Uuid
 import org.solvo.model.foundation.UuidAsStringSerializer
 
-interface ArticleEvent : ArticleSettingPageEvent
+sealed interface ArticleEvent : ArticleSettingPageEvent
 
 @Serializable
 class UpdateArticleEvent(
