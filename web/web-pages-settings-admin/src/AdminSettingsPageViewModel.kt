@@ -33,8 +33,8 @@ fun AdminSettingsPageViewModel(): AdminSettingsPageViewModel = AdminSettingsPage
 private class AdminSettingsPageViewModelImpl : AbstractViewModel(), AdminSettingsPageViewModel {
     override val pathParameters: PathParameters = PathParameters(WebPagePathPatterns.settingsAdminGroup)
     override val settingGroup =
-        pathParameters.settingGroup(AdminSettingGroup.entries)
-            .filterNotNull().shareInBackground()
+        pathParameters.settingGroup(AdminSettingGroup.entries) { AdminSettingGroup.entries.first() }
+            .shareInBackground()
 
     override val settings: MutableStateFlow<AdminSettings?> = MutableStateFlow(null)
 

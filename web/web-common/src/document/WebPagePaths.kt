@@ -65,5 +65,7 @@ abstract class WebPagePaths {
 
 internal val LocalRefer = localStorage.item("authReturnPath")
 
-private fun String.replaceNotNull(oldValue: String, newValue: String?, default: String = this): String =
-    newValue?.let { replace(oldValue, it) } ?: default
+private fun String.replaceNotNull(oldValue: String, newValue: String?): String =
+    newValue?.let { replace(oldValue, it) }
+        ?: replace("/$oldValue", "").replaceNotNull(oldValue, "")
+    

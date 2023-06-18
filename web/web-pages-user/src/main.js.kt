@@ -4,10 +4,9 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.OpenInNew
+import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -21,9 +20,11 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.api.communication.User
+import org.solvo.model.utils.UserPermission
 import org.solvo.web.document.History
 import org.solvo.web.requests.client
 import org.solvo.web.session.currentUser
+import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.session.isLoggedInOrNull
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.LocalSolvoWindow
@@ -121,6 +122,19 @@ fun UserPageContent(
                     )
                     showUploadAvatarPopup = false
                 }
+            }
+        }
+
+        if (currentUserHasPermission(UserPermission.ROOT)) {
+            Text(
+                text = "Administration Settings",
+                modifier = Modifier.padding(vertical = 12.dp),
+                style = MaterialTheme.typography.headlineLarge,
+            )
+
+            Button(wrapClearFocus { History.navigate { settingsAdmin(null) } }) {
+                Text("Open")
+                Icon(Icons.Outlined.OpenInNew, null, Modifier.padding(start = 12.dp))
             }
         }
     }
