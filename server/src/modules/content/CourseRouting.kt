@@ -15,7 +15,6 @@ import org.solvo.server.database.AccountDBFacade
 import org.solvo.server.database.ContentDBFacade
 import org.solvo.server.modules.*
 import org.solvo.server.utils.events.EventSessionHandler
-import java.util.*
 
 fun Route.courseRouting(
     contents: ContentDBFacade,
@@ -112,7 +111,9 @@ fun Route.courseRouting(
 
                     val questionId = contents.createQuestion(questionCode, articleId, uid)
                     respondContentOrBadRequest(questionId) {
-                        events.announce(contents.getUpdateQuestionEvent(it))
+                        val event = UpdateQuestionEvent(contents.viewQuestion(it)!!)
+                        events.announce(event)
+                        events.announce(UpdateArticleEvent(contents.viewArticle(event.articleCoid)!!))
                     }
                 }
                 patchAuthenticated {
@@ -124,7 +125,9 @@ fun Route.courseRouting(
                     val question = call.receive<QuestionEditRequest>()
 
                     respondOKOrBadRequest(contents.editQuestion(question, uid, questionId)) {
-                        events.announce(contents.getUpdateQuestionEvent(questionId))
+                        val event = UpdateQuestionEvent(contents.viewQuestion(questionId)!!)
+                        events.announce(event)
+                        events.announce(UpdateArticleEvent(contents.viewArticle(event.articleCoid)!!))
                     }
                 }
                 delete {
@@ -142,10 +145,4 @@ fun Route.courseRouting(
             }
         }
     }
-}
-
-private suspend fun ContentDBFacade.getUpdateQuestionEvent(questionId: UUID): UpdateQuestionEvent {
-    val question = viewQuestion(questionId)!!
-    val article = viewArticle(question.article)!!
-    return UpdateQuestionEvent(question, article)
 }

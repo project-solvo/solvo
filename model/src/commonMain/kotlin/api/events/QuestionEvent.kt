@@ -14,7 +14,6 @@ sealed interface QuestionEvent : ArticleSettingPageEvent, QuestionPageEvent
 @Serializable
 class UpdateQuestionEvent(
     val question: QuestionDownstream,
-    val parent: ArticleDownstream,
 ) : QuestionEvent {
     override val articleCoid: Uuid
         get() = question.article
