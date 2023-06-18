@@ -143,7 +143,7 @@ fun Page(
                 GroupingHeader("Questions")
 
                 for (entry in questionGroups) {
-                    Item(selected, entry, model)
+                    Item(selected, entry, model, title = { entry.questionCode })
                 }
 
                 if (currentUser?.permission?.canManageArticle() == true) {

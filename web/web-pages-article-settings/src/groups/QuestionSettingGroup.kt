@@ -25,7 +25,7 @@ import org.solvo.web.settings.components.AutoCheckPropertyTextField
 import org.solvo.web.ui.foundation.wrapClearFocus
 
 class QuestionSettingGroup(
-    questionCode: String,
+    val questionCode: String,
 ) : ArticleSettingGroup(questionCode) {
     @Composable
     override fun NavigationIcon() {
