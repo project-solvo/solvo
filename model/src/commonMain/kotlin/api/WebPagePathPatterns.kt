@@ -20,6 +20,7 @@ object WebPagePathPatterns {
     private fun relative(path: String): String =
         if (path.startsWith('/') && !path.endsWith('/')) path else "/${path.removeSurrounding("/")}"
 
+    val addCourse = relative("/addCourse")
     val home = relative("/")
     val auth = relative("/auth/$VAR_AUTH_METHOD")
     val settingsAdmin = relative("/settings/admin")

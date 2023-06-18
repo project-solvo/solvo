@@ -40,6 +40,7 @@ abstract class WebPagePaths {
         return patterns.settingsAdminGroup.replaceNotNull(VAR_SETTING_GROUP, group)
     }
 
+    fun addCourse() = patterns.addCourse
     fun courses() = patterns.courses
     fun course(code: String) = patterns.course
         .replace(VAR_COURSE_CODE, code)

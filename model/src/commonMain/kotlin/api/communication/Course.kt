@@ -19,3 +19,13 @@ class Course(
         )
     }
 }
+
+@Immutable
+@Serializable
+class CourseEditRequest(
+    val code: NonBlankString? = null,
+    val displayName: NonBlankString? = null,
+)
+fun CourseEditRequest.isEmpty(): Boolean {
+    return code == null && displayName == null
+}

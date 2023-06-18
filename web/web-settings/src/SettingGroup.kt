@@ -20,7 +20,7 @@ import org.solvo.web.ui.theme.UNICODE_FONT
  * @param VM view model
  */
 @Stable
-abstract class SettingGroup<VM : Any>(
+abstract class SettingGroup<in VM : Any>(
     override val pathName: String,
 ) : PathVariable {
     private var exitConfirmation: (() -> Boolean)? = null

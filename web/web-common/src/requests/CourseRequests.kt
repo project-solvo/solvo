@@ -5,6 +5,7 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.Course
+import org.solvo.model.api.communication.CourseEditRequest
 
 open class CourseRequests(
     override val client: Client,
@@ -15,4 +16,17 @@ open class CourseRequests(
     suspend fun isCourseExist(code: String): Boolean = http.head("${apiUrl}/courses/$code").status.isSuccess()
     suspend fun getAllArticles(courseCode: String): List<ArticleDownstream>? =
         http.get("${apiUrl}/courses/$courseCode/articles").bodyOrNull()
+    suspend fun addCourse(courseCode: String): Boolean {
+        return http.postAuthorized(api("courses/$courseCode")).status.isSuccess()
+    }
+
+    suspend fun update(
+        courseCode: String,
+        request: CourseEditRequest,
+    ) {
+        http.patchAuthorized(api("courses/$courseCode")) {
+            contentType(ContentType.Application.Json)
+            setBody(request)
+        }
+    }
 }
