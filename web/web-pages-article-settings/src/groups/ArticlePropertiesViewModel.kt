@@ -1,7 +1,9 @@
 package org.solvo.web.pages.article.settings.groups
 
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
+import kotlinx.coroutines.flow.merge
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.ArticleEditRequest
 import org.solvo.model.api.communication.isEmpty
@@ -33,22 +35,23 @@ class ArticlePropertiesViewModelImpl(
     private val originalCode = originalArticle.mapNotNull { it?.code }.stateInBackground("")
     private val originalDisplayName = originalArticle.mapNotNull { it?.displayName }.stateInBackground("")
 
-    override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
-        originalCode,
-    ) { code ->
-        when {
-            code == originalArticle.value?.code -> null
-            client.articles.isArticleExist(courseCode.value, code) -> "Article code already exist"
-
-            else -> null
-        }
-    }
 
     override val newDisplayName: AutoCheckProperty<String, String> = AutoCheckProperty(
         originalDisplayName,
     ) { code ->
         when {
             code == originalArticle.value?.displayName -> null
+            else -> null
+        }
+    }
+
+    override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
+        merge(originalCode, newDisplayName.valueFlow.map { it.lowercase().replace(' ', '_') }).stateInBackground(""),
+    ) { code ->
+        when {
+            code == originalArticle.value?.code -> null
+            client.articles.isArticleExist(courseCode.value, code) -> "Article code already exist"
+
             else -> null
         }
     }
@@ -65,7 +68,7 @@ class ArticlePropertiesViewModelImpl(
                 code = newCode.value.nonBlankOrNull?.takeIf { it.str != originalCode.value },
                 displayName = newDisplayName.value.nonBlankOrNull?.takeIf { it.str != originalDisplayName.value },
             )
-            
+
             if (!request.isEmpty()) {
                 client.articles.update(
                     courseCode.value, targetArticleCode, request

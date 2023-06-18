@@ -14,8 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.api.communication.ArticleDownstream
-import org.solvo.model.api.communication.ArticleEditRequest
-import org.solvo.model.api.communication.isEmpty
 import org.solvo.model.utils.NonBlankString
 import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.nonBlankOrNull
@@ -26,6 +24,7 @@ import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.settings.Section
 import org.solvo.web.settings.SettingGroup
 import org.solvo.web.settings.components.AutoCheckPropertyTextField
+import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.ui.foundation.CenteredTipText
 import org.solvo.web.viewModel.launchInBackground
 
@@ -71,17 +70,20 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
         courseViewModel: CourseViewModel,
     ) {
         val articlePropertyViewModel = remember(courseViewModel) {
-            ArticlePropertiesViewModel(courseCode = courseViewModel.model.courseCode, originalArticle = MutableStateFlow(null))
+            ArticlePropertiesViewModel(
+                courseCode = courseViewModel.model.courseCode,
+                originalArticle = MutableStateFlow(null)
+            )
         }
-        AutoCheckPropertyTextField(
-            articlePropertyViewModel.newCode,
-            Modifier.fillMaxWidth(),
-            placeholder = { Text("Example: 2023") },
-            label = { Text("Article Code") },
-            supportingText = { Text("Each article should have an unique code. ") },
-        )
+//        AutoCheckPropertyTextField(
+//            articlePropertyViewModel.newCode,
+//            Modifier.fillMaxWidth(),
+//            placeholder = { Text("Example: 2023") },
+//            label = { Text("Article Code") },
+//            supportingText = { Text("Each article should have an unique code. ") },
+//        )
 
-        Spacer(Modifier.height(12.dp))
+//        Spacer(Modifier.height(12.dp))
 
         AutoCheckPropertyTextField(
             articlePropertyViewModel.newDisplayName,
@@ -92,25 +94,24 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
         )
 
         Row {
+            val snackbar = LocalTopSnackBar.current
             FilledTonalButton(
                 onClick = {
                     courseViewModel.launchInBackground {
-                        val targetArticleCode = articlePropertyViewModel.newCode.value
-                        client.articles.addArticle(courseViewModel.model.courseCode.value, targetArticleCode)
-
-                        val request = ArticleEditRequest(
-                            code = targetArticleCode.nonBlankOrNull,
-                            displayName = articlePropertyViewModel.newDisplayName.value.nonBlankOrNull,
-                        )
-
-                        if (!request.isEmpty()) {
-                            client.articles.update(
-                                courseViewModel.model.courseCode.value, targetArticleCode, request
-                            )
-                            History.navigate {
-                                articleSettings(courseCode = courseViewModel.model.courseCode.value, articleCode = targetArticleCode, null)
-                            }
-                        }
+                        articlePropertyViewModel.submitBasicChanges(snackbar)
+//                        val targetArticleCode = articlePropertyViewModel.newCode.value
+//                        client.articles.addArticle(courseViewModel.model.courseCode.value, targetArticleCode)
+//
+//                        val request = ArticleEditRequest(
+//                            code = targetArticleCode.nonBlankOrNull,
+//                            displayName = articlePropertyViewModel.newDisplayName.value.nonBlankOrNull,
+//                        )
+//
+//                        if (!request.isEmpty()) {
+//                            client.articles.update(
+//                                courseViewModel.model.courseCode.value, targetArticleCode, request
+//                            )
+//                        }
                     }
                 },
                 modifier = Modifier.width(160.dp).padding(vertical = 4.dp).height(40.dp).align(Alignment.CenterVertically),
