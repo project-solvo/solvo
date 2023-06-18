@@ -35,7 +35,6 @@ class ArticlePropertiesViewModelImpl(
 
     override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
         originalCode,
-        transformValue = { it.trim() }
     ) { code ->
         when {
             code == originalArticle.value?.code -> null
@@ -47,7 +46,6 @@ class ArticlePropertiesViewModelImpl(
 
     override val newDisplayName: AutoCheckProperty<String, String> = AutoCheckProperty(
         originalDisplayName,
-        transformValue = { it.trim() }
     ) { code ->
         when {
             code == originalArticle.value?.displayName -> null

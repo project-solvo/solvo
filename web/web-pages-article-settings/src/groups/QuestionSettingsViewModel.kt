@@ -81,7 +81,6 @@ class QuestionSettingsSettingsViewModelImpl(
 
     override val newCode: AutoCheckProperty<String, String> = AutoCheckProperty(
         originalQuestion.filterNotNull().map { it.code }.stateInBackground(""),
-        transformValue = { it.trim() }
     ) { code ->
         when {
             code == originalQuestion.value?.code -> null
