@@ -42,7 +42,7 @@ fun Application.webPageModule() {
             routeWebPage(course, "/index")
             routeWebPage(articleSettingsGroup, "/article-settings")
             routeWebPage(articleSettings, "/article-settings")
-            routeWebPage(article, "/article")
+            routeWebPage(article, "/index")
             routeWebPage(question, "/question")
         }
     }
