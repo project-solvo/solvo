@@ -13,6 +13,7 @@ import org.solvo.model.api.events.Event
 import org.solvo.model.foundation.Uuid
 import org.solvo.web.comments.CommentEventHandler
 import org.solvo.web.comments.CourseMenuState
+import org.solvo.web.document.History
 import org.solvo.web.document.parameters.*
 import org.solvo.web.editor.RichEditorState
 import org.solvo.web.requests.client
@@ -52,6 +53,14 @@ interface QuestionPageViewModel {
 
     fun submitComment(newComment: CommentUpstream, target: Uuid)
     fun collapse()
+
+    fun navigateToQuestionSettings() {
+        History.navigate {
+            val courseCode = course.value?.code ?: return
+            val articleCode = article.value?.code ?: return
+            articleSettings(courseCode.str, articleCode, question.value?.code)
+        }
+    }
 }
 
 fun QuestionPageViewModel.expandAnswer(answer: CommentDownstream) {

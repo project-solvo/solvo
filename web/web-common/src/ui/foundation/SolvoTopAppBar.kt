@@ -21,6 +21,7 @@ import org.solvo.web.ui.image.RoundedUserAvatar
 @Composable
 fun SolvoTopAppBar(
     userViewModel: UserViewModel = LocalUserViewModel.current,
+    additionalNavigationIcons: @Composable RowScope.() -> Unit = {},
     title: @Composable () -> Unit = {}
 ) {
     var notifyMenu1 by remember { mutableStateOf(false) }
@@ -30,13 +31,14 @@ fun SolvoTopAppBar(
         },
         Modifier.fillMaxWidth(),
         navigationIcon = {
-            Row {
+            Row(horizontalArrangement = Arrangement.spacedBy(12.dp), verticalAlignment = Alignment.CenterVertically) {
 //                navigationIcon()
                 IconButton(onClick = wrapClearFocus {
                     History.navigate { home() }
                 }) {
                     Icon(Icons.Filled.Home, null)
                 }
+                additionalNavigationIcons()
             }
         },
         actions = {

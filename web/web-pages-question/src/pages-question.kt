@@ -6,6 +6,10 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Settings
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Icon
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -21,11 +25,13 @@ import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.QuestionDownstream
+import org.solvo.model.utils.UserPermission
 import org.solvo.web.comments.CourseMenu
 import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.comments.subComments.CommentColumnViewModel
 import org.solvo.web.document.History
 import org.solvo.web.editor.*
+import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.ui.LoadableContent
 import org.solvo.web.ui.SolvoWindow
 import org.solvo.web.ui.foundation.*
@@ -40,7 +46,19 @@ fun main() {
             val course by model.course.collectAsState(null)
             val article by model.article.collectAsState(null)
             val question by model.question.collectAsState(null)
-            SolvoTopAppBar {
+            SolvoTopAppBar(
+                additionalNavigationIcons = {
+                    if (currentUserHasPermission(UserPermission.OPERATOR)) {
+                        IconTextButton(
+                            icon = { Icon(Icons.Outlined.Settings, null) },
+                            text = { Text("Operator Settings") },
+                            onClick = { model.navigateToQuestionSettings() },
+                            Modifier.padding(start = 12.dp),
+                            indication = rememberRipple(),
+                        )
+                    }
+                }
+            ) {
                 course?.let { article?.let { it1 -> PaperTitle(it, it1.code) } }
             }
             Box {

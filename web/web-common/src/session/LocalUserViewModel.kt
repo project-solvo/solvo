@@ -1,9 +1,8 @@
 package org.solvo.web.session
 
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.staticCompositionLocalOf
+import androidx.compose.runtime.*
 import org.solvo.model.api.communication.User
+import org.solvo.model.utils.UserPermission
 
 
 val LocalUserViewModel = staticCompositionLocalOf<UserViewModel> {
@@ -25,3 +24,13 @@ val currentUser: User?
     get() {
         return LocalUserViewModel.current.user.collectAsState(null).value
     }
+
+@Composable
+fun currentUserHasPermission(permission: UserPermission): Boolean {
+    val user by rememberUpdatedState(currentUser)
+    return remember {
+        derivedStateOf {
+            user?.let { it.permission >= permission } ?: false
+        }
+    }.value
+}
