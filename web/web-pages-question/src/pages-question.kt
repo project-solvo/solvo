@@ -7,6 +7,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.Icon
@@ -155,6 +156,18 @@ private fun QuestionPageContent(
                 val isExpanded by model.isExpanded.collectAsState(false)
 
                 var isAddCommentEditorVisible by remember { mutableStateOf(false) }
+
+                val allAnswers by model.allAnswers.collectAsState()
+                if (allAnswers.isEmpty()) {
+                    CenteredTipText {
+                        Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))
+                        Text(
+                            "Be the first one who share answers and thoughts!",
+                            Modifier.padding(start = 8.dp),
+                            softWrap = false,
+                        )
+                    }
+                }
 
                 AllAnswersList(
                     model,
