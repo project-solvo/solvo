@@ -13,7 +13,7 @@ import org.solvo.model.utils.NonBlankString
 @Immutable
 @Serializable
 class QuestionUpstream(
-    override val content: NonBlankString = NonBlankString.default,
+    override val content: NonBlankString = NonBlankString.defaultContent,
     override val anonymity: Boolean = true,
 
     val sharedContent: Uuid? = null,

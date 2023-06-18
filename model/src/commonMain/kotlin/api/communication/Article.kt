@@ -12,7 +12,7 @@ import org.solvo.model.utils.NonBlankString
 @Immutable
 @Serializable
 class ArticleUpstream(
-    override val content: NonBlankString = NonBlankString.default,
+    override val content: NonBlankString = NonBlankString.defaultContent,
     override val anonymity: Boolean = true,
 
     val code: NonBlankString,

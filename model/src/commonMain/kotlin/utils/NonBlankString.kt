@@ -29,6 +29,7 @@ value class NonBlankString private constructor(
         )
 
         val default = fromString("default")
+        val defaultContent = fromString("Nothing here!")
     }
 }
 
