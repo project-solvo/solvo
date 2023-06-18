@@ -12,6 +12,7 @@ jobs:
   deploy:
     name: "Staging"
     runs-on: self-hosted
+    concurrency: staging_environment
     env:
       enableLocalPublishingTest: 'false'
       gradleArgs: --scan "-Dorg.gradle.jvmargs=-Xmx2048m" "-Dfile.encoding=UTF-8" --no-daemon "-Porg.gradle.parallel=false" "-Dsolvo.build.type=PRODUCTION"
