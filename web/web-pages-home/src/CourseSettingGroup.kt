@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Class
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -127,22 +128,56 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
     @Composable
     private fun CourseCard(courseCode: String, article: ArticleDownstream) {
         Row(
-            modifier = Modifier.padding(25.dp),
+            modifier = Modifier.padding(horizontal = 25.dp),
         ) {
             Text(
                 text = article.displayName,
-                modifier = Modifier.padding(15.dp),
+                modifier = Modifier.padding(horizontal = 15.dp).align(Alignment.CenterVertically),
                 style = MaterialTheme.typography.headlineSmall,
             )
-
-            val questions = remember(article) { article.questionIndexes }
-
-            FlowRow {
-                for (question in questions) {
-                    SuggestionChip({
-                        History.navigate { question(courseCode, article.code, question) }
-                    }, { Text(question) }, Modifier.padding(all = 8.dp))
+            if (currentUserHasPermission(UserPermission.OPERATOR)) {
+                IconButton(
+                    onClick = {
+                        History.navigate {
+                            articleSettings(courseCode = courseCode, articleCode = article.code, null)
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 5.dp)
+                ) {
+                    Icon(Icons.Default.Settings, "Question Setting")
                 }
+            }
+        }
+
+        val questions = remember(article) { article.questionIndexes }
+
+        if (questions.isEmpty()) {
+            Row(
+                modifier = Modifier.padding(horizontal = 25.dp)
+            ) {
+                Text(
+                    text = "No question for this paper yet.",
+                    modifier = Modifier.padding(15.dp)
+                )
+            }
+        } else {
+            Row(
+                modifier = Modifier.padding(horizontal = 25.dp)
+            ) {
+                Text(
+                    text = "Selected Question",
+                    modifier = Modifier.padding(15.dp)
+                )
+            }
+        }
+
+        FlowRow(
+            modifier = Modifier.padding(horizontal = 25.dp).padding(bottom = 10.dp)
+        ) {
+            for (question in questions) {
+                SuggestionChip({
+                    History.navigate { question(courseCode, article.code, question) }
+                }, { Text(question) }, Modifier.padding(horizontal = 8.dp))
             }
         }
     }
