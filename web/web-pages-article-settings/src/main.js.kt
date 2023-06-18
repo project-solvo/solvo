@@ -68,9 +68,19 @@ fun main() {
                 }
             }
 
+            val isFullscreen by model.isFullscreen.collectAsState()
             LoadableContent(isLoading = user?.permission != UserPermission.ROOT, Modifier.fillMaxSize()) {
-                Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
-                    Column(Modifier.widthIn(min = 600.dp, max = 1000.dp)) {
+                Row(
+                    Modifier.padding(end = 24.dp).fillMaxSize(),
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    val modifier = if (isFullscreen) {
+                        Modifier.fillMaxWidth()
+                    } else {
+                        Modifier.widthIn(min = 600.dp, max = 1000.dp)
+                    }
+
+                    Column(modifier) {
                         Page(model)
                     }
                 }

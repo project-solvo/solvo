@@ -25,6 +25,9 @@ interface PageViewModel {
 
     val settingGroups: StateFlow<List<ArticleSettingGroup>?>
     val selectedSettingGroup: StateFlow<ArticleSettingGroup?>
+
+    val isFullscreen: StateFlow<Boolean>
+    fun setFullscreen(isFullscreen: Boolean)
 }
 
 @JsName("createPageViewModel")
@@ -55,4 +58,9 @@ private class PageViewModelImpl : AbstractViewModel(), PageViewModel {
     ) { list, code ->
         list?.find { it.pathName == code }
     }.stateInBackground()
+
+    override val isFullscreen: MutableStateFlow<Boolean> = MutableStateFlow(false)
+    override fun setFullscreen(isFullscreen: Boolean) {
+        this.isFullscreen.value = isFullscreen
+    }
 }

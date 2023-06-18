@@ -2,6 +2,8 @@ package org.solvo.web.pages.article.settings.groups
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Fullscreen
+import androidx.compose.material.icons.outlined.FullscreenExit
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material.icons.outlined.Quiz
 import androidx.compose.material3.Icon
@@ -74,6 +76,18 @@ class QuestionSettingGroup(
 
         Section(header = {
             HeaderWithActions("Content") {
+                if (model.isFullscreen.collectAsState().value) {
+                    TextButton({ model.setFullscreen(false) }) {
+                        Icon(Icons.Outlined.FullscreenExit, null)
+                        Text("Close Fullscreen")
+                    }
+                } else {
+                    TextButton({ model.setFullscreen(true) }) {
+                        Icon(Icons.Outlined.Fullscreen, null)
+                        Text("Fullscreen")
+                    }
+                }
+                Spacer(Modifier.width(12.dp))
                 SaveChangesButton { model.submitContentChanges(it, editor.contentMarkdown) }
             }
         }) {
