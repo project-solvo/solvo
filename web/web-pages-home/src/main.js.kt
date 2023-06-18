@@ -29,7 +29,7 @@ fun main() {
             val courses by model.courses.collectAsState()
 
             LoadableContent(isLoading = courses == null, Modifier.fillMaxSize()) {
-                Row(Modifier.fillMaxSize(), horizontalArrangement = Arrangement.Center) {
+                Row(Modifier.padding(all = 24.dp).fillMaxSize(), horizontalArrangement = Arrangement.Center) {
                     Column(Modifier.widthIn(min = 600.dp, max = 1000.dp)) {
                         HomePageContent(
                             model
@@ -55,7 +55,7 @@ fun HomePageContent(
                 GroupingHeader("Courses")
 
                 settingGroup?.filterIsInstance<CourseSettingGroup>()?.forEach {
-                    Item(selected = selected, entry = it, courseCode = it.pathName, title = {it.name.str} )
+                    Item(selected = selected, entry = it, courseCode = it.pathName, title = { it.name.str })
                 }
 
                 GroupingHeader("Management")
