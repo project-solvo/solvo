@@ -17,13 +17,16 @@ import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.ArticleEditRequest
 import org.solvo.model.api.communication.isEmpty
 import org.solvo.model.utils.NonBlankString
+import org.solvo.model.utils.UserPermission
 import org.solvo.model.utils.nonBlankOrNull
 import org.solvo.web.document.History
 import org.solvo.web.pages.article.settings.groups.ArticlePropertiesViewModel
 import org.solvo.web.requests.client
+import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.settings.Section
 import org.solvo.web.settings.SettingGroup
 import org.solvo.web.settings.components.AutoCheckPropertyTextField
+import org.solvo.web.ui.foundation.CenteredTipText
 import org.solvo.web.viewModel.launchInBackground
 
 class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGroup<PageViewModel>(pathName) {
@@ -36,19 +39,29 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
         val courseViewModel = remember { CourseViewModel(viewModel.model) }
         val articles by courseViewModel.model.articles.collectAsState(null)
         Section(
-            header = { Text("Article") },
+            header = { Text(name.str) },
         ) {
-            articles?.forEach {
-                CourseCard(it.course.code.str, it)
+            if (articles.isNullOrEmpty()) {
+                Row {
+                    CenteredTipText("No articles are in this course yet.")
+                }
+            } else {
+                articles?.forEach {
+                    CourseCard(it.course.code.str, it)
+                }
             }
+
         }
-        Section(
-            header = { Text("Add new article") },
-        ) {
-            Column(
-                Modifier.align(Alignment.CenterHorizontally)
+
+        if (currentUserHasPermission(UserPermission.OPERATOR)) {
+            Section(
+                header = { Text("Add New Article") },
             ) {
-                AddPaperContent(courseViewModel)
+                Column(
+                    Modifier.align(Alignment.CenterHorizontally)
+                ) {
+                    AddPaperContent(courseViewModel)
+                }
             }
         }
     }
@@ -94,6 +107,9 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
                             client.articles.update(
                                 courseViewModel.model.courseCode.value, targetArticleCode, request
                             )
+                            History.navigate {
+                                articleSettings(courseCode = courseViewModel.model.courseCode.value, articleCode = targetArticleCode, null)
+                            }
                         }
                     }
                 },
