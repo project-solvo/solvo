@@ -12,13 +12,15 @@ fun SampleDataBuilder.sampleData1() {
     }
 
     val alex = user("Alex", AuthDigest("alex")) {
-        permit(UserPermission.OPERATOR)
+        permit(UserPermission.ROOT)
         avatar("./test-resources/avatar1.png", ContentType.Image.PNG)
     }
     val bob = user("Bob", AuthDigest("bob"))
     val carol = user("Carol", AuthDigest("carol"))
     val david = user("David", AuthDigest("david"))
-    val evan = user("Evan", AuthDigest("evan"))
+
+    val jay = user("Jay", AuthDigest("jay"))
+    val alice = user("Alice", AuthDigest("alice"))
 
     val image1a = image("./test-resources/Algorithm-2022-1a.png", alex, ContentType.Image.PNG)
     val answerImage1 = image("./test-resources/Answer-Image-1.png", alex, ContentType.Image.PNG)
