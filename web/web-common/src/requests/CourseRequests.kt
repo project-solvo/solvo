@@ -3,9 +3,12 @@ package org.solvo.web.requests
 import io.ktor.client.call.*
 import io.ktor.client.request.*
 import io.ktor.http.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.SharedFlow
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.CourseEditRequest
+import org.solvo.model.api.events.Event
 
 open class CourseRequests(
     override val client: Client,
@@ -16,6 +19,7 @@ open class CourseRequests(
     suspend fun isCourseExist(code: String): Boolean = http.head("${apiUrl}/courses/$code").status.isSuccess()
     suspend fun getAllArticles(courseCode: String): List<ArticleDownstream>? =
         http.get("${apiUrl}/courses/$courseCode/articles").bodyOrNull()
+
     suspend fun addCourse(courseCode: String): Boolean {
         return http.postAuthorized(api("courses/$courseCode")).status.isSuccess()
     }
@@ -28,5 +32,16 @@ open class CourseRequests(
             contentType(ContentType.Application.Json)
             setBody(request)
         }
+    }
+
+
+    fun subscribeEvents(
+        scope: CoroutineScope,
+        courseCode: String,
+    ): SharedFlow<Event> {
+        return connectEvents(
+            scope,
+            "${apiUrl}/courses/$courseCode/events"
+        )
     }
 }

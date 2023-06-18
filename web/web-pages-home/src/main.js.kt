@@ -3,7 +3,7 @@ package org.solvo.web
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,7 +12,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.web.document.History
-import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.settings.SettingGroup
 import org.solvo.web.settings.SettingsPage
 import org.solvo.web.settings.components.VerticalNavigationList
@@ -69,7 +68,7 @@ fun HomePageContent(
         Modifier.verticalScroll(rememberScrollState())
     ) {
         selected?.run {
-            PageContent(PageViewModel(model))
+            PageContent(remember(model) { PageViewModel(model) })
         }
     }
 

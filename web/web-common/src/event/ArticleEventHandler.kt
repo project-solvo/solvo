@@ -8,6 +8,28 @@ import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.events.ArticleEvent
 import org.solvo.model.api.events.RemoveArticleEvent
 import org.solvo.model.api.events.UpdateArticleEvent
+import org.solvo.web.utils.replacedOrAppend
+
+fun StateFlow<List<ArticleDownstream>>.withEvents(
+    events: Flow<ArticleEvent>,
+): Flow<List<ArticleDownstream>> {
+    val eventMapped = events.map { event -> handleEvent(event) }
+    return merge(this, eventMapped)
+}
+
+private fun StateFlow<List<ArticleDownstream>>.handleEvent(
+    event: ArticleEvent
+): List<ArticleDownstream> {
+    return when (event) {
+        is RemoveArticleEvent -> {
+            value.filterNot { it.coid == event.articleCoid }
+        }
+
+        is UpdateArticleEvent -> {
+            value.replacedOrAppend({ it.coid == event.articleCoid }, event.articleDownstream)
+        }
+    }
+}
 
 fun StateFlow<ArticleDownstream?>.withEvents(
     events: Flow<ArticleEvent>,
