@@ -4,7 +4,9 @@ import androidx.compose.foundation.hoverable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ripple.rememberRipple
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
@@ -32,6 +34,7 @@ fun VerticalNavigationList(
         modifier
             .clip(shape = RoundedCornerShape(12.dp))
             .fillMaxHeight()
+            .verticalScroll(rememberScrollState())
     ) {
         val scope = remember(this) { VerticalNavigationListScope(this) }
         content(scope)
