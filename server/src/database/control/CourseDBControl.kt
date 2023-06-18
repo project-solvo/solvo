@@ -1,10 +1,7 @@
 package org.solvo.server.database.control
 
+import org.jetbrains.exposed.sql.*
 import org.jetbrains.exposed.sql.SqlExpressionBuilder.eq
-import org.jetbrains.exposed.sql.insertAndGetId
-import org.jetbrains.exposed.sql.insertIgnoreAndGetId
-import org.jetbrains.exposed.sql.select
-import org.jetbrains.exposed.sql.selectAll
 import org.solvo.model.api.communication.Course
 import org.solvo.model.utils.ModelConstraints
 import org.solvo.server.ServerContext.DatabaseFactory.dbQuery
@@ -16,6 +13,7 @@ interface CourseDBControl {
     suspend fun getCourse(courseId: Int): Course?
     suspend fun getIdOrInsert(course: Course): Int
     suspend fun insert(course: Course): Int?
+    suspend fun edit(courseId: Int, course: Course): Boolean
 }
 
 class CourseDBControlImpl : CourseDBControl {
@@ -54,5 +52,17 @@ class CourseDBControlImpl : CourseDBControl {
             it[CourseTable.code] = course.code.str
             it[CourseTable.name] = course.name.str
         }?.value
+    }
+
+    override suspend fun edit(courseId: Int, course: Course): Boolean = dbQuery {
+        if (course.code.str.length > ModelConstraints.COURSE_CODE_MAX_LENGTH
+            || course.name.str.length > ModelConstraints.COURSE_NAME_MAX_LENGTH) {
+            return@dbQuery false
+        }
+
+        CourseTable.update({CourseTable.id eq courseId}) {
+            it[CourseTable.code] = course.code.str
+            it[CourseTable.name] = course.name.str
+        } > 0
     }
 }

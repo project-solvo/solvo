@@ -10,6 +10,7 @@ import kotlinx.coroutines.channels.ClosedReceiveChannelException
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.isActive
 import org.solvo.model.api.events.ArticleSettingPageEvent
+import org.solvo.model.api.events.CoursePageEvent
 import org.solvo.model.api.events.QuestionPageEvent
 import org.solvo.server.ServerContext
 import org.solvo.server.database.ContentDBFacade
@@ -29,6 +30,26 @@ fun Route.eventRouting(
     events: EventSessionHandler,
 ) {
     authenticate("authBearer", optional = true) {
+        webSocket("/courses/{courseCode}") {
+            val path = call.request.path()
+            val uid = connectAndGetUid(path)
+
+            val courseCode = call.parameters.getOrFail("courseCode")
+            if (contents.getCourseName(courseCode) == null) {
+                close(CloseReason(CloseReason.Codes.VIOLATED_POLICY, "Course does not exist"))
+                logger.info { "Connection on $path closed with reason ${closeReason.await()}" }
+                return@webSocket
+            }
+
+            handleUserSession(events, uid, path) { session ->
+                session.events
+                    .filter { it is CoursePageEvent && it.courseCode == courseCode }
+                    .collect { event ->
+                        sendSerialized(event)
+                        logger.info { "Sent CoursePageEvent $event" }
+                    }
+            }
+        }
         webSocket("/courses/{courseCode}/articles/{articleCode}/events") {
             val path = call.request.path()
             val uid = connectAndGetUid(path)

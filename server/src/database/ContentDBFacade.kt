@@ -11,6 +11,8 @@ interface ContentDBFacade {
     suspend fun allCourses(): List<Course>
     suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>?
     suspend fun getCourseName(courseCode: String): String?
+    suspend fun getCourseId(courseCode: String): Int?
+    suspend fun editCourse(courseId: Int, course: Course): Boolean
 
     suspend fun createArticle(articleCode: NonBlankString, authorId: UUID, courseCode: String): UUID?
     suspend fun editArticle(request: ArticleEditRequest, userId: UUID, articleId: UUID): Boolean
@@ -108,6 +110,14 @@ class ContentDBFacadeImpl(
     override suspend fun getCourseName(courseCode: String): String? {
         val courseId = courses.getId(courseCode) ?: return null
         return courses.getCourse(courseId)?.name?.toString()
+    }
+
+    override suspend fun getCourseId(courseCode: String): Int? {
+        return courses.getId(courseCode)
+    }
+
+    override suspend fun editCourse(courseId: Int, course: Course): Boolean {
+        return courses.edit(courseId, course)
     }
 
     override suspend fun allArticlesOfCourse(courseCode: String): List<ArticleDownstream>? {

@@ -1,5 +1,6 @@
 package org.solvo.server.utils.events
 
+import org.solvo.model.api.events.ClusteredEvent
 import org.solvo.model.api.events.Event
 import java.util.*
 import java.util.concurrent.ConcurrentLinkedQueue
@@ -25,12 +26,19 @@ class EventSessionHandlerImpl : EventSessionHandler {
     override suspend fun announce(event: Event) {
         for (session in sessions) {
             session.events.emit(event)
+            if (event is ClusteredEvent) {
+                event.dispatchedEvents.forEach { session.events.emit(it) }
+            }
         }
     }
 
     override suspend fun announce(getEvent: suspend UserSession.() -> Event) {
         for (session in sessions) {
-            session.events.emit(session.getEvent())
+            val event = session.getEvent()
+            session.events.emit(event)
+            if (event is ClusteredEvent) {
+                event.dispatchedEvents.forEach { session.events.emit(it) }
+            }
         }
     }
 }

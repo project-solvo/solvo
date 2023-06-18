@@ -1,6 +1,5 @@
 package org.solvo.server.modules.content
 
-import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.plugins.*
 import io.ktor.server.request.*
@@ -10,10 +9,7 @@ import io.ktor.server.util.*
 import org.solvo.model.api.communication.ArticleEditRequest
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.QuestionEditRequest
-import org.solvo.model.api.events.RemoveArticleEvent
-import org.solvo.model.api.events.RemoveQuestionEvent
-import org.solvo.model.api.events.UpdateArticleEvent
-import org.solvo.model.api.events.UpdateQuestionEvent
+import org.solvo.model.api.events.*
 import org.solvo.model.utils.NonBlankString
 import org.solvo.server.database.AccountDBFacade
 import org.solvo.server.database.ContentDBFacade
@@ -34,16 +30,29 @@ fun Route.courseRouting(
             val course = call.receive<Course>()
 
             val courseId = contents.newCourse(course)
-            respondContentOrBadRequest(courseId)
+            respondContentOrBadRequest(courseId) {
+                val articles = contents.allArticlesOfCourse(course.code.str)!!.map { it.coid }
+                events.announce(UpdateCourseEvent(course, articles))
+            }
         }
         get("/{courseCode}") {
             val courseCode = call.parameters.getOrFail("courseCode")
             val courseName = contents.getCourseName(courseCode)
-            if (courseName == null) {
-                call.respond(HttpStatusCode.NotFound)
-                return@get
-            }
+                ?: throw NotFoundException("course does not exist")
+
             call.respond(Course.fromString(courseCode, courseName))
+        }
+        postAuthenticated("/{courseCode}") {
+            getUserIdAndCheckOp(accounts) ?: return@postAuthenticated
+            val courseCode = call.parameters.getOrFail("courseCode")
+            val courseID = contents.getCourseId(courseCode)
+                ?: throw NotFoundException("course does not exist")
+
+            val course = call.receive<Course>()
+            respondOKOrBadRequest(contents.editCourse(courseID, course)) {
+                val articles = contents.allArticlesOfCourse(courseCode)!!.map { it.coid }
+                events.announce(UpdateCourseEvent(course, articles))
+            }
         }
         route("/{courseCode}/articles") {
             get {
@@ -70,8 +79,10 @@ fun Route.courseRouting(
             delete {
                 getUserIdAndCheckOp(accounts) ?: return@delete
                 val articleId = getArticleIdFromContext() ?: return@delete
+                val courseCode = contents.viewArticle(articleId)?.course?.code?.str
+                    ?: throw BadRequestException("article does not exist")
                 respondOKOrBadRequest(contents.deleteArticle(articleId)) {
-                    events.announce(RemoveArticleEvent(articleId))
+                    events.announce(RemoveArticleEvent(articleId, courseCode))
                 }
             }
             patchAuthenticated("/{articleCode}") {
