@@ -29,7 +29,7 @@ class QuestionDBControlImpl(
 
     override suspend fun getId(articleId: UUID, code: String): UUID? = dbQuery {
         QuestionTable
-            .select((QuestionTable.article eq articleId) and (QuestionTable.code eq code))
+            .select((QuestionTable.article eq articleId) and (QuestionTable.code eq code.lowercase()))
             .filter { it[QuestionTable.visible] }
             .map { it[QuestionTable.coid].value }
             .singleOrNull()
@@ -44,7 +44,7 @@ class QuestionDBControlImpl(
                 it[QuestionTable.coid] = coid
                 it[QuestionTable.sharedContent] = content.sharedContent
                 it[QuestionTable.article] = articleId
-                it[QuestionTable.code] = code.str
+                it[QuestionTable.code] = code.str.lowercase()
             }.resultedValues?.singleOrNull() != null)
         }
         return coid
@@ -61,7 +61,7 @@ class QuestionDBControlImpl(
             anonymity?.let { anonymity -> setAnonymity(questionId, anonymity) }
             content?.let { content -> modifyContent(questionId, content.str) }
             QuestionTable.updateIfNotEmpty({ QuestionTable.coid eq questionId }) {
-                request.code?.let { code -> it[QuestionTable.code] = code.str }
+                request.code?.let { code -> it[QuestionTable.code] = code.str.lowercase() }
             }
 
             return@dbQuery true

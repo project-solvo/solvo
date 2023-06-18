@@ -39,7 +39,7 @@ class ArticleDBControlImpl(
         val courseId = courseDB.getId(courseCode) ?: return@dbQuery null
 
         ArticleTable
-            .select((ArticleTable.course eq courseId) and (ArticleTable.code eq code))
+            .select((ArticleTable.course eq courseId) and (ArticleTable.code eq code.lowercase()))
             .filter { it[ArticleTable.visible] }
             .map { it[ArticleTable.coid].value }
             .singleOrNull()
@@ -56,7 +56,7 @@ class ArticleDBControlImpl(
         dbQuery {
             assert(ArticleTable.insert {
                 it[ArticleTable.coid] = coid
-                it[ArticleTable.code] = content.code.str
+                it[ArticleTable.code] = content.code.str.lowercase()
                 it[ArticleTable.displayName] = content.displayName.str
                 it[ArticleTable.course] = courseId
                 it[ArticleTable.term] = termId
@@ -78,7 +78,7 @@ class ArticleDBControlImpl(
             anonymity?.let { anonymity -> setAnonymity(articleId, anonymity) }
             content?.let { content -> modifyContent(articleId, content.str) }
             ArticleTable.updateIfNotEmpty({ ArticleTable.coid eq articleId }) {
-                request.code?.let { code -> it[ArticleTable.code] = code.str }
+                request.code?.let { code -> it[ArticleTable.code] = code.str.lowercase() }
                 request.displayName?.let { displayName -> it[ArticleTable.displayName] = displayName.str }
             }
         }
