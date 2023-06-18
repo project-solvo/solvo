@@ -41,7 +41,12 @@ private class AdminSettingsPageViewModelImpl : AbstractViewModel(), AdminSetting
 
     override fun init() {
         launchInBackground {
-            settings.value = client.settings.getSettings()
+            settings.value = try {
+                client.settings.getSettings()
+            } catch (e: Throwable) {
+                e.printStackTrace()
+                null
+            }
         }
     }
 }
