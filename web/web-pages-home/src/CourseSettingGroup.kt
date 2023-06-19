@@ -17,16 +17,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.utils.NonBlankString
 import org.solvo.model.utils.UserPermission
-import org.solvo.model.utils.nonBlankOrNull
 import org.solvo.web.document.History
 import org.solvo.web.pages.article.settings.groups.ArticlePropertiesViewModel
-import org.solvo.web.requests.client
 import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.settings.Section
 import org.solvo.web.settings.SettingGroup
 import org.solvo.web.settings.components.AutoCheckPropertyTextField
-import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.ui.foundation.CenteredTipText
+import org.solvo.web.ui.snackBar.LocalTopSnackBar
 import org.solvo.web.viewModel.launchInBackground
 
 class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGroup<PageViewModel>(pathName) {
@@ -34,6 +32,7 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
     override fun NavigationIcon() {
         Icon(Icons.Default.Class, "Course")
     }
+
     @Composable
     override fun ColumnScope.PageContent(viewModel: PageViewModel) {
         val courseViewModel = remember { CourseViewModel(viewModel.model) }
@@ -43,11 +42,14 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
         ) {
             if (articles.isNullOrEmpty()) {
                 Row {
-                    CenteredTipText("No articles are in this course yet.")
+                    CenteredTipText("There are no articles added to this course yet")
                 }
             } else {
-                articles?.forEach {
+                articles?.forEachIndexed { index, it ->
                     CourseCard(it.course.code.str, it)
+                    if (index != articles?.lastIndex) {
+                        Divider(Modifier.padding(vertical = 8.dp).fillMaxWidth())
+                    }
                 }
             }
 
@@ -115,7 +117,8 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
 //                        }
                     }
                 },
-                modifier = Modifier.width(160.dp).padding(vertical = 4.dp).height(40.dp).align(Alignment.CenterVertically),
+                modifier = Modifier.width(160.dp).padding(vertical = 4.dp).height(40.dp)
+                    .align(Alignment.CenterVertically),
                 shape = RoundedCornerShape(12.dp),
                 colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
             ) {
@@ -128,11 +131,11 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
     @Composable
     private fun CourseCard(courseCode: String, article: ArticleDownstream) {
         Row(
-            modifier = Modifier.padding(horizontal = 25.dp),
+            modifier = Modifier,
         ) {
             Text(
                 text = article.displayName,
-                modifier = Modifier.padding(horizontal = 15.dp).align(Alignment.CenterVertically),
+                modifier = Modifier.align(Alignment.CenterVertically),
                 style = MaterialTheme.typography.headlineSmall,
             )
             if (currentUserHasPermission(UserPermission.OPERATOR)) {
@@ -151,28 +154,21 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
 
         val questions = remember(article) { article.questionIndexes }
 
-        if (questions.isEmpty()) {
-            Row(
-                modifier = Modifier.padding(horizontal = 25.dp)
-            ) {
-                Text(
-                    text = "No question for this paper yet.",
-                    modifier = Modifier.padding(15.dp)
-                )
-            }
-        } else {
-            Row(
-                modifier = Modifier.padding(horizontal = 25.dp)
-            ) {
-                Text(
-                    text = "Selected Question",
-                    modifier = Modifier.padding(15.dp)
-                )
-            }
+        Row(
+            modifier = Modifier.padding(vertical = 12.dp)
+        ) {
+            Text(
+                text = if (questions.isEmpty()) {
+                    "There is no question added to this article yet"
+                } else {
+                    "Select Question"
+                },
+                modifier = Modifier
+            )
         }
 
         FlowRow(
-            modifier = Modifier.padding(horizontal = 25.dp).padding(bottom = 10.dp)
+            modifier = Modifier
         ) {
             for (question in questions) {
                 SuggestionChip({
