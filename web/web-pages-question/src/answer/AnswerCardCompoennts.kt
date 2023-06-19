@@ -21,7 +21,7 @@ fun AnswerCardDate(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceBetween,
     ) {
-        Text(postTimeFormatted)
+        Text(postTimeFormatted, softWrap = false)
         thoughtTip()
     }
 }

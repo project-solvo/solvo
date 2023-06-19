@@ -2,10 +2,7 @@ package org.solvo.web.answer
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material3.Icon
@@ -19,13 +16,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.SharedFlow
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.ReactionKind
 import org.solvo.model.api.events.Event
 import org.solvo.web.DraftAnswerControlBarState
 import org.solvo.web.DraftKind
-import org.solvo.web.comments.reactions.ReactionBar
+import org.solvo.web.comments.reactions.ReactionButtonItem
 import org.solvo.web.comments.reactions.ReactionsIconButton
 import org.solvo.web.comments.reactions.rememberReactionBarViewModel
 import org.solvo.web.ui.foundation.IconTextButton
+import org.solvo.web.viewModel.launchInBackgroundAnimated
 
 @Composable
 fun AnswerCardReactions(
@@ -36,18 +35,26 @@ fun AnswerCardReactions(
     val reactionBarState = rememberReactionBarViewModel(item.coid, events)
     val controlBarStateUpdated by rememberUpdatedState(controlBarState)
 
-    Row(verticalAlignment = Alignment.CenterVertically) {
+    FlowRow(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(8.dp)
+    ) {
         ReactionsIconButton(reactionBarState, Modifier.offset(x = (-12).dp))
 
-        ReactionBar(
-            reactionBarState,
-            Modifier.heightIn(max = 42.dp),
-        )
+        val viewModelState by rememberUpdatedState(reactionBarState)
+
+        for (kind in ReactionKind.entries) {
+            ReactionButtonItem(kind, viewModelState) { isProcessing ->
+                viewModelState.launchInBackgroundAnimated(isProcessing) {
+                    react(kind)
+                }
+            }
+        }
 
         val showHint by reactionBarState.showHintLine.collectAsState(false)
         AnimatedVisibility(showHint, exit = fadeOut()) {
             Row(
-                modifier = Modifier.padding(start = 12.dp),
+                modifier = Modifier.padding(start = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))

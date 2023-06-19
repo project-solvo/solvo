@@ -1,6 +1,7 @@
 package org.solvo.web.comments.reactions
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.ExitTransition
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AddReaction
@@ -57,7 +58,7 @@ fun ReactionBar(
 }
 
 @Composable
-private fun RowScope.ReactionButtonItem(
+fun RowScope.ReactionButtonItem(
     kind: ReactionKind,
     viewModel: ReactionBarViewModel,
     onClick: (isProcessing: MutableState<Boolean>) -> Unit,
@@ -68,7 +69,7 @@ private fun RowScope.ReactionButtonItem(
     val count = reaction.count
     val isSelf = reaction.isSelf
     val onClickUpdated by rememberUpdatedState(onClick)
-    AnimatedVisibility(alwaysOpen || count != 0) {
+    AnimatedVisibility(alwaysOpen || count != 0, exit = ExitTransition.None) {
         val isProcessing = remember { mutableStateOf(false) }
         EmojiChip(reaction.kind, count, isSelf, isProcessing.value, onClick = { onClickUpdated(isProcessing) })
     }
