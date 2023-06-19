@@ -1,14 +1,18 @@
 package org.solvo.web
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.OpenInNew
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -25,11 +29,9 @@ import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
 import org.solvo.web.comments.commentCard.components.CommentCardActionButton
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
+import org.solvo.web.comments.reactions.ReactionBarViewModel
 import org.solvo.web.dummy.Loading
-import org.solvo.web.ui.foundation.hasWidth
-import org.solvo.web.ui.foundation.ifThenElse
-import org.solvo.web.ui.foundation.rememberMutableDebouncedState
-import org.solvo.web.ui.foundation.wrapClearFocus
+import org.solvo.web.ui.foundation.*
 import org.solvo.web.ui.modifiers.CursorIcon
 import org.solvo.web.ui.modifiers.clickable
 import org.solvo.web.ui.modifiers.cursorHoverIcon
@@ -60,7 +62,9 @@ fun ExpandedAnswer(
         },
         modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth().wrapContentHeight(),
         subComments = {
-            AnswerCardReactions(item, model.controlBarState, model.events)
+            AnswerCardReactions(item, model.events) {
+                AnswerCardBetterIdeaHint(model.controlBarState, reactionBarState = it)
+            }
             Spacer(Modifier.height(6.dp))
         },
         actions = {
@@ -79,6 +83,35 @@ fun ExpandedAnswer(
             showFullAnswer = null,
             onLayout = { hasOverflow = hasVisualOverflow }
         )  // in column card
+    }
+}
+
+@Composable
+fun RowScope.AnswerCardBetterIdeaHint(
+    controlBarState: DraftAnswerControlBarState,
+    reactionBarState: ReactionBarViewModel,
+) {
+    val controlBarStateUpdated by rememberUpdatedState(controlBarState)
+
+    val showHint by reactionBarState.showHintLine.collectAsState(false)
+    AnimatedVisibility(showHint, exit = fadeOut()) {
+        Row(
+            modifier = Modifier.padding(start = 4.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))
+            Text(
+                "Have a better idea?",
+                Modifier.padding(start = 8.dp),
+                softWrap = false,
+            )
+            IconTextButton(
+                icon = { Icon(DraftKind.Thought.icon, null) },
+                text = { Text("Just share it", softWrap = false) },
+                onClick = { controlBarStateUpdated.startDraft(DraftKind.Thought) },
+                Modifier.padding(start = 12.dp)
+            )
+        }
     }
 }
 
@@ -119,7 +152,9 @@ fun AllAnswersList(
                 modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth().wrapContentHeight(),
                 subComments = {
                     AnswerCardPreviewComments(item, onExpandAnswerUpdated)
-                    AnswerCardReactions(item, model.controlBarState, model.events)
+                    AnswerCardReactions(item, model.events) {
+                        AnswerCardBetterIdeaHint(model.controlBarState, reactionBarState = it)
+                    }
                     AddYourCommentTextField(onSend = {
                         model.submitComment(CommentUpstream(it), item.coid)
                     })

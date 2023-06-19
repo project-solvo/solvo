@@ -27,8 +27,8 @@ import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.Course
 import org.solvo.model.api.communication.QuestionDownstream
 import org.solvo.model.utils.UserPermission
+import org.solvo.web.comment.CommentColumn
 import org.solvo.web.comments.CourseMenu
-import org.solvo.web.comments.subComments.CommentColumn
 import org.solvo.web.comments.subComments.CommentColumnViewModel
 import org.solvo.web.document.History
 import org.solvo.web.editor.*
@@ -241,7 +241,7 @@ private fun ExpandedAnswerContent(
                 }
 
                 val allSubCommentsFlow by commentColumnModel.allSubComments.collectAsState(emptyList())
-                CommentColumn(allSubCommentsFlow)
+                CommentColumn(allSubCommentsFlow, events = model.events)
             }
         },
         initialLeftWeight = 0.618f,

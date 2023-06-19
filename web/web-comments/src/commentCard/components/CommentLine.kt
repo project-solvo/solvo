@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import org.solvo.model.api.communication.LightCommentDownstream
@@ -26,7 +27,7 @@ fun CommentLine(
         },
         authorName = { Text(subComment.author?.username?.str ?: "Anonymous") },
     ) {
-        Text(subComment.content)
+        Text(subComment.content, overflow = TextOverflow.Ellipsis, softWrap = false)
     }
 }
 

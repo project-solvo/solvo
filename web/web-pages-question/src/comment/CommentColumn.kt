@@ -1,10 +1,13 @@
-package org.solvo.web.comments.subComments
+package org.solvo.web.comment
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.flow.SharedFlow
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.events.Event
+import org.solvo.web.answer.AnswerCardReactions
 import org.solvo.web.comments.commentCard.CommentSummaryCard
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.rememberFullCommentCardViewModel
@@ -15,6 +18,7 @@ import org.solvo.web.viewModel.LoadingUuidItem
 @Composable
 fun CommentColumn(
     items: List<LoadingUuidItem<CommentDownstream>>,
+    events: SharedFlow<Event>,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -22,13 +26,16 @@ fun CommentColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         for (item in items) {
-            CommentColumnItem(item)
+            CommentColumnItem(item, events)
         }
     }
 }
 
 @Composable
-private fun CommentColumnItem(item: LoadingUuidItem<CommentDownstream>) {
+private fun CommentColumnItem(
+    item: LoadingUuidItem<CommentDownstream>,
+    events: SharedFlow<Event>,
+) {
     val state: ShowMoreSwitchState = remember { ShowMoreSwitchState() }
 
     var hasOverflow by remember { mutableStateOf(false) }
@@ -42,7 +49,12 @@ private fun CommentColumnItem(item: LoadingUuidItem<CommentDownstream>) {
             {
                 ShowMoreSwitch(it)
             }
-        } else null
+        } else null,
+        subComments = {
+            commentDownstream?.let {
+                AnswerCardReactions(it, events)
+            }
+        }
     ) { backgroundColor ->
         CommentCardContent(
             commentDownstream ?: return@CommentSummaryCard,

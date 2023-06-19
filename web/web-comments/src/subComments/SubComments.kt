@@ -58,7 +58,7 @@ fun SubComments(
                         Modifier.clickable(indication = null) { onClickComment?.invoke(null) },
                         textDecoration = TextDecoration.Underline,
                         color = MaterialTheme.colorScheme.primary,
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 },
             )
