@@ -23,7 +23,8 @@ class HomePageViewModel : AbstractViewModel() {
     val courseCode: StateFlow<String> = course.map { it.code.str }.stateInBackground("")
 
     private val events = courseCode.flatMapLatest {
-        client.courses.subscribeEvents(backgroundScope, it)
+        if (it.isEmpty()) emptyFlow()
+        else client.courses.subscribeEvents(backgroundScope, it)
     }.shareInBackground()
 
     val articles: SharedFlow<List<ArticleDownstream>> =
@@ -43,7 +44,7 @@ class HomePageViewModel : AbstractViewModel() {
         settingGroups,
         settingGroupName,
     ) { list, code ->
-        list?.find { it.pathName == code }
+        list?.find { it.pathName == code } ?: list?.firstOrNull()
     }.stateInBackground()
 
     private suspend fun refreshCourses() {
