@@ -16,7 +16,7 @@ import org.solvo.web.document.History
 import org.solvo.web.editor.DEFAULT_RICH_EDITOR_FONT_SIZE
 import org.solvo.web.editor.RichEditor
 import org.solvo.web.editor.RichEditorDisplayMode
-import org.solvo.web.editor.rememberRichEditorState
+import org.solvo.web.editor.RichEditorState
 import org.solvo.web.requests.client
 import org.solvo.web.ui.foundation.ifThen
 import org.solvo.web.ui.foundation.ifThenElse
@@ -26,13 +26,12 @@ fun DraftCommentSection(
     isEditorVisible: Boolean,
     showEditor: () -> Unit,
     onSubmitComment: (NonBlankString) -> Unit,
+    editorState: RichEditorState,
 ) {
     val onSubmitCommentUpdated by rememberUpdatedState(onSubmitComment)
     val showEditorUpdated by rememberUpdatedState(showEditor)
 
     DraftCommentCard(Modifier.padding(bottom = 16.dp)) {
-        val editorState =
-            rememberRichEditorState(isEditable = true, showToolbar = true, fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE)
         RichEditor(
             Modifier.fillMaxWidth()
                 .ifThenElse(

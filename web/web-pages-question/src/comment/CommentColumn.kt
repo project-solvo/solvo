@@ -7,6 +7,7 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.SharedFlow
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.events.Event
+import org.solvo.web.answer.AnswerCardReactions
 import org.solvo.web.comments.commentCard.CommentSummaryCard
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.rememberFullCommentCardViewModel
@@ -18,6 +19,7 @@ import org.solvo.web.viewModel.LoadingUuidItem
 fun CommentColumn(
     items: List<LoadingUuidItem<CommentDownstream>>,
     events: SharedFlow<Event>,
+    onReply: ((CommentDownstream) -> Unit)? = null,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -25,7 +27,7 @@ fun CommentColumn(
         verticalArrangement = Arrangement.spacedBy(12.dp),
     ) {
         for (item in items) {
-            CommentColumnItem(item, events)
+            CommentColumnItem(item, events, onReply)
         }
     }
 }
@@ -34,12 +36,15 @@ fun CommentColumn(
 private fun CommentColumnItem(
     item: LoadingUuidItem<CommentDownstream>,
     events: SharedFlow<Event>,
+    onReply: ((CommentDownstream) -> Unit)? = null,
 ) {
     val state: ShowMoreSwitchState = remember { ShowMoreSwitchState() }
 
     var hasOverflow by remember { mutableStateOf(false) }
 
-    val commentDownstream by item.asFlow().collectAsState(null)
+    val itemUpdated by rememberUpdatedState(item)
+    val commentDownstream by itemUpdated.asFlow().collectAsState(null)
+    val onReplyUpdated by rememberUpdatedState(onReply)
     CommentSummaryCard(
         rememberFullCommentCardViewModel(commentDownstream),
         state,
@@ -50,8 +55,11 @@ private fun CommentColumnItem(
             }
         } else null,
         subComments = {
-//            commentDownstream?.let {
-//                AnswerCardReactions(it, events)
+            commentDownstream?.let {
+                AnswerCardReactions(it, events)
+            }
+//            TextButton({ itemUpdated.ready?.let { onReplyUpdated?.invoke(it) } }) {
+//                Text("Reply")
 //            }
         }
     ) { backgroundColor ->

@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.coerceAtLeast
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.launch
 import org.jetbrains.skiko.wasm.onWasmReady
 import org.solvo.model.api.communication.ArticleDownstream
 import org.solvo.model.api.communication.CommentUpstream
@@ -231,17 +232,37 @@ private fun ExpandedAnswerContent(
                 val commentColumnModel =
                     remember { CommentColumnViewModel(snapshotFlow { item }, model.events.filterIsInstance()) }
 
+                val editor = rememberRichEditorState(
+                    isEditable = true,
+                    showToolbar = true,
+                    fontSize = DEFAULT_RICH_EDITOR_FONT_SIZE
+                )
                 DraftCommentSection(
                     isEditorVisible = isAddCommentEditorVisible,
-                    showEditor = { addCommentEditorVisibleUpdated(true) }
-                ) { newContent ->
-                    val upstream = CommentUpstream(content = newContent)
-                    model.submitComment(upstream, item?.coid ?: return@DraftCommentSection)
-                    addCommentEditorVisibleUpdated(false)
-                }
+                    showEditor = { addCommentEditorVisibleUpdated(true) },
+                    onSubmitComment = { newContent ->
+                        val upstream = CommentUpstream(content = newContent)
+                        model.submitComment(upstream, item?.coid ?: return@DraftCommentSection)
+                        addCommentEditorVisibleUpdated(false)
+                    },
+                    editorState = editor,
+                )
 
                 val allSubCommentsFlow by commentColumnModel.allSubComments.collectAsState(emptyList())
-                CommentColumn(allSubCommentsFlow, events = model.events)
+                CommentColumn(
+                    allSubCommentsFlow,
+                    events = model.events,
+                    onReply = {
+                        println("Add comment")
+                        model.backgroundScope.launch {
+                            editor.clearContent()
+                            it.author?.let { author ->
+                                editor.setContentMarkdown("Reply to ${author.username}: ")
+                            }
+                            setAddCommentEditorVisible(true)
+                        }
+                    }
+                )
             }
         },
         initialLeftWeight = 0.618f,
