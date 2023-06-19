@@ -87,8 +87,8 @@ fun AuthorLineThin(
                 Text(authorName, fontSize = 20.sp, modifier = Modifier.padding(horizontal = 3.dp))
             }
         }
-        Box(modifier = Modifier.offset(y = (-2).dp)) {
-            Text("(last edited: $date)", fontSize = 15.sp)
-        }
+//        Box(modifier = Modifier.offset(y = (-2).dp)) {
+//            Text("(last edited: $date)", fontSize = 15.sp)
+//        }
     }
 }
