@@ -7,7 +7,6 @@ import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.flow.SharedFlow
 import org.solvo.model.api.communication.CommentDownstream
 import org.solvo.model.api.events.Event
-import org.solvo.web.answer.AnswerCardReactions
 import org.solvo.web.comments.commentCard.CommentSummaryCard
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.rememberFullCommentCardViewModel
@@ -51,9 +50,9 @@ private fun CommentColumnItem(
             }
         } else null,
         subComments = {
-            commentDownstream?.let {
-                AnswerCardReactions(it, events)
-            }
+//            commentDownstream?.let {
+//                AnswerCardReactions(it, events)
+//            }
         }
     ) { backgroundColor ->
         CommentCardContent(
