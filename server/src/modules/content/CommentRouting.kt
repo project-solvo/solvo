@@ -150,7 +150,7 @@ private suspend fun EventSessionHandler.announceUpdateReaction(
 ) {
     val userIds = contents.viewUsersOfReaction(coid, kind)
     val comment = contents.viewComment(coid)!!
-    val questionId = if (comment.kind == CommentKind.ANSWER) {
+    val questionId = if (comment.kind.isAnswerOrThought()) {
         comment.parent
     } else {
         contents.viewComment(comment.parent)!!.parent
