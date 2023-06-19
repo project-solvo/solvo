@@ -217,7 +217,7 @@ internal class RichEditor internal constructor(
             editorChanged = def
             try {
                 action()
-                withTimeout(5.seconds) { def.await() }
+                withTimeout(3.seconds) { def.await() }
             } catch (e: Throwable) {
                 editorChanged = null
                 if (e is CancellationException) {
