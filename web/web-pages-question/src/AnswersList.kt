@@ -15,12 +15,10 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import org.solvo.model.api.communication.CommentDownstream
+import org.solvo.model.api.communication.CommentKind
 import org.solvo.model.api.communication.CommentUpstream
 import org.solvo.model.api.communication.LightCommentDownstream
-import org.solvo.web.answer.AddYourCommentTextField
-import org.solvo.web.answer.AnswerCardDate
-import org.solvo.web.answer.AnswerCardPreviewComments
-import org.solvo.web.answer.AnswerCardReactions
+import org.solvo.web.answer.*
 import org.solvo.web.comments.commentCard.AnswerCard
 import org.solvo.web.comments.commentCard.HorizontalExpandMenu
 import org.solvo.web.comments.commentCard.components.AuthorNameTextStyle
@@ -28,6 +26,7 @@ import org.solvo.web.comments.commentCard.components.CommentCardActionButton
 import org.solvo.web.comments.commentCard.components.CommentCardContent
 import org.solvo.web.comments.commentCard.viewModel.FullCommentCardViewModel
 import org.solvo.web.dummy.Loading
+import org.solvo.web.ui.foundation.hasWidth
 import org.solvo.web.ui.foundation.ifThenElse
 import org.solvo.web.ui.foundation.rememberMutableDebouncedState
 import org.solvo.web.ui.foundation.wrapClearFocus
@@ -47,11 +46,17 @@ fun ExpandedAnswer(
 ) {
     val viewModel = remember(item) { FullCommentCardViewModel(item) }
 
+    val hasWidthToShowThoughtKind = hasWidth(660.dp)
+    val isThought by remember { derivedStateOf { item.kind == CommentKind.THOUGHT } }
     AnswerCard(
         author = item.author,
         date = {
             val postTimeFormatted by viewModel.postTimeFormatted.collectAsState("")
-            AnswerCardDate(postTimeFormatted, item)
+            AnswerCardDate(postTimeFormatted) {
+                if (isThought && hasWidthToShowThoughtKind) {
+                    ThoughtTip()
+                }
+            }
         },
         modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth().wrapContentHeight(),
         subComments = {
@@ -62,6 +67,9 @@ fun ExpandedAnswer(
             AnswerCardActions(item, model)
         },
     ) { backgroundColor ->
+        if (isThought && !hasWidthToShowThoughtKind) {
+            ThoughtTip(Modifier.padding(bottom = 12.dp))
+        }
         var hasOverflow by remember { mutableStateOf(false) }
         CommentCardContent(
             item = item,
@@ -79,11 +87,9 @@ fun ExpandedAnswer(
 fun AllAnswersList(
     model: QuestionPageViewModel,
     modifier: Modifier = Modifier,
-    onClickAddYourComment: ((item: CommentDownstream) -> Unit)? = null,
     onExpandAnswer: ((comment: LightCommentDownstream?, item: CommentDownstream) -> Unit)? = null,
 ) {
     val onExpandAnswerUpdated by rememberUpdatedState(onExpandAnswer)
-    val onClickAddYourCommentUpdated by rememberUpdatedState(onClickAddYourComment)
     val allItems by model.allAnswers.collectAsState()
 
     Column(modifier) {
@@ -98,11 +104,17 @@ fun AllAnswersList(
             val singleItem by model.isSingleAnswer.collectAsState()
             val actualShowingFullAnswer = isShowingFullAnswer || singleItem // in list mode
 
+            val hasWidthToShowThoughtKind = hasWidth(660.dp)
+            val isThought by remember { derivedStateOf { item.kind == CommentKind.THOUGHT } }
             AnswerCard(
                 author = item.author,
                 date = {
                     val postTimeFormatted by viewModel.postTimeFormatted.collectAsState("")
-                    AnswerCardDate(postTimeFormatted, item)
+                    AnswerCardDate(postTimeFormatted) {
+                        if (isThought && hasWidthToShowThoughtKind) {
+                            ThoughtTip()
+                        }
+                    }
                 },
                 modifier = Modifier.padding(bottom = 12.dp).fillMaxWidth().wrapContentHeight(),
                 subComments = {
@@ -117,6 +129,10 @@ fun AllAnswersList(
                     AnswerCardActions(item, model)
                 },
             ) { backgroundColor ->
+                if (isThought && !hasWidthToShowThoughtKind) {
+                    ThoughtTip(Modifier.padding(bottom = 12.dp))
+                }
+
                 CommentCardContent(
                     item = item,
                     backgroundColor = backgroundColor,

@@ -176,12 +176,10 @@ private fun QuestionPageContent(
                             isEditorVisible || isExpanded -> Modifier.width(0.dp)
                             else -> Modifier.fillMaxSize()
                         }
-                    ).verticalScroll(rememberScrollState()),
-                    onClickAddYourComment = { model.expandAnswer(it) },
-                    onExpandAnswer = { _, item ->
-                        model.expandAnswer(item)
-                    }
-                )
+                    ).verticalScroll(rememberScrollState())
+                ) { _, item ->
+                    model.expandAnswer(item)
+                }
 
                 ExpandedAnswerContent(
                     model,
