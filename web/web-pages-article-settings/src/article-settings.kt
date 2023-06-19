@@ -155,7 +155,8 @@ fun Page(
         },
         Modifier.verticalScroll(rememberScrollState())
     ) {
-        if (selected == null) {
+        val loading by model.isIndexesLoading.collectAsState()
+        if (selected == null && !loading) {
             val name by model.settingGroupName.collectAsState()
             CenteredTipText(remember { derivedStateOf { "$name not found" } }.value)
             CenteredTipText(remember { derivedStateOf { "Please select a question from the list" } }.value)

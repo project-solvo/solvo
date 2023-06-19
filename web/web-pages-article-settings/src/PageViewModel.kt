@@ -30,6 +30,7 @@ interface PageViewModel {
     val courseDeleted: Deleted
 
     val settingGroups: StateFlow<List<ArticleSettingGroup>?> // null means not ready
+    val isIndexesLoading: MutableStateFlow<Boolean>
     val selectedSettingGroup: StateFlow<ArticleSettingGroup?> // select first by default, null means absolutely not found
 
     val isFullscreen: StateFlow<Boolean>
@@ -59,9 +60,12 @@ private class PageViewModelImpl : AbstractViewModel(), PageViewModel {
     override val article =
         pathParameters.article().stateInBackground()
             .withEvents(articlePageEvents.filterIsInstance(), articleDeleted)
+            .onEach { isIndexesLoading.value = false }
             .stateInBackground()
 
     val questionsIndexes = article.filterNotNull().map { it.questionIndexes }.stateInBackground(emptyList())
+
+    override val isIndexesLoading: MutableStateFlow<Boolean> = MutableStateFlow(false)
 
     override val settingGroups = questionsIndexes.mapLatest { list ->
         ArticleSettingGroup.articleSettingGroups + list.map { QuestionSettingGroup(it) } + ArticleSettingGroup.managementGroups

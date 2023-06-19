@@ -112,6 +112,7 @@ class QuestionSettingsSettingsViewModelImpl(
         }
         var targetCode = originalQuestion.value?.code
         if (targetCode == null) {
+            page.isIndexesLoading.value = true
             client.questions.addQuestion(courseCode.value, articleCode.value, newCode.value)
             targetCode = newCode.value
         }
