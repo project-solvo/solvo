@@ -1,5 +1,6 @@
 package org.solvo.web.pages.article.settings.groups
 
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
@@ -12,13 +13,14 @@ import org.solvo.web.requests.client
 import org.solvo.web.settings.components.AutoCheckProperty
 import org.solvo.web.ui.snackBar.SolvoSnackbar
 import org.solvo.web.viewModel.AbstractViewModel
-import org.solvo.web.viewModel.launchInBackground
 
 interface ArticlePropertiesViewModel {
+    val backgroundScope: CoroutineScope
+
     val newCode: AutoCheckProperty<String, String>
     val newDisplayName: AutoCheckProperty<String, String>
 
-    fun submitBasicChanges(snackbar: SolvoSnackbar)
+    suspend fun submitBasicChanges(snackbar: SolvoSnackbar)
 }
 
 @JsName("createArticlePropertiesViewModel")
@@ -56,24 +58,22 @@ class ArticlePropertiesViewModelImpl(
         }
     }
 
-    override fun submitBasicChanges(snackbar: SolvoSnackbar) {
-        launchInBackground {
-            var targetArticleCode = originalArticle.value?.code
-            if (targetArticleCode == null) {
-                targetArticleCode = newCode.value
-                client.articles.addArticle(courseCode.value, newCode.value)
-            }
+    override suspend fun submitBasicChanges(snackbar: SolvoSnackbar) {
+        var targetArticleCode = originalArticle.value?.code
+        if (targetArticleCode == null) {
+            targetArticleCode = newCode.value
+            client.articles.addArticle(courseCode.value, newCode.value)
+        }
 
-            val request = ArticleEditRequest(
-                code = newCode.value.nonBlankOrNull?.takeIf { it.str != originalCode.value },
-                displayName = newDisplayName.value.nonBlankOrNull?.takeIf { it.str != originalDisplayName.value },
+        val request = ArticleEditRequest(
+            code = newCode.value.nonBlankOrNull?.takeIf { it.str != originalCode.value },
+            displayName = newDisplayName.value.nonBlankOrNull?.takeIf { it.str != originalDisplayName.value },
+        )
+
+        if (!request.isEmpty()) {
+            client.articles.update(
+                courseCode.value, targetArticleCode, request
             )
-
-            if (!request.isEmpty()) {
-                client.articles.update(
-                    courseCode.value, targetArticleCode, request
-                )
-            }
         }
     }
 }

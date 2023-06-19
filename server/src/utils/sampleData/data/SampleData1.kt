@@ -15,12 +15,20 @@ fun SampleDataBuilder.sampleData1() {
         permit(UserPermission.ROOT)
         avatar("./test-resources/avatar1.png", ContentType.Image.PNG)
     }
+    val nick = user("Nick", AuthDigest("nick")) {
+        permit(UserPermission.ROOT)
+        avatar("./test-resources/nick.png", ContentType.Image.PNG)
+    }
     val bob = user("Bob", AuthDigest("bob"))
     val carol = user("Carol", AuthDigest("carol"))
     val david = user("David", AuthDigest("david"))
 
-    val jay = user("Jay", AuthDigest("jay"))
-    val alice = user("Alice", AuthDigest("alice"))
+    val jay = user("Jay", AuthDigest("jay")) {
+        avatar("./test-resources/jay.png", ContentType.Image.PNG)
+    }
+    val alice = user("Alice", AuthDigest("alice")) {
+        avatar("./test-resources/alice.png", ContentType.Image.PNG)
+    }
 
     val image1a = image("./test-resources/Algorithm-2022-1a.png", alex, ContentType.Image.PNG)
     val answerImage1 = image("./test-resources/Answer-Image-1.png", alex, ContentType.Image.PNG)
@@ -467,35 +475,7 @@ fun SampleDataBuilder.sampleData1() {
         }
     }
     course("50003", "Models of Computation")
-    course("50004", "Operating Systems") {
-        article("Paper_2022", alex) {
-            content("2022")
-            anonymous()
-            displayName("Paper 2022")
-            termYear("2022")
-            question("1a.i") {
-                content(
-                    """
-                    1a An operating system (OS) supports kernel-level threads with preemptive scheduling. User programs can use a mutual exclusion lock (mutex) m of type struct pthread mutex t with the following three functions:
-                    
-                    pthread_mutex_init (& m )
-                    pthread_mutex_lock (& m )
-                    pthread_mutex_unlock (& m )
-                    
-                    i) Briefly explain the purpose of synchronisation primitives in operating systems and give three examples of synchronisation primitives.
-                """.trimIndent()
-                )
-                answer(bob) {
-                    content(
-                        """
-                        I think synchronisation primitives are designed to save memory.
-                        Example: RAID 3
-                    """.trimIndent()
-                    )
-                }
-            }
-        }
-    }
+    course("50004", "Operating Systems") {}
 
     course("50005", "Networks and Communications")
     course("50006", "Compilers")

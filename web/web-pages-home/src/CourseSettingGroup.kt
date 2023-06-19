@@ -102,6 +102,13 @@ class CourseSettingGroup(pathName: String, val name: NonBlankString) : SettingGr
                 onClick = {
                     courseViewModel.launchInBackground {
                         articlePropertyViewModel.submitBasicChanges(snackbar)
+                        History.navigate {
+                            articleSettings(
+                                courseViewModel.model.courseCode.value,
+                                articlePropertyViewModel.newCode.value,
+                                null,
+                            )
+                        }
 //                        val targetArticleCode = articlePropertyViewModel.newCode.value
 //                        client.articles.addArticle(courseViewModel.model.courseCode.value, targetArticleCode)
 //

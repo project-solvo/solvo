@@ -9,6 +9,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import kotlinx.coroutines.launch
 import org.solvo.web.pages.article.settings.PageViewModel
 import org.solvo.web.settings.HeaderWithActions
 import org.solvo.web.settings.SaveChangesButton
@@ -32,7 +33,11 @@ data object ArticlePropertiesSettingGroup : ArticleSettingGroup("properties") {
     private fun ArticleInformationSection(model: ArticlePropertiesViewModel) {
         Section({
             HeaderWithActions("Article Information") {
-                SaveChangesButton { model.submitBasicChanges(it) }
+                SaveChangesButton {
+                    model.backgroundScope.launch {
+                        model.submitBasicChanges(it)
+                    }
+                }
             }
         }) {
 //            AutoCheckPropertyTextField(
