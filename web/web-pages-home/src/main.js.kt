@@ -11,7 +11,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import org.jetbrains.skiko.wasm.onWasmReady
+import org.solvo.model.utils.UserPermission
 import org.solvo.web.document.History
+import org.solvo.web.session.currentUserHasPermission
 import org.solvo.web.settings.SettingGroup
 import org.solvo.web.settings.SettingsPage
 import org.solvo.web.settings.components.VerticalNavigationList
@@ -58,10 +60,12 @@ fun HomePageContent(
                     Item(selected = selected, entry = it, courseCode = it.pathName, title = { it.name.str })
                 }
 
-                GroupingHeader("Management")
+                if (currentUserHasPermission(UserPermission.OPERATOR)) {
+                    GroupingHeader("Management")
 
-                settingGroup?.filterIsInstance<AddCourseGroup>()?.forEach {
-                    ItemAdd(selected = selected, it, title = { "Add new course" })
+                    settingGroup?.filterIsInstance<AddCourseGroup>()?.forEach {
+                        ItemAdd(selected = selected, it, title = { "Add new course" })
+                    }
                 }
             }
         },
