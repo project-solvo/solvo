@@ -32,7 +32,10 @@ data object ArticlePropertiesSettingGroup : ArticleSettingGroup("properties") {
     @Composable
     private fun ArticleInformationSection(model: ArticlePropertiesViewModel) {
         Section({
-            HeaderWithActions("Article Information") {
+            HeaderWithActions(
+                "Art" +
+                        "icle Information"
+            ) {
                 SaveChangesButton {
                     model.backgroundScope.launch {
                         model.submitBasicChanges(it)

@@ -39,9 +39,38 @@ fun AnswerListControlBar(
     question: QuestionDownstream,
     backgroundScope: CoroutineScope,
 ) {
-    val controlBar = model.controlBarState
 
+    BoxWithConstraints {
+        val controlBar = model.controlBarState
+        val draftKind by controlBar.draftKind.collectAsState(null)
+        val enoughSize = if (draftKind == DraftKind.Thought) {
+            maxWidth >= 870.dp
+        } else {
+            maxWidth >= 670.dp
+        }
+        Column {
+            AnswerListControlBarFirst(model, draftAnswerEditor, backgroundScope, question, enoughSize)
+            if (!enoughSize) {
+                (draftKind as? DraftKind.New)?.let {
+                    ControlBar(Modifier.fillMaxWidth().wrapContentHeight(), height = null) {
+                        DraftKindDescription(it, controlBar)
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun AnswerListControlBarFirst(
+    model: QuestionPageViewModel,
+    draftAnswerEditor: RichEditorState,
+    backgroundScope: CoroutineScope,
+    question: QuestionDownstream,
+    showDraftKindDescription: Boolean,
+) {
     ControlBar(Modifier.fillMaxWidth()) {
+        val controlBar = model.controlBarState
         val isExpanded by model.isExpanded.collectAsState()
         if (isExpanded) {
             ControlBarButton(
@@ -90,7 +119,13 @@ fun AnswerListControlBar(
                 ) {
                     ControlBarButton(
                         icon = { Icon(Icons.Outlined.FolderOff, null, Modifier.fillMaxHeight()) },
-                        text = { Text("Cancel", fontSize = CONTROL_BUTTON_FONT_SIZE, fontWeight = FontWeight.W500) },
+                        text = {
+                            Text(
+                                "Cancel",
+                                fontSize = CONTROL_BUTTON_FONT_SIZE,
+                                fontWeight = FontWeight.W500
+                            )
+                        },
                         onClick = { controlBar.stopDraft() },
                         colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.tertiary),
                         contentPadding = buttonContentPaddings,
@@ -99,7 +134,9 @@ fun AnswerListControlBar(
 
                     PostButton(draftAnswerEditor, backgroundScope, question, controlBar)
 
-                    (draftKind as? DraftKind.New)?.let { DraftKindDescription(it, controlBar) }
+                    if (showDraftKindDescription) {
+                        (draftKind as? DraftKind.New)?.let { DraftKindDescription(it, controlBar) }
+                    }
 
                     (draftKind as? DraftKind.Edit)?.let {
                         Row(verticalAlignment = Alignment.CenterVertically) {
@@ -196,26 +233,30 @@ private fun createNewContent(
 
 @Composable
 private fun DraftKindDescription(draftKind: DraftKind.New, model: DraftAnswerControlBarState) {
-    Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))
-    if (draftKind == DraftKind.Thought) {
-        Text("You can add partial answers, thinking, and any ideas. ")
-        Text(
-            "Convert to answer", Modifier.cursorHoverIcon(CursorIcon.POINTER).clickable {
-                model.startDraft(DraftKind.Answer)
-            },
-            color = MaterialTheme.colorScheme.primary,
-            textDecoration = TextDecoration.Underline
-        )
-    } else { // answer
-        Row {
-            Text("You are adding an answer. ")
-            Text(
-                "Convert to thought", Modifier.cursorHoverIcon(CursorIcon.POINTER).clickable {
-                    model.startDraft(DraftKind.Thought)
-                },
-                color = MaterialTheme.colorScheme.primary,
-                textDecoration = TextDecoration.Underline
-            )
+    Row {
+        Icon(Icons.Outlined.AutoAwesome, null, Modifier.padding(vertical = 2.dp))
+        FlowRow(Modifier.padding(start = 8.dp)) {
+            if (draftKind == DraftKind.Thought) {
+                Text("You can add partial answers, thinking, and any ideas. ")
+                Text(
+                    "Convert to answer",
+                    Modifier.cursorHoverIcon(CursorIcon.POINTER).clickable {
+                        model.startDraft(DraftKind.Answer)
+                    },
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                )
+            } else { // answer
+                Text("You are adding an answer. ")
+                Text(
+                    "Convert to thought",
+                    Modifier.cursorHoverIcon(CursorIcon.POINTER).clickable {
+                        model.startDraft(DraftKind.Thought)
+                    },
+                    color = MaterialTheme.colorScheme.primary,
+                    textDecoration = TextDecoration.Underline,
+                )
+            }
         }
     }
 }

@@ -102,6 +102,7 @@ fun ControlBar(
     elevation: Dp = 1.dp,
     horizontalArrangement: Arrangement.Horizontal = Arrangement.spacedBy(8.dp),
     verticalAlignment: Alignment.Vertical = Alignment.CenterVertically,
+    height: Dp? = 32.dp,
     content: @Composable context(ControlBarScope) RowScope.() -> Unit,
 ) {
     Surface(
@@ -109,7 +110,8 @@ fun ControlBar(
         tonalElevation = elevation
     ) {
         Row(
-            Modifier.padding(horizontal = 12.dp, vertical = 8.dp).height(32.dp),
+            Modifier.padding(horizontal = 12.dp, vertical = 8.dp)
+                .then(if (height != null) Modifier.height(height) else Modifier),
             verticalAlignment = verticalAlignment,
             horizontalArrangement = horizontalArrangement,
         ) {
