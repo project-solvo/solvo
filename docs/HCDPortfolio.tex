@@ -1,0 +1,129 @@
+%! suppress = MissingLabel
+
+% Preamble
+\documentclass[a4paper]{article}
+
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    scale=0.8,
+    bottom=2cm,
+    top=2cm,
+}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{csquotes}
+\usepackage{natbib}
+\usepackage{blindtext}
+\usepackage{ctex}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\usepackage{floatrow}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+
+% set up BNF generator
+\usepackage{syntax}
+\setlength{\grammarparsep}{10pt plus 1pt minus 1pt}
+\setlength{\grammarindent}{10em}
+
+
+\setlist{noitemsep} % removes spacing from items but leaves space around the whole list
+%\setlist{nosep} % removes all vertical spacing within and around the list
+\setlist[itemize]{topsep=0.25em, leftmargin=1.5pc}
+\setlist[enumerate]{topsep=0.25em, leftmargin=1.5pc}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\parindent}{0em}
+\graphicspath{ {./} }
+
+%! suppress = EscapeUnderscore
+\newcommand*{\tproject}[1]{
+    \begin{math}
+        \pi_{#1}
+    \end{math}
+}
+
+%! suppress = EscapeUnderscore
+\newcommand*{\tselect}[1]{
+    \begin{math}
+        \sigma_{#1}
+    \end{math}
+}
+
+\newcommand{\emptyline}{\\ \hspace*{\fill} \\}
+
+\newcommand*{\textbfit}[1]{\textbf{\textit{#1}}}
+
+\newcommand*{\seqdef}[1][a]{$({#1}_n)_{n\geq1}$}
+\newcommand*{\subseqdef}[1][a]{$({{#1}_n}_i)_{i\geq1}$}
+\newcommand*{\seq}[1][a]{#1_n}
+\newcommand*{\limtoinf}[1][n]{\lim_{#1\rightarrow\infty}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+
+\newcommand{\shell}[1]{\lstinline!#1!}
+\usepackage{sourcecodepro}
+\usepackage[T1]{fontenc}
+
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\hypersetup{
+    colorlinks,
+    linkcolor={blue!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\lstset{breaklines=true,basicstyle=\ttfamily\small,autogobble=true,language=C}
+
+% Document
+%! suppress = TooLargeSection
+%! suppress = Quote
+\begin{document}
+    \title{
+        \vspace{-3em}
+        Human Centred Design Techniques Portfolio}
+    \author{
+        Group 43
+    }
+    \date{\vspace{-2em}}
+    \maketitle
+
+    \subsection*{Impact for Target Audience}
+
+    Interviews were conducted to understand how Solvo can affect the stakeholders.
+
+    We came back to students who used to discuss only with friends.
+    The users responded with the following quotes:
+    \begin{itemize}
+        \item \textit{``Do you think you would be willing to use it if you understood this feature (the thoughts)?''}
+        \begin{itemize}
+            \item[-] ``Yeah, if I only have some general ideas, I will definitely not post an answer.
+            But if I know that I can post `Thoughts', I am glad to share them.''
+        \end{itemize}
+
+        \item
+        \textit{``As a user, are you willing to give more feedback using the reaction system?''}
+        \begin{itemize}
+            \item[-] ``Yeah absolutely.''
+            \item[-] ``I don’t want the comments to be filled up with meaningless comments like `+1'.
+            With this reaction system, it can be much more clean.''
+        \end{itemize}
+        \item \ldots
+    \end{itemize}
+
+    As it can be summarised from the quotes:
+
+    On Solvo, students who used to discuss only with friends can now share ideas with more people, and receive feedback from peers.
+    Students can therefore gain feedback from the reactions and comments, knowing if there are appreciated by others,
+    and learn what they can't learn in the past.
+
+\end{document}
