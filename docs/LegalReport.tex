@@ -1,0 +1,134 @@
+%! suppress = MissingLabel
+
+% Preamble
+\documentclass[a4paper]{article}
+
+\usepackage{geometry}
+\geometry{
+    a4paper,
+    scale=0.8,
+    bottom=2cm,
+    top=2cm,
+}
+
+% Packages
+\usepackage{amsmath}
+\usepackage{csquotes}
+\usepackage{natbib}
+\usepackage{blindtext}
+\usepackage{ctex}
+
+\usepackage[utf8]{inputenc}
+\usepackage[english]{babel}
+\usepackage{indentfirst}
+\usepackage{enumitem}
+\usepackage{floatrow}
+\usepackage{graphicx}
+\usepackage{amsfonts}
+\usepackage{amssymb}
+\usepackage{listings}
+
+% set up BNF generator
+\usepackage{syntax}
+\setlength{\grammarparsep}{10pt plus 1pt minus 1pt}
+\setlength{\grammarindent}{10em}
+
+
+\setlist{noitemsep} % removes spacing from items but leaves space around the whole list
+%\setlist{nosep} % removes all vertical spacing within and around the list
+\setlist[itemize]{topsep=0.25em, leftmargin=1.5pc}
+\setlist[enumerate]{topsep=0.25em, leftmargin=1.5pc}
+
+\renewcommand{\baselinestretch}{1.0}
+
+\setlength{\parindent}{0em}
+\graphicspath{ {./} }
+
+%! suppress = EscapeUnderscore
+\newcommand*{\tproject}[1]{
+    \begin{math}
+        \pi_{#1}
+    \end{math}
+}
+
+%! suppress = EscapeUnderscore
+\newcommand*{\tselect}[1]{
+    \begin{math}
+        \sigma_{#1}
+    \end{math}
+}
+
+\newcommand{\emptyline}{\\ \hspace*{\fill} \\}
+
+\newcommand*{\textbfit}[1]{\textbf{\textit{#1}}}
+
+\newcommand*{\seqdef}[1][a]{$({#1}_n)_{n\geq1}$}
+\newcommand*{\subseqdef}[1][a]{$({{#1}_n}_i)_{i\geq1}$}
+\newcommand*{\seq}[1][a]{#1_n}
+\newcommand*{\limtoinf}[1][n]{\lim_{#1\rightarrow\infty}}
+\newcommand{\abs}[1]{\left| #1 \right|}
+
+\newcommand{\shell}[1]{\lstinline!#1!}
+\usepackage{sourcecodepro}
+\usepackage[T1]{fontenc}
+
+\usepackage{hyperref}
+\usepackage{xcolor}
+\usepackage{textcomp}
+\hypersetup{
+    colorlinks,
+    linkcolor={blue!50!black},
+    citecolor={blue!50!black},
+    urlcolor={blue!80!black}
+}
+
+\lstset{breaklines=true,basicstyle=\ttfamily\small,autogobble=true,language=C}
+
+% Document
+%! suppress = TooLargeSection
+%! suppress = Quote
+\begin{document}
+    \title{
+        \vspace{-3em}
+        Solvo Legal Report}
+    \author{
+        Group 43
+    }
+    \date{\vspace{-2em}}
+    \maketitle
+
+
+    \subsection*{Third-party Library Licenses}
+
+    This section lists the third-party libraries, their project location, and the licenses.
+
+%    \vspace*{-1em}
+%    \subsubsection*{Kotlin}
+%    \begin{itemize}
+%        \item Location: \url{https://github.com/JetBrains/kotlin}
+%        \item License: \url{https://github.com/JetBrains/kotlin/blob/master/license/LICENSE.txt}
+%    \end{itemize}
+
+    \begin{table}[H]
+        \begin{tabular}{c|c}
+            Software                                                                         & License                                                                                       \\
+            \hline
+            \href{https://github.com/JetBrains/kotlin}{Kotlin}                               & \href{https://github.com/JetBrains/kotlin/blob/master/license/LICENSE.txt}{Apache 2.0}        \\
+            \href{https://github.com/JetBrains/compose-multiplatform}{Compose Multiplatform} & \href{https://github.com/JetBrains/compose-multiplatform/blob/master/LICENSE.txt}{Apache 2.0} \\
+            \href{https://github.com/JetBrains/Exposed}{Exposed}                             & \href{https://github.com/JetBrains/Exposed/blob/main/LICENSE.txt}{Apache 2.0}                 \\
+            \href{https://github.com/Kotlin/kotlinx.coroutines}{kotlinx-coroutines}          & \href{https://github.com/Kotlin/kotlinx.coroutines/blob/master/LICENSE.txt}{Apache 2.0}       \\
+            \href{https://github.com/Kotlin/kotlinx.serialization}{kotlinx-serialization}    & \href{https://github.com/Kotlin/kotlinx.serialization/blob/master/LICENSE.txt}{Apache 2.0}    \\
+            \href{https://github.com/Kotlin/kotlinx-atomicfu}{kotlinx-atomicfu}              & \href{https://github.com/Kotlin/kotlinx-atomicfu/blob/master/LICENSE.txt}{Apache 2.0}         \\
+            \href{https://github.com/ktorio/ktor}{Ktor}                                      & \href{https://github.com/ktorio/ktor/blob/main/LICENSE}{Apache 2.0}                           \\
+            \href{https://github.com/apache/logging-log4j2}{Log4j2}                          & \href{https://github.com/apache/logging-log4j2/blob/2.x/LICENSE.txt}{Apache 2.0}              \\
+            \href{https://github.com/pandao/editor.md}{Editor.md}                            & \href{https://github.com/pandao/editor.md/blob/master/LICENSE}{MIT}                           \\
+            \href{https://github.com/qos-ch/slf4j}{Slf4j}                                    & \href{https://github.com/qos-ch/slf4j/blob/master/LICENSE.txt}{MIT}                           \\
+            \href{https://www.h2database.com/html/main.html}{H2}                             & \href{https://www.h2database.com/html/license.html}{MPL 2.0}                                  \\
+        \end{tabular}
+    \end{table}
+
+    \subsection*{Legal Implications}
+
+    \subsection*{Further Considerations}
+
+\end{document}
