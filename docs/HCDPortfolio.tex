@@ -75,6 +75,7 @@
 \usepackage{hyperref}
 \usepackage{xcolor}
 \usepackage{textcomp}
+\usepackage{caption}
 \hypersetup{
     colorlinks,
     linkcolor={blue!50!black},
@@ -97,7 +98,7 @@
     \date{\vspace{-2em}}
     \maketitle
 
-    \subsection*{The Problem}
+    \section*{The Problem}
 
     \noindent Jay, a computing student at Imperial College, is currently studying for his exams.
     He encountered a problem and attempted to get assistance from his friends, but they could not reach an agreement.
@@ -159,23 +160,23 @@
     \noindent \begin{minipage}{0.4\textwidth}
                   \centering
                   \includegraphics[width=\textwidth]{concept2}
-                  \captionof{}{Question page: concept}
+                  \captionof*{figure}{Question page: concept}
     \end{minipage}\hspace{0.05\textwidth}
     \begin{minipage}{0.57\textwidth}
         \centering
         \includegraphics[width=\textwidth]{question-page2}
-        \captionof{}{Initial design}
+        \captionof*{figure}{Initial design}
     \end{minipage}
 
     \noindent \begin{minipage}{0.4\textwidth}
                   \centering
                   \includegraphics[width=\textwidth]{concept1}
-                  \captionof{}{Comment page: concept}
+                  \captionof*{figure}{Comment page: concept}
     \end{minipage}\hspace{0.05\textwidth}
     \begin{minipage}{0.57\textwidth}
         \centering
         \includegraphics[width=\textwidth]{question-page1}
-        \captionof{}{Initial design}
+        \captionof*{figure}{Initial design}
     \end{minipage}
 
     \subsection*{Reaction System}
@@ -189,16 +190,18 @@
         It's better if you could have an anonymous system.''
     \end{itemize}
 
-    To summarize, users tend to be lazy to type long comments, while short and less meaningful comments like ``you're right'' seem to not quite fit into the comment area for some users.
+    To summarize, users tend to be lazy to type long comments, while short and less meaningful comments like ``you're right''
+    seem to not quite fit into the comment area for some users.
     Some of them might be shy to post contents if we do not support anonymous posting.
 
-    So our goal is to provide another way for users to give feedback to others, which is lighter and more convenient to use than comments, and is better to be anonymous.
+    So our goal is to provide another way for users to give feedback to others, which is lighter and more convenient to use than comments,
+    and is better to be anonymous.
 
     \subsubsection*{Design}
     A Reaction system is designed allowing viewers to quickly give feedback to answers by simply clicking on a button with emojis, instead of composing a text comment.
     The number of different emoji reactions received will be displayed at the bottom of the answer box.
 
-    \includegraphics{reaction}
+    \noindent \includegraphics[width=\textwidth]{reaction}
 
     \subsubsection*{Feedbacks and Reflection}
     \noindent We brought the design to users for validation, and most users agree that the feature makes them more motivated to give feedback to other's answers.
@@ -214,16 +217,93 @@
     Therefore, it stimulates peer discussion on our platform, which is what we're targeting to achieve.
 
     \subsubsection*{Digital Touch-point Evolution}
-    (Image: Question page with reaction system)
+    \noindent (Image: Question page with reaction system)
 
     \subsection*{Thoughts}
 
-    \iffalse
     \subsubsection*{Motivation}
+    \noindent Users who seek answers on our platform suggests:
+    \begin{itemize}
+        \item[-] ``It's good if I can not only find answers to a question, but also others' thoughts and general ideas about a question.''
+        \item \textit{``Why is that?''}
+        \item[-] ``Because viewing ideas from different people provides valuable insights, and gives me a much more comprehensive view of the question.''
+    \end{itemize}
+    \noindent However, when we come to users who are willing to share answers, they indicate:
+    \begin{itemize}
+        \item[-] ``If I only have broad ideas or incomplete answers, I will definitely not post them,
+        because I don't think these are qualified as a proper `answer', and may confuse others if I post them.''
+        \item[-] ``Sometimes I don't feel like posting answers because I'm not confident about my answer.
+        I'm worried that if my answer is wrong I could mislead other students.''
+    \end{itemize}
+
+    To summarize, users who seek answers would like to view ideas from different people besides detailed answers,
+    but users who post answers will not post broad ideas or incomplete answers because they think those may confuse other students.
+    Some are also worried about the correctness of their answers and are worried that they could mislead others.
+
+    So our goal is to encourage users to share any of their thoughts and ideas, even if they do not have a full answer
+    or are not sure about the correctness of it, while distinct such answers from complete answers to avoid confusion.
+
     \subsubsection*{Design}
-    \subsubsection*{Feedbacks and Reflection}
+    We add a line of text and a text button next to the "Draft Answer" button encouraging users to post their thoughts,
+    and for answers that are posted in this way, a disclaimer is displayed in the top right corner of the answer box
+    suggesting the content might not be complete or 100\% correct.
+
+    \noindent \includegraphics[width=\textwidth]{thought1}
+
+    \subsubsection*{Feedbacks and Iteration}
+    \noindent We bring the initial design to users:
+
+    \begin{itemize}
+        \item \textit{``Suppose you are attempting this question, please try this.''}
+        \begin{itemize}
+            \item[-] (clicked reaction buttons and added a comment)
+        \end{itemize}
+
+        \item \textit{``Why didn't you use the 'Post Thoughts' button?''}
+        \begin{itemize}
+            \item[-] ``Which one? \ldots I didn't see that button.
+            What's its functionality?''
+        \end{itemize}
+
+        \item
+        \textit{``This is for you to share any general ideas, not limited to well-structured answers.
+        Do you think you would be willing to use it if you understood this feature?''}
+        \begin{itemize}
+            \item[-] ``Yeah, if I only have some general ideas, I'll definitely not post an answer.
+            But if I know that I can post `thoughts', I am glad to share them.''
+        \end{itemize}
+    \end{itemize}
+
+    To summarize, most users did not notice the ``Post Thought'' button and does not understand its functionality.
+    But after we explained to them the functionality of the button, they expressed that they are willing to use it to post thoughts
+    if they could understand the feature.
+
+    So our goal is to make the ``Post Thought' interaction more noticeable and easy to understand for users.
+
+    In our next iteration, we changed the text button to a primary button and put it in parallel with the "Draft Answer" button.
+    We also added a pop-up tip encouraging users to share their thoughts after they click a reaction button which shows up for 8 seconds.
+
+    \noindent \includegraphics[width=\textwidth]{thought2}
+
+    \noindent Then we bring it back to users again.
+
+    \begin{itemize}
+        \item \textit{``Suppose you are attempting this question, please try this.''}
+        \begin{itemize}
+            \item[-] (Read through a wrong answer, clicked some reaction buttons and noticed the ``Have a better idea?'' pop-up. Then shared their own ideas)
+        \end{itemize}
+    \end{itemize}
+
+    This time most users successfully noticed this feature and many of them are willing to share their own ideas.
+
+    \subsubsection*{Reflection}
+
+    The feature encourages users to share any of their ideas even if they are not sure about the details or correctness.
+    This could provide more peer discussion on our platform, and therefore could benefit users that view answers
+    by allowing them to view opinions from a wider range of people and gain a more comprehensive view of the question.
+
     \subsubsection*{Digital Touch-point Evolution}
-    \fi
+    \noindent (Image: Question page with thoughts)
 
     \subsection*{Edit, Delete and Anonymous}
 
